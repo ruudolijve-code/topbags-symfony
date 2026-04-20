@@ -136,54 +136,47 @@
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
+    /**
+     * Hulpfunctie voor het zetten van cookies
+     */
     function setCookie(name, value, seconds) {
-        document.cookie = name + "=" + value + "; path=/; max-age=" + seconds + "; SameSite=Lax";
+        document.cookie = `${name}=${value}; path=/; max-age=${seconds}; SameSite=Lax`;
     }
 
+    /**
+     * Verwijder de banner uit de DOM
+     */
     function hideCookieBanner() {
-        const banner = document.getElementById('cookie-banner');
-        if (banner) {
-            banner.remove();
+        document.getElementById('cookie-banner')?.remove();
+    }
+
+    /**
+     * Update de Google Consent status
+     */
+    function updateGtagConsent(status) {
+        if (typeof gtag === 'function') {
+            gtag('consent', 'update', {
+                'analytics_storage': status
+            });
         }
     }
 
-    document.getElementById('cookie-deny')?.addEventListener('click', function () {
+    // Event Listener voor 'Alleen noodzakelijk'
+    document.getElementById('cookie-deny')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'denied', 31536000);
+        updateGtagConsent('denied');
         hideCookieBanner();
-
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('consent', 'update', {
-            analytics_storage: 'denied'
-        });
     });
 
-    document.getElementById('cookie-accept')?.addEventListener('click', function () {
+    // Event Listener voor 'Akkoord met analytics'
+    document.getElementById('cookie-accept')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'granted', 31536000);
-
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('consent', 'update', {
-            analytics_storage: 'granted'
-        });
-
-        const gaId = '{{ ga4_measurement_id|default("")|e('js') }}';
-
-        if (gaId && !document.querySelector('script[data-ga4="true"]')) {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
-            script.setAttribute('data-ga4', 'true');
-            document.head.appendChild(script);
-
-            script.onload = function () {
-                gtag('js', new Date());
-                gtag('config', gaId);
-            };
-        }
-
+        
+        // Update direct de toestemming in de reeds geladen gtag
+        updateGtagConsent('granted');
+        
         hideCookieBanner();
     });
 </script>
