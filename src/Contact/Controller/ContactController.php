@@ -17,6 +17,18 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class ContactController extends AbstractController
 {
+    public function __construct(
+        #[Autowire('%app.mailer_from_email%')]
+        private string $fromEmail,
+        #[Autowire('%app.mailer_from_name%')]
+        private string $fromName,
+        #[Autowire('%app.contact_to_email%')]
+        private string $contactToEmail,
+        #[Autowire('%app.contact_to_name%')]
+        private string $contactToName,
+    ) {
+    }
+
     #[Route('/contact', name: 'contact_index', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
@@ -65,8 +77,8 @@ final class ContactController extends AbstractController
             $entityManager->flush();
 
             $adminMail = (new TemplatedEmail())
-                ->from(new Address('no-reply@topbags.local', 'Topbags'))
-                ->to(new Address('info@topbags.nl', 'Topbags'))
+                ->from(new Address($this->fromEmail, $this->fromName))
+                ->to(new Address($this->contactToEmail, $this->contactToName))
                 ->replyTo(new Address($data['email'], $data['name']))
                 ->subject('Nieuw contactbericht: ' . ($data['subject'] ?: 'Contactformulier'))
                 ->htmlTemplate('email/contact_message.html.twig')
@@ -77,7 +89,7 @@ final class ContactController extends AbstractController
             $mailer->send($adminMail);
 
             $autoReply = (new TemplatedEmail())
-                ->from(new Address('info@topbags.nl', 'Topbags'))
+                ->from(new Address($this->fromEmail, $this->fromName))
                 ->to(new Address($data['email'], $data['name']))
                 ->subject('Bedankt voor je bericht')
                 ->htmlTemplate('email/contact_auto_reply.html.twig')

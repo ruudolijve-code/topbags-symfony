@@ -1,12 +1,14 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
 parameters:
-    contact.to_email: 'info@topbags.nl'
-    contact.to_name: 'Topbags'
-    contact.from_email: 'info@topbags.nl'
-    contact.from_name: 'Topbags Contact'
-
     app.url: '%env(APP_URL)%'
+
+    app.mailer_from_email: '%env(APP_MAILER_FROM_EMAIL)%'
+    app.mailer_from_name: '%env(APP_MAILER_FROM_NAME)%'
+    app.contact_to_email: '%env(APP_CONTACT_TO_EMAIL)%'
+    app.contact_to_name: '%env(APP_CONTACT_TO_NAME)%'
+    app.order_admin_email: '%env(APP_ORDER_ADMIN_EMAIL)%'
+    app.order_admin_name: '%env(APP_ORDER_ADMIN_NAME)%'
 
     postnl.api_key: '%env(string:POSTNL_API_KEY)%'
     postnl.customer_code: '%env(string:POSTNL_CUSTOMER_CODE)%'
@@ -22,8 +24,8 @@ services:
         autowire: true
         autoconfigure: true
         bind:
-            string $fromEmail: '%contact.from_email%'
-            string $fromName: '%contact.from_name%'
+            string $fromEmail: '%app.mailer_from_email%'
+            string $fromName: '%app.mailer_from_name%'
 
     App\:
         resource: '../src/'
@@ -36,8 +38,8 @@ services:
 
     App\Contact\Service\ContactMailer:
         arguments:
-            $toEmail: '%contact.to_email%'
-            $toName: '%contact.to_name%'
+            $toEmail: '%app.contact_to_email%'
+            $toName: '%app.contact_to_name%'
 
     App\Shop\Service\MollieService:
         arguments:
@@ -45,10 +47,10 @@ services:
 
     App\Shop\Service\OrderMailer:
         arguments:
-            $adminEmail: 'info@topbags.nl'
-            $adminName: 'Topbags'
-            $fromEmail: 'no-reply@topbags.local'
-            $fromName: 'Topbags'
+            $adminEmail: '%app.order_admin_email%'
+            $adminName: '%app.order_admin_name%'
+            $fromEmail: '%app.mailer_from_email%'
+            $fromName: '%app.mailer_from_name%'
 
     App\Shop\Service\PostNLService:
         arguments:
@@ -68,4 +70,3 @@ services:
     App\Twig\AppGlobals:
         arguments:
             $ga4MeasurementId: '%ga4.measurement_id%'
-

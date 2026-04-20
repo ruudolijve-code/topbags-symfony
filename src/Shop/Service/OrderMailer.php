@@ -12,9 +12,9 @@ final class OrderMailer
     public function __construct(
         private MailerInterface $mailer,
         private string $adminEmail,
-        private string $adminName = 'Topbags',
-        private string $fromEmail = 'no-reply@topbags.local',
-        private string $fromName = 'Topbags',
+        private string $adminName,
+        private string $fromEmail,
+        private string $fromName,
     ) {
     }
 
