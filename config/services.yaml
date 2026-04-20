@@ -70,3 +70,4 @@ services:
     App\Twig\AppGlobals:
         arguments:
             $ga4MeasurementId: '%ga4.measurement_id%'
+            

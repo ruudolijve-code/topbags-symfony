@@ -10,7 +10,7 @@ final class AppGlobals implements GlobalsInterface
         private string $ga4MeasurementId
     ) {
     }
-
+ 
     public function getGlobals(): array
     {
         return [
