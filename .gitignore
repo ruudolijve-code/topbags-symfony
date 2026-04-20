@@ -8,18 +8,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-# Node / frontend
 /node_modules/
-/npm-debug.log*
-/yarn-error.log*
-
-# macOS
 .DS_Store
-
-# IDE / editor
-/.idea/
-/.vscode/
-
-# Optional: lokale uploads of tijdelijke bestanden als die ooit lokaal ontstaan
 /public/media/
-/public/uploads/
