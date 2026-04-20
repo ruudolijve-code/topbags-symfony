@@ -1,0 +1,147 @@
+{# templates/product/_gallery_museum.html.twig #}
+
+{% if variant.images|length > 0 %}
+
+  {# 1) Bouw URLs + simpele “voorkeur-sortering” op basis van bestandsnaam #}
+  {% set front = [] %}
+  {% set interior = [] %}
+  {% set rest = [] %}
+
+  {% for image in variant.images %}
+    {% set url = asset(mediaPath ~ '/' ~ image.path) %}
+    {% set upper = image.path|upper %}
+
+    {% if 'FRONT' in upper %}
+      {% set front = front|merge([url]) %}
+    {% elseif 'INTERIOR' in upper or 'INSIDE' in upper %}
+      {% set interior = interior|merge([url]) %}
+    {% else %}
+      {% set rest = rest|merge([url]) %}
+    {% endif %}
+  {% endfor %}
+
+  {% set images = front|merge(interior)|merge(rest) %}
+
+  {# 2) 2-up hero images #}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div class="rounded-2xl bg-gray-50 overflow-hidden relative">
+        <button type="button"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-10
+                        w-10 h-10 rounded-full bg-white/80 backdrop-blur
+                        shadow hover:bg-white transition flex items-center justify-center"
+                onclick="tbGalleryPrev()">
+            ‹
+        </button>
+
+        <div class="aspect-[3/4] md:aspect-[4/5] flex items-center justify-center min-h-[420px] md:min-h-[550px]">
+            <img id="gallery-main-a"
+                src="{{ images[0] }}"
+                alt="{{ product.name }}"
+                class="w-full h-full object-contain p-3 md:p-4">
+        </div>
+
+        <button type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-10
+                        w-10 h-10 rounded-full bg-white/80 backdrop-blur
+                        shadow hover:bg-white transition flex items-center justify-center"
+                onclick="tbGalleryNext()">
+            ›
+        </button>
+     </div>
+
+    <div class="rounded-2xl bg-gray-50 overflow-hidden">
+      <div class="aspect-[3/4] md:aspect-[4/5] flex items-center justify-center min-h-[420px] md:min-h-[520px]">
+        <img id="gallery-main-b"
+             src="{{ images[1] ?? images[0] }}"
+             alt="{{ product.name }}"
+             class="w-full h-full object-contain p-3 md:p-4">
+      </div>
+    </div>
+  </div>
+
+  {# 3) Filmstrip thumbnails (max 5 zichtbaar) #}
+  {% if images|length > 1 %}
+    <div class="mt-6 flex items-center gap-3">
+      <button type="button"
+              class="shrink-0 rounded-full border border-gray-300 px-3 py-2 hover:bg-gray-50 transition"
+              onclick="tbGalleryPrev()">
+        ‹
+      </button>
+
+      <div class="flex-1 overflow-hidden">
+        <div id="tb-thumb-row" class="flex gap-2">
+          {% for url in images %}
+            <button type="button"
+                    class="tb-thumb border border-gray-200 rounded-xl p-1 bg-white hover:border-gray-400 transition"
+                    onclick="tbGallerySet({{ loop.index0 }})">
+              <img src="{{ url }}" class="w-16 h-16 object-contain" loading="lazy" alt="">
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button type="button"
+              class="shrink-0 rounded-full border border-gray-300 px-3 py-2 hover:bg-gray-50 transition"
+              onclick="tbGalleryNext()">
+        ›
+      </button>
+    </div>
+  {% endif %}
+
+  <script>
+    (function () {
+      const images = {{ images|json_encode|raw }};
+      let i = 0;                 // “focus index” voor thumbnails
+      let thumbStart = 0;
+      const maxThumbs = 10;
+
+      function setMainPair() {
+        const a = document.getElementById('gallery-main-a');
+        const b = document.getElementById('gallery-main-b');
+        if (!a || !b) return;
+
+        a.src = images[i] ?? images[0];
+        b.src = images[i + 1] ?? images[i] ?? images[0];
+      }
+
+      function updateThumbs() {
+        const thumbs = document.querySelectorAll('.tb-thumb');
+        thumbs.forEach((btn, idx) => {
+          const visible = idx >= thumbStart && idx < thumbStart + maxThumbs;
+          btn.style.display = visible ? 'inline-flex' : 'none';
+          btn.classList.toggle('ring-2', idx === i);
+          btn.classList.toggle('ring-gray-900', idx === i);
+        });
+      }
+
+      window.tbGallerySet = function (index) {
+        i = Math.max(0, Math.min(index, images.length - 1));
+        // zorg dat geselecteerde thumb in venster valt
+        if (i < thumbStart) thumbStart = i;
+        if (i >= thumbStart + maxThumbs) thumbStart = i - (maxThumbs - 1);
+        setMainPair();
+        updateThumbs();
+      };
+
+      window.tbGalleryNext = function () {
+        const next = (i + 1) % images.length;
+        window.tbGallerySet(next);
+      };
+
+      window.tbGalleryPrev = function () {
+        const prev = (i - 1 + images.length) % images.length;
+        window.tbGallerySet(prev);
+      };
+
+      document.addEventListener('DOMContentLoaded', function () {
+        setMainPair();
+        updateThumbs();
+      });
+    })();
+  </script>
+
+{% else %}
+  <div class="rounded-2xl bg-gray-50 aspect-[4/5] flex items-center justify-center">
+    <span class="text-sm text-gray-400">Geen afbeelding beschikbaar</span>
+  </div>
+{% endif %}

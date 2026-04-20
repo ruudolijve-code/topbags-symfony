@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop – Topbags{% endblock %}
+
+{% block body %}
+<div class="w-full border-b border-gray-200 bg-grey-50">
+    <div class="max-w-7xl mx-auto px-6 py-2">
+
+        <h1 class="text-3xl font-bold mb-6">
+            Travel shop
+        </h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+            {# Filters #}
+            <aside class="lg:col-span-1 bg-white rounded-xl p-6 shadow-sm">
+                <form method="get" class="space-y-6">
+
+                    {% include 'shop/filter/_filter_airlines.html.twig' %}
+                    {% include 'shop/filter/_filter_flying_scope.html.twig' %}
+                    {% include 'shop/filter/_filter_volume.html.twig' %}
+                    {% include 'shop/filter/_filter_color.html.twig' %}
+                    {% include 'shop/filter/_filter_brands.html.twig' %}
+                    {% include 'shop/filter/_filter_categories.html.twig' %}
+                    {% include 'shop/filter/_filter_cta.html.twig' %}
+
+                </form>
+            </aside>
+
+            {# Product grid #}
+            <section class="lg:col-span-3">
+
+                <div class="mb-4 text-sm text-gray-500">
+                    {{ pagination.totalItems }} modellen gevonden
+                    {% if totalColors is defined and totalColors > 0 %}
+                        <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+                    {% endif %}
+                    {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                        <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+                    {% endif %}
+                </div>
+
+                {% if items is not empty %}
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                        {% for item in items %}
+                            {% include 'shop/component/card/_card.html.twig' with {
+                                context: 'shop',
+                                product: item.product,
+                                variant: item.variant,
+                                master: item.master,
+                                mediaPath: item.mediaPath,
+                                availability: item.availability
+                            } %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="rounded-xl bg-white p-8 text-gray-500 shadow-sm">
+                        Geen producten gevonden.
+                    </div>
+                {% endif %}
+
+                {% if pagination.totalPages > 1 %}
+                    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
+                        {% set routeName = app.request.attributes.get('_route') %}
+                        {% set query = app.request.query.all %}
+
+                        {% if pagination.hasPreviousPage %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: pagination.previousPage })) }}"
+                                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            >
+                                Vorige
+                            </a>
+                        {% endif %}
+
+                        {% for p in pagination.pages %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: p })) }}"
+                                class="rounded-full px-4 py-2 text-sm border {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
+                            >
+                                {{ p }}
+                            </a>
+                        {% endfor %}
+
+                        {% if pagination.hasNextPage %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: pagination.nextPage })) }}"
+                                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            >
+                                Volgende
+                            </a>
+                        {% endif %}
+                    </nav>
+                {% endif %}
+
+            </section>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

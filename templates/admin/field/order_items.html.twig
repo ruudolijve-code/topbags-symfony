@@ -1,0 +1,17 @@
+{% set order = entity.instance %}
+
+{% if order.items is empty %}
+    <div class="text-gray-500">Geen orderregels gevonden.</div>
+{% else %}
+    <div class="space-y-3">
+        {% for item in order.items %}
+            <div class="border rounded-lg p-3">
+                <div><strong>{{ item.productName }}</strong></div>
+                <div>SKU: {{ item.variantSku }}</div>
+                <div>Aantal: {{ item.qty }}</div>
+                <div>Prijs: € {{ item.price|number_format(2, ',', '.') }}</div>
+                <div>Regeltotaal: € {{ item.lineTotal|number_format(2, ',', '.') }}</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

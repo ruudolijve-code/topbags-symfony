@@ -1,0 +1,155 @@
+{# templates/shop/component/card/_card_functional.html.twig #}
+
+{% if product is defined and variant is defined and product and variant %}
+
+    {% set productUrl = path('product_show', {
+        slug: product.slug,
+        colorSlug: variant.supplierColorSlug ?: 'default',
+        variantSku: variant.variantSku
+    }) ~ '#product-focus' %}
+
+    {% set colorVariants = product.variants|filter(v => v.isActive and v.color and v.supplierColorSlug) %}
+
+    {% set regularPrice = variant.price %}
+    {% set displayPrice = variant.displayPrice %}
+    {% set compareAtPrice = variant.compareAtPrice %}
+    {% set saleActive = variant.saleActive %}
+    {% set saleBadge = variant.discountBadge %}
+
+    <article class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
+        <a href="{{ productUrl }}" class="block">
+
+            <div class="relative aspect-square bg-white flex items-center justify-center p-4">
+               {% if saleActive and saleBadge %}
+                    <span class="badge-sale absolute left-3 top-3 z-50">
+                       SALE {{ saleBadge }}
+                    </span>
+                {% endif %}
+
+                {% if mediaPath is defined and mediaPath %}
+                    <img
+                        src="{{ asset(mediaPath) }}"
+                        alt="{{ product.name }}"
+                        loading="lazy"
+                        class="relative z-10 h-full w-full object-contain p-6 transition-transform duration-300 group-hover:scale-[1.03]"
+                    >
+                {% else %}
+                    <div class="text-xs text-gray-400">Geen afbeelding</div>
+                {% endif %}
+            </div>
+
+            <div class="p-5">
+                <div class="text-xs uppercase tracking-wide text-gray-500">
+                    {{ product.brand.name }}
+                </div>
+
+                <h3 class="mt-1 text-sm font-semibold leading-snug text-gray-900 line-clamp-2">
+                    {{ product.name }}
+                </h3>
+
+                <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-600">
+                    {% if product.volumeL %}
+                        <span class="rounded-full bg-gray-100 px-2 py-1">
+                            ± {{ product.volumeL }} L
+                        </span>
+                    {% endif %}
+
+                    {% if product.weightKg %}
+                        <span class="rounded-full bg-gray-100 px-2 py-1">
+                            {{ product.weightKg }} kg
+                        </span>
+                    {% endif %}
+
+                    {% if product.wheelsCount %}
+                        <span class="rounded-full bg-gray-100 px-2 py-1">
+                            {{ product.wheelsCount }} wielen
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if displayPrice %}
+                    <div class="mt-4">
+                        <div class="flex flex-wrap items-baseline gap-2">
+                            <span class="text-base font-semibold {{ saleActive ? 'text-red-600' : 'text-gray-900' }}">
+                                € {{ displayPrice|number_format(2, ',', '.') }}
+                            </span>
+
+                            {% if saleActive %}
+                                <span class="text-sm text-gray-500 line-through">
+                                    € {{ regularPrice|number_format(2, ',', '.') }}
+                                </span>
+                            {% elseif compareAtPrice and compareAtPrice > displayPrice %}
+                                <span class="text-sm text-gray-500">
+                                    adviesprijs
+                                    <span class="line-through">
+                                        € {{ compareAtPrice|number_format(2, ',', '.') }}
+                                    </span>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if colorVariants|length > 1 %}
+                    <div class="mt-3">
+                        <div class="text-xs tracking-wide text-gray-500">
+                            Verkrijgbaar in de kleuren:
+                        </div>
+
+                        <div class="mt-2 flex items-center gap-2">
+                            {% for v in colorVariants|slice(0, 5) %}
+                                <span
+                                    class="h-4 w-4 rounded-full border border-gray-300 {{ v.variantSku == variant.variantSku ? 'ring-1 ring-black ring-offset-1' : '' }}"
+                                    style="background-color: {{ v.color.hex ?: '#d1d5db' }}"
+                                ></span>
+                            {% endfor %}
+
+                            {% if colorVariants|length > 5 %}
+                                <span class="ml-1 text-xs text-gray-500">
+                                    +{{ colorVariants|length - 5 }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if availability is defined and availability %}
+                    {% if availability.status == 'in_stock' %}
+                        <div class="mt-3 text-sm font-semibold text-emerald-700">
+                            Op voorraad
+                        </div>
+                    {% elseif availability.status == 'backorder' %}
+                        <div class="mt-3 text-sm font-semibold text-amber-700">
+                            Op voorraad
+                        </div>
+                    {% elseif availability.status == 'out_of_stock' %}
+                        <div class="mt-3 text-sm font-semibold text-gray-500">
+                            Tijdelijk niet leverbaar
+                        </div>
+                    {% else %}
+                        <div class="mt-3 text-sm font-semibold text-gray-500">
+                            Beschikbaarheid onbekend
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <div class="mt-5">
+                    {% if availability is defined and availability and availability.status == 'out_of_stock' %}
+                        <span class="inline-flex items-center rounded-full bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-500">
+                            Niet leverbaar
+                        </span>
+                    {% elseif availability is defined and availability and availability.status == 'backorder' %}
+                        <span class="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700">
+                            Bekijk &amp; bestel →
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700">
+                            Bekijk →
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </article>
+
+{% endif %}

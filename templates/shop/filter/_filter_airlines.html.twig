@@ -1,0 +1,21 @@
+                    {# ========= Airline ========= #}
+                    {% if airlines is defined and airlines is not empty %}
+                        <div>
+                            <h2 class="font-semibold mb-3">Geschikt voor vliegen met</h2>
+
+                            <div class="space-y-2">
+                                {% for airline in airlines %}
+                                    <label class="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            name="airline[]"
+                                            value="{{ airline.slug }}"
+                                            {% if airline.slug in activeAirlines %}checked{% endif %}
+                                            class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                        >
+                                        {{ airline.name }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}

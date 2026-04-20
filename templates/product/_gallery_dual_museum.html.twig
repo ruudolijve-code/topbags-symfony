@@ -1,0 +1,157 @@
+{# templates/product/_gallery_dual_museum.html.twig #}
+
+{% if variant.images|length > 0 and imageBasePath is defined and imageBasePath %}
+
+  {% set images = [] %}
+  {% for image in variant.images %}
+    {% if image.filename %}
+      {% set images = images|merge([asset(imageBasePath ~ '/' ~ image.filename)]) %}
+    {% endif %}
+  {% endfor %}
+
+  {% if images|length > 0 %}
+    <div class="relative w-full">
+
+      <div class="overflow-hidden">
+        <div id="tb-gallery"
+             class="flex transition-transform duration-700 ease-out will-change-transform">
+
+          {% for image in images %}
+            <div class="flex-none w-screen lg:w-[50vw] h-[62vh] sm:h-[68vh] lg:h-[80vh] flex items-center justify-center bg-white">
+              <img
+                src="{{ image }}"
+                alt="{{ product.name }}"
+                class="max-h-[60vh] sm:max-h-[66vh] lg:max-h-[78vh] max-w-[92vw] lg:max-w-[48vw] object-contain"
+                loading="{{ loop.first ? 'eager' : 'lazy' }}"
+              >
+            </div>
+          {% endfor %}
+
+        </div>
+      </div>
+
+      {% if images|length > 1 %}
+        <button type="button" onclick="tbPrev()"
+                class="absolute left-3 sm:left-5 lg:left-8 top-1/2 -translate-y-1/2
+                       w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/80 backdrop-blur
+                       shadow hover:bg-white transition flex items-center justify-center z-10">
+          ‹
+        </button>
+
+        <button type="button" onclick="tbNext()"
+                class="absolute right-3 sm:right-5 lg:right-8 top-1/2 -translate-y-1/2
+                       w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/80 backdrop-blur
+                       shadow hover:bg-white transition flex items-center justify-center z-10">
+          ›
+        </button>
+      {% endif %}
+
+      {% if images|length > 1 %}
+        <div class="mt-6 lg:mt-8 flex justify-start lg:justify-center gap-3 lg:gap-4 overflow-x-auto px-4 lg:px-8">
+          {% for image in images %}
+            <button type="button"
+                    onclick="tbSet({{ loop.index0 }})"
+                    class="tb-thumb shrink-0 border border-gray-200 rounded-xl p-1 hover:border-gray-400 transition">
+              <img
+                src="{{ image }}"
+                alt="{{ product.name }}"
+                class="w-14 h-14 lg:w-16 lg:h-16 object-contain"
+                loading="lazy"
+              >
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+
+    <script>
+      (function () {
+        const gallery = document.getElementById('tb-gallery');
+
+        if (!gallery) {
+          return;
+        }
+
+        const slides = gallery.children;
+        let index = 0;
+
+        function visibleSlides() {
+          return window.innerWidth >= 1024 ? 2 : 1;
+        }
+
+        function getSlideWidth() {
+          if (!slides.length) {
+            return 0;
+          }
+
+          return slides[0].getBoundingClientRect().width;
+        }
+
+        function maxIndex() {
+          return Math.max(0, slides.length - visibleSlides());
+        }
+
+        function clampIndex() {
+          const max = maxIndex();
+
+          if (index > max) {
+            index = max;
+          }
+
+          if (index < 0) {
+            index = 0;
+          }
+        }
+
+        function update() {
+          clampIndex();
+
+          const slideWidth = getSlideWidth();
+          gallery.style.transform = `translateX(-${index * slideWidth}px)`;
+
+          document.querySelectorAll('.tb-thumb').forEach((thumb, thumbIndex) => {
+            thumb.classList.toggle('border-gray-900', thumbIndex === index);
+            thumb.classList.toggle('border-gray-200', thumbIndex !== index);
+          });
+        }
+
+        window.tbNext = function () {
+          index += 1;
+          update();
+        };
+
+        window.tbPrev = function () {
+          index -= 1;
+          update();
+        };
+
+        window.tbSet = function (i) {
+          index = i;
+          update();
+        };
+
+        window.addEventListener('resize', update);
+        update();
+      })();
+    </script>
+  {% endif %}
+
+{% elseif mediaPath is defined and mediaPath %}
+
+  <div class="relative w-full">
+    <div class="overflow-hidden">
+      <div class="flex">
+        <div class="flex-none w-screen lg:w-[50vw] h-[62vh] sm:h-[68vh] lg:h-[80vh] flex items-center justify-center bg-white">
+          <img
+            src="{{ asset(mediaPath) }}"
+            alt="{{ product.name }}"
+            class="max-h-[60vh] sm:max-h-[66vh] lg:max-h-[78vh] max-w-[92vw] lg:max-w-[48vw] object-contain"
+            loading="eager"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}

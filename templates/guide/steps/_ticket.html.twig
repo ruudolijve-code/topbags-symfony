@@ -1,0 +1,146 @@
+{# =========================================
+   Ticketkeuze – per airline
+========================================= #}
+
+{% set airlineSlug = query.airline ?? null %}
+{% set airlineName = airlineSlug ? airlineSlug|upper : 'deze airline' %}
+
+<h1 class="text-2xl font-semibold mt-10 mb-2">
+    Welk ticket heb je bij {{ airlineName }}?
+</h1>
+
+<p class="text-gray-600 mb-6 max-w-2xl">
+    Je ticket bepaalt welke bagage je mag meenemen.
+    Weet je het niet zeker? Geen probleem — dan gebruiken we een veilig scenario.
+</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+{% if ticketTypes is defined and ticketTypes|length > 0 %}
+    {% for t in ticketTypes %}
+
+        {% set summary = ticketSummaries[t.slug] ?? null %}
+
+        <a
+            href="{{ path('guide_index', query|merge({
+                step: 'duration',
+                ticket: t.slug
+            })) }}"
+            class="block p-6 border rounded-xl bg-white hover:border-black hover:shadow-sm transition"
+        >
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <div class="text-lg font-semibold">{{ t.name }}</div>
+
+                    {% if t.description is defined and t.description %}
+                        <div class="text-sm text-gray-500 mt-1">
+                            {{ t.description }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                    Ticket
+                </span>
+            </div>
+
+            {% if summary %}
+                <div class="mt-4 rounded-lg bg-gray-50 p-4 text-sm space-y-2">
+
+                    {# ========== PERSONAL ITEM ========== #}
+                    <div class="flex items-center gap-2">
+                        <span>{{ summary.personal.allowed ? '✔️' : '✖️' }}</span>
+                        <span>Personal item (onder stoel)</span>
+                    </div>
+
+                    {# ========== HANDBAGAGE ========== #}
+                    <div class="flex items-center gap-2">
+                        <span>{{ summary.cabin.allowed ? '✔️' : '✖️' }}</span>
+                        <span>{{ summary.cabin.quantityCabin }} stuks Handbagage</span>
+                    </div>
+
+                    {# ========== RUIMBAGAGE ========== #}
+                    {% if summary.hold.allowed %}
+                        <div class="flex items-start gap-2 text-green-700 font-medium">
+                            <span>✔️</span>
+                            <span>{{ summary.hold.quantityCabin }} stuks ruimbagage inbegrepen
+                                {% if summary.hold.dimensionType == 'linear_sum' %}
+                                    (max. {{ summary.hold.maxLinearCm }} cm totaal
+                                    {% if summary.hold.maxWeightKg %}
+                                        · {{ summary.hold.maxWeightKg }} kg
+                                    {% endif %})
+                                {% elseif summary.hold.dimensionType == 'box' %}
+                                    (max. {{ summary.hold.maxHeightCm }} ×
+                                     {{ summary.hold.maxWidthCm }} ×
+                                     {{ summary.hold.maxDepthCm }} cm
+                                    {% if summary.hold.maxWeightKg %}
+                                        · {{ summary.hold.maxWeightKg }} kg
+                                    {% endif %})
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span>✖️</span>
+                            <span>Geen ruimbagage inbegrepen</span>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="mt-4 text-xs text-gray-500">
+                Klik om door te gaan
+            </div>
+        </a>
+
+    {% endfor %}
+{% else %}
+    <div class="col-span-full p-6 border rounded-xl bg-gray-50 text-gray-600">
+        Geen specifieke tickettypes gevonden voor {{ airlineName }}.
+        Kies hieronder “Ik weet het niet” om door te gaan.
+    </div>
+{% endif %}
+
+{# =============================
+   Ik weet het niet
+============================= #}
+<a
+    href="{{ path('guide_index', query|merge({
+        step: 'duration',
+        ticket: 'unknown'
+    })) }}"
+    class="block p-6 border rounded-xl bg-white hover:border-black hover:shadow-sm transition"
+>
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <div class="text-lg font-semibold">Ik weet mijn ticket niet</div>
+            <div class="text-sm text-gray-500 mt-1">
+                We tonen advies voor meerdere bagage-scenario’s.
+            </div>
+        </div>
+
+        <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
+            Hulp
+        </span>
+    </div>
+
+    <div class="mt-4 rounded-lg bg-gray-50 p-4 text-sm space-y-2">
+        <div class="flex items-center gap-2">
+            <span>✔️</span>
+            <span>Altijd veilig advies</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span>✔️</span>
+            <span>Meerdere scenario’s vergeleken</span>
+        </div>
+    </div>
+</a>
+
+</div>
+
+<div class="mt-8 text-sm text-gray-500">
+    <a href="{{ path('guide_index', query|merge({ step: 'airline' })) }}"
+       class="hover:underline">
+        ← Terug
+    </a>
+</div>

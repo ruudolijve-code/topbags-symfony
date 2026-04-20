@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Topbags – Bevestiging</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f6f6;font-family:Arial, sans-serif;">
+
+<div style="padding:40px 0;">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+
+        {# ================= HEADER ================= #}
+        <div style="background:#d97706;padding:32px 32px 28px 32px;text-align:left;">
+
+            <img src="https://www.topbags.nl/images/topbags.svg"
+                 alt="Topbags"
+                 style="display:block;height:32px;width:auto;margin-bottom:10px;">
+
+            <div style="font-size:13px;color:#ffffff;opacity:0.9;">
+                Premium koffers &amp; tassen – sinds 1900
+            </div>
+
+        </div>
+
+        {# ================= CONTENT ================= #}
+        <div style="padding:32px;">
+
+            <p style="font-size:16px;color:#111;">
+                Beste {{ data.name }},
+            </p>
+
+            <p style="font-size:14px;color:#444;line-height:1.6;">
+                Bedankt voor je bericht. We hebben je aanvraag goed ontvangen en nemen deze zorgvuldig in behandeling.
+                Je ontvangt meestal binnen <strong>1 werkdag</strong> een persoonlijk antwoord.
+            </p>
+
+            <div style="margin:28px 0;padding:20px;background:#fafafa;border-radius:14px;">
+                <p style="margin:0;font-size:13px;color:#666;line-height:1.7;">
+                    <strong>Jouw bericht:</strong><br><br>
+                    {{ data.message|nl2br }}
+                </p>
+            </div>
+
+            {% if data.subject is defined and data.subject %}
+                <p style="margin-top:18px;font-size:13px;color:#666;line-height:1.6;">
+                    <strong>Onderwerp:</strong> {{ data.subject }}
+                </p>
+            {% endif %}
+
+            {# ================= TRUST BLOK ================= #}
+            <h3 style="font-size:15px;color:#111;margin-top:28px;">
+                Waarom kiezen voor Topbags?
+            </h3>
+
+            <ul style="font-size:13px;color:#555;line-height:1.8;padding-left:18px;">
+                <li>✔ Meer dan 100 jaar ervaring</li>
+                <li>✔ Officieel dealer van premium merken</li>
+                <li>✔ Specialist in verhuur &amp; reparatie</li>
+                <li>✔ Persoonlijk advies op maat</li>
+            </ul>
+
+            {# ================= CTA ================= #}
+            <div style="margin-top:30px;text-align:center;">
+                <a href="https://wa.me/31642485211"
+                   style="display:inline-block;background:#25D366;color:#ffffff;padding:13px 22px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:bold;">
+                    💬 Direct WhatsApp contact
+                </a>
+            </div>
+
+            <p style="margin-top:30px;font-size:13px;color:#666;line-height:1.6;">
+                Heb je in de tussentijd nog vragen?
+                Bel ons gerust of kom langs in de winkel.
+            </p>
+
+            <p style="margin-top:24px;font-size:14px;color:#111;">
+                Met vriendelijke groet,<br>
+                <strong>Team Topbags</strong>
+            </p>
+
+        </div>
+
+        {# ================= FOOTER ================= #}
+        <div style="background:#fafafa;padding:20px;text-align:center;font-size:12px;color:#888;">
+            Topbags – Premium koffers &amp; reisbagage<br>
+            <a href="https://www.topbags.nl" style="color:#d97706;text-decoration:none;">www.topbags.nl</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

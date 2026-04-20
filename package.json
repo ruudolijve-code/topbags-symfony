@@ -1,0 +1,20 @@
+{
+  "name": "topbags-sf",
+  "version": "1.0.0",
+  "description": "Topbags Symfony frontend",
+  "main": "tailwind.config.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --watch",
+    "build": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@tailwindcss/cli": "^4.1.18",
+    "alpinejs": "^3.15.8",
+    "tailwindcss": "^4.1.18"
+  }
+}

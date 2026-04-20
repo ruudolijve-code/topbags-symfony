@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ brand.name }} | Topbags{% endblock %}
+
+{% block body %}
+<div class="w-full border-b border-gray-200 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6 py-12 lg:py-16">
+
+        <header class="max-w-4xl mb-10">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">
+                {{ brand.name }}
+            </h1>
+
+            {% if brand.description %}
+                <div class="prose prose-gray max-w-none text-gray-700">
+                    {{ brand.description|raw }}
+                </div>
+            {% else %}
+                <p class="text-lg text-gray-600 leading-relaxed">
+                    Ontdek de collectie van {{ brand.name }} bij Topbags.
+                </p>
+            {% endif %}
+        </header>
+
+        <section>
+            <div class="mb-4 text-sm text-gray-500">
+                {{ pagination.totalItems }} producten gevonden
+            </div>
+
+            {% if items is not empty %}
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+                    {% for item in items %}
+                        {% include 'shop/component/card/_card.html.twig' with {
+                            context: 'shop',
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="rounded-xl bg-white p-8 text-gray-500 shadow-sm">
+                    Er zijn momenteel geen producten van {{ brand.name }} beschikbaar.
+                </div>
+            {% endif %}
+
+            {% if pagination.totalPages > 1 %}
+                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
+                    {% set routeName = app.request.attributes.get('_route') %}
+                    {% set query = app.request.query.all %}
+
+                    {% if pagination.hasPreviousPage %}
+                        <a
+                            href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: pagination.previousPage })) }}"
+                            class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                        >
+                            Vorige
+                        </a>
+                    {% endif %}
+
+                    {% for p in pagination.pages %}
+                        <a
+                            href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: p })) }}"
+                            class="rounded-full px-4 py-2 text-sm border {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
+                        >
+                            {{ p }}
+                        </a>
+                    {% endfor %}
+
+                    {% if pagination.hasNextPage %}
+                        <a
+                            href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: pagination.nextPage })) }}"
+                            class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                        >
+                            Volgende
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </section>
+
+    </div>
+</div>
+{% endblock %}

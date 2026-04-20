@@ -1,0 +1,56 @@
+{# templates/product/_gallery_vertical.html.twig #}
+
+{% if variant.images|length > 0 %}
+
+    {# 1. Slim sorteren: FRONT → DETAIL → INTERIOR → REST #}
+    {% set front = [] %}
+    {% set detail = [] %}
+    {% set interior = [] %}
+    {% set rest = [] %}
+
+    {% for image in variant.images %}
+        {% set url = asset(mediaPath ~ '/' ~ image.path) %}
+        {% set name = image.path|upper %}
+
+        {% if 'FRONT' in name %}
+            {% set front = front|merge([url]) %}
+        {% elseif 'DETAIL' in name or 'CLOSE' in name %}
+            {% set detail = detail|merge([url]) %}
+        {% elseif 'INTERIOR' in name or 'INSIDE' in name or 'OPEN' in name %}
+            {% set interior = interior|merge([url]) %}
+        {% else %}
+            {% set rest = rest|merge([url]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% set images = front|merge(detail)|merge(interior)|merge(rest) %}
+
+    {# 2. Verticale museum scroll #}
+    <div class="space-y-24">
+
+        {% for image in images %}
+
+            <section class="min-h-[85vh] flex items-center justify-center bg-white">
+
+                <img
+                    src="{{ image }}"
+                    alt="{{ product.name }}"
+                    class="max-h-[85vh] w-auto object-contain"
+                    loading="{{ loop.first ? 'eager' : 'lazy' }}"
+                >
+
+            </section>
+
+        {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <div class="min-h-[70vh] flex items-center justify-center bg-gray-50">
+        <span class="text-gray-400 text-sm">
+            Geen afbeelding beschikbaar
+        </span>
+    </div>
+
+{% endif %}

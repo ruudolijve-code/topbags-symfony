@@ -1,0 +1,77 @@
+<h1 class="text-2xl font-semibold mt-10 mb-6">
+    Met welke luchtvaartmaatschappij vlieg je?
+</h1>
+
+<p class="text-sm text-gray-600 mb-8 max-w-2xl">
+    Kies je airline. We tonen daarna automatisch de juiste tickettypes
+    en bijbehorende bagageregels.
+</p>
+
+<section class="max-w-6xl">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for a in airlines %}
+            <a
+                href="{{ path(
+                    'guide_index',
+                    query | merge({
+                        step: 'ticket',
+                        airline: a.getSlug()
+                    })
+                ) }}"
+                class="bg-white border border-gray-200 rounded-xl p-6
+                       hover:shadow-md hover:border-gray-300 transition block"
+            >
+
+                <div class="flex items-center gap-4">
+
+                    {# LOGO BOX – exact zoals airline index #}
+                    <div class="w-20 h-12 flex items-center justify-center shrink-0">
+                        {% set logo = a.getLogo() %}
+                        {% if logo %}
+                            <img
+                                src="{{ asset('images/airline/' ~ logo) }}"
+                                alt="{{ a.getName() }} logo"
+                                class="w-full h-full object-contain"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <span class="text-xs text-gray-400">
+                                {{ a.getName() }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {# Tekst #}
+                    <div class="min-w-0">
+                        <div class="font-semibold text-gray-900">
+                            {{ a.getName() }}
+                        </div>
+
+                        {% if a.getHint() %}
+                            <div class="text-sm text-gray-500">
+                                {{ a.getHint() }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="mt-4 text-sm text-gray-700 underline">
+                    Bekijk tickets →
+                </div>
+
+            </a>
+        {% endfor %}
+
+    </div>
+</section>
+
+<div class="mt-8">
+    <a
+        href="{{ path('guide_index', query | merge({ step: 'transport' })) }}"
+        class="text-sm text-gray-500 hover:underline"
+    >
+        ← Terug
+    </a>
+</div>

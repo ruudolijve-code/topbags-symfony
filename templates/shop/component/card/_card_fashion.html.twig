@@ -1,0 +1,108 @@
+{# templates/shop/component/card/_card_fashion.html.twig #}
+
+{% if product is defined and variant is defined and product and variant %}
+
+<article class="break-inside-avoid group">
+
+  <a href="{{ path('product_show', {
+    slug: product.slug,
+    colorSlug: variant.supplierColorSlug,
+    variantSku: variant.variantSku
+  }) }}" class="block">
+
+    {# ===============================
+      Editorial image (4:5 ratio)
+    =============================== #}
+    <div class="overflow-hidden rounded-2xl bg-white border border-gray-100">
+
+      <div class="relative aspect-[3/4]">
+
+        {% if mediaPath is defined and mediaPath %}
+
+          <img
+            src="{{ asset(mediaPath) }}"
+            alt="{{ product.name }}"
+            loading="lazy"
+            class="absolute inset-0 h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+          >
+
+        {% else %}
+
+          <div class="flex h-full items-center justify-center text-xs text-gray-400">
+            Geen afbeelding
+          </div>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    {# ===============================
+       Minimal text block
+    =============================== #}
+    <div class="mt-4 text-center">
+
+      <div class="text-xs uppercase tracking-wide text-gray-500">
+        {{ product.brand.name }}
+      </div>
+
+      <h3 class="mt-1 text-sm font-medium tracking-wide text-gray-900 line-clamp-2">
+        {{ product.name }}
+      </h3>
+
+      {% if master is defined and master and master.price %}
+        <div class="mt-1 text-xs tracking-wide text-gray-600">
+          € {{ master.price|number_format(2, ',', '.') }}
+        </div>
+      {% endif %}
+
+      {# ===============================
+         Color variants indicator
+      =============================== #}
+      {% set colorVariants = product.variants|filter(v => v.isActive and v.color and v.supplierColorSlug) %}
+
+      {% if colorVariants|length > 1 %}
+        <div class="mt-4 flex items-center justify-center gap-2">
+
+          {% for v in colorVariants|slice(0, 5) %}
+            <span
+              class="w-4 h-4 rounded-full border border-gray-300 {{ v.variantSku == variant.variantSku ? 'ring-1 ring-black ring-offset-1' : '' }}"
+              style="background-color: {{ v.color.hex }}"
+            ></span>
+          {% endfor %}
+
+          {% if colorVariants|length > 5 %}
+            <span class="ml-1 text-xs text-gray-500">
+              +{{ colorVariants|length - 5 }}
+            </span>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {# ===============================
+         Subtiele availability
+      =============================== #}
+      {% if availability is defined and availability %}
+        {% if availability.status == 'backorder' %}
+          <div class="mt-2 text-[11px] font-medium text-amber-700">
+            {{ availability.deliveryLabel }}
+          </div>
+        {% elseif availability.status == 'out_of_stock' %}
+          <div class="mt-2 text-[11px] font-medium text-gray-500">
+            Tijdelijk niet leverbaar
+          </div>
+        {% elseif availability.status == 'in_stock' %}
+          <div class="mt-2 text-[11px] font-medium text-emerald-700">
+            {{ availability.deliveryLabel }}
+          </div>
+        {% endif %}
+      {% endif %}
+
+    </div>
+
+  </a>
+
+</article>
+
+{% endif %}

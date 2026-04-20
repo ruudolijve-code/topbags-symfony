@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Merken | Topbags{% endblock %}
+
+{% block body %}
+
+<section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-6">
+
+        {# Titel + intro #}
+        <div class="max-w-3xl mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">
+                Merken
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg">
+                Ontdek alle merken koffers, reistassen, rugzakken, fashion tassen en accessoires
+                die wij bij Topbags zorgvuldig hebben geselecteerd.
+            </p>
+        </div>
+
+        {# Letterbalk #}
+        <div class="mb-12">
+            <div class="flex flex-wrap justify-center gap-3">
+                {% for letter in letters %}
+                    <a
+                        href="#letter-{{ letter }}"
+                        class="w-11 h-11 flex items-center justify-center
+                            rounded-lg border border-gray-300
+                            text-sm font-semibold text-gray-700
+                            hover:bg-black hover:text-white hover:border-black
+                            transition"
+                    >
+                        {{ letter }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            {# Divider #}
+            <div class="mt-8 border-b border-black/20"></div>
+        </div>
+
+        {# Merken per letter #}
+        {% for letter, brands in groupedBrands %}
+            <section
+                id="letter-{{ letter }}"
+                class="pt-5 mb-10"
+                style="scroll-margin-top: 9rem;"
+            >
+                <h2 class="text-2xl font-bold mb-8 flex items-center gap-4">
+                    <span class="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100">
+                        {{ letter }}
+                    </span>
+                    <span class="border-b border-black/20 flex-1"></span>
+                </h2>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    {% for brand in brands %}
+                        <a
+                            href="{{ path('brand_show', { slug: brand.slug }) }}"
+                            class="group border rounded-xl p-6 flex flex-col items-center
+                                   bg-white hover:shadow-md transition"
+                        >
+                            {% if brand.logo %}
+                                <img
+                                    src="{{ asset('images/brands/' ~ brand.logo) }}"
+                                    alt="{{ brand.name }}"
+                                    class="h-16 w-auto object-contain mb-4
+                                           grayscale group-hover:grayscale-0 transition"
+                                >
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+
+    </div>
+</section>
+
+{% endblock %}

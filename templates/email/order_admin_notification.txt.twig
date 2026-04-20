@@ -1,0 +1,22 @@
+Nieuwe betaalde bestelling
+
+Ordernummer: {{ order.orderNumber }}
+Klant: {{ order.customerEmail }}
+
+Producten:
+{% for item in order.items %}
+- {{ item.productName }} | SKU: {{ item.variantSku }} | {{ item.qty }}x | € {{ item.lineTotal|number_format(2, ',', '.') }}
+{% endfor %}
+
+Subtotaal: € {{ order.subtotal|number_format(2, ',', '.') }}
+{% if order.shippingCost > 0 %}
+Verzending: € {{ order.shippingCost|number_format(2, ',', '.') }}
+{% endif %}
+Totaal: € {{ order.total|number_format(2, ',', '.') }}
+
+Verzendadres:
+{% set address = order.shippingAddress ?? {} %}
+{{ address.firstName|default('') }} {{ address.lastName|default('') }}
+{{ address.street|default('') }}
+{{ address.postalCode|default('') }} {{ address.city|default('') }}
+{{ address.country|default('') }}

@@ -1,0 +1,33 @@
+framework:
+  cache:
+    # Unieke namespace voor alle cache keys
+    prefix_seed: topbags
+
+    # Redis als hoofd cache adapter
+    app: cache.adapter.redis
+
+    # Redis provider (Docker container naam)
+    default_redis_provider: 'redis://redis:6379'
+
+    pools:
+
+      # ===============================
+      # Doctrine cache
+      # ===============================
+      doctrine.result_cache_pool:
+        adapter: cache.adapter.redis
+
+      doctrine.system_cache_pool:
+        adapter: cache.adapter.redis
+
+      # ===============================
+      # Catalog availability cache
+      # ===============================
+      catalog.availability.cache:
+        adapter: cache.adapter.redis
+
+      # ===============================
+      # Product grid cache (optioneel later)
+      # ===============================
+      catalog.product_grid.cache:
+        adapter: cache.adapter.redis

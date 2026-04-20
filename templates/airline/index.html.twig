@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vliegmaatschappijen | Topbags{% endblock %}
+
+{% block body %}
+
+<section class="bg-amber-50 border-b border-amber-200">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        <h1 class="text-3xl md:text-4xl font-semibold text-gray-900 mb-3">
+            Vliegmaatschappijen
+        </h1>
+        <p class="text-gray-700 max-w-2xl">
+            Kies je airline en ontdek wat je mag meenemen — daarna kun je met onze gids
+            in 1 minuut bepalen wat het beste bij jouw reis past.
+        </p>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        {% for a in airlines %}
+            <a href="{{ path('airline_show', { slug: a.getSlug() }) }}"
+               class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition block">
+
+                <div class="flex items-center gap-4">
+
+                    {# LOGO BOX – alles gelijk trekken #}
+                    <div class="w-20 h-12 flex items-center justify-center shrink-0">
+
+                        {% set logo = a.getLogo() %}
+                        {% if logo %}
+                            <img
+                                src="{{ asset('images/airline/' ~ logo) }}"
+                                alt="{{ a.getName() }} logo"
+                                class="w-full h-full object-contain"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <span class="text-xs text-gray-400">
+                                {{ a.getName() }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {# Tekst #}
+                    <div class="min-w-0">
+                        <div class="font-semibold text-gray-900">
+                            {{ a.getName() }}
+                        </div>
+
+                        {% if a.getHint() %}
+                            <div class="text-sm text-gray-500">
+                                {{ a.getHint() }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="mt-4 text-sm text-gray-700 underline">
+                    Bekijk bagageregels →
+                </div>
+
+            </a>
+        {% endfor %}
+
+    </div>
+</section>
+
+{% endblock %}

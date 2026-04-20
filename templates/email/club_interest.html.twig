@@ -1,0 +1,12 @@
+<h2>Nieuwe aanvraag clubactie</h2>
+
+<p><strong>Type organisatie:</strong> {{ data.organizationType }}</p>
+<p><strong>Naam organisatie:</strong> {{ data.organizationName }}</p>
+<p><strong>Contactpersoon:</strong> {{ data.contactName }}</p>
+<p><strong>E-mailadres:</strong> {{ data.email }}</p>
+<p><strong>Telefoonnummer:</strong> {{ data.phone ?: '-' }}</p>
+<p><strong>Plaats:</strong> {{ data.city ?: '-' }}</p>
+<p><strong>Aantal leden / betrokkenen:</strong> {{ data.memberCount ?: '-' }}</p>
+
+<p><strong>Toelichting:</strong></p>
+<p>{{ data.message ?: '-' }}</p>

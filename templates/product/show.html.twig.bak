@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ product.name }} – {{ variant.supplierColorName }} | {{ product.brand.name }}
+{% endblock %}
+
+{% block body %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    {# Breadcrumbs #}
+    <nav class="text-sm text-gray-500 mb-6">
+        <a href="/" class="hover:underline">Home</a> /
+        <a href="{{ path('brand_show', { slug: product.brand.slug }) }}" class="hover:underline">
+            {{ product.brand.name }}
+        </a> /
+        <span class="text-gray-900">{{ product.name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+        {# =====================
+           Gallery
+        ===================== #}
+        <div>
+
+        {# Gallery partial #}
+        {% include 'product/_gallery.html.twig' %}
+            
+        </div>
+
+        {# Summary #}
+        {% include 'product/_summary.html.twig' %}
+
+    </div>
+
+    {% include 'product/_details.html.twig' %}
+</div>
+{% endblock %}
+
+{% if ga4_measurement_id %}
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    gtag('event', 'view_item', {
+        currency: 'EUR',
+        value: {{ variant.price|default(0)|number_format(2, '.', '') }},
+        items: [{
+            item_id: '{{ variant.variantSku|e('js') }}',
+            item_name: '{{ product.name|e('js') }}',
+            item_brand: '{{ product.brand ? product.brand.name|e('js') : '' }}',
+            item_category: '{{ product.categories|length > 0 ? product.categories|first.name|e('js') : '' }}',
+            item_variant: '{{ variant.supplierColorName|default('')|e('js') }}',
+            price: {{ variant.price|default(0)|number_format(2, '.', '') }},
+            quantity: 1
+        }]
+    });
+</script>
+{% endif %}

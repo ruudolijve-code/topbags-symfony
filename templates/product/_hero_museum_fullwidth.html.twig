@@ -1,0 +1,133 @@
+{% set colorVariants = product.variants|filter(v => v.isActive and v.color and v.supplierColorSlug) %}
+
+{% set displayPrice = variant.displayPrice %}
+{% set regularPrice = variant.price %}
+{% set compareAtPrice = variant.compareAtPrice %}
+{% set saleActive = variant.saleActive %}
+{% set saleBadge = variant.discountBadge %}
+
+<div class="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#f4f1ea]">
+    {% include 'product/_gallery_dual_museum.html.twig' with {
+        product: product,
+        variant: variant,
+        mediaPath: mediaPath,
+        imageBasePath: imageBasePath
+    } %}
+</div>
+
+<div class="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#f4f1ea] py-12 lg:py-16">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-xl bg-white p-6 shadow-sm lg:p-8">
+            <div class="text-xs tracking-[0.18em] uppercase text-gray-500">
+                {{ product.brand.name }}
+            </div>
+
+            <h1 class="mt-3 text-2xl font-semibold text-gray-900 lg:text-3xl">
+                {{ product.name }}
+            </h1>
+
+            <div class="mt-2 text-sm text-gray-600">
+                {{ variant.supplierColorName }}
+                {% if product.material %}
+                    · {{ product.material.name }}
+                {% endif %}
+            </div>
+
+            {% if colorVariants|length > 1 %}
+                <div class="mt-6">
+                    <div class="text-xs tracking-[0.18em] uppercase text-gray-500">
+                        Kleur
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-3">
+                        {% for v in colorVariants %}
+                            <a href="{{ path('product_show', {
+                                slug: product.slug,
+                                colorSlug: v.supplierColorSlug,
+                                variantSku: v.variantSku
+                            }) }}#product-focus"
+                               class="w-7 h-7 rounded-full border {{ v.variantSku == variant.variantSku ? 'ring-2 ring-black ring-offset-2' : '' }}"
+                               style="background-color: {{ v.color.hex }}"
+                               aria-label="{{ v.supplierColorName }}">
+                            </a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-2 text-xs text-gray-600">
+                        {{ variant.supplierColorName }}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if displayPrice %}
+                <div class="mt-6">
+                    {% if saleActive and saleBadge %}
+                        <div class="mb-3">
+                            <span class="badge-sale">
+                                {{ saleBadge }}
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex flex-wrap items-baseline gap-3">
+                        <span class="text-xl font-semibold {{ saleActive ? 'text-red-600' : 'text-gray-900' }}">
+                            € {{ displayPrice|number_format(2, ',', '.') }}
+                        </span>
+
+                        {% if saleActive %}
+                            <span class="text-base text-gray-500 line-through">
+                                € {{ regularPrice|number_format(2, ',', '.') }}
+                            </span>
+                        {% elseif compareAtPrice and compareAtPrice > displayPrice %}
+                            <span class="text-sm text-gray-500">
+                                adviesprijs
+                                <span class="line-through">
+                                    € {{ compareAtPrice|number_format(2, ',', '.') }}
+                                </span>
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if availability %}
+                <div class="mt-4 text-sm">
+                    {% if availability.status == 'in_stock' %}
+                        <span class="font-semibold text-emerald-700">Op voorraad</span>
+                        <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
+                    {% elseif availability.status == 'backorder' %}
+                        <span class="font-semibold text-amber-700">Leverbaar</span>
+                        <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
+                    {% else %}
+                        <span class="font-semibold text-gray-500">Tijdelijk uitverkocht</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                {% if availability and availability.status == 'out_of_stock' %}
+                    <button type="button"
+                            disabled
+                            class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-100 px-5 py-3 text-sm font-semibold text-gray-400">
+                        Tijdelijk uitverkocht
+                    </button>
+                {% else %}
+                    <form method="post" action="{{ path('cart_add') }}" class="inline-flex">
+                        <input type="hidden" name="variantSku" value="{{ variant.variantSku }}">
+                        <input type="hidden" name="qty" value="1">
+
+                        <button type="submit"
+                                class="inline-flex items-center justify-center rounded-full border border-gray-900/20 px-5 py-3 text-sm font-semibold text-gray-900 hover:border-gray-900/40 hover:bg-gray-50 transition">
+                            Winkelwagen
+                        </button>
+                    </form>
+                {% endif %}
+
+                <a href="#details"
+                   class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition">
+                    Bekijk details →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

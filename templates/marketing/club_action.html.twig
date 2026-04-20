@@ -1,0 +1,264 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Clubactie | Topbags{% endblock %}
+
+{% block body %}
+<section class="bg-[#f4f1ea]">
+    <div class="max-w-6xl mx-auto px-6 py-16 md:py-24">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-[#4c3228] mb-6 shadow-sm">
+                    Clubactie voor verenigingen
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#4c3228] leading-tight">
+                    Sponsor je club met Topbags
+                </h1>
+
+                <p class="mt-6 text-lg text-[#4c3228]/80 leading-relaxed max-w-xl">
+                    Laat leden hun schooltassen, koffers, reistassen en handbagage kopen bij Topbags en steun tegelijkertijd je club.
+                    Leden krijgen korting en de club ontvangt een bijdrage per bestelling.
+                </p>
+
+                <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                    <a href="{{ path('club_action_interest') }}"
+                       class="inline-flex items-center justify-center rounded-xl bg-[#4c3228] px-6 py-4 text-white font-semibold hover:bg-[#3a261d] transition">
+                        Start een clubactie
+                    </a>
+
+                    <a href="#hoe-werkt-het"
+                       class="inline-flex items-center justify-center rounded-xl border border-[#4c3228]/20 bg-white px-6 py-4 text-[#4c3228] font-semibold hover:border-[#4c3228]/40 transition">
+                        Hoe werkt het?
+                    </a>
+                </div>
+
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-white p-5 shadow-sm">
+                        <div class="text-2xl font-bold text-[#4c3228]">10%</div>
+                        <div class="text-sm text-[#4c3228]/70 mt-1">korting voor leden</div>
+                    </div>
+                    <div class="rounded-2xl bg-white p-5 shadow-sm">
+                        <div class="text-2xl font-bold text-[#4c3228]">10%</div>
+                        <div class="text-sm text-[#4c3228]/70 mt-1">bijdrage voor de club</div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="lg:pl-8">
+                <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm border border-[#e8e1d5] min-h-[420px]">
+                    <img
+                        src="{{ asset('images/clubactie/multisport-clubactie.jpg') }}"
+                        alt="Leden van verschillende sportclubs samen in actie"
+                        class="absolute inset-0 h-full w-full object-cover"
+                    >
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent"></div>
+
+                    <div class="relative h-full flex items-end p-8 md:p-10">
+                        <div class="max-w-lg text-white">
+                            <div class="text-sm font-semibold uppercase tracking-[0.18em] text-white/80 mb-4">
+                                Voor clubs en verenigingen
+                            </div>
+
+                            <h2 class="text-2xl md:text-3xl font-semibold leading-tight mb-4">
+                                Een actie die past bij leden, ouders en supporters
+                            </h2>
+
+                            <p class="text-white/90 leading-relaxed">
+                                Van voetbal tot tennis en van schoolreis tot verenigingsuitje:
+                                met de clubactie combineer je een praktische aankoop met steun voor je eigen organisatie.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="hoe-werkt-het" class="bg-white">
+    <div class="max-w-6xl mx-auto px-6 py-16 md:py-20">
+        <div class="max-w-2xl">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                Hoe werkt het?
+            </h2>
+            <p class="mt-4 text-lg text-gray-600 leading-relaxed">
+                De clubactie is eenvoudig op te zetten en vraagt weinig tijd van het bestuur.
+            </p>
+        </div>
+
+        <div class="mt-12 grid md:grid-cols-3 gap-6">
+            <div class="rounded-3xl border border-gray-200 p-8 bg-gray-50">
+                <div class="w-12 h-12 rounded-full bg-[#4c3228] text-white flex items-center justify-center font-bold text-lg mb-5">
+                    1
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                    Eigen kortingscode
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Je club ontvangt een eigen code, bijvoorbeeld <strong>VVHENGELO10</strong>, die je eenvoudig met leden kunt delen.
+                </p>
+            </div>
+
+            <div class="rounded-3xl border border-gray-200 p-8 bg-gray-50">
+                <div class="w-12 h-12 rounded-full bg-[#4c3228] text-white flex items-center justify-center font-bold text-lg mb-5">
+                    2
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                    Leden bestellen
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Leden gebruiken de code in de webshop en ontvangen direct <strong>10% korting</strong> op hun bestelling.
+                </p>
+            </div>
+
+            <div class="rounded-3xl border border-gray-200 p-8 bg-gray-50">
+                <div class="w-12 h-12 rounded-full bg-[#4c3228] text-white flex items-center justify-center font-bold text-lg mb-5">
+                    3
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                    Club ontvangt bijdrage
+                </h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Voor elke bestelling met de clubcode ontvangt de club een bijdrage. Geen voorraad, geen losse verkoopactie.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-[#faf8f3]">
+    <div class="max-w-6xl mx-auto px-6 py-16 md:py-20">
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                    Waarom werkt dit goed?
+                </h2>
+
+                <div class="mt-8 space-y-5 text-gray-600 leading-relaxed">
+                    <p>
+                        Veel mensen kopen koffers, reistassen en handbagage vlak voor vakanties, schoolreizen en weekendjes weg.
+                    </p>
+                    <p>
+                        In plaats van ergens anders te bestellen, kunnen leden hun aankoop gebruiken om hun eigen vereniging te steunen.
+                    </p>
+                    <p>
+                        Dat maakt deze actie laagdrempelig, relevant en makkelijk te delen via nieuwsbrief, WhatsApp of social media.
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                    Waarom Topbags?
+                </h2>
+
+                <div class="mt-8 grid sm:grid-cols-2 gap-4">
+                    <div class="rounded-2xl bg-white border border-gray-200 p-5">
+                        <div class="font-semibold text-gray-900 mb-2">Specialist in reizen</div>
+                        <div class="text-sm text-gray-600">Koffers, reistassen, rugzakken en handbagage.</div>
+                    </div>
+                    <div class="rounded-2xl bg-white border border-gray-200 p-5">
+                        <div class="font-semibold text-gray-900 mb-2">Sterke merken</div>
+                        <div class="text-sm text-gray-600">Onder andere Samsonite, American Tourister, Gabol, Delsey en Eastpak.</div>
+                    </div>
+                    <div class="rounded-2xl bg-white border border-gray-200 p-5">
+                        <div class="font-semibold text-gray-900 mb-2">Service</div>
+                        <div class="text-sm text-gray-600">Persoonlijk advies en een betrouwbare webshop.</div>
+                    </div>
+                    <div class="rounded-2xl bg-white border border-gray-200 p-5">
+                        <div class="font-semibold text-gray-900 mb-2">Geen gedoe</div>
+                        <div class="text-sm text-gray-600">Topbags regelt de webshop, de club deelt alleen de actie.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white">
+    <div class="max-w-6xl mx-auto px-6 py-16 md:py-20">
+        <div class="max-w-2xl">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                Voor welke clubs of organisaties?
+            </h2>
+            <p class="mt-4 text-lg text-gray-600 leading-relaxed">
+                De actie past goed bij verenigingen en organisaties met een actief netwerk van leden, ouders of supporters.
+            </p>
+        </div>
+
+        <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Voetbalclubs</div>
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Tennisclubs</div>
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Hockeyclubs</div>
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Volleybalverenigingen</div>
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Scholen</div>
+            <div class="rounded-2xl border border-gray-200 px-5 py-4 bg-gray-50">Studie- en reisgroepen</div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white">
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <div class="rounded-3xl bg-[#4c3228] text-white px-8 py-10 md:px-12 md:py-14 text-center">
+            <h2 class="text-3xl font-bold tracking-tight">
+                Start een clubactie
+            </h2>
+            <p class="mt-4 text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
+                Wil je weten of deze actie geschikt is voor jouw vereniging of school?
+                Laat je gegevens achter en we nemen contact met je op.
+            </p>
+
+            <div class="mt-8">
+                <a href="{{ path('club_action_interest') }}"
+                   class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-4 font-semibold text-[#4c3228] hover:bg-[#f4f1ea] transition">
+                    Start clubactie voor jouw organisatie
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-[#faf8f3]">
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <header class="text-center mb-10">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900">
+                Veelgestelde vragen
+            </h2>
+        </header>
+
+        <div class="space-y-4">
+            <details class="group rounded-2xl border border-gray-200 bg-white p-0 open:shadow-sm">
+                <summary class="list-none cursor-pointer flex items-center justify-between px-6 py-5">
+                    <span class="font-semibold text-gray-900">Kost het de club iets?</span>
+                    <span class="text-gray-400 group-open:rotate-180 transition">⌄</span>
+                </summary>
+                <div class="px-6 pb-5 text-gray-600 leading-relaxed">
+                    Nee. De actie is gratis op te zetten. De club hoeft geen voorraad in te kopen en geen producten te verkopen.
+                </div>
+            </details>
+
+            <details class="group rounded-2xl border border-gray-200 bg-white p-0 open:shadow-sm">
+                <summary class="list-none cursor-pointer flex items-center justify-between px-6 py-5">
+                    <span class="font-semibold text-gray-900">Hoe ontvangt de club de bijdrage?</span>
+                    <span class="text-gray-400 group-open:rotate-180 transition">⌄</span>
+                </summary>
+                <div class="px-6 pb-5 text-gray-600 leading-relaxed">
+                    Bestellingen die met de clubcode worden geplaatst, worden bijgehouden. Daarna kan de bijdrage aan de club worden uitgekeerd.
+                </div>
+            </details>
+
+            <details class="group rounded-2xl border border-gray-200 bg-white p-0 open:shadow-sm">
+                <summary class="list-none cursor-pointer flex items-center justify-between px-6 py-5">
+                    <span class="font-semibold text-gray-900">Hoe lang kan een clubactie lopen?</span>
+                    <span class="text-gray-400 group-open:rotate-180 transition">⌄</span>
+                </summary>
+                <div class="px-6 pb-5 text-gray-600 leading-relaxed">
+                    Dat stemmen we samen af. Voor veel verenigingen werkt een periode van 1 tot 3 maanden goed.
+                </div>
+            </details>
+        </div>
+    </div>
+</section>
+{% endblock %}

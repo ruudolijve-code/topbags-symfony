@@ -1,0 +1,22 @@
+<div class="bg-[#f4f1ea] border-b border-gray-200">
+    <div class="px-4 py-2 text-center text-sm text-gray-800">
+        <span
+            x-data="{
+                items: [
+                    'Gratis verzending vanaf €49',
+                    '30 dagen retour',
+                    'Officieel dealer',
+                    '6.700 PostNL afhaalpunten'
+                ],
+                index: 0,
+                init() {
+                    setInterval(() => {
+                        this.index = (this.index + 1) % this.items.length;
+                    }, 3500);
+                }
+            }"
+            x-text="items[index]"
+            class="font-medium"
+        ></span>
+    </div>
+</div>

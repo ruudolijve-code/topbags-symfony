@@ -1,0 +1,19 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+  secret: '%env(APP_SECRET)%'
+
+  # Session wordt alleen gestart als je hem gebruikt
+  session:
+    enabled: true
+    handler_id: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+    cookie_secure: auto
+    cookie_samesite: lax
+
+  #esi: true
+  #fragments: true
+
+when@test:
+  framework:
+    test: true
+    session:
+      storage_factory_id: session.storage.factory.mock_file 

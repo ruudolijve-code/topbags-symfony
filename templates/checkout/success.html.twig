@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bestelling ontvangen | Topbags{% endblock %}
+
+{% block body %}
+
+<div class="max-w-2xl mx-auto py-24 text-center">
+
+    <h1 class="text-3xl font-semibold mb-6">
+        Bedankt voor je bestelling
+    </h1>
+
+    <p class="text-gray-600 mb-2">
+        Je ordernummer is:
+    </p>
+
+    <div class="text-xl font-mono tracking-wide mb-6">
+        {{ order.orderNumber }}
+    </div>
+
+    <div class="text-lg mb-6">
+        Totaal: <strong>€ {{ order.total|number_format(2, ',', '.') }}</strong>
+    </div>
+
+
+    {% if order.couponCode %}
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-left mb-8">
+            <h2 class="font-semibold text-emerald-900 mb-2">
+                Toegepaste korting
+            </h2>
+
+            <div class="text-sm text-emerald-800 leading-relaxed">
+                Couponcode: <strong>{{ order.couponCode }}</strong><br>
+                Korting: <strong>€ {{ order.discountAmount|number_format(2, ',', '.') }}</strong>
+            </div>
+        </div>
+    {% endif %}
+
+
+    {# ======================
+       VERZENDMETHODE
+    ====================== #}
+
+    <div class="bg-gray-50 rounded-lg p-6 text-left mb-8">
+
+        <h2 class="font-semibold mb-3">
+            Verzendmethode
+        </h2>
+
+        {% if order.shippingMethod == 'pickup' %}
+
+            <p class="mb-3">
+                Afhalen bij PostNL punt:
+            </p>
+
+            <div class="text-sm leading-relaxed">
+                <strong>{{ order.pickupPointName }}</strong><br>
+                {{ order.pickupStreet }} {{ order.pickupHouseNumber }}<br>
+                {{ order.pickupPostalCode }} {{ order.pickupCity }}
+            </div>
+
+        {% else %}
+
+            <p class="mb-3">
+                Thuisbezorging
+            </p>
+
+            {% set a = order.shippingAddress %}
+
+            <div class="text-sm leading-relaxed">
+                {{ a.firstName ?? '' }} {{ a.lastName ?? '' }}<br>
+                {{ a.street ?? '' }}<br>
+                {{ a.postalCode ?? '' }} {{ a.city ?? '' }}<br>
+                {{ a.country ?? '' }}
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <a href="{{ path('home') }}"
+       class="inline-block mt-4 text-sm font-semibold hover:underline">
+        Verder winkelen
+    </a>
+
+</div>
+
+{% if ga4_measurement_id and order is defined and order.items is not empty %}
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    gtag('event', 'purchase', {
+        transaction_id: '{{ order.orderNumber|e('js') }}',
+        currency: 'EUR',
+        value: {{ order.total|number_format(2, '.', '') }},
+        coupon: '{{ order.couponCode|default('')|e('js') }}',
+        shipping: {{ order.shippingCost|number_format(2, '.', '') }},
+        items: [
+            {% for item in order.items %}
+            {
+                item_id: '{{ item.variantSku|e('js') }}',
+                item_name: '{{ item.productName|e('js') }}',
+                price: {{ item.price|number_format(2, '.', '') }},
+                quantity: {{ item.qty }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    });
+</script>
+{% endif %}
+
+{% endblock %}

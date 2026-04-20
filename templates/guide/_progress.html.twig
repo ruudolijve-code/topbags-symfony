@@ -1,0 +1,77 @@
+{# =====================================================
+   1️⃣ Stap-definitie (dynamisch)
+===================================================== #}
+
+{% set steps = {
+    'travel_type': 'Reis',
+    'transport':   'Vervoer'
+} %}
+
+{# Airline + ticket alleen bij vliegtuig #}
+{% if query.transport is defined and query.transport == 'plane' %}
+    {% set steps = steps | merge({
+        'airline': 'Airline',
+        'ticket':  'Ticket'
+    }) %}
+{% endif %}
+
+{# Altijd daarna #}
+{% set steps = steps | merge({
+    'duration':    'Duur',
+    'frequency':   'Frequentie',
+    'preferences': 'Voorkeuren',
+    'result':      'Advies'
+}) %}
+
+{# =====================================================
+   2️⃣ Huidige index bepalen (zonder indexOf)
+===================================================== #}
+
+{% set currentIndex = 0 %}
+{% for key, label in steps %}
+    {% if key == step %}
+        {% set currentIndex = loop.index0 %}
+    {% endif %}
+{% endfor %}
+
+{# =====================================================
+   3️⃣ Progress bar
+===================================================== #}
+
+<div class="flex flex-wrap gap-4 text-sm">
+
+    {% for key, label in steps %}
+        {% set index = loop.index0 %}
+        {% set isActive = index == currentIndex %}
+        {% set isDone   = index < currentIndex %}
+        {% set isFuture = index > currentIndex %}
+
+        <a
+            href="{{ isFuture ? '#' : path(
+                'guide_index',
+                query | merge({ step: key })
+            ) }}"
+            class="
+                flex items-center gap-2
+                {% if isFuture %} cursor-not-allowed text-gray-300 {% else %} cursor-pointer {% endif %}
+                {% if isActive %} text-black font-semibold {% endif %}
+                {% if isDone %} text-green-600 {% endif %}
+            "
+            {% if isFuture %} aria-disabled="true" {% endif %}
+        >
+            <span
+                class="
+                    w-6 h-6 rounded-full flex items-center justify-center border
+                    {% if isActive %} border-black bg-black text-white {% endif %}
+                    {% if isDone %} border-green-600 bg-green-600 text-white {% endif %}
+                    {% if isFuture %} border-gray-300 {% endif %}
+                "
+            >
+                {{ index + 1 }}
+            </span>
+
+            {{ label }}
+        </a>
+    {% endfor %}
+
+</div>

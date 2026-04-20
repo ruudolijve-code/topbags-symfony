@@ -1,0 +1,64 @@
+{% if activeAirlines is defined and activeAirlines|length > 0 %}
+
+<div class="border border-amber-200 bg-amber-50 rounded-lg p-4 mb-6">
+    <h3 class="font-semibold text-sm mb-1 text-amber-900">
+        Als je vliegt
+    </h3>
+
+    <p class="text-xs text-amber-800 mb-3">
+        Kies waar jouw bagage in het vliegtuig wordt geplaatst
+    </p>
+
+    <div class="space-y-2 text-sm">
+
+        <label class="flex items-start gap-2 cursor-pointer">
+            <input type="radio"
+                   name="scope"
+                   value="personal"
+                   {% if activeScopes[0] is defined and activeScopes[0] == 'personal' %}checked{% endif %}
+            >
+            <span>
+                <strong>Personal item</strong><br>
+                <span class="text-xs text-gray-600">
+                    Onder de stoel voor je
+                </span>
+            </span>
+        </label>
+
+        <label class="flex items-start gap-2 cursor-pointer">
+            <input type="radio"
+                   name="scope"
+                   value="cabin"
+                   {% if activeScopes[0] is defined and activeScopes[0] == 'cabin' %}checked{% endif %}
+            >
+            <span>
+                <strong>Handbagage</strong><br>
+                <span class="text-xs text-gray-600">
+                    In de bagagebak boven je stoel
+                </span>
+            </span>
+        </label>
+
+        <label class="flex items-start gap-2 cursor-pointer">
+            <input type="radio"
+                   name="scope"
+                   value="hold"
+                   {% if activeScopes[0] is defined and activeScopes[0] == 'hold' %}checked{% endif %}
+            >
+            <span>
+                <strong>Ruimbagage</strong><br>
+                <span class="text-xs text-gray-600">
+                    Wordt ingecheckt en vervoerd in het ruim
+                </span>
+            </span>
+        </label>
+
+    </div>
+
+    <p class="text-xs text-amber-800 mt-3">
+        Op basis van jouw keuze toont Topbags alleen producten die volgens de regels
+        van jouw geselecteerde luchtvaartmaatschappij zijn toegestaan.
+    </p>
+</div>
+
+{% endif %}

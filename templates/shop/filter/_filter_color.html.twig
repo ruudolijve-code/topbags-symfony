@@ -1,0 +1,53 @@
+{# ========= Kleur ========= #}
+
+{% if colors is defined and colors is not empty %}
+    <div>
+        <h2 class="font-semibold mb-3">Kleur</h2>
+
+        <div class="flex flex-wrap gap-3">
+            {% for color in colors %}
+                {% set isActive = color.slug in activeColors %}
+
+                <label class="relative cursor-pointer group">
+
+                    <input
+                        type="checkbox"
+                        name="color[]"
+                        value="{{ color.slug }}"
+                        {% if isActive %}checked{% endif %}
+                        class="sr-only peer"
+                    >
+
+                    {# kleurbol #}
+                    <span
+                        class="
+                            block w-7 h-7 rounded-full border
+                            transition-all duration-200
+                            shadow-sm
+                            {% if isActive %}
+                                ring-2 ring-amber-500 border-amber-500
+                            {% else %}
+                                border-gray-300 group-hover:ring-2 group-hover:ring-gray-400
+                            {% endif %}
+                        "
+                        style="background-color: {{ color.hex }};"
+                        title="{{ color.name }}"
+                    ></span>
+
+                    {# checkmark bij actief #}
+                    {% if isActive %}
+                        <span class="
+                            absolute inset-0 flex items-center justify-center
+                            text-white text-xs font-bold
+                            pointer-events-none
+                        ">
+                            ✓
+                        </span>
+                    {% endif %}
+
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+

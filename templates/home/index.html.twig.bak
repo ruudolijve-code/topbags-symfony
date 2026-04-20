@@ -1,0 +1,180 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Topbags – Jouw reis begint hier{% endblock %}
+
+{% block body %}
+
+<section class="bg-gray-50 border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+
+        <div>
+            <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                Jouw reis begint<br class="hidden md:block">
+                met de juiste bagage!
+            </h1>
+
+            <p class="text-lg text-gray-600 mb-8 max-w-xl">
+                Geen eindeloze filters. Beantwoord een paar vragen
+                en ontdek welke koffer of tas écht bij jouw (vlieg)reis past.
+            </p>
+
+            <div class="flex gap-4">
+                <a href="{{ path('guide_index') }}"
+                   class="inline-flex items-center justify-center px-6 py-3 rounded-lg
+                          bg-black text-white font-medium hover:bg-gray-800 transition">
+                    Start de gids
+                </a>
+
+                <a href="/categorie/koffers"
+                   class="inline-flex items-center justify-center px-6 py-3 rounded-lg
+                          border border-gray-300 text-gray-700 hover:border-gray-400 transition">
+                    Bekijk de nieuwste koffers
+                </a>
+            </div>
+        </div>
+
+        <div class="hidden md:block">
+            <div class="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl">
+                <img
+                    src="{{ asset('images/hero.jpg') }}"
+                    alt="Koffers, reistassen en rugzakken van Topbags"
+                    class="absolute inset-0 w-full h-full object-cover"
+                >
+                <div class="absolute inset-0 bg-black/10"></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-6 py-20">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {# Koffers #}
+        <a href="/categorie/koffers"
+           class="group relative overflow-hidden rounded-2xl shadow-lg bg-white
+                  transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+
+            <div class="aspect-[4/5] overflow-hidden">
+                <img
+                    src="{{ asset('images/koffer.jpg') }}"
+                    alt="Koffers"
+                    class="w-full h-full object-cover transition-transform duration-500
+                           group-hover:scale-105"
+                >
+            </div>
+
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition"></div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="bg-white/95 backdrop-blur rounded-xl px-5 py-4 shadow-md">
+                    <h3 class="text-xl font-semibold">
+                        Koffers
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Voor korte trips en lange reizen
+                    </p>
+                </div>
+            </div>
+        </a>
+
+        {# Reistassen #}
+        <a href="/categorie/reistassen"
+           class="group relative overflow-hidden rounded-2xl shadow-lg bg-white
+                  transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+
+            <div class="aspect-[4/5] overflow-hidden">
+                <img
+                    src="{{ asset('images/reistas.jpg') }}"
+                    alt="Reistassen"
+                    class="w-full h-full object-cover transition-transform duration-500
+                           group-hover:scale-105"
+                >
+            </div>
+
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition"></div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="bg-white/95 backdrop-blur rounded-xl px-5 py-4 shadow-md">
+                    <h3 class="text-xl font-semibold">
+                        Reistassen
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Flexibel, licht en praktisch
+                    </p>
+                </div>
+            </div>
+        </a>
+
+        {# Handbagage #}
+        <a href="/categorie/handbagage"
+           class="group relative overflow-hidden rounded-2xl shadow-lg bg-white
+                  transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+
+            <div class="aspect-[4/5] overflow-hidden">
+                <img
+                    src="{{ asset('images/rugzak.jpg') }}"
+                    alt="Handbagage"
+                    class="w-full h-full object-cover transition-transform duration-500
+                           group-hover:scale-105"
+                >
+            </div>
+
+            <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition"></div>
+
+            <div class="absolute bottom-0 left-0 right-0 p-6">
+                <div class="bg-white/95 backdrop-blur rounded-xl px-5 py-4 shadow-md">
+                    <h3 class="text-xl font-semibold">
+                        Handbagage
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Slim en altijd binnen handbereik
+                    </p>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+<section class="bg-gray-50 py-20">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="bg-white rounded-2xl shadow-lg px-8 py-10 md:px-12 md:py-14">
+
+            <h2 class="text-2xl md:text-3xl font-bold mb-6">
+                Topbags – Jouw specialist in koffers, reistassen en rugzakken
+            </h2>
+
+            <div class="prose prose-gray max-w-none">
+
+                <p class="mb-2">
+                    Bij <strong>Topbags</strong> vind je alles wat je nodig hebt voor zorgeloos
+                    en comfortabel reizen. Wij zijn gespecialiseerd in koffers, handbagage,
+                    reistassen, trolleys, rugzakken en slimme reisaccessoires.
+                    Ons doel is eenvoudig: jou helpen de beste bagage te vinden voor elke reis,
+                    of je nu een weekend weg gaat, een verre wereldreis maakt of dagelijks onderweg bent.
+                </p>
+
+                <p class="mb-2">
+                    Als officieel dealer van toonaangevende merken zoals
+                    <strong>Samsonite</strong>, <strong>American Tourister</strong>,
+                    <strong>Eastpak</strong>, <strong>Gabol</strong>, <strong>CabinZero</strong>,
+                    <strong>Kipling</strong>, <strong>Piquadro</strong> en <strong>Fjällräven</strong>,
+                    bieden we uitsluitend 100% originele producten met volledige fabrieksgarantie.
+                    Dankzij onze nauwkeurige selectie van materialen, kwaliteit en functionaliteit
+                    weet je zeker dat je bagage bestand is tegen intensief gebruik en uiteenlopende reisomstandigheden.
+                </p>
+
+                <p class="mb-2">
+                    Bij Topbags vind je altijd een koffer die past bij jouw reisstijl.
+                    Wil je onze collectie liever eerst in het echt bekijken?
+                    Bezoek dan onze winkel <strong>Holtkamp Tassen &amp; Koffers</strong>;
+                    je bent van harte welkom!
+                </p>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

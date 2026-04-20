@@ -1,0 +1,89 @@
+security:
+    password_hashers:
+        App\Admin\Entity\AdminUser:
+            algorithm: auto
+
+        App\Account\Entity\CustomerUser:
+            algorithm: auto
+
+    providers:
+        admin_user_provider:
+            entity:
+                class: App\Admin\Entity\AdminUser
+                property: email
+
+        customer_user_provider:
+            entity:
+                class: App\Account\Entity\CustomerUser
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build|css|images|js)/
+            security: false
+
+        admin:
+            pattern: ^/(admin_dedtwaw|2fa)
+            lazy: true
+            provider: admin_user_provider
+            custom_authenticator: App\Security\AppCustomAuthenticator
+            entry_point: App\Security\AppCustomAuthenticator
+
+            two_factor:
+                prepare_on_login: true
+                prepare_on_access_denied: true
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+                default_target_path: admin
+
+            logout:
+                path: app_logout
+                target: admin_login
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+
+        customer:
+            lazy: true
+            provider: customer_user_provider
+            custom_authenticator: App\Account\Security\CustomerLoginAuthenticator
+            entry_point: App\Account\Security\CustomerLoginAuthenticator
+
+            logout:
+                path: customer_logout
+                target: account_login
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+
+    access_control:
+        - { path: ^/admin_dedtwaw/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/admin_dedtwaw, roles: ROLE_ADMIN }
+
+        - { path: ^/account/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/account/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/account/forgot-password$, roles: PUBLIC_ACCESS }
+        - { path: ^/account/reset-password, roles: PUBLIC_ACCESS }
+        - { path: ^/account/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/account, roles: ROLE_CUSTOMER }
+
+when@test:
+    security:
+        password_hashers:
+            App\Admin\Entity\AdminUser:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10
+
+            App\Account\Entity\CustomerUser:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

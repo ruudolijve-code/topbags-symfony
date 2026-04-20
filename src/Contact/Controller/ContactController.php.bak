@@ -1,0 +1,106 @@
+<?php
+
+namespace App\Contact\Controller;
+
+use App\Contact\Dto\ContactMessage as ContactDto;
+use App\Contact\Entity\ContactMessage as ContactEntity;
+use App\Contact\Form\ContactType;
+use App\Contact\Service\ContactMailer;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
+final class ContactController extends AbstractController
+{
+    #[Route('/contact', name: 'contact_index', methods: ['GET', 'POST'])]
+    public function index(
+        Request $request,
+        ContactMailer $mailer,
+        EntityManagerInterface $entityManager,
+        #[Autowire(service: 'limiter.contact_form')]
+        RateLimiterFactory $contactFormLimiter
+    ): Response {
+
+        $form = $this->createForm(ContactType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // ==============================
+            // 🔒 1️⃣ Honeypot check
+            // ==============================
+            if ($form->get('website')->getData()) {
+                // Bot → stil redirect (geen feedback)
+                return $this->redirectToRoute('contact_index');
+            }
+
+            // ==============================
+            // ⏱ 2️⃣ Tijdcheck (min 3 seconden)
+            // ==============================
+            $startedAt = (int) $form->get('form_started_at')->getData();
+
+            if (time() - $startedAt < 3) {
+                return $this->redirectToRoute('contact_index');
+            }
+
+            // ==============================
+            // 🚦 3️⃣ Rate limiting (IP-based)
+            // ==============================
+            $limiter = $contactFormLimiter->create($request->getClientIp() ?? 'anon');
+
+            if (!$limiter->consume(1)->isAccepted()) {
+                $this->addFlash('error', 'Je verstuurt te snel berichten. Probeer het later opnieuw.');
+                return $this->redirectToRoute('contact_index');
+            }
+
+            $data = $form->getData();
+
+            // ==============================
+            // 💾 4️⃣ Opslaan in database
+            // ==============================
+            $entity = new ContactEntity();
+            $entity->setName($data['name']);
+            $entity->setEmail($data['email']);
+            $entity->setPhone($data['phone'] ?? null);
+            $entity->setSubject($data['subject'] ?? null);
+            $entity->setMessage($data['message']);
+            $entity->setSource($data['source'] ?? 'contact');
+            $entity->setIpAddress($request->getClientIp());
+            $entity->setUserAgent($request->headers->get('User-Agent'));
+
+            $entityManager->persist($entity);
+            $entityManager->flush();
+
+            // ==============================
+            // 📧 5️⃣ Mail versturen
+            // ==============================
+            $dto = new ContactDto(
+                name: $data['name'],
+                email: $data['email'],
+                phone: $data['phone'] ?? null,
+                subject: $data['subject'] ?? '',
+                message: $data['message'],
+                source: $data['source'] ?? 'contact',
+                ip: $request->getClientIp(),
+                userAgent: $request->headers->get('User-Agent'),
+            );
+
+            $mailer->send($dto);
+            $mailer->sendAutoReply($dto);
+
+            // ==============================
+            // ✅ 6️⃣ Redirect + flash
+            // ==============================
+            $this->addFlash('success', 'Bedankt! Je bericht is verzonden.');
+            return $this->redirectToRoute('contact_index');
+        }
+
+        return $this->render('contact/index.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}

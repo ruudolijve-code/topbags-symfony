@@ -1,0 +1,19 @@
+                    {# ========= Type (categorie) ========= #}
+                    <div>
+                        <h2 class="font-semibold mb-3">Type</h2>
+
+                        <div class="space-y-2">
+                            {% for c in categories %}
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        name="category[]"
+                                        value="{{ c.slug }}"
+                                        {% if c.slug in activeCategories %}checked{% endif %}
+                                        class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                    >
+                                    {{ c.menuLabel ?? c.name }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>

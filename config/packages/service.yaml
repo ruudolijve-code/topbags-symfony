@@ -1,0 +1,11 @@
+services:
+  Redis:
+    class: Redis
+    calls:
+      - connect:
+          - redis
+          - 6379
+
+  Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+    arguments:
+      - '@Redis'

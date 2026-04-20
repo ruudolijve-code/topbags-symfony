@@ -1,0 +1,58 @@
+<h1 class="text-2xl font-semibold mt-10 mb-6">
+    Wat vind je het belangrijkst aan je bagage?
+</h1>
+
+<p class="text-gray-600 mb-6">
+    Kies wat voor jou de doorslag geeft. Wij houden hier rekening mee in het advies.
+</p>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+{% set preferences = {
+    'lightweight': {
+        'label': 'Zo licht mogelijk',
+        'desc': 'Makkelijk tillen, comfortabel reizen'
+    },
+    'robust': {
+        'label': 'Extra stevig & veilig',
+        'desc': 'Bescherming van je spullen'
+    },
+    'design': {
+        'label': 'Mooie uitstraling',
+        'desc': 'Design, afwerking en uitstraling'
+    },
+    'price': {
+        'label': 'Beste prijs-kwaliteit',
+        'desc': 'Goede koffer voor een eerlijke prijs'
+    }
+} %}
+
+{% for key, p in preferences %}
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({
+                step: 'result',
+                preferences: key
+            })
+        ) }}"
+        class="p-5 border rounded-xl text-center hover:border-black transition"
+    >
+        <div class="font-semibold mb-1">{{ p.label }}</div>
+        <div class="text-sm text-gray-500">{{ p.desc }}</div>
+    </a>
+{% endfor %}
+
+</div>
+
+<div class="mt-6 flex justify-between text-sm text-gray-500">
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({ step: 'frequency' }) | filter((v,k) => k != 'preferences')
+        ) }}"
+        class="hover:underline"
+    >
+        ← Terug
+    </a>
+</div>

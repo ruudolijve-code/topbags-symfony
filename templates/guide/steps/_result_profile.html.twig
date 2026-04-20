@@ -1,0 +1,986 @@
+{% extends 'guide/_result_layout.html.twig' %}
+
+{% block title %}
+  {{ profile.title }} | Topbags Reisprofiel
+{% endblock %}
+
+{% block result_content %}
+
+<section class="relative rounded-2xl border border-gray-200 bg-white overflow-hidden">
+
+  {# =========================================================
+   HERO
+   ========================================================= #}
+
+  <section class="relative overflow-hidden min-h-[70vh] md:min-h-[80vh]">
+
+    <div class="absolute inset-0">
+      <img src="{{ profile.hero.imageUrl }}"
+          alt="{{ profile.hero.imageAlt }}"
+          class="h-full w-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-6xl px-4 py-20 text-white">
+
+      <p class="text-xs uppercase tracking-wider opacity-80">
+        Jouw reisprofiel
+      </p>
+
+      <h1 class="mt-2 text-3xl md:text-5xl font-semibold leading-tight">
+        {{ profile.title }}
+      </h1>
+
+      <p class="mt-4 text-lg opacity-95 max-w-2xl">
+        {{ profile.subtitle }}
+      </p>
+
+
+
+      {# ===============================
+        Frequentie nuance
+        =============================== #}
+
+      {% if frequency == 'incidental' %}
+          <p class="mt-3 text-sm opacity-80 max-w-xl">
+            Je reist niet vaak. Slim kiezen betekent: geen over-investering.
+          </p>
+      {% elseif frequency == 'yearly' %}
+          <p class="mt-3 text-sm opacity-80 max-w-xl">
+            Je reist regelmatig. Duurzaamheid en comfort worden belangrijker.
+          </p>
+      {% elseif frequency == 'frequent' %}
+          <p class="mt-3 text-sm opacity-80 max-w-xl">
+            Jij reist vaak. Gewicht, materiaal en betrouwbaarheid zijn doorslaggevend.
+          </p>
+      {% endif %}
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#best-match"
+          class="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white hover:bg-amber-700 transition">
+          Bekijk jouw beste match
+        </a>
+
+        <a href="#why"
+          class="inline-flex items-center rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+          Waarom dit bij je past
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  {# =========================================================
+     CONTENT
+     ========================================================= #}
+  <div class="mx-auto max-w-8xl px-4 py-10 md:py-14">
+
+    <div id="why" class="grid gap-8 md:grid-cols-12">
+
+      {# ================= LEFT (Beleving / Tips / Huren) ================= #}
+      <aside class="md:col-span-4">
+
+        {# Sticky op desktop voor “magazine gevoel” #}
+        <div class="md:sticky md:top-6 space-y-6">
+
+          {# ---------- Beleving / Story card ---------- #}
+          <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Jouw reisstijl
+                </p>
+
+                <h2 class="mt-1 text-lg font-semibold text-gray-900">
+                  Slim kiezen = relaxter reizen
+                </h2>
+              </div>
+
+              <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
+                Topbags gids
+              </span>
+            </div>
+
+            <p class="mt-3 text-sm text-gray-600 leading-relaxed">
+              {{ profile.story.intro }}
+            </p>
+
+            {# ===============================
+            Transport nuance
+            =============================== #}
+
+          {% if transport == 'plane' %}
+              <p class="mt-6 text-sm opacity-90 max-w-xl">
+                  Je bent afhankelijk van airline-regels. Gewicht en afmetingen maken het verschil.
+              </p>
+          {% elseif transport == 'car' %}
+              <p class="mt-6 text-sm opacity-90 max-w-xl">
+                  De kofferbak bepaalt je vrijheid. Volume en flexibiliteit winnen hier.
+              </p>
+          {% elseif transport == 'train' %}
+              <p class="mt-6 text-sm opacity-90 max-w-xl">
+                  Wendbaarheid is alles. Compact, licht en makkelijk te tillen.
+              </p>
+          {% elseif transport == 'bus' %}
+              <p class="mt-6 text-sm opacity-90 max-w-xl">
+                  Je bagage reist mee in het ruim. Stevigheid en overzicht zijn cruciaal.
+              </p>
+          {% endif %}
+
+      {# ===============================
+        Persoonlijke tip (semi-dynamisch)
+        =============================== #}
+
+      <div class="mt-5 rounded-2xl bg-gray-50 p-4 border border-gray-200">
+          <div class="flex items-start gap-3">
+              <div class="h-10 w-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center">
+                  <span class="text-lg">
+                      {% if transport == 'plane' %}✈️
+                      {% elseif transport == 'car' %}🚗
+                      {% elseif transport == 'train' %}🚆
+                      {% elseif transport == 'bus' %}🚌
+                      {% else %}🧭{% endif %}
+                  </span>
+              </div>
+              <div>
+                  <p class="text-sm font-semibold text-gray-900">
+                      Slimme tip voor jouw reis
+                  </p>
+
+                  <p class="text-xs text-gray-600 leading-relaxed">
+                      {% if transport == 'plane' %}
+                          Check altijd het gewicht vóór vertrek. Een halve kilo verschil kan gate-stress voorkomen.
+                      {% elseif transport == 'car' %}
+                          Kies voor flexibel materiaal. Dat past makkelijker tussen kinderwagens en koelboxen.
+                      {% elseif transport == 'train' %}
+                          Vier wielen besparen energie bij overstappen en lange perrons.
+                      {% elseif transport == 'bus' %}
+                          Label je tas duidelijk. Bagage wordt vaak samen geladen.
+                      {% else %}
+                          Kies een formaat dat past bij je reisduur, niet bij wat je denkt nodig te hebben.
+                      {% endif %}
+                  </p>
+              </div>
+          </div>
+      </div>
+
+            {% if profile.traits is defined and profile.traits %}
+              <div class="mt-5 grid grid-cols-2 gap-3">
+                {% for t in profile.traits|slice(0,4) %}
+                  <div class="rounded-2xl border border-gray-200 bg-white p-3">
+                    <div class="flex items-start gap-2">
+                      <div class="text-lg leading-none">{{ t.icon }}</div>
+                      <div>
+                        <div class="text-[11px] font-semibold text-gray-900">
+                          {{ t.label }}
+                        </div>
+                        <div class="text-[11px] text-gray-600">
+                          {{ t.value }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+          </div>
+
+{# =========================================================
+   HANDIGE TIPS & ERVARING
+   ========================================================= #}
+
+<div class="mt-10 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+
+  <h3 class="text-lg font-semibold text-gray-900">
+    Slim reizen: tips voor jouw {{ profile.title|lower }}
+  </h3>
+
+  <p class="mt-2 text-sm text-gray-600 leading-relaxed">
+    Op basis van jouw reisduur, vervoersmiddel en voorkeuren geven we je
+    praktische tips zodat je niet alleen de juiste koffer kiest,
+    maar ook slimmer inpakt en reist.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-gray-700">
+
+    {# ================= REISDUUR ================= #}
+    {% if profile.volume.rangeLabel %}
+    <div>
+      <h4 class="font-semibold text-gray-900">
+        🎒 Reisduur & volume
+      </h4>
+      <p class="mt-1 leading-relaxed">
+        Met een inhoud van {{ profile.volume.rangeLabel }}
+        zit je comfortabel voor deze reisduur.
+        Rol kleding in plaats van vouwen om ruimte te besparen
+        en gebruik packing cubes voor overzicht.
+      </p>
+    </div>
+    {% endif %}
+
+        {# ================= VLIEGEN ================= #}
+        {% if transport == 'plane' %}
+          <div>
+            <h4 class="font-semibold text-gray-900">
+              ✈️ Slim vliegen
+            </h4>
+            <p class="mt-1 leading-relaxed">
+              Kies bij cabinebagage altijd een model met 4 wielen
+              voor snelle transfers op luchthavens.
+              Houd je personal item licht en flexibel –
+              dat vergroot je kans dat het probleemloos onder de stoel past.
+            </p>
+            <p class="mt-2 leading-relaxed">
+              Expandables geven net wat extra ruimte,
+              maar houd rekening met airline-afmetingen bij volledig uitzetten.
+            </p>
+          </div>
+          {% endif %}
+
+          {# ================= AUTO / TREIN ================= #}
+          {% if transport in ['car','train','bus'] %}
+          <div>
+            <h4 class="font-semibold text-gray-900">
+              🚆 Comfort tijdens transport
+            </h4>
+            <p class="mt-1 leading-relaxed">
+              Bij reizen met auto of trein is flexibiliteit belangrijker
+              dan strikte afmetingen. Zachte koffers of reistassen
+              passen makkelijker in kofferbakken en bagagerekken.
+            </p>
+          </div>
+          {% endif %}
+
+          {# ================= FREQUENTIE ================= #}
+          {% if frequency == 'frequent' %}
+          <div>
+            <h4 class="font-semibold text-gray-900">
+              🔁 Veel onderweg?
+            </h4>
+            <p class="mt-1 leading-relaxed">
+              Investeer in sterke materialen zoals polycarbonaat,
+              Roxkin™ of aluminium.
+              Ze behouden hun vorm beter bij intensief gebruik
+              en beschermen je bagage optimaal.
+            </p>
+          </div>
+          {% elseif frequency in ['incidental','rare'] %}
+          <div>
+            <h4 class="font-semibold text-gray-900">
+              💡 Incidenteel op reis?
+            </h4>
+            <p class="mt-1 leading-relaxed">
+              Reis je minder dan één keer per jaar?
+              Dan kan huren een slimme optie zijn:
+              je gebruikt topkwaliteit zonder hoge aanschafkosten.
+            </p>
+          </div>
+          {% endif %}
+
+          {# ================= DESIGN / VOORKEUR ================= #}
+          {% if preference == 'design' %}
+          <div>
+            <h4 class="font-semibold text-gray-900">
+              ✨ Stijlvol op pad
+            </h4>
+            <p class="mt-1 leading-relaxed">
+              Designkoffers combineren uitstraling met functionaliteit.
+              Kies voor hoogwaardige materialen en rustige kleuren
+              voor een professionele en tijdloze look.
+            </p>
+          </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+
+          {# ---------- Huren CTA (alleen bij vliegtuig + incidenteel) ---------- #}
+          {% if showRentalCta %}
+
+          <div class="mt-16 rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-8 shadow-sm">
+
+            <div class="flex items-start justify-between gap-4">
+
+              <div>
+
+                <h3 class="text-xl font-semibold text-gray-900">
+                  Vlieg je minder dan 1× per jaar?
+                </h3>
+
+                <p class="mt-3 text-sm text-gray-600 leading-relaxed">
+                  Voor incidentele vliegreizen kan huren slimmer zijn dan kopen.
+                  Je betaalt alleen voor de periode dat je reist en kiest
+                  telkens een koffer die perfect past bij jouw bestemming.
+                </p>
+
+                <ul class="mt-4 space-y-2 text-sm text-gray-700">
+
+                  <li class="flex gap-2">
+                    <span class="text-emerald-500">✔</span>
+                    <span>Geen hoge aanschafkosten</span>
+                  </li>
+
+                  <li class="flex gap-2">
+                    <span class="text-emerald-500">✔</span>
+                    <span>Altijd het juiste formaat per reis</span>
+                  </li>
+
+                  <li class="flex gap-2">
+                    <span class="text-emerald-500">✔</span>
+                    <span>Premium koffers beschikbaar</span>
+                  </li>
+
+                  <li class="flex gap-2 text-amber-700">
+                    <span>⚠</span>
+                    <span>Minder geschikt wanneer je last-minute vertrekt</span>
+                  </li>
+
+                </ul>
+
+                <a href="{{ rentalUrl ?? '/koffer-huren' }}"
+                  class="mt-6 inline-flex w-full items-center justify-center rounded-full bg-amber-600 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-700 transition">
+                  Bekijk koffer huren →
+                </a>
+
+                <p class="mt-3 text-[11px] text-amber-900/70">
+                  Vanaf € 3,25 per dag (minimaal 4 dagen).
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {% endif %}
+
+
+          {# ---------- Cross selling (placeholder) ---------- #}
+        <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+
+          <h3 class="text-sm font-semibold text-gray-900">
+            Maak je reis compleet
+          </h3>
+
+          <p class="mt-1 text-xs text-gray-500">
+            Kleine items die jouw trip comfortabeler en zorgelozer maken.
+          </p>
+
+          <ul class="mt-4 space-y-3 text-sm text-gray-700">
+
+            {# ================= VLIEGEN ================= #}
+            {% if transport == 'plane' %}
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Nekkussen voor ontspannen reizen</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Kofferriem of TSA-slot voor extra veiligheid</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Kofferweegschaal om bijbetalen te voorkomen</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Wereldstekker voor internationale bestemmingen</span>
+              </li>
+
+            {# ================= TREIN / BUS ================= #}
+            {% elseif transport in ['train','bus'] %}
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Nekkussen voor langere ritten</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Powerbank voor onderweg opladen</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Extra lange oplaadkabel</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Hervulbare drinkfles</span>
+              </li>
+
+            {# ================= AUTO ================= #}
+            {% elseif transport == 'car' %}
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Nekkussen voor lange autoritten</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Autolader + oplaadkabels</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Georganiseerde toilettas of packing cubes</span>
+              </li>
+
+              <li class="flex gap-2">
+                <span class="text-emerald-600">✔</span>
+                <span>Herbruikbare drinkfles</span>
+              </li>
+
+            {% endif %}
+
+          </ul>
+
+          {# ================= MICRO-ADVIES ================= #}
+
+          <div class="mt-5 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+            <p class="text-xs font-semibold text-amber-900">
+              Pro-tip
+            </p>
+
+            {% if transport == 'plane' %}
+              <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+                Weeg je cabinebagage vooraf. Vooral bij budgetmaatschappijen voorkomt dit onverwachte kosten bij de gate.
+              </p>
+            {% elseif transport in ['train','bus'] %}
+              <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+                Kies een tas met snelle toegang tot je essentials — tickets, powerbank en waterfles.
+              </p>
+            {% elseif transport == 'car' %}
+              <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+                Gebruik packing cubes zodat je onderweg snel bij je spullen kunt zonder alles uit te pakken.
+              </p>
+            {% endif %}
+
+          </div>
+
+        </div>
+
+        {# ================= SCHIPHOL-ADVIES ================= #}
+        {% if transport == 'plane' and schiphol is defined %}
+
+        <div class="mt-10 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+
+          <h3 class="text-sm font-semibold text-gray-900">
+            Wachttijd Schiphol vandaag
+          </h3>
+
+          <p class="mt-1 text-xs text-gray-600">
+            Realtime vertrekadvies voor Amsterdam Airport Schiphol.
+          </p>
+
+          <div class="mt-4 space-y-2 text-sm text-gray-800">
+
+            <div class="flex justify-between">
+              <span>Security wachttijd</span>
+              <span class="font-semibold">
+                {{ schiphol.waitTime }} minuten
+              </span>
+            </div>
+
+            <div class="flex justify-between">
+              <span>Advies aankomsttijd</span>
+              <span class="font-semibold">
+                {{ schiphol.arrivalAdvice }}
+              </span>
+            </div>
+
+          </div>
+
+          <div class="mt-5 rounded-2xl bg-white border border-amber-200 p-4">
+            <p class="text-xs font-semibold text-amber-900">
+              Topbags advies
+            </p>
+
+            <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+              Neem bij langere wachttijden een lichte cabine koffer en een personal item
+              zodat je flexibel blijft bij gate changes.
+            </p>
+          </div>
+
+        </div>
+
+        {% endif %}
+
+        {# ================= SCHIPHOL-ADVIES (STATIC MVP) ================= #}
+        {% if transport == 'plane' %}
+
+        <div class="mt-10 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+
+          <h3 class="text-sm font-semibold text-gray-900">
+            Vertrekadvies Schiphol
+          </h3>
+
+          <p class="mt-1 text-xs text-gray-600">
+            Slim voorbereid vertrekken vanaf Amsterdam Airport Schiphol.
+          </p>
+
+        <div class="mt-5 space-y-3 text-sm text-gray-800">
+
+          <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
+              <span>Gemiddelde security wachttijd</span>
+              <span class="font-semibold text-right">15–30 minuten</span>
+            </div>
+
+            <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
+              <span>Aanbevolen aankomsttijd (Europese vlucht)</span>
+              <span class="font-semibold text-right">
+                2 uur voor vertrek
+              </span>
+            </div>
+
+            <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
+              <span>Aanbevolen aankomsttijd (Intercontinentaal)</span>
+              <span class="font-semibold text-right">
+                3 uur voor vertrek
+              </span>
+            </div>
+
+          </div>
+
+          <div class="mt-6 rounded-2xl bg-white border border-amber-200 p-4">
+            <p class="text-xs font-semibold text-amber-900">
+              Topbags tip voor Schiphol
+            </p>
+
+            <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+              Reis je alleen met cabinebagage? Dan kun je sneller door security en hoef je niet te wachten bij de bagageband. 
+              Combineer je cabine koffer met een compact personal item voor maximale flexibiliteit bij gate-wijzigingen.
+            </p>
+          </div>
+
+          <p class="mt-4 text-[11px] text-gray-500 leading-relaxed">
+            Let op: wachttijden op Schiphol kunnen variëren afhankelijk van dag, tijdstip en vakantiedrukte. 
+            Controleer altijd kort voor vertrek de actuele informatie via Schiphol zelf.
+          </p>
+
+        </div>
+
+        {% endif %}
+      </aside>
+
+
+      {# ================= RIGHT (Product flow) ================= #}
+      <div class="md:col-span-8">
+
+        {# =========================================================
+           VOLUME BLOK
+           ========================================================= #}
+        <div class="rounded-3xl border border-amber-100 bg-white p-8 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+
+          <div class="flex items-start justify-between gap-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900">
+                Jouw ideale volume
+              </h3>
+
+              <p class="mt-2 text-sm text-gray-600 leading-relaxed max-w-md">
+                {{ profile.volume.explain }}
+              </p>
+            </div>
+
+            {% if profile.volume.scopeLabel %}
+              <span class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-4 py-1.5 text-xs font-semibold border border-amber-200">
+                {{ profile.volume.scopeLabel }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="mt-8 flex items-baseline gap-3">
+            <span class="text-3xl font-semibold text-amber-700">
+              {{ profile.volume.rangeLabel }}
+            </span>
+
+            {% if profile.volume.note is defined and profile.volume.note %}
+              <span class="text-xs text-gray-500">
+                {{ profile.volume.note }}
+              </span>
+            {% endif %}
+          </div>
+
+          {% set minP = profile.volume.minPercent ?? 0 %}
+          {% set rangeP = profile.volume.rangePercent ?? 0 %}
+
+          <div class="mt-8">
+            <div class="relative w-full rounded-full bg-amber-100 overflow-hidden" style="height: 12px;">
+              <div class="absolute left-0 top-0 h-full bg-amber-200" style="width: {{ minP }}%;"></div>
+              <div class="absolute top-0 h-full bg-gradient-to-r from-amber-500 to-amber-600"
+                   style="left: {{ minP }}%; width: {{ rangeP }}%;"></div>
+            </div>
+
+            <div class="mt-4 flex justify-between items-start text-center">
+              <div><div class="text-[11px] text-gray-400">0L</div></div>
+              <div>
+                <div class="text-[11px] font-medium text-gray-600">Cabin</div>
+                <div class="mt-1 text-[10px] text-gray-400">± 55 cm</div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium text-gray-600">Medium</div>
+                <div class="mt-1 text-[10px] text-gray-400">± 67 cm</div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium text-gray-600">Large</div>
+                <div class="mt-1 text-[10px] text-gray-400">± 76 cm</div>
+              </div>
+              <div>
+                <div class="text-[11px] font-medium text-gray-600">120L+</div>
+                <div class="mt-1 text-[10px] text-gray-400">81+ cm</div>
+              </div>
+            </div>
+          </div>
+
+          <p class="mt-6 text-sm text-gray-500 max-w-lg leading-relaxed">
+            {{ profile.volumeNarrative }}
+          </p>
+
+        </div>
+
+        {# =========================================================
+           AIRLINE BLOK
+           ========================================================= #}
+        {% if profile.air.enabled and profile.air.rules %}
+          <div class="mt-8 rounded-2xl border border-amber-200/60 bg-amber-50/40 p-6">
+            <h4 class="text-sm font-semibold text-gray-900">
+              Extra zekerheid bij vliegen
+            </h4>
+            <p class="mt-0 text-xs text-amber-900">
+              Op basis van jouw airline + ticket filteren we op afmetingen (incl. expandable).
+            </p>
+
+            <p class="mt-1 text-xs text-gray-500">
+              {{ profile.air.badges|join(' · ') }}
+            </p>
+
+            <div class="mt-6 space-y-4 text-sm">
+              {% for scope, rule in profile.air.rules %}
+                {% if rule.allowed %}
+                  <div class="flex items-start justify-between border-b border-amber-200/40 pb-3 last:border-0 last:pb-0">
+                    <div>
+                      <div class="font-medium text-gray-900">
+                        {{ scope|capitalize }}
+                      </div>
+                      <div class="mt-1 text-xs text-gray-600">
+                        {% if rule.dimensionType == 'box' %}
+                          {{ rule.maxHeightCm }} × {{ rule.maxWidthCm }} × {{ rule.maxDepthCm }} cm {{ rule.maxWeightKg ? '· ' ~ rule.maxWeightKg ~ ' kg' : '' }}
+                        {% elseif rule.dimensionType == 'linear_sum' %}
+                          Max. {{ rule.maxLinearCm }} cm totaal {{ rule.maxWeightKg ? '· ' ~ rule.maxWeightKg ~ ' kg' : '' }}
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <span class="text-xs font-medium text-emerald-600">
+                      toegestaan
+                    </span>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        {# =========================================================
+           PRODUCT SECTIES PER SCOPE (jouw bestaande loop)
+           ========================================================= #}
+
+        {% set scopeLabels = {
+          'cabin':  { title: 'Jouw cabinebagage',  subtitle: 'Snel inchecken en toegestaan in de cabine.' },
+          'personal': { title: 'Jouw personal item', subtitle: 'Compact en toegestaan onder de stoel.' },
+          'hold':   { title: 'Ruimbagage optie', subtitle: 'Ideaal als je extra ruimte nodig hebt.' }
+        } %}
+
+        {% for scope in activeScopes %}
+          {% if bestByScope[scope] is defined %}
+            {% set isFirst = loop.first %}
+            {% set item = bestByScope[scope] %}
+            {% set product = item.product %}
+            {% set variant = item.variant %}
+            {% set color = variant ? variant.getColor() : null %}        
+            {% set alternativesScope = alternativesByScope[scope] ?? [] %}
+            {% set mediaPath = item.mediaPath ?? null %}
+
+            <div class="mt-20" {% if isFirst %}id="best-match"{% endif %}>
+              <h3 class="text-xl font-semibold text-gray-900">
+                {{ scopeLabels[scope].title ?? scope|capitalize }}
+              </h3>
+              <p class="mt-1 text-sm text-gray-500">
+                {{ scopeLabels[scope].subtitle ?? '' }}
+              </p>
+
+              <div class="mt-8 rounded-3xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                <div class="grid md:grid-cols-2">
+                  <div class="bg-gray-50 p-10 flex items-center justify-center">
+                    {% if mediaPath %}
+                      <img src="{{ asset(mediaPath) }}"
+                          alt="{{ product.name }}"
+                          class="max-h-[420px] object-contain">
+                    {% endif %}
+                  </div>
+
+                  <div class="p-10 flex flex-col justify-between">
+                    <div>
+                      <div class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-xs font-semibold">
+                        Beste keuze
+                      </div>
+                       {# Brand #}
+                      <div class="mt-3 text-xs uppercase tracking-wide text-gray-500">
+                        {{ product.brand.name }}
+                      </div>
+
+                      <h4 class=" text-2xl font-semibold text-gray-900">
+                        {{ product.name }}
+                      </h4>
+
+                      {% set colors = [] %}
+                      {% for v in product.variants %}
+                        {% if v.color and v.color.hex not in colors %}
+                          {% set colors = colors|merge([v.color.hex]) %}
+                        {% endif %}
+                      {% endfor %}
+
+                      {% if colors|length > 0 %}
+                        <div class="mt-4 flex items-center gap-3">
+                          <div class="flex gap-1">
+                            {% for hex in colors|slice(0,6) %}
+                              <span class="w-4 h-4 rounded-full border border-gray-300"
+                                    style="background-color: {{ hex }}"></span>
+                            {% endfor %}
+                          </div>
+                          <span class="text-xs text-gray-500">
+                            {{ colors|length }} kleuren
+                          </span>
+                        </div>
+                      {% endif %}
+
+                      {% if item.reasons %}
+                        <ul class="mt-6 space-y-2 text-sm text-gray-700">
+                          {% for reason in item.reasons|slice(0,3) %}
+                            <li class="flex gap-2">
+                              <span class="text-emerald-500">✔</span>
+                              <span>{{ reason }}</span>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+
+                      {% if scope == 'personal' and product.getVolumeL() is not null %}
+                        <div class="mt-4 text-sm text-emerald-700 font-medium">
+                          + {{ product.getVolumeL() }} liter extra ruimte
+                        </div>
+                      {% endif %}
+                    </div>
+
+                    <div class="mt-8 flex items-center justify-between">
+                      {% if variant.getPrice() %}
+                        <div class="text-2xl font-semibold text-gray-900">
+                          €{{ variant.getPrice()|number_format(2, ',', '.') }}
+                        </div>
+                      {% endif %}
+
+                      <a href="{{ path('product_show', {
+                        slug: product.slug,
+                        colorSlug: color.slug,
+                        variantSku: variant.variantSku
+                      }) }}"
+                      class="inline-flex items-center rounded-full bg-amber-600 px-4 py-3 text-sm font-semibold text-white hover:bg-amber-700 transition">
+                        Bekijk product
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {% if alternativesScope|length > 0 %}
+                <div class="mt-10">
+                  <h4 class="text-base font-semibold text-gray-900">
+                    Alternatieven
+                  </h4>
+
+                  <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {% for alt in alternativesScope %}
+                      {% set p = alt.product %}
+                      {% set v = alt.variant %}
+                      {% set c = v.getColor() %}
+                      {% set img = alt.mediaPath ?? null %}
+
+                      <div class="rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-md transition">
+                        <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden">
+                          {% if img %}
+                            <img src="{{ asset(img) }}"
+                                 alt="{{ p.name }}"
+                                 class="h-full object-contain">
+                          {% endif %}
+                        </div>
+                        {# Brand #}
+                      <div class="mt-3 text-xs uppercase tracking-wide text-gray-500">
+                        {{ p.brand.name }}
+                      </div>
+
+                        <h5 class=" text-sm font-medium text-gray-900">
+                          {{ p.name }}
+                        </h5>
+
+                        <div class="mt-3 flex items-center justify-between">
+                          {% if v.getPrice() %}
+                            <span class="text-sm font-semibold text-gray-900">
+                              €{{ v.getPrice()|number_format(2, ',', '.') }}
+                            </span>
+                          {% endif %}
+
+                          <a href="{{ path('product_show', {
+                            slug: p.slug,
+                            colorSlug: c.slug,
+                            variantSku: v.variantSku
+                          }) }}"
+                          class="text-xs font-semibold text-amber-600 hover:text-amber-700">
+                            Bekijk →
+                          </a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+          {% endif %}
+        {% endfor %}
+
+      </div> {# END RIGHT #}
+    </div>
+  </div>
+
+</section>
+
+    {# =========================================================
+      FAQ (dynamisch)
+      ========================================================= #}
+    {% if faqs is defined and faqs|length > 0 %}
+
+    <section id="faq" class="mx-auto mt-14 max-w-8xl px-4 pb-14">
+
+      <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+
+        <div class="flex items-start justify-between gap-6">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-900">
+              Veelgestelde vragen
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+              Antwoorden op basis van jouw gekozen transport{% if transport == 'plane' and airline is defined and airline %} en {{ airline.name }}{% endif %}.
+            </p>
+          </div>
+
+          <div class="hidden md:flex items-center gap-3">
+
+            <a href="{{ path( 'guide_index', app.request.query.all | merge({ step: 'preferences' })) }}"
+              class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition">
+              Wijzig reisprofiel
+            </a>
+
+            <a href="#best-match"
+              class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition">
+              Terug naar advies
+            </a>
+
+          </div>
+        </div>
+
+        <div class="mt-8 space-y-3">
+
+          {% for faq in faqs %}
+            <details class="group rounded-2xl border border-gray-200 bg-gray-50 p-5 open:bg-white open:shadow-sm transition">
+
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+                <span class="text-sm font-semibold text-gray-900">
+                  {{ faq.question }}
+                </span>
+                <span class="text-gray-500 group-open:rotate-180 transition">⌄</span>
+              </summary>
+
+              <div class="mt-3 text-sm text-gray-600 leading-relaxed">
+                {{ faq.answer|raw }}
+
+                {# Optioneel: huur CTA injecteren bij relevante vraag #}
+                {% if showRentalCta is defined and showRentalCta
+                    and faq.question matches '/huren/i' %}
+                  <a href="{{ rentalUrl ?? '/koffer-huren' }}"
+                    class="mt-4 inline-flex items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition">
+                    Bekijk koffer huren →
+                  </a>
+                {% endif %}
+              </div>
+
+            </details>
+          {% endfor %}
+
+        </div>
+
+        {# ================= CTA ONDERAAN ================= #}
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-gray-200 bg-white p-5">
+
+          <div>
+            <p class="text-sm font-semibold text-gray-900">
+              Nog vragen of twijfel?
+            </p>
+            <p class="mt-1 text-xs text-gray-600">
+              Ons team helpt je graag bij het kiezen van de juiste koffer of bagagecombinatie.
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <a href="#best-match"
+              class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition">
+              Bekijk advies
+            </a>
+
+            <a href="/contact"
+              class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition">
+              Contact
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    {# ================= JSON-LD STRUCTURED DATA ================= #}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for faq in faqs %}
+        {
+          "@type": "Question",
+          "name": "{{ faq.question|e('js') }}",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "{{ faq.answer|striptags|e('js') }}"
+          }
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }
+    </script>
+
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+<h1 class="text-2xl font-semibold mt-10 mb-6">
+    Hoe vaak reis je gemiddeld?
+</h1>
+
+<p class="text-gray-600 mb-6">
+    Dit helpt ons bepalen welk type koffer het beste bij jouw gebruik past.
+</p>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+{% set frequencies = {
+    'incidental': {
+        'label': 'Incidenteel',
+        'desc': '1× per jaar of minder'
+    },
+    'yearly': {
+        'label': 'Regelmatig',
+        'desc': '2–4 keer per jaar'
+    },
+    'frequent': {
+        'label': 'Zeer frequent',
+        'desc': '5 keer per jaar of vaker'
+    }
+} %}
+
+{% for key, f in frequencies %}
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({
+                step: 'preferences',
+                frequency: key
+            })
+        ) }}"
+        class="p-5 border rounded-xl text-center hover:border-black transition" 
+    >
+        <div class="font-semibold mb-1">{{ f.label }}</div>
+        <div class="text-sm text-gray-500">{{ f.desc }}</div>
+    </a>
+{% endfor %}
+
+</div>
+
+<div class="mt-6 flex justify-between text-sm text-gray-500">
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({ step: 'duration' }) | filter((v,k) => k != 'frequency')
+        ) }}"
+        class="hover:underline"
+    >
+        ← Terug
+    </a>
+</div>

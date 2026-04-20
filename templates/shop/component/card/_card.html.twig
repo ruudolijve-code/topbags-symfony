@@ -1,0 +1,8 @@
+{# templates/shop/component/_card.html.twig #}
+{% set context = context ?? 'shop' %}
+
+{% if context == 'bags' %}
+  {% include 'shop/component/card/_card_fashion.html.twig' %}
+{% else %}
+  {% include 'shop/component/card/_card_functional.html.twig' %}
+{% endif %}

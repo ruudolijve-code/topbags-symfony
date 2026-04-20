@@ -1,0 +1,28 @@
+Bedankt voor je bestelling
+
+Beste klant,
+
+We hebben je bestelling {{ order.orderNumber }} goed ontvangen en de betaling is succesvol verwerkt.
+
+Bestelling:
+{% for item in order.items %}
+- {{ item.productName }} ({{ item.qty }}x): € {{ item.lineTotal|number_format(2, ',', '.') }}
+{% endfor %}
+
+Subtotaal: € {{ order.subtotal|number_format(2, ',', '.') }}
+{% if order.shippingCost > 0 %}
+Verzending: € {{ order.shippingCost|number_format(2, ',', '.') }}
+{% endif %}
+Totaal: € {{ order.total|number_format(2, ',', '.') }}
+
+Verzendadres:
+{% set address = order.shippingAddress ?? {} %}
+{{ address.firstName|default('') }} {{ address.lastName|default('') }}
+{{ address.street|default('') }}
+{{ address.postalCode|default('') }} {{ address.city|default('') }}
+{{ address.country|default('') }}
+
+Wij houden je op de hoogte zodra je bestelling wordt verzonden.
+
+Met vriendelijke groet,
+Topbags

@@ -1,0 +1,227 @@
+{# =========================================
+   1. Variant bepalen (kleurfilter eerst)
+========================================= #}
+
+{% set selectedVariant =
+    matchedVariants is defined
+    and matchedVariants[product.id] is defined
+        ? matchedVariants[product.id]
+        : product.masterVariant
+%}
+
+{% if selectedVariant %}
+
+    {# =========================================
+       2. SKU pad-opbouw
+    ========================================= #}
+
+    {% set skuParts = selectedVariant.variantSku|split('-') %}
+    {% set model = skuParts[0] ?? null %}
+    {% set color = skuParts[1] ?? null %}
+    {% set a = model ? model|slice(0, 1) : null %}
+    {% set b = model ? model|slice(1, 1) : null %}
+
+    {# =========================================
+       3. Image
+    ========================================= #}
+
+   {% set images = selectedVariant.images ?? [] %}
+{% set image = images|length > 0 ? images|first : null %}
+
+    {# =========================================
+    4. Airline badge kleur
+    ========================================= #}
+
+    {% set badgeColorMap = {
+        'personal': 'bg-emerald-600',
+        'cabin':    'bg-blue-600',
+        'hold':     'bg-gray-700'
+    } %}
+
+    {% set badgeColor = badgeColorMap[activeScopes[0] ?? 'personal'] %}
+
+<article class="relative h-full ">
+
+    {# ==================================================
+       ⭐ airline badge: beste keuze
+    ================================================== #}
+    {% if currentAirline and currentScope %}
+
+        <div class="absolute top-3 left-3 z-20">
+
+            {% if activeAirlines|length == 1 %}
+                <span class="badge-airline {{ badgeColor }}">
+                    ✓ Geschikt voor {{ currentAirline|capitalize }} · {{ currentScope }}
+                </span>
+            {% else %}
+                <span class="badge-airline {{ badgeColor }}">
+                    ✓ Geschikt voor jouw gekozen airlines · {{ currentScope }}
+                </span>
+            {% endif %}
+
+        </div>
+
+    {% endif %}
+
+    {# ==================================================
+       ⭐ Beste keuze badge + tooltip
+       Hover = badge zelf (NIET de kaart)
+    ================================================== #}
+    {% if isBest is defined and isBest %}
+       <div class="absolute -top-3 left-4 z-[9999] group inline-block">
+
+            <span
+                class="inline-block text-[10px] uppercase tracking-wider font-bold
+                    px-3 py-1 rounded-full bg-black text-white shadow-lg cursor-help"
+            >
+                Beste keuze
+            </span>
+
+            <div
+                class="absolute left-0 top-full mt-2 w-64
+                    rounded-lg bg-emerald-600 text-white text-xs p-3 shadow-2xl
+                    opacity-0 translate-y-1
+                    group-hover:opacity-100 group-hover:translate-y-0
+                    transition-all duration-200 ease-out
+                    z-[9999] pointer-events-auto"
+            >
+                <div class="absolute -top-1 left-6 size-2 bg-emerald-600 rotate-45"></div>
+
+                <strong class="block mb-2 text-emerald-100 border-b border-emerald-500/50 pb-1">
+                    Waarom is dit de beste keuze?
+                </strong>
+
+                <ul class="space-y-1.5">
+                                {% for reason in comparison %}
+                                    <li class="flex gap-2">
+                                        <span class="text-emerald-300">•</span>
+                                        <span>{{ reason }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+            </div>
+        </div>
+
+    {% endif %}
+
+    {# ==================================================
+       Klikbare kaart
+    ================================================== #}
+    <a
+        href="{{ path('product_show', {
+            slug: product.slug,
+            colorSlug: selectedVariant.supplierColorSlug,
+            variantSku: selectedVariant.variantSku
+        }) }}"
+        class="block h-full bg-white border border-gray-200 rounded-xl
+               overflow-hidden hover:shadow-lg transition "
+    >
+
+        {# Afbeelding #}
+        <div class="aspect-square bg-white flex items-center justify-center p-4">
+            {% if image and model and color %}
+                <img
+                    src="{{ asset(
+                        'media/variants/'
+                        ~ a ~ '/'
+                        ~ b ~ '/'
+                        ~ model ~ '/'
+                        ~ color ~ '/'
+                        ~ image.path
+                    ) }}"
+                    alt="{{ product.name }} {{ selectedVariant.supplierColorName }}"
+                    class="w-full h-full object-contain transition-transform duration-300
+                           hover:scale-105"
+                    loading="lazy"
+                >
+            {% else %}
+                <span class="text-xs text-gray-400">Geen afbeelding</span>
+            {% endif %}
+        </div>
+
+        {# Content #}
+        <div class="p-4 flex flex-col gap-2">
+
+            <div class="text-xs text-gray-500 uppercase tracking-wide">
+                {{ product.brand.name }}
+            </div>
+
+            <h3 class="text-sm font-medium leading-snug line-clamp-2">
+                {{ product.name }}
+                <span class="text-gray-500">– {{ selectedVariant.supplierColorName }}</span>
+            </h3>
+
+           {% if showVolume is defined and showVolume and product.volumeL %}
+                <span class="
+                    inline-flex
+                    items-center
+                    text-xs
+                    bg-amber-50 text-amber-800
+                    border border-amber-300
+                    rounded-full
+                    px-3 py-1
+                    mt-2
+                    max-w-max
+                    self-start
+                ">
+                    {{ product.volumeL }} liter
+                </span>
+            {% endif %}
+
+            <div class="mt-1 text-base font-semibold text-red-900">
+                € {{ selectedVariant.price|number_format(2, ',', '.') }}
+            </div>
+
+            {# Labels (voorraad) #}
+
+            {% if availability.status == 'in_stock' %}
+                <div class="mt-4 text-green-600 font-semibold">
+                    Op voorraad – {{ availability.deliveryLabel }}
+                </div>
+            {% elseif availability.status == 'backorder' %}
+                <div class="mt-4 text-amber-600 font-semibold">
+                    {{ availability.deliveryLabel }}
+                </div>
+            {% else %}
+                <div class="mt-4 text-red-600 font-semibold">
+                    {{ availability.deliveryLabel }}
+                </div>
+            {% endif %}
+
+            {# Labels (zonder "Beste keuze") #}
+            {% if labels is defined and labels is not empty %}
+                <div class="mt-2 flex flex-wrap gap-2">
+                    {% for label in labels %}
+                        {% if label != 'Beste keuze' %}
+                            <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
+                                {{ label }}
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Kleuren #}
+            <div class="mt-2 flex items-center gap-2">
+                <div class="flex gap-1">
+                    {% for variant in product.variants %}
+                        {% if variant.color %}
+                            <span
+                                class="w-3 h-3 rounded-full border border-gray-300"
+                                style="background-color: {{ variant.color.hex }}"
+                                title="{{ variant.supplierColorName }}"
+                            ></span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <span class="text-xs text-gray-500">
+                    {{ product.variants|length }} kleuren
+                </span>
+            </div>
+
+        </div>
+    </a>
+</article>
+
+{% endif %}

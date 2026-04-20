@@ -1,0 +1,120 @@
+{# ===========================
+   HERO / MUSEUM
+=========================== #}
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+  {# LEFT: Gallery (2-up) #}
+  <div class="lg:col-span-8">
+        {% include 'product/_gallery_dual_museum.html.twig' with {
+            product: product,
+            variant: variant,
+            mediaPath: mediaPath
+        } %}
+    </div>
+
+  {# RIGHT: Summary (rustig, niet “pushy”) #}
+  <aside class="lg:col-span-4 lg:sticky lg:top-8">
+    <div class="max-w-md">
+
+      <div class="text-xs tracking-[0.18em] uppercase text-gray-500">
+        {{ product.brand.name }}
+      </div>
+
+      <h1 class="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-gray-900">
+        {{ product.name }}
+      </h1>
+
+      <div class="mt-2 text-sm text-gray-600">
+        {{ variant.supplierColorName }}
+        {% if product.material %} · {{ product.material.name }}{% endif %}
+      </div>
+
+      {% set colorVariants = [] %}
+        {% for v in product.variants %}
+        {% if v.isActive and v.color and v.supplierColorSlug %}
+            {% set colorVariants = colorVariants|merge([v]) %}
+        {% endif %}
+        {% endfor %}
+
+        {% if colorVariants|length > 0 %}
+        <div class="mt-6">
+            <div class="text-xs tracking-[0.18em] uppercase text-gray-500">Kleur</div>
+
+            <div class="mt-3 flex items-center gap-3">
+            {% for v in colorVariants|slice(0, 6) %}
+                {% set isCurrent = (v.variantSku == variant.variantSku) %}
+                <a href="{{ path('product_show', {
+                    slug: product.slug,
+                    colorSlug: v.supplierColorSlug,
+                    variantSku: v.variantSku
+                    }) }}"
+                class="group inline-flex items-center justify-center"
+                aria-label="{{ v.supplierColorName }}">
+                <span
+                    class="w-6 h-6 rounded-full border border-gray-300
+                        {{ isCurrent ? 'ring-2 ring-gray-900 ring-offset-2' : 'group-hover:ring-2 group-hover:ring-gray-400 group-hover:ring-offset-2' }}"
+                    style="background-color: {{ v.color.hex ?? '#ddd' }}">
+                </span>
+                </a>
+            {% endfor %}
+
+            {% if colorVariants|length > 6 %}
+                <span class="text-xs text-gray-500">+{{ colorVariants|length - 6 }}</span>
+            {% endif %}
+            </div>
+
+            <div class="mt-2 text-xs text-gray-600">
+            {{ variant.supplierColorName }}
+            </div>
+        </div>
+        {% endif %}
+
+      {% if master and master.price %}
+        <div class="mt-6 text-xl font-semibold text-gray-900">
+          € {{ master.price|number_format(2, ',', '.') }}
+        </div>
+      {% endif %}
+
+      {# Availability subtiel maar duidelijk #}
+      {% if availability %}
+        <div class="mt-4 text-sm">
+          {% if availability.status == 'in_stock' %}
+            <span class="text-emerald-700 font-semibold">Op voorraad</span>
+            <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
+          {% elseif availability.status == 'backorder' %}
+            <span class="text-amber-700 font-semibold">Leverbaar</span>
+            <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
+          {% else %}
+            <span class="text-gray-500 font-semibold">Tijdelijk uitverkocht</span>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {# CTA (klein, rustig) #}
+      <div class="mt-8 flex items-center gap-3">
+        <button
+          type="button"
+          class="inline-flex items-center rounded-full border border-gray-900/20
+                 px-5 py-2.5 text-sm font-semibold text-gray-900
+                 hover:border-gray-900/40 hover:bg-gray-50 transition"
+        >
+          Winkelwagen
+        </button>
+
+        <a href="#details"
+           class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition">
+          Bekijk details →
+        </a>
+      </div>
+
+      {# micro-copy (vertrouwen/beleving) #}
+      <p class="mt-8 text-sm leading-relaxed text-gray-600">
+        In de winkel gaat het om gevoel en vertrouwen — online ook.
+        Daarom tonen we je het product eerst zoals je het in je handen zou zien.
+      </p>
+
+    </div>
+  </aside>
+
+</div>

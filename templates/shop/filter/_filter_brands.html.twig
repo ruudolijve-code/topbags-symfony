@@ -1,0 +1,19 @@
+                    {# ========= Merk ========= #}
+                    <div>
+                        <h2 class="font-semibold mb-3">Merk</h2>
+
+                        <div class="space-y-2">
+                            {% for brand in brands %}
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        name="brand[]"
+                                        value="{{ brand.slug }}"
+                                        {% if brand.slug in activeBrands %}checked{% endif %}
+                                        class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                    >
+                                    {{ brand.name }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>

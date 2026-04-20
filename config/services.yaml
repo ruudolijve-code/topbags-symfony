@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+parameters:
+    contact.to_email: 'info@topbags.nl'
+    contact.to_name: 'Topbags'
+    contact.from_email: 'info@topbags.nl'
+    contact.from_name: 'Topbags Contact'
+
+    app.url: '%env(APP_URL)%'
+
+    postnl.api_key: '%env(string:POSTNL_API_KEY)%'
+    postnl.customer_code: '%env(string:POSTNL_CUSTOMER_CODE)%'
+    postnl.mode: '%env(string:POSTNL_MODE)%'
+
+    shop.shipping.free_from: 49.00
+    shop.shipping.default_cost: 7.95
+
+    ga4.measurement_id: '%env(string:GA4_MEASUREMENT_ID)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $fromEmail: '%contact.from_email%'
+            string $fromName: '%contact.from_name%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Kernel.php'
+            - '../src/**/Entity/'
+            - '../src/**/Entities/'
+            - '../src/**/Tests/'
+
+    App\Contact\Service\ContactMailer:
+        arguments:
+            $toEmail: '%contact.to_email%'
+            $toName: '%contact.to_name%'
+
+    App\Shop\Service\MollieService:
+        arguments:
+            $mollieApiKey: '%env(MOLLIE_API_KEY)%'
+
+    App\Shop\Service\OrderMailer:
+        arguments:
+            $adminEmail: 'info@topbags.nl'
+            $adminName: 'Topbags'
+            $fromEmail: 'no-reply@topbags.local'
+            $fromName: 'Topbags'
+
+    App\Shop\Service\PostNLService:
+        arguments:
+            $apiKey: '%postnl.api_key%'
+            $customerCode: '%postnl.customer_code%'
+            $mode: '%postnl.mode%'
+
+    App\Shop\Service\ShippingCalculator:
+        arguments:
+            $freeFrom: '%shop.shipping.free_from%'
+            $defaultCost: '%shop.shipping.default_cost%'
+
+    App\Catalog\Service\VariantImageUploader:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Twig\AppGlobals:
+        arguments:
+            $ga4MeasurementId: '%ga4.measurement_id%'
+

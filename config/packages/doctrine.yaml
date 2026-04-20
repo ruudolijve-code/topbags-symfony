@@ -1,0 +1,108 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        server_version: '8.0'
+        charset: utf8mb4
+
+        mapping_types:
+            tinyint: boolean
+
+        profiling_collect_backtrace: '%kernel.debug%'
+        use_savepoints: true
+
+    orm:
+        auto_mapping: false
+
+        auto_generate_proxy_classes: true
+        enable_lazy_ghost_objects: true
+        report_fields_where_declared: true
+        validate_xml_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+
+        mappings:
+
+            Catalog:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Catalog/Entity'
+                prefix: 'App\Catalog\Entity'
+                alias: Catalog
+
+            Guide:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Guide/Entity'
+                prefix: 'App\Guide\Entity'
+                alias: Guide
+
+            Contact:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Contact/Entity'
+                prefix: 'App\Contact\Entity'
+                alias: Contact
+
+            Loyalty:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Loyalty/Entity'
+                prefix: 'App\Loyalty\Entity'
+                alias: Loyalty
+
+            Shop:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Shop/Entity'
+                prefix: 'App\Shop\Entity'
+                alias: Shop
+
+            Admin:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Admin/Entity'
+                prefix: 'App\Admin\Entity'
+                alias: Admin
+
+            Marketing:
+                type: attribute
+                dir: '%kernel.project_dir%/src/Marketing/Entity'
+                prefix: 'App\Marketing\Entity'
+                is_bundle: false
+                alias: Marketing
+
+            Account:
+                type: attribute
+                dir: '%kernel.project_dir%/src/Account/Entity'
+                prefix: 'App\Account\Entity'
+                is_bundle: false
+                alias: Account
+
+                
+when@test:
+    doctrine:
+        dbal:
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+
+
+when@prod:
+    doctrine:
+        orm:
+            auto_generate_proxy_classes: false
+            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
+
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+
+            result_cache_driver:
+                type: pool
+                pool: doctrine.result_cache_pool
+
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+
+                doctrine.system_cache_pool:
+                    adapter: cache.system

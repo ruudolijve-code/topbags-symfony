@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Levering & Verzending | Topbags{% endblock %}
+
+{% block body %}
+<section class="max-w-3xl mx-auto px-6 py-16">
+    <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Levering & Verzending</h1>
+        <p class="text-lg text-gray-600 mt-2">Alles wat je moet weten over bezorging en afhalen</p>
+    </header>
+
+    <div class="space-y-4">
+        {# Item 1 #}
+        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md" open>
+            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+                <span class="text-lg font-semibold text-gray-800">Wat zijn de verzendkosten?</span>
+                <div class="transition-transform duration-300 group-open:rotate-180">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </summary>
+            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+                <p>Bestellingen vanaf <strong>€49</strong> verzenden wij gratis binnen Nederland.</p>
+                <p>Bij een bestelbedrag onder de €49 rekenen wij <strong>€7,95</strong> verzendkosten.</p>
+                <p>De actuele verzendkosten worden altijd duidelijk getoond in je winkelwagen en tijdens het afrekenen.</p>
+            </div>
+        </details>
+
+        {# Item 2 #}
+        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+                <span class="text-lg font-semibold text-gray-800">Hoe wordt mijn bestelling bezorgd?</span>
+                <div class="transition-transform duration-300 group-open:rotate-180">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </summary>
+            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+                <p>Tijdens het afrekenen kun je kiezen voor:</p>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>thuisbezorging op het door jou opgegeven adres</li>
+                    <li>afhalen bij een PostNL-punt bij jou in de buurt</li>
+                </ul>
+                <p>Kies je voor een afhaalpunt, dan kun je tijdens checkout direct een beschikbaar PostNL-punt selecteren.</p>
+            </div>
+        </details>
+
+        {# Item 3 #}
+        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+                <span class="text-lg font-semibold text-gray-800">Wat is de levertijd?</span>
+                <div class="transition-transform duration-300 group-open:rotate-180">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </summary>
+            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+                <p>Voor producten die op voorraad zijn, geldt in de meeste gevallen een snelle levering.</p>
+                <p>De actuele leverindicatie tonen wij ook op de productpagina, zodat je vooraf een goede inschatting hebt.</p>
+                <p>Rond feestdagen, acties of grote drukte bij vervoerders kan de levering iets langer duren dan gebruikelijk.</p>
+            </div>
+        </details>
+
+        {# Item 4 #}
+        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+                <span class="text-lg font-semibold text-gray-800">Kan ik mijn bestelling volgen?</span>
+                <div class="transition-transform duration-300 group-open:rotate-180">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </summary>
+            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+                <p>Zodra je bestelling is verwerkt en verzonden, ontvang je van ons een bevestiging per e-mail.</p>
+                <p>Als trackinginformatie beschikbaar is, sturen wij die mee zodat je je levering kunt volgen.</p>
+            </div>
+        </details>
+
+        {# Item 5 #}
+        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+                <span class="text-lg font-semibold text-gray-800">Wat als mijn bestelling vertraging heeft?</span>
+                <div class="transition-transform duration-300 group-open:rotate-180">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </summary>
+            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+                <p>Het kan voorkomen dat een levering vertraging oploopt door vervoersdrukte, externe omstandigheden of een onverwachte voorraadupdate.</p>
+                <p>Heb je vragen over je bestelling of duurt het langer dan verwacht? Neem dan gerust contact op met onze klantenservice. We kijken graag met je mee.</p>
+            </div>
+        </details>
+    </div>
+
+    <footer class="mt-16 text-center p-8 bg-blue-50 rounded-3xl border border-blue-100">
+        <p class="font-medium text-blue-900">Vraag niet beantwoord?</p>
+        <p class="text-sm text-blue-700 mt-1">Neem direct contact op met onze klantenservice.</p>
+        <div class="mt-4">
+            <a href="/contact" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition">Contactformulier</a>
+        </div>
+    </footer>
+</section>
+{% endblock %}

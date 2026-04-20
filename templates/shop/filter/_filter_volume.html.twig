@@ -1,0 +1,22 @@
+<h2 class="font-semibold mb-3">Inhoud (liter)</h2>
+
+{% set ranges = {
+    'lt35': '< 35 liter: Personal',
+    '35-45': '35–45 liter: Cabin',
+    '45-65': '45–65 liter: Short trip',
+    '65-85': '65–85 liter: 1-2 weken',
+    '85-110': '85–110 liter: 2-3 weken',
+    '110+': '110+ liter: Extra Groot'
+} %}
+<div class="space-y-2">
+{% for key,label in ranges %}
+<label class="flex items-center gap-2 text-sm">
+    <input type="checkbox"
+           name="volume[]"
+           value="{{ key }}"
+           {% if key in activeVolumes %}checked{% endif %}
+    >
+    <span>{{ label }}</span>
+</label>
+{% endfor %}
+</div>

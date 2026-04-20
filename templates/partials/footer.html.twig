@@ -1,0 +1,144 @@
+<footer class="mt-24">
+
+    {# GELE BRAND FOOTER #}
+    <div class="w-full bg-[#f4f1ea] text-[#4c3228]">
+        <div class="max-w-7xl mx-auto px-6 py-14">
+
+            {# LOGO #}
+            <div class="mb-10">
+                <img
+                    src="{{ asset('images/topbags.png') }}"
+                    alt="Topbags Tassen & Koffers"
+                    class="w-40 h-auto"
+                >
+            </div>
+
+            {# GRID #}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm items-start">
+
+                {# CONTACT CARD #}
+                <div class="bg-white rounded-xl p-6 shadow-sm space-y-5">
+
+                    <h4 class="font-semibold text-base">
+                        Heb je een vraag?
+                    </h4>
+
+                    <div class="flex items-start gap-4">
+                        {% include 'partials/icons/clock.svg.twig' with { class: 'w-6 h-6' } %}
+                        <div>
+                            <div class="font-medium">ma–vr 9:30 – 18:00</div>
+                            <div class="font-medium">za 10:00 – 17:00</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        {% include 'partials/icons/whatsapp.svg.twig' %}
+                        <a href="https://wa.me/31642485211"
+                           class="underline hover:text-black transition">
+                            Contact via WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        {% include 'partials/icons/phone.svg.twig' %}
+                        <a href="tel:+31742912251"
+                           class="underline hover:text-black transition">
+                            074 291 22 51
+                        </a>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        {% include 'partials/icons/mail.svg.twig' %}
+                        <a href="mailto:klantenservice@topbags.nl"
+                           class="underline hover:text-black transition">
+                            klantenservice@topbags.nl
+                        </a>
+                    </div>
+
+                    <div class="flex items-center gap-4 text-xs text-gray-500 pt-2">
+                        {% include 'partials/icons/euro.svg.twig' %}
+                        Alle prijzen zijn inclusief BTW
+                    </div>
+                </div>
+
+                {# SERVICE #}
+                <div>
+                    <h3 class="font-semibold mb-4">Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{{ path('service_returns') }}" class="hover:underline">Ruilen & Retourneren</a></li>
+                        <li><a href="{{ path('service_shipping') }}" class="hover:underline">Levering & Verzending</a></li>
+                        <li><a href="{{ path('service_warranty') }}" class="hover:underline">Garantie</a></li>
+                        <li><a href="{{ path('service_repair') }}" class="hover:underline">Reparatie & Servicepunt</a></li>
+                        <li><a href="{{ path('club_action') }}" class="hover:underline">Clubactie</a></li>
+                        <li><a href="/contact" class="hover:underline">Contactformulier</a></li>
+                    </ul>
+                </div>
+
+                {# WINKEL #}
+                <div>
+                    <h3 class="font-semibold mb-4">Winkel</h3>
+                    <ul class="space-y-2">
+                        <li>Wemenstraat 5–7</li>
+                        <li>7551 ET Hengelo</li>
+                        <li>KvK: 96254874</li>
+                        <li>BTW: NL005199626B22</li>
+                    </ul>
+                </div>
+
+                {# NIEUWSBRIEF #}
+                <div>
+                    <h3 class="font-semibold mb-4">Nieuwsbrief</h3>
+                    <p class="mb-3 text-sm">
+                        Ontvang aanbiedingen & reistips
+                    </p>
+
+                    {% for message in app.flashes('newsletter_success') %}
+                        <div class="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('newsletter_error') %}
+                        <div class="mb-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" action="{{ path('newsletter_subscribe') }}" class="space-y-3">
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ app.request.request.get('email') }}"
+                            placeholder="Vul je e-mailadres in"
+                            required
+                            class="w-full px-4 py-3 rounded-md border border-gray-300 text-sm
+                                focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
+                        >
+
+                        <button
+                            type="submit"
+                            class="w-full bg-[#4c3228] text-white font-semibold py-3 rounded-md
+                                hover:bg-[#3a261d] transition">
+                            Inschrijven
+                        </button>
+                    </form>
+
+                    <p class="mt-3 text-xs">
+                        Door je in te schrijven accepteer je de <a href="{{ path('service_privacy') }}" class="hover:underline">privacyvoorwaarden</a>
+                    </p>
+                </div>
+            </div>
+
+    {# ONDERSTE BALK #}
+    <div class="w-full bg-[#f4f1ea] mt-3 border-t border-[#e3c965]">
+        <div class="max-w-7xl mx-auto  px-6 py-4 text-xs flex flex-col md:flex-row
+                    justify-between items-center gap-2 text-[#4c3228]">
+            <span>© {{ "now"|date("Y") }} <strong>Topbags Tassen & Koffers</strong></span>
+            <span class="space-x-4">
+                <a href="{{ path('service_privacy') }}" class="hover:underline">Privacy</a>
+                <a href="{{ path('service_cookies') }}" class="hover:underline">Cookies</a>
+            </span>
+        </div>
+    </div>
+
+</footer>

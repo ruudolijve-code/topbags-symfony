@@ -1,0 +1,33 @@
+{# templates/partials/header/_context_switcher.html.twig #}
+
+{% set currentContext = currentContext ?? context ?? 'shop' %}
+
+<nav class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-center">
+        <ul class="flex items-center gap-10 text-sm font-bold uppercase tracking-widest">
+
+            <li>
+                <a href="{{ path('shop_index') }}"
+                   class="transition-colors {{ currentContext == 'shop' ? 'text-amber-600' : 'text-gray-500 hover:text-amber-600' }}">
+                    Koffers & Reistassen
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ path('bags_index') }}"
+                   class="transition-colors {{ currentContext == 'bags' ? 'text-amber-600' : 'text-gray-500 hover:text-amber-600' }}">
+                    Damestassen
+                </a>
+            </li>
+{#
+            <li class="opacity-50 cursor-not-allowed">
+                <span>Work</span>
+            </li>
+
+            <li class="opacity-50 cursor-not-allowed">
+                <span>School</span>
+            </li>
+#}
+        </ul>
+    </div>
+</nav>

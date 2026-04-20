@@ -1,0 +1,115 @@
+{# templates/product/_gallery_horizontal_museum.html.twig #}
+
+{% if variant.images|length > 0 %}
+
+    {# Slim sorteren zoals eerder #}
+    {% set front = [] %}
+    {% set detail = [] %}
+    {% set interior = [] %}
+    {% set rest = [] %}
+
+    {% for image in variant.images %}
+        {% set url = asset(mediaPath ~ '/' ~ image.path) %}
+        {% set name = image.path|upper %}
+
+        {% if 'FRONT' in name %}
+            {% set front = front|merge([url]) %}
+        {% elseif 'DETAIL' in name or 'CLOSE' in name %}
+            {% set detail = detail|merge([url]) %}
+        {% elseif 'INTERIOR' in name or 'INSIDE' in name or 'OPEN' in name %}
+            {% set interior = interior|merge([url]) %}
+        {% else %}
+            {% set rest = rest|merge([url]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% set images = front|merge(detail)|merge(interior)|merge(rest) %}
+
+    <div class="relative">
+
+        {# ===== HERO VIEWPORT ===== #}
+        <div class="relative overflow-hidden">
+
+            <button
+                class="absolute left-6 top-1/2 -translate-y-1/2 z-10
+                       w-10 h-10 rounded-full bg-white/80 backdrop-blur
+                       shadow hover:bg-white transition flex items-center justify-center"
+                onclick="tbPrev()">
+                ‹
+            </button>
+
+            <div id="tb-gallery"
+                 class="flex transition-transform duration-500 ease-out">
+
+                {% for image in images %}
+                    <div class="min-w-full flex items-center justify-center min-h-[85vh] bg-white">
+                        <img src="{{ image }}"
+                             class="max-h-[85vh] object-contain"
+                             loading="{{ loop.first ? 'eager' : 'lazy' }}">
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <button
+                class="absolute right-6 top-1/2 -translate-y-1/2 z-10
+                       w-10 h-10 rounded-full bg-white/80 backdrop-blur
+                       shadow hover:bg-white transition flex items-center justify-center"
+                onclick="tbNext()">
+                ›
+            </button>
+
+        </div>
+
+        {# ===== THUMB STRIP ===== #}
+        {% if images|length > 1 %}
+        <div class="mt-6 flex justify-center gap-3 overflow-x-auto">
+
+            {% for image in images %}
+                <button onclick="tbSet({{ loop.index0 }})"
+                        class="tb-thumb border border-gray-200 rounded-xl p-1 hover:border-gray-400 transition">
+                    <img src="{{ image }}"
+                         class="w-16 h-16 object-contain"
+                         loading="lazy">
+                </button>
+            {% endfor %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        (function () {
+            const gallery = document.getElementById('tb-gallery');
+            const images = {{ images|json_encode|raw }};
+            let index = 0;
+
+            function update() {
+                gallery.style.transform = `translateX(-${index * 100}%)`;
+                document.querySelectorAll('.tb-thumb').forEach((el, i) => {
+                    el.classList.toggle('ring-2', i === index);
+                    el.classList.toggle('ring-gray-900', i === index);
+                });
+            }
+
+            window.tbNext = function () {
+                index = (index + 1) % images.length;
+                update();
+            }
+
+            window.tbPrev = function () {
+                index = (index - 1 + images.length) % images.length;
+                update();
+            }
+
+            window.tbSet = function (i) {
+                index = i;
+                update();
+            }
+
+            update();
+        })();
+    </script>
+
+{% endif %}

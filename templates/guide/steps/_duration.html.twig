@@ -1,0 +1,45 @@
+<h1 class="text-2xl font-semibold mt-10mb-6">
+    Hoe lang ga je op reis?
+</h1>
+
+<p class="text-gray-600 mb-6">
+    Dit helpt ons bepalen hoeveel bagagevolume je nodig hebt.
+</p>
+
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+{% set durations = {
+    '1_4':  '1–4 dagen',
+    '5_8':  '5–8 dagen',
+    '9_14': '9–14 dagen',
+    '15_plus':  '15+ dagen'
+} %}
+
+{% for key, label in durations %}
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({
+                step: 'frequency',
+                duration: key
+            })
+        ) }}"
+        class="p-4 border rounded-xl text-center hover:border-black transition"
+    >
+        {{ label }}
+    </a>
+{% endfor %}
+
+</div>
+
+<div class="mt-6 flex justify-between text-sm text-gray-500">
+    <a
+        href="{{ path(
+            'guide_index',
+            app.request.query.all | merge({ step: 'transport' }) | filter((v,k) => k != 'duration')
+        ) }}"
+        class="hover:underline"
+    >
+        ← Terug
+    </a>
+</div>

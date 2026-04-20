@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Topbags – Jouw reis begint hier{% endblock %}</title>
+
+    <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-32x32.png') }}" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon/favicon.svg') }}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+
+    {% include 'partials/analytics/google_analytics.html.twig' %}
+
+    {% block canonical %}
+        {% if product is defined and variant is defined %}
+            <link rel="canonical" href="{{ absolute_url(path(
+                'product_show',
+                {
+                    slug: product.slug,
+                    colorSlug: variant.supplierColorSlug,
+                    variantSku: variant.variantSku
+                }
+            )) }}">
+        {% elseif category is defined %}
+            <link rel="canonical" href="{{ absolute_url(path('category_show', { slug: category.slug })) }}">
+        {% elseif brand is defined %}
+            <link rel="canonical" href="{{ absolute_url(path('brand_show', { slug: brand.slug })) }}">
+        {% else %}
+            <link rel="canonical" href="{{ absolute_url(path('home')) }}">
+        {% endif %}
+    {% endblock %}
+
+    {% block meta_description %}
+        {% if product is defined and variant is defined %}
+            <meta name="description"
+                  content="{{ variant.metaDescription
+                    ?? product.name ~ ' in ' ~ variant.supplierColorName ~ ' van ' ~ product.brand.name ~ '. Bekijk nu bij Topbags.' }}">
+        {% elseif category is defined and category.description %}
+            <meta name="description"
+                  content="{{ category.description|striptags|length > 160
+                    ? category.description|striptags|slice(0, 157) ~ '...'
+                    : category.description|striptags }}">
+        {% elseif brand is defined and brand.description %}
+            <meta name="description"
+                  content="{{ brand.description|striptags|length > 160
+                    ? brand.description|striptags|slice(0, 157) ~ '...'
+                    : brand.description|striptags }}">
+        {% else %}
+            <meta name="description"
+                  content="Topbags – Jouw reis begint hier. Ontdek koffers, reistassen en rugzakken van topmerken.">
+        {% endif %}
+    {% endblock %}
+</head>
+
+<body class="bg-white text-gray-900 antialiased" x-data="{ mobileMenuOpen: false }">
+{% set context = context ?? currentContext ?? 'shop' %}
+
+<div class="lg:hidden">
+    {% include 'partials/header/mobile/_uspbar.html.twig' %}
+    {% include 'partials/header/mobile/_header.html.twig' with {
+        context: context
+    } %}
+    {% include 'partials/header/mobile/_search.html.twig' %}
+    {% include 'partials/header/mobile/_menu_drawer.html.twig' with {
+        context: context
+    } %}
+</div>
+
+<div class="hidden lg:block">
+    {% include 'partials/header/_topbar.html.twig' %}
+    {% include 'partials/header/_menu_logo.html.twig' %}
+
+    <header class="relative z-50">
+        {% include 'partials/header/_context_switcher.html.twig' %}
+
+        {% if context == 'shop' %}
+            {% include 'partials/header/_menu_shop.html.twig' %}
+            {% include 'partials/header/_servicebar_shop.html.twig' %}
+        {% elseif context == 'bags' %}
+            {% include 'partials/header/_menu_bags.html.twig' %}
+            {% include 'partials/header/_servicebar_bags.html.twig' %}
+        {% elseif context == 'work' %}
+            {% include 'partials/header/_menu_work.html.twig' %}
+        {% elseif context == 'school' %}
+            {% include 'partials/header/_menu_school.html.twig' %}
+        {% endif %}
+    </header>
+</div>
+
+<main class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
+    {% block body %}
+        {% include 'partials/cart/_progress.html.twig' with {
+            cartCount: cartCount ?? 0,
+            cartSubtotal: cartSubtotal ?? 0,
+            freeShippingThreshold: 49
+        } %}
+    {% endblock %}
+</main>
+
+{% include 'partials/footer.html.twig' %}
+
+{% if app.request.cookies.get('cookie_choice') is not same as('set') %}
+    <div id="cookie-banner" class="fixed bottom-4 left-4 right-4 md:left-1/2 md:right-auto md:w-full md:max-w-2xl md:-translate-x-1/2 z-50 rounded-2xl border border-gray-200 bg-white shadow-xl p-6">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Cookies op Topbags</h3>
+                <p class="mt-2 text-sm text-gray-600 leading-relaxed">
+                    We gebruiken noodzakelijke cookies voor de werking van de webshop.
+                    Met analytics-cookies verbeteren we de website en meten we bezoek.
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+                <button
+                    type="button"
+                    id="cookie-deny"
+                    class="rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-800 hover:bg-gray-50"
+                >
+                    Alleen noodzakelijk
+                </button>
+
+                <button
+                    type="button"
+                    id="cookie-accept"
+                    class="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white hover:bg-gray-900"
+                >
+                    Akkoord met analytics
+                </button>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+    function setCookie(name, value, seconds) {
+        document.cookie = name + "=" + value + "; path=/; max-age=" + seconds + "; SameSite=Lax";
+    }
+
+    function hideCookieBanner() {
+        const banner = document.getElementById('cookie-banner');
+        if (banner) {
+            banner.remove();
+        }
+    }
+
+    document.getElementById('cookie-deny')?.addEventListener('click', function () {
+        setCookie('cookie_choice', 'set', 31536000);
+        setCookie('cookie_analytics', 'denied', 31536000);
+        hideCookieBanner();
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('consent', 'update', {
+            analytics_storage: 'denied'
+        });
+    });
+
+    document.getElementById('cookie-accept')?.addEventListener('click', function () {
+        setCookie('cookie_choice', 'set', 31536000);
+        setCookie('cookie_analytics', 'granted', 31536000);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('consent', 'update', {
+            analytics_storage: 'granted'
+        });
+
+        const gaId = '{{ ga4_measurement_id|default("")|e('js') }}';
+
+        if (gaId && !document.querySelector('script[data-ga4="true"]')) {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+            script.setAttribute('data-ga4', 'true');
+            document.head.appendChild(script);
+
+            script.onload = function () {
+                gtag('js', new Date());
+                gtag('config', gaId);
+            };
+        }
+
+        hideCookieBanner();
+    });
+</script>
+</body>
+</html>

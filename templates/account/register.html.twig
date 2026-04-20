@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Account aanmaken | Topbags{% endblock %}
+
+{% block body %}
+<div class="max-w-xl mx-auto px-6 py-16">
+    <h1 class="text-3xl font-semibold tracking-tight mb-8">
+        Account aanmaken
+    </h1>
+
+    {{ form_start(form, { attr: { class: 'space-y-5' } }) }}
+
+        <div class="grid md:grid-cols-2 gap-5">
+            <div>
+                {{ form_label(form.firstName, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+                {{ form_widget(form.firstName, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                {{ form_errors(form.firstName) }}
+            </div>
+
+            <div>
+                {{ form_label(form.lastName, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+                {{ form_widget(form.lastName, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                {{ form_errors(form.lastName) }}
+            </div>
+        </div>
+
+        <div>
+            {{ form_label(form.email, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+            {{ form_widget(form.email, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div>
+            {{ form_label(form.phone, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+            {{ form_widget(form.phone, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+            {{ form_errors(form.phone) }}
+        </div>
+
+        <div>
+            {{ form_label(form.plainPassword, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+            {{ form_widget(form.plainPassword, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+            {{ form_errors(form.plainPassword) }}
+        </div>
+
+        <div>
+            {{ form_label(form.plainPasswordRepeat, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
+            {{ form_widget(form.plainPasswordRepeat, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+            {{ form_errors(form.plainPasswordRepeat) }}
+        </div>
+
+        <button
+            type="submit"
+            class="w-full rounded-xl bg-black text-white py-3 text-sm font-semibold hover:bg-gray-900 transition"
+        >
+            Account aanmaken
+        </button>
+
+        <div class="text-sm text-gray-600">
+            Heb je al een account?
+            <a href="{{ path('account_login') }}" class="text-gray-900 hover:underline">
+                Log hier in
+            </a>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

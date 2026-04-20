@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interesse clubactie | Topbags{% endblock %}
+
+{% block body %}
+<section class="bg-[#f4f1ea]">
+    <div class="max-w-3xl mx-auto px-6 py-16 md:py-20">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold tracking-tight text-[#4c3228]">
+                Interesse in een clubactie?
+            </h1>
+            <p class="mt-4 text-lg text-[#4c3228]/80 leading-relaxed">
+                Laat je gegevens achter. We nemen contact op om te bespreken hoe jullie club of organisatie met Topbags kan starten.
+            </p>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-800">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, { attr: { class: 'rounded-3xl bg-white p-8 md:p-10 shadow-sm border border-[#e8e1d5] space-y-6' } }) }}
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    {{ form_label(form.organizationType, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.organizationType, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3 bg-white' } }) }}
+                    {{ form_errors(form.organizationType) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.organizationName, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.organizationName, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.organizationName) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.contactName, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.contactName, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.contactName) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.email, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.email, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.phone, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.phone, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.phone) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.city, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.city, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.city) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.memberCount, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.memberCount, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.memberCount) }}
+                </div>
+
+                <div class="md:col-span-2">
+                    {{ form_label(form.message, null, { label_attr: { class: 'block text-sm font-semibold text-gray-900 mb-2' } }) }}
+                    {{ form_widget(form.message, { attr: { class: 'w-full rounded-xl border border-gray-300 px-4 py-3' } }) }}
+                    {{ form_errors(form.message) }}
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-xl bg-[#4c3228] px-6 py-4 text-white font-semibold hover:bg-[#3a261d] transition"
+                >
+                    Verstuur aanvraag
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+</section>
+{% endblock %}

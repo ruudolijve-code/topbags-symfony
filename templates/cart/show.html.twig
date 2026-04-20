@@ -1,0 +1,264 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Winkelwagen | Topbags{% endblock %}
+
+{% block body %}
+<div class="max-w-[1400px] mx-auto px-6 py-16">
+
+    <h1 class="text-3xl font-semibold tracking-tight mb-10">
+        Winkelwagen
+    </h1>
+
+    {% for message in app.flashes('error') %}
+        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% if items is empty %}
+
+        <div class="rounded-2xl border border-gray-200 bg-white px-8 py-12">
+            <div class="text-lg font-medium text-gray-900">
+                Je winkelwagen is nog leeg.
+            </div>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Voeg eerst een product toe voordat je kunt afrekenen.
+            </p>
+
+            <a href="{{ path('shop_index') }}"
+               class="mt-6 inline-block bg-black text-white px-6 py-3 text-sm font-semibold hover:bg-gray-900 transition">
+                Verder winkelen
+            </a>
+        </div>
+
+    {% else %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+
+            <div class="lg:col-span-8 space-y-10">
+
+                {% for item in items %}
+                    <div class="flex gap-8 border-b border-gray-200 pb-10">
+
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden rounded-lg">
+                            {% if item.imageUrl is defined and item.imageUrl %}
+                                <img
+                                    src="{{ asset(item.imageUrl) }}"
+                                    alt="{{ item.name ?? item.sku }}"
+                                    class="max-h-36 object-contain"
+                                >
+                            {% else %}
+                                <div class="text-xs text-gray-400 text-center px-3">
+                                    Geen afbeelding
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+
+                            <div class="text-xs uppercase tracking-[0.18em] text-gray-500">
+                                {{ item.brand ?? 'Merk' }}
+                            </div>
+
+                            <div class="mt-1 text-lg font-medium text-gray-900">
+                                {{ item.name ?? item.sku }}
+                            </div>
+
+                            {% if item.color is defined and item.color %}
+                                <div class="mt-1 text-sm text-gray-500">
+                                    {{ item.color }}
+                                </div>
+                            {% endif %}
+
+                            <div class="mt-1 text-xs text-gray-400">
+                                SKU: {{ item.sku }}
+                            </div>
+
+                            {% if item.saleActive is defined and item.saleActive %}
+                                <div class="mt-3">
+                                    <span class="badge-sale">
+                                        {{ item.saleBadge ?: 'Sale' }}
+                                    </span>
+                                </div>
+                            {% endif %}
+
+                            <div class="mt-6 flex flex-wrap items-center gap-4">
+
+                                <form method="post" action="{{ path('cart_update') }}" class="flex items-center gap-2">
+                                    <input type="hidden" name="variantSku" value="{{ item.sku }}">
+
+                                    <input
+                                        type="number"
+                                        name="qty"
+                                        value="{{ item.qty }}"
+                                        min="1"
+                                        class="w-20 border border-gray-300 px-3 py-2 text-sm rounded-md"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="text-sm font-medium text-gray-700 hover:text-black transition">
+                                        Bijwerken
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{{ path('cart_remove') }}">
+                                    <input type="hidden" name="variantSku" value="{{ item.sku }}">
+
+                                    <button
+                                        type="submit"
+                                        class="text-sm text-gray-500 hover:text-gray-900 transition">
+                                        Verwijderen
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
+
+                        <div class="text-right shrink-0">
+                            {% if item.price is defined %}
+                                <div class="text-sm text-gray-500">
+                                    {{ item.qty }} ×
+                                    <span class="{{ item.saleActive is defined and item.saleActive ? 'text-red-600 font-semibold' : '' }}">
+                                        € {{ item.price|number_format(2, ',', '.') }}
+                                    </span>
+                                </div>
+
+                                {% if item.saleActive is defined and item.saleActive and item.regularPrice is defined %}
+                                    <div class="mt-1 text-sm text-gray-400 line-through">
+                                        € {{ item.regularPrice|number_format(2, ',', '.') }}
+                                    </div>
+                                {% elseif item.compareAtPrice is defined and item.compareAtPrice and item.compareAtPrice > item.price %}
+                                    <div class="mt-1 text-sm text-gray-400">
+                                        adviesprijs
+                                        <span class="line-through">
+                                            € {{ item.compareAtPrice|number_format(2, ',', '.') }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+
+                            <div class="mt-2 text-lg font-semibold {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-900' }}">
+                                € {{ item.lineTotal|number_format(2, ',', '.') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="pt-2">
+                    <a href="{{ path('shop_index') }}"
+                       class="text-sm text-gray-600 hover:text-black transition">
+                        ← Verder winkelen
+                    </a>
+                </div>
+            </div>
+
+            <aside class="lg:col-span-4">
+                <div class="border border-gray-200 p-8 sticky top-24 bg-white space-y-6">
+
+                    <div class="text-sm text-gray-500">
+                        Overzicht
+                    </div>
+
+                    <div>
+                        <div class="text-sm font-medium text-gray-900 mb-3">
+                            Couponcode
+                        </div>
+
+                        {% if couponCode %}
+                            <div class="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                                Coupon <strong>{{ couponCode }}</strong> is toegepast.
+                            </div>
+
+                            <form method="post" action="{{ path('cart_coupon_remove') }}">
+                                <button
+                                    type="submit"
+                                    class="text-sm font-medium text-gray-700 underline hover:text-black transition">
+                                    Coupon verwijderen
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('cart_coupon_apply') }}" class="space-y-3">
+                                <input
+                                    type="text"
+                                    name="couponCode"
+                                    placeholder="Vul je couponcode in"
+                                    class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="w-full rounded-md border border-[#4c3228] px-4 py-3 text-sm font-semibold text-[#4c3228] hover:bg-[#4c3228] hover:text-white transition">
+                                    Coupon toepassen
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6 space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span>Subtotaal</span>
+                            <span>€ {{ subtotal|number_format(2, ',', '.') }}</span>
+                        </div>
+
+                        {% if discountAmount > 0 %}
+                            <div class="flex justify-between text-emerald-700">
+                                <span>Korting</span>
+                                <span>- € {{ discountAmount|number_format(2, ',', '.') }}</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="flex justify-between">
+                            <span>Verzending</span>
+                            <span class="text-gray-500">
+                                {% if shippingCost > 0 %}
+                                    € {{ shippingCost|number_format(2, ',', '.') }}
+                                {% else %}
+                                    Gratis
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        {% if shippingCost > 0 %}
+                            <div class="text-xs text-gray-500">
+                                Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                            </div>
+                        {% else %}
+                            <div class="text-xs text-emerald-700">
+                                Je bestelling komt in aanmerking voor gratis verzending.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6 flex justify-between font-semibold text-gray-900">
+                        <span>Totaal</span>
+                        <span>€ {{ grandTotal|number_format(2, ',', '.') }}</span>
+                    </div>
+
+                    <a href="{{ path('checkout_index') }}"
+                       class="block w-full text-center bg-black text-white py-3 text-sm font-semibold hover:bg-gray-900 transition">
+                        Afrekenen
+                    </a>
+
+                    <div class="text-xs text-gray-500 leading-relaxed">
+                        Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}.<br>
+                        30 dagen retour.<br>
+                        Officieel dealer.
+                    </div>
+
+                </div>
+            </aside>
+
+        </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Koffer reparatie & service – Topbags{% endblock %}
+
+{% block body %}
+<div class="bg-amber-50">
+    <!-- Hero -->
+    <section class="max-w-6xl mx-auto px-6 py-16">
+        <div class="max-w-3xl">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                Officieel koffer reparatie & servicepunt
+            </h1>
+            <p class="text-lg text-gray-700 mb-6">
+                Is je koffer beschadigd of twijfel je of hij nog klaar is voor je volgende reis?
+                Bij <strong>Topbags</strong> ben je aan het juiste adres voor snelle, vakkundige reparaties
+                van A-merken koffers.
+            </p>
+            <div class="flex gap-4 flex-wrap">
+                <a href="#faq"
+                   class="inline-flex items-center rounded-xl bg-amber-600 px-6 py-3 text-white font-semibold hover:bg-amber-700 transition">
+                    Veelgestelde vragen
+                </a>
+                <a href="/contact"
+                   class="inline-flex items-center rounded-xl bg-white px-6 py-3 text-amber-700 font-semibold border border-amber-200 hover:bg-amber-100 transition">
+                    Reparatie aanvragen
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waarom Topbags -->
+    <section class="bg-white">
+        <div class="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-3 gap-10">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Officieel servicepunt</h3>
+                <p class="text-gray-600">
+                    Topbags is een erkend reparatie- en servicepunt voor diverse
+                    toonaangevende koffermerken. Reparaties worden uitgevoerd volgens
+                    de richtlijnen van de fabrikant.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Snel geholpen</h3>
+                <p class="text-gray-600">
+                    Dankzij directe toegang tot originele onderdelen en een eigen
+                    onderdelenvoorraad kunnen wij reparaties vaak sneller uitvoeren
+                    dan externe herstelpunten.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Meer dan reparatie</h3>
+                <p class="text-gray-600">
+                    Als extra service bieden wij een <strong>vakantiecheck</strong>:
+                    we controleren ritsen, wielen, sloten en trekstangen, zodat je
+                    met een gerust hart op reis gaat.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Veelvoorkomende reparaties -->
+    <section class="bg-amber-100">
+        <div class="max-w-6xl mx-auto px-6 py-16">
+            <h2 class="text-2xl font-bold mb-8">
+                Veelvoorkomende reparaties
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <!-- Bullets links -->
+                <ul class="list-disc list-outside pl-6 space-y-3 text-gray-700 marker:text-amber-600">
+                    <li>Defecte wielen vervangen</li>
+                    <li>Kapotte of vastlopende ritsen</li>
+                    <li>Beschadigde trekstang</li>
+                    <li>Sloten en TSA-sloten</li>
+                    <li>Handgrepen en zijhandvatten</li>
+                    <li>Binnenzakken bij harde koffers</li>
+                </ul>
+
+                <!-- Afbeelding rechts -->
+                <div class="relative">
+                    <img
+                        src="{{ asset('images/repair/essens-repair.jpg') }}"
+                        alt="Reparatie van kofferonderdelen bij Topbags"
+                        class="w-full rounded-2xl shadow-lg object-cover"
+                    >
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section id="faq" class="bg-white">
+        <div class="max-w-6xl mx-auto px-6 py-16">
+            <h2 class="text-2xl font-bold mb-8">
+                Veelgestelde vragen
+            </h2>
+
+            <div class="max-w-3xl space-y-4">
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Repareren jullie alle koffers?
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+                    <p class="mt-3 text-gray-600">
+                        Wij repareren vooral koffers van bekende A-merken.
+                        In de winkel beoordelen we of reparatie mogelijk en zinvol is.
+                    </p>
+                </details>
+
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Ik ben de code van mijn cijferslot vergeten, wat nu?
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+                    <p class="mt-3 text-gray-600">
+                        Kan gebeuren! Als officieel service point kunnen wij u helpen met het deblokkeren van uw slot.. 
+        
+                    </p>
+                    <p class="mt-3 text-gray-600">
+                        Forceer het slot niet! Neem contact met onze klantenservice op, wij kunnen het slot vaak schadevrij resetten. 
+                        Let op: breng je zelf schade toe aan de rits of de schaal? Dan vervalt de fabrieksgarantie direct.
+                    </p>
+                </details>
+
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Kofferschade na je vlucht? Geen paniek, wij helpen je op weg
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+
+                    <p class="mt-4 text-gray-600">
+                        Je staat bij de bagageband en ziet het meteen: je koffer heeft de vlucht
+                        niet ongeschonden overleefd. Dat is ontzettend vervelend, maar goed om te
+                        weten: in veel gevallen is de <strong>luchtvaartmaatschappij verantwoordelijk</strong>
+                        voor deze schade.
+                    </p>
+
+                    <p class="mt-3 text-gray-600">
+                        Hoewel koffers ontworpen zijn om tegen een stootje te kunnen, is het
+                        intensieve laden en lossen op luchthavens soms zelfs voor de beste
+                        koffers te veel.
+                    </p>
+
+                    <p class="mt-4 font-semibold text-gray-800">
+                        Wat kun je het beste doen?
+                    </p>
+
+                    <ul class="mt-2 list-disc list-outside pl-6 space-y-2 text-gray-600 marker:text-amber-600">
+                        <li>
+                            <strong>Meld de schade direct.</strong>
+                            Ga op de luchthaven naar de bagage-afhandelingsbalie en laat een
+                            <em>P.I.R. (Property Irregularity Report)</em> opmaken. Dit document
+                            is essentieel als bewijs.
+                        </li>
+                        <li>
+                            <strong>Neem contact met Topbags op.</strong>
+                            Als officieel service- en reparatiepunt kunnen wij je vaak helpen met
+                            een deskundig schaderapport of een prijsopgave voor reparatie of
+                            vervanging, die je kunt indienen bij de luchtvaartmaatschappij.
+                        </li>
+                    </ul>
+
+                    <p class="mt-4 text-gray-600">
+                        Wil je precies weten wat je rechten zijn? Raadpleeg dan de informatie van
+                        <span class="font-medium">ACM ConsuWijzer</span>.
+                        Hulp nodig bij het kiezen van een nieuwe (nog sterkere) koffer?
+                        Je bent altijd welkom in onze winkel in <strong>Hengelo</strong>.
+                    </p>
+                </details>
+
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Hoe lang duurt een reparatie?
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+                    <p class="mt-3 text-gray-600">
+                        Veel reparaties kunnen binnen enkele werkdagen worden uitgevoerd.
+                        Door onze onderdelenvoorraad zijn wachttijden vaak beperkt.
+                    </p>
+                </details>
+
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Valt reparatie onder garantie?
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+                    <p class="mt-3 text-gray-600">
+                        Dat hangt af van het merk, de leeftijd van de koffer en het type schade.
+                        Wij helpen je graag bij de garantie-afhandeling.
+                    </p>
+                </details>
+
+                <details class="group rounded-xl border border-gray-200 bg-white p-5">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-semibold text-lg">
+                        Wat houdt een vakantiecheck in?
+                        <span class="text-amber-600 transition group-open:rotate-180">⌄</span>
+                    </summary>
+                    <p class="mt-3 text-gray-600">
+                        We controleren je koffer op essentiële onderdelen zoals wielen,
+                        ritsen, sloten en trekstang, zodat je niet voor verrassingen
+                        komt te staan tijdens je reis.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

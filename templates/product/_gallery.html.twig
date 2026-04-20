@@ -1,0 +1,153 @@
+{# templates/product/_gallery.html.twig #}
+
+{% if variant.images|length > 0 %}
+
+    {% set imageUrls = [] %}
+    {% for image in variant.images %}
+        {% set imageUrls = imageUrls|merge([asset(mediaPath ~ '/' ~ image.path)]) %}
+    {% endfor %}
+
+    <div class="relative">
+
+        {# =====================
+           HOOFDAFBEELDING
+        ===================== #}
+        <div class="aspect-square bg-white rounded-xl overflow-hidden mb-4 flex items-center justify-center relative">
+
+            <button
+                type="button"
+                class="absolute left-3 z-10 bg-white/80 backdrop-blur px-3 py-2 rounded-full shadow hover:bg-white"
+                onclick="prevImage()"
+            >
+                ‹
+            </button>
+
+            <img
+                id="main-product-image"
+                src="{{ imageUrls[0] }}"
+                alt="{{ product.name }} {{ variant.supplierColorName }}"
+                class="w-full h-full object-contain transition"
+                loading="lazy"
+                onclick="nextImage()"
+            >
+
+            <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-10
+                    bg-white/80 backdrop-blur px-3 py-2 rounded-full
+                    shadow hover:bg-white transition"
+                onclick="nextImage()"
+            >
+                ›
+            </button>
+
+        </div>
+
+        {# =====================
+           THUMBNAILS (MAX 5)
+        ===================== #}
+        {% if imageUrls|length > 1 %}
+            <div class="flex items-center justify-center gap-2">
+
+                <button
+                    type="button"
+                    class="px-2"
+                    onclick="scrollThumbs(-1)"
+                >
+                    ‹
+                </button>
+
+                <div id="thumb-container" class="flex gap-2 overflow-hidden">
+                    {% for url in imageUrls %}
+                        <button
+                            type="button"
+                            class="thumb-item border rounded p-1 transition hover:ring-2 hover:ring-black"
+                            onclick="setImage({{ loop.index0 }})"
+                        >
+                            <img
+                                src="{{ url }}"
+                                class="w-16 h-16 object-contain"
+                                loading="lazy"
+                            >
+                        </button>
+                    {% endfor %}
+                </div>
+
+                <button
+                    type="button"
+                    class="px-2"
+                    onclick="scrollThumbs(1)"
+                >
+                    ›
+                </button>
+
+            </div>
+        {% endif %}
+
+    </div>
+
+    {# =====================
+       JAVASCRIPT
+    ===================== #}
+    <script>
+        const images = {{ imageUrls|json_encode|raw }};
+        let currentIndex = 0;
+        let thumbStart = 0;
+        const maxThumbs = 5;
+
+        function updateMainImage() {
+            const main = document.getElementById('main-product-image');
+            if (main) {
+                main.src = images[currentIndex];
+            }
+            updateThumbVisibility();
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateMainImage();
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateMainImage();
+        }
+
+        function setImage(index) {
+            currentIndex = index;
+            updateMainImage();
+        }
+
+        function scrollThumbs(direction) {
+            thumbStart += direction;
+            if (thumbStart < 0) thumbStart = 0;
+            if (thumbStart > images.length - maxThumbs) {
+                thumbStart = images.length - maxThumbs;
+            }
+            updateThumbVisibility();
+        }
+
+        function updateThumbVisibility() {
+            const thumbs = document.querySelectorAll('.thumb-item');
+            thumbs.forEach((thumb, index) => {
+                thumb.style.display =
+                    (index >= thumbStart && index < thumbStart + maxThumbs)
+                        ? 'inline-block'
+                        : 'none';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateThumbVisibility();
+        });
+    </script>
+
+{% else %}
+
+    <div class="aspect-square bg-gray-50 rounded-xl flex items-center justify-center">
+        <span class="text-sm text-gray-400">
+            Geen afbeelding beschikbaar
+        </span>
+    </div>
+
+{% endif %}

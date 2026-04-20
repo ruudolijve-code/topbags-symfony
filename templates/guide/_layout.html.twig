@@ -1,0 +1,32 @@
+{# templates/guide/_layout.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Reisgids | Topbags
+{% endblock %}
+
+{% block body %}
+
+<div class="max-w-6xl mx-auto px-6 py-10">
+
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">
+            Bagagegids
+        </h1>
+        <p class="text-gray-600">
+            Beantwoord een paar vragen en krijg bagageadvies dat écht past bij jouw reis. 
+            Topbags geeft advies zodat je zekerheid hebt welke koffers mee het vliegtuig in mogen maar ook welke reistassen en rugzakken geschikt zijn voor jouw avontuur. 
+            Twijfel je over de grootte of inhoud? Geen zorgen, wij helpen je op weg! Dat is het voordeel van shoppen bij een specialist.
+        </p>
+    </header>
+
+    {# Progress indicator #}
+    {% include 'guide/_progress.html.twig' %}
+
+    <div class="mt-20">
+        {% block guide_content %}{% endblock %}
+    </div>
+
+</div>
+
+{% endblock %}

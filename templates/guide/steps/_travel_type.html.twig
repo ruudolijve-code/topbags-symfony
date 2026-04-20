@@ -1,0 +1,30 @@
+<h1 class="text-2xl font-semibold mt-10 mb-6">
+    Wat voor reis ga je maken?
+</h1>
+
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+{% set types = {
+    'citytrip': 'Citytrip',
+    'business': 'Zakenreis',
+    'vacation': 'Zomervakantie',
+    'camping': 'Kamperen',
+    'weekend': 'Weekendje weg',
+    'winter': 'Wintersport',
+    'roundtrip': 'Rondreis / Backpacken'
+
+} %}
+
+{% for key, label in types %}
+    <a
+        href="{{ path('guide_index', {
+            step: 'transport',
+            travel_type: key
+        }) }}"
+        class="p-4 border bg-blue-50/50 border-blue-100 rounded-xl text-center hover:border-black transition" 
+    >
+        {{ label }}
+    </a>
+{% endfor %}
+
+</div>

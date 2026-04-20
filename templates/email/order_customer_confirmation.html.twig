@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bestelling {{ order.orderNumber }}</title>
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif; color:#111; line-height:1.6">
+
+<h1>Bedankt voor je bestelling</h1>
+
+<p>Beste klant,</p>
+
+<p>
+We hebben je bestelling <strong>{{ order.orderNumber }}</strong> goed ontvangen
+en de betaling is succesvol verwerkt.
+</p>
+
+<h2>Bestelling</h2>
+
+<table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse">
+
+<tr style="border-bottom:1px solid #ddd">
+<th align="left">Product</th>
+<th align="center">Aantal</th>
+<th align="right">Prijs</th>
+</tr>
+
+{% for item in order.items %}
+<tr style="border-bottom:1px solid #eee">
+<td>{{ item.productName }}</td>
+<td align="center">{{ item.qty }}</td>
+<td align="right">€ {{ item.lineTotal|number_format(2, ',', '.') }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<p style="margin-top:20px">
+<strong>Subtotaal:</strong><br>
+€ {{ order.subtotal|number_format(2, ',', '.') }}
+</p>
+
+{% if order.shippingCost > 0 %}
+<p>
+<strong>Verzending:</strong><br>
+€ {{ order.shippingCost|number_format(2, ',', '.') }}
+</p>
+{% endif %}
+
+<p style="font-size:18px">
+<strong>Totaal:</strong><br>
+€ {{ order.total|number_format(2, ',', '.') }}
+</p>
+
+{% set address = order.shippingAddress ?? {} %}
+
+<h2>Verzendadres</h2>
+
+<p>
+{{ address.firstName|default('') }} {{ address.lastName|default('') }}<br>
+{{ address.street|default('') }}<br>
+{{ address.postalCode|default('') }} {{ address.city|default('') }}<br>
+{{ address.country|default('') }}
+</p>
+
+<p>
+Wij houden je op de hoogte zodra je bestelling wordt verzonden.
+</p>
+
+<p>
+Met vriendelijke groet,<br>
+<strong>Topbags</strong>
+</p>
+
+</body>
+</html>

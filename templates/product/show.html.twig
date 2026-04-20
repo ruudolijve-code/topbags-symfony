@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ product.name }} – {{ variant.supplierColorName }} | {{ product.brand.name }}
+{% endblock %}
+
+{% block body %}
+    <div class="max-w-[1400px] mx-auto px-6 py-1">
+        <nav class="mb-8 text-xs text-gray-500">
+            <a href="{{ path('home') }}" class="hover:text-gray-900">Home</a>
+            <span class="mx-2">/</span>
+            <a href="{{ path('brand_show', { slug: product.brand.slug }) }}" class="hover:text-gray-900">
+                {{ product.brand.name }}
+            </a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">{{ product.name }}</span>
+        </nav>
+
+        {% for message in app.flashes('error') %}
+            <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('success') %}
+            <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <section id="product-focus" class="scroll-mt-40">
+        {% include 'product/_hero_museum_fullwidth.html.twig' with {
+            product: product,
+            variant: variant,
+            master: master,
+            mediaPath: mediaPath,
+            availability: availability
+        } %}
+    </section>
+
+    <div class="max-w-[1400px] mx-auto px-6">
+        {% include 'product/_details.html.twig' %}
+    </div>
+
+    {% if ga4_measurement_id %}
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+
+            gtag('event', 'view_item', {
+                currency: 'EUR',
+                value: {{ variant.price|default(0)|number_format(2, '.', '') }},
+                items: [{
+                    item_id: '{{ variant.variantSku|e('js') }}',
+                    item_name: '{{ product.name|e('js') }}',
+                    item_brand: '{{ product.brand ? product.brand.name|e('js') : '' }}',
+                    item_category: '{{ product.categories|length > 0 ? product.categories|first.name|e('js') : '' }}',
+                    item_variant: '{{ variant.supplierColorName|default('')|e('js') }}',
+                    price: {{ variant.price|default(0)|number_format(2, '.', '') }},
+                    quantity: 1
+                }]
+            });
+        </script>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+              if (window.location.hash === '#product-focus') {
+                  const target = document.getElementById('product-focus');
+
+                  if (!target) {
+                      return;
+                  }
+
+                  setTimeout(function () {
+                      const headerOffset = 90;
+                      const y = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+                      window.scrollTo({
+                          top: y,
+                          behavior: 'auto'
+                      });
+                  }, 80);
+              }
+          });
+          </script>
+    {% endif %}
+{% endblock %}
+

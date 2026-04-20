@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+   De mooiste leren tassen – Topbags
+{% endblock %}
+{% block body %}
+{# Gebruik de bredere container voor de luxe uitstraling #}
+<div class="columns-2 md:columns-3 lg:columns-4 gap-8 space-y-8">
+  {% for item in items %}
+    {% include 'shop/component/card/_card.html.twig' with {
+      context: 'bags',
+      product: item.product,
+      variant: item.variant,
+      master: item.master,
+      mediaPath: item.mediaPath,
+      availability: item.availability
+    } %}
+  {% endfor %}
+</div>
+{% endblock %}

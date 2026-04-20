@@ -1,0 +1,29 @@
+{% extends 'guide/_layout.html.twig' %}
+
+{% block guide_content %}
+
+    {% if step == 'travel_type' %}
+        {% include 'guide/steps/_travel_type.html.twig' %}
+    {% elseif step == 'transport' %}
+        {% include 'guide/steps/_transport.html.twig' %}
+    {% elseif step == 'airline' %}
+        {% include 'guide/steps/_airline.html.twig' %}
+    {% elseif step == 'ticket' %}
+        {% include 'guide/steps/_ticket.html.twig' %}
+    {% elseif step == 'duration' %}
+        {% include 'guide/steps/_duration.html.twig' %}
+    {% elseif step == 'frequency' %}
+        {% include 'guide/steps/_frequency.html.twig' %}
+    {% elseif step == 'preferences' %}
+        {% include 'guide/steps/_preferences.html.twig' %}
+    {% elseif step == 'result' %}
+    {% include 'guide/steps/_result_profile.html.twig' with {
+            profile: result.profile,
+            bestProduct: result.bestProduct ?? null,
+            alternatives: result.alternatives ?? [],
+            matchedVariants: result.matchedVariants ?? [],
+            activeScopes: result.activeScopes ?? []
+        } %}
+    {% endif %}
+
+{% endblock %}

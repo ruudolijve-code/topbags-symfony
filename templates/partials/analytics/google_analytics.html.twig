@@ -1,0 +1,21 @@
+{% if ga4_measurement_id is defined and ga4_measurement_id %}
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        gtag('consent', 'default', {
+            analytics_storage: 'denied'
+        });
+    </script>
+
+    {% if app.request.cookies.get('cookie_analytics') == 'granted' %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_measurement_id|e('html_attr') }}"></script>
+        <script>
+            gtag('js', new Date());
+            gtag('config', '{{ ga4_measurement_id|e('js') }}');
+            gtag('consent', 'update', {
+                analytics_storage: 'granted'
+            });
+        </script>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,29 @@
+<div class="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+    <form action="{{ path('search') }}" method="get" role="search">
+        <div class="relative">
+            <input
+                type="search"
+                name="q"
+                value="{{ app.request.query.get('q') }}"
+                placeholder="Zoek naar koffers, tassen en merken"
+                aria-label="Zoeken"
+                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400"
+            >
+
+            <button
+                type="submit"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition"
+                aria-label="Zoeken"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                     stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.6-5.4a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>

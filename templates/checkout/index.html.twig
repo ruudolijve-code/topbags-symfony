@@ -1,0 +1,862 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Afrekenen | Topbags{% endblock %}
+
+{% block body %}
+<div class="max-w-[1200px] mx-auto px-6 py-16">
+    <h1 class="text-3xl font-light tracking-tight mb-12">
+        Afrekenen
+    </h1>
+
+    {% for message in app.flashes('error') %}
+        <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% set shippingMethod = formData.shipping.method|default('home') %}
+    {% set createAccount = formData.createAccount|default(false) %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div class="lg:col-span-7">
+
+            {% if not app.user %}
+                <section class="mb-10 rounded-2xl border border-gray-300 bg-white">
+                    <button
+                        type="button"
+                        id="checkout-login-toggle"
+                        class="w-full flex items-start justify-between gap-6 px-6 py-5 text-left"
+                    >
+                        <span class="flex items-start gap-4">
+                            <span class="mt-0.5 text-gray-900">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                                </svg>
+                            </span>
+
+                            <span class="block">
+                                <span class="block text-lg font-semibold text-gray-900 underline underline-offset-4">
+                                    Bestel snel met mijn account
+                                </span>
+                                <span class="block mt-1 text-sm text-gray-600">
+                                    Heb je al een account?
+                                </span>
+                            </span>
+                        </span>
+
+                        <span class="text-gray-500">
+                            <svg id="checkout-login-chevron" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd"/>
+                            </svg>
+                        </span>
+                    </button>
+
+                    <div id="checkout-login-panel" class="hidden border-t border-gray-200 px-6 py-6">
+                        <div class="mb-6 flex items-start justify-between gap-6">
+                            <div>
+                                <h2 class="text-2xl font-semibold text-gray-900">
+                                    Login met mijn account
+                                </h2>
+                            </div>
+
+                            <button type="button" id="checkout-login-close" class="text-gray-700 hover:text-black">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" d="M6 6l12 12M18 6l-12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <form method="post" action="{{ path('account_login') }}" class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-x-8 gap-y-6 items-start">
+                            <label for="checkout_login_email" class="block text-sm font-medium text-gray-900 pt-3">
+                                E-mailadres *
+                            </label>
+                            <div>
+                                <input
+                                    id="checkout_login_email"
+                                    type="email"
+                                    name="email"
+                                    autocomplete="email"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                                    placeholder="email@domain.com"
+                                    required
+                                >
+                            </div>
+                            <input type="hidden" name="redirect" value="{{ path('checkout_index') }}">
+
+                            <label for="checkout_login_password" class="block text-sm font-medium text-gray-900 pt-3">
+                                Wachtwoord *
+                            </label>
+                            <div>
+                                <input
+                                    id="checkout_login_password"
+                                    type="password"
+                                    name="password"
+                                    autocomplete="current-password"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                                    placeholder="********"
+                                    required
+                                >
+                            </div>
+
+                            <div class="md:col-start-1 md:col-end-2">
+                                <a href="#" class="text-sm font-medium text-gray-900 underline underline-offset-4 hover:no-underline">
+                                    Wachtwoord vergeten?
+                                </a>
+
+                                <div class="mt-4 text-sm text-gray-700">of</div>
+
+                                <div class="mt-4">
+                                    <div class="font-semibold text-gray-900">
+                                        Kun je niet inloggen?
+                                    </div>
+                                    <div class="mt-1 text-gray-700">
+                                        Geen probleem, je kunt je bestelling ook plaatsen zonder account.
+                                        <button type="button" id="checkout-fill-without-account" class="underline underline-offset-4 hover:no-underline">
+                                            Vul je gegevens in.
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="md:col-start-2">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                                <button
+                                    type="submit"
+                                    class="inline-flex items-center justify-center gap-3 rounded-lg bg-[#2f2f2f] px-8 py-4 text-base font-semibold text-white hover:bg-black transition"
+                                >
+                                    Inloggen en doorgaan
+                                    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.25 10a.75.75 0 0 1 .75-.75h10.19l-3.22-3.22a.75.75 0 1 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H4A.75.75 0 0 1 3.25 10Z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            {% endif %}
+
+            <form method="post" action="{{ path('checkout_confirm') }}" class="space-y-12">
+
+                <section>
+                    <h2 class="text-3xl font-semibold tracking-tight mb-8">Mijn gegevens</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-x-8 gap-y-6 items-start">
+                        <label for="email" class="block text-sm font-medium text-gray-900 pt-3">E-mailadres *</label>
+                        <div>
+                            <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                value="{{ formData.email|default(app.user ? app.user.email : '') }}"
+                                placeholder="naam@voorbeeld.nl"
+                                autocomplete="email"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label for="firstName" class="block text-sm font-medium text-gray-900 pt-3">Voornaam *</label>
+                        <div>
+                            <input
+                                id="firstName"
+                                type="text"
+                                name="firstName"
+                                value="{{ formData.address.firstName|default(app.user ? app.user.firstName : '') }}"
+                                autocomplete="given-name"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label for="lastName" class="block text-sm font-medium text-gray-900 pt-3">Achternaam *</label>
+                        <div>
+                            <input
+                                id="lastName"
+                                type="text"
+                                name="lastName"
+                                value="{{ formData.address.lastName|default(app.user ? app.user.lastName : '') }}"
+                                autocomplete="family-name"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label class="block text-sm font-medium text-gray-900 pt-3">Land *</label>
+                        <div>
+                            <select
+                                name="country"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 bg-white focus:outline-none focus:border-gray-900"
+                            >
+                                <option value="NL" selected>Nederland</option>
+                            </select>
+                        </div>
+
+                        <label for="postalCode" class="block text-sm font-medium text-gray-900 pt-3">Postcode *</label>
+                        <div>
+                            <input
+                                id="postalCode"
+                                type="text"
+                                name="postalCode"
+                                value="{{ formData.address.postalCode|default('') }}"
+                                placeholder="0000 AA"
+                                autocomplete="postal-code"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 uppercase focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label for="street" class="block text-sm font-medium text-gray-900 pt-3">Straat en huisnummer *</label>
+                        <div>
+                            <input
+                                id="street"
+                                type="text"
+                                name="street"
+                                value="{{ formData.address.street|default('') }}"
+                                placeholder="Bijvoorbeeld: Enschedesestraat 12"
+                                autocomplete="street-address"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label for="city" class="block text-sm font-medium text-gray-900 pt-3">Plaats *</label>
+                        <div>
+                            <input
+                                id="city"
+                                type="text"
+                                name="city"
+                                value="{{ formData.address.city|default('') }}"
+                                placeholder="Hengelo"
+                                autocomplete="address-level2"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                        </div>
+
+                        <label for="phone" class="block text-sm font-medium text-gray-900 pt-3">Telefoonnummer *</label>
+                        <div>
+                            <input
+                                id="phone"
+                                type="text"
+                                name="phone"
+                                value="{{ formData.rawPhone|default(app.user ? app.user.phone : '') }}"
+                                placeholder="06 12345678"
+                                autocomplete="tel"
+                                required
+                                class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                            >
+                            <p class="mt-2 text-sm text-gray-500">
+                                Telefoonnummer gebruiken we alleen als we vragen hebben over je bestelling
+                            </p>
+                        </div>
+
+                        <div class="md:col-start-2">
+                            <label class="inline-flex items-center gap-3 text-gray-900">
+                                <input type="checkbox" name="newsletter" value="1" class="rounded border-gray-300">
+                                <span>Abonneer op onze nieuwsbrief</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                {% if not app.user %}
+                    <section class="rounded-2xl bg-[#e8e8fb] p-8">
+                        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+                            Maak nu je account aan - spaar mee voor korting én voordelen
+                        </h2>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-start gap-3 text-gray-900">
+                                <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white text-sm font-semibold">✓</span>
+                                <span>Ontvang een stempel bij elke 25 euro</span>
+                            </div>
+
+                            <div class="flex items-start gap-3 text-gray-900">
+                                <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white text-sm font-semibold">✓</span>
+                                <span>Spaar voor kortingen en gratis cadeaus</span>
+                            </div>
+
+                            <div class="flex items-start gap-3 text-gray-900">
+                                <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white text-sm font-semibold">✓</span>
+                                <span>Extra stempels via acties en verrassingen</span>
+                            </div>
+                        </div>
+
+                        <label class="inline-flex items-center gap-3 text-lg font-medium text-gray-900">
+                            <input
+                                type="checkbox"
+                                id="create-account-checkbox"
+                                name="createAccount"
+                                value="1"
+                                {{ createAccount ? 'checked' : '' }}
+                                class="rounded border-gray-300"
+                            >
+                            <span>Ik wil graag een account aanmaken</span>
+                        </label>
+
+                        <div id="create-account-fields" class="mt-8 {{ createAccount ? '' : 'hidden' }}">
+                            <div class="max-w-3xl">
+                                <label for="accountPassword" class="block text-lg font-medium text-gray-900 mb-3">
+                                    Maak een wachtwoord aan *
+                                </label>
+
+                                <input
+                                    id="accountPassword"
+                                    type="password"
+                                    name="accountPassword"
+                                    value=""
+                                    autocomplete="new-password"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:border-gray-900"
+                                >
+
+                                <p class="mt-3 text-sm text-gray-600">
+                                    Wachtwoord moet minimaal 2 verschillende tekens bevatten
+                                    (kleine letters, hoofdletters, cijfers of speciale tekens)
+                                    en een minimale lengte van 6 tekens hebben.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                {% endif %}
+
+                <section>
+                    <h2 class="text-lg font-medium mb-6">Verzendmethode</h2>
+
+                    <div class="space-y-4">
+                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="home"
+                                {{ shippingMethod == 'home' ? 'checked' : '' }}
+                                class="mt-1"
+                            >
+                            <span class="block">
+                                <span class="block text-sm font-medium text-gray-900">Thuisbezorgen</span>
+                                <span class="block text-sm text-gray-500 mt-1">
+                                    Je bestelling wordt op het opgegeven adres bezorgd.
+                                </span>
+                            </span>
+                        </label>
+
+                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="pickup"
+                                {{ shippingMethod == 'pickup' ? 'checked' : '' }}
+                                class="mt-1"
+                            >
+                            <span class="block">
+                                <span class="block text-sm font-medium text-gray-900">Afhalen bij PostNL-punt</span>
+                                <span class="block text-sm text-gray-500 mt-1">
+                                    Kies een PostNL afhaalpunt bij jou in de buurt.
+                                </span>
+                            </span>
+                        </label>
+
+                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="shippingMethod"
+                                value="store_pickup"
+                                {{ shippingMethod == 'store_pickup' ? 'checked' : '' }}
+                                class="mt-1"
+                            >
+                            <span class="block">
+                                <span class="block text-sm font-medium text-gray-900">Gratis afhalen in onze winkel</span>
+                                <span class="block text-sm text-gray-500 mt-1">
+                                    Holtkamp tassen &amp; koffers, Wemenstraat 5-7, 7551 ET Hengelo.
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div
+                        id="pickup-section"
+                        class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'pickup' ? '' : 'hidden' }}"
+                    >
+                        <div class="flex items-center justify-between gap-4 mb-4">
+                            <h3 class="text-sm font-medium text-gray-900">PostNL afhaalpunten</h3>
+
+                            <button
+                                type="button"
+                                id="pickup-search-button"
+                                class="rounded-full border border-gray-900 px-4 py-2 text-sm font-medium hover:bg-gray-900 hover:text-white transition"
+                            >
+                                Zoek PostNL-punten
+                            </button>
+                        </div>
+
+                        <p class="text-sm text-gray-500 mb-4">
+                            We zoeken afhaalpunten op basis van de ingevulde postcode en het huisnummer van je verzendadres.
+                        </p>
+
+                        <div id="pickup-feedback" class="mb-4 text-sm hidden"></div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900 mb-4">Gekozen afhaalpunt</h4>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="pickupName" class="block text-sm text-gray-600 mb-2">Naam afhaalpunt</label>
+                                        <input id="pickupName" type="text" name="pickupName" value="{{ formData.shipping.pickup.name|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label for="pickupLocationCode" class="block text-sm text-gray-600 mb-2">Location code</label>
+                                        <input id="pickupLocationCode" type="text" name="pickupLocationCode" value="{{ formData.shipping.pickup.locationCode|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label for="pickupRetailNetworkId" class="block text-sm text-gray-600 mb-2">Retail network ID</label>
+                                        <input id="pickupRetailNetworkId" type="text" name="pickupRetailNetworkId" value="{{ formData.shipping.pickup.retailNetworkId|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label for="pickupStreet" class="block text-sm text-gray-600 mb-2">Straat</label>
+                                        <input id="pickupStreet" type="text" name="pickupStreet" value="{{ formData.shipping.pickup.street|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label for="pickupHouseNumber" class="block text-sm text-gray-600 mb-2">Huisnummer</label>
+                                        <input id="pickupHouseNumber" type="text" name="pickupHouseNumber" value="{{ formData.shipping.pickup.houseNumber|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label for="pickupPostalCode" class="block text-sm text-gray-600 mb-2">Postcode</label>
+                                        <input id="pickupPostalCode" type="text" name="pickupPostalCode" value="{{ formData.shipping.pickup.postalCode|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label for="pickupCity" class="block text-sm text-gray-600 mb-2">Plaats</label>
+                                        <input id="pickupCity" type="text" name="pickupCity" value="{{ formData.shipping.pickup.city|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-900 mb-4">Beschikbare afhaalpunten</h4>
+                                <div id="pickup-results" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        id="store-pickup-section"
+                        class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'store_pickup' ? '' : 'hidden' }}"
+                    >
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Afhalen in onze winkel</h3>
+
+                        <div class="rounded-xl bg-white border border-gray-200 p-5 space-y-2">
+                            <div class="font-semibold text-gray-900">Holtkamp tassen &amp; koffers</div>
+                            <div class="text-sm text-gray-700">Wemenstraat 5-7</div>
+                            <div class="text-sm text-gray-700">7551 ET Hengelo</div>
+                            <div class="text-sm text-gray-700">Nederland</div>
+                        </div>
+
+                        <p class="mt-4 text-sm text-gray-500">
+                            Na je bestelling ontvang je bericht zodra je bestelling klaar ligt om af te halen in onze winkel.
+                        </p>
+
+                        <input type="hidden" name="storePickupName" value="Holtkamp tassen & koffers">
+                        <input type="hidden" name="storePickupStreet" value="Wemenstraat 5-7">
+                        <input type="hidden" name="storePickupPostalCode" value="7551 ET">
+                        <input type="hidden" name="storePickupCity" value="Hengelo">
+                        <input type="hidden" name="storePickupCountry" value="NL">
+                    </div>
+                </section>
+
+                <div class="pt-4 flex justify-end">
+                    <button
+                        type="submit"
+                        class="inline-flex items-center justify-center gap-3 rounded-lg bg-[#11845b] px-8 py-4 text-base font-semibold text-white hover:bg-[#0f6f4d] transition"
+                    >
+                        Ga naar betalen
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3.25 10a.75.75 0 0 1 .75-.75h10.19l-3.22-3.22a.75.75 0 1 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H4A.75.75 0 0 1 3.25 10Z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <aside class="lg:col-span-5 lg:sticky lg:top-12">
+            <div class="rounded-2xl border border-gray-200 bg-white p-8 space-y-8">
+                <h2 class="text-lg font-medium">Overzicht</h2>
+
+                <div class="space-y-5">
+                    {% for item in items %}
+                        <div class="flex justify-between gap-6 text-sm">
+                            <div class="min-w-0">
+                                <div class="text-gray-900">
+                                    {{ item.name }} × {{ item.qty }}
+                                </div>
+
+                                {% if item.color is defined and item.color %}
+                                    <div class="mt-1 text-xs text-gray-500">
+                                        {{ item.color }}
+                                    </div>
+                                {% endif %}
+
+                                {% if item.saleActive is defined and item.saleActive %}
+                                    <div class="mt-2 flex items-center gap-2 flex-wrap">
+                                        {% if item.saleBadge is defined and item.saleBadge %}
+                                            <span class="badge-sale">
+                                                {{ item.saleBadge }}
+                                            </span>
+                                        {% endif %}
+
+                                        {% if item.regularPrice is defined and item.regularPrice > item.price %}
+                                            <span class="text-xs text-gray-400 line-through">
+                                                € {{ item.regularPrice|number_format(2, ',', '.') }} p/st
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% elseif item.compareAtPrice is defined and item.compareAtPrice and item.compareAtPrice > item.price %}
+                                    <div class="mt-2 text-xs text-gray-400">
+                                        adviesprijs
+                                        <span class="line-through">
+                                            € {{ item.compareAtPrice|number_format(2, ',', '.') }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="shrink-0 text-right">
+                                {% if item.price is defined %}
+                                    <div class="text-xs {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-500' }}">
+                                        {{ item.qty }} × € {{ item.price|number_format(2, ',', '.') }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="mt-1 font-semibold {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-900' }}">
+                                    € {{ item.lineTotal|number_format(2, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Subtotaal</span>
+                        <span class="text-gray-900">
+                            € {{ subtotal|number_format(2, ',', '.') }}
+                        </span>
+                    </div>
+
+                    {% if couponCode %}
+                        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                            Coupon <strong>{{ couponCode }}</strong> is toegepast.
+                        </div>
+                    {% endif %}
+
+                    {% if discountAmount > 0 %}
+                        <div class="flex justify-between text-emerald-700">
+                            <span>Korting</span>
+                            <span>
+                                - € {{ discountAmount|number_format(2, ',', '.') }}
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Verzendkosten</span>
+                        <span class="text-gray-900">
+                            {% if shippingCost > 0 %}
+                                € {{ shippingCost|number_format(2, ',', '.') }}
+                            {% else %}
+                                Gratis
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    {% if shippingCost > 0 %}
+                        <div class="text-xs text-gray-500">
+                            Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                        </div>
+                    {% else %}
+                        <div class="text-xs text-emerald-700">
+                            Je bestelling komt in aanmerking voor gratis verzending.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="border-t border-gray-200 pt-6 flex justify-between font-medium text-base">
+                    <span>Totaal</span>
+                    <span>€ {{ grandTotal|number_format(2, ',', '.') }}</span>
+                </div>
+            </div>
+        </aside>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const shippingInputs = document.querySelectorAll('input[name="shippingMethod"]');
+    const pickupSection = document.getElementById('pickup-section');
+    const storePickupSection = document.getElementById('store-pickup-section');
+    const pickupSearchButton = document.getElementById('pickup-search-button');
+    const pickupResults = document.getElementById('pickup-results');
+    const pickupFeedback = document.getElementById('pickup-feedback');
+
+    const postalCodeInput = document.getElementById('postalCode');
+    const streetInput = document.getElementById('street');
+
+    const pickupFields = {
+        name: document.getElementById('pickupName'),
+        locationCode: document.getElementById('pickupLocationCode'),
+        retailNetworkId: document.getElementById('pickupRetailNetworkId'),
+        street: document.getElementById('pickupStreet'),
+        houseNumber: document.getElementById('pickupHouseNumber'),
+        postalCode: document.getElementById('pickupPostalCode'),
+        city: document.getElementById('pickupCity')
+    };
+
+    const createAccountCheckbox = document.getElementById('create-account-checkbox');
+    const createAccountFields = document.getElementById('create-account-fields');
+    const loginToggle = document.getElementById('checkout-login-toggle');
+    const loginPanel = document.getElementById('checkout-login-panel');
+    const loginClose = document.getElementById('checkout-login-close');
+    const loginChevron = document.getElementById('checkout-login-chevron');
+    const fillWithoutAccount = document.getElementById('checkout-fill-without-account');
+
+    function clearPickupFields() {
+        Object.values(pickupFields).forEach((field) => {
+            if (field) {
+                field.value = '';
+            }
+        });
+    }
+
+    function clearFeedback() {
+        pickupFeedback.textContent = '';
+        pickupFeedback.classList.add('hidden');
+        pickupFeedback.classList.remove('text-red-700', 'text-emerald-700');
+    }
+
+    function setFeedback(message, isError = false) {
+        pickupFeedback.textContent = message;
+        pickupFeedback.classList.remove('hidden', 'text-red-700', 'text-emerald-700');
+        pickupFeedback.classList.add(isError ? 'text-red-700' : 'text-emerald-700');
+    }
+
+    function extractHouseNumber(value) {
+        const match = value.trim().match(/\d+[a-zA-Z0-9\-\/]*/);
+        return match ? match[0] : '';
+    }
+
+    function fillPickupFields(location) {
+        pickupFields.name.value = location.name || '';
+        pickupFields.locationCode.value = location.locationCode || '';
+        pickupFields.retailNetworkId.value = location.retailNetworkId || '';
+        pickupFields.street.value = location.street || '';
+        pickupFields.houseNumber.value = location.houseNumber || '';
+        pickupFields.postalCode.value = location.postalCode || '';
+        pickupFields.city.value = location.city || '';
+    }
+
+    function renderPickupResults(locations) {
+        pickupResults.innerHTML = '';
+
+        if (!Array.isArray(locations) || locations.length === 0) {
+            pickupResults.innerHTML = '<div class="rounded-xl border border-gray-200 bg-white px-4 py-4 text-sm text-gray-500">Geen afhaalpunten gevonden.</div>';
+            return;
+        }
+
+        locations.forEach((location) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'block w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 text-left hover:border-gray-900 transition';
+
+            button.innerHTML = `
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">${location.name || 'PostNL-punt'}</div>
+                        <div class="mt-1 text-sm text-gray-600">
+                            ${(location.street || '')} ${(location.houseNumber || '')}<br>
+                            ${(location.postalCode || '')} ${(location.city || '')}
+                        </div>
+                    </div>
+                    ${location.distance ? `<div class="shrink-0 text-xs text-gray-500">${location.distance}</div>` : ''}
+                </div>
+            `;
+
+            button.addEventListener('click', function () {
+                fillPickupFields(location);
+                setFeedback('Afhaalpunt geselecteerd.');
+            });
+
+            pickupResults.appendChild(button);
+        });
+    }
+
+    async function searchPickupPoints() {
+        clearFeedback();
+        clearPickupFields();
+        pickupResults.innerHTML = '';
+
+        const postalCode = postalCodeInput ? postalCodeInput.value.trim() : '';
+        const houseNumber = streetInput ? extractHouseNumber(streetInput.value) : '';
+
+        if (!postalCode || !houseNumber) {
+            setFeedback('Vul eerst een geldige postcode en straat met huisnummer in.', true);
+            return;
+        }
+
+        setFeedback('PostNL-punten worden opgehaald...');
+
+        try {
+            const endpoint = '{{ path("checkout_pickup_points") }}';
+            const query = '?postalCode=' + encodeURIComponent(postalCode) + '&houseNumber=' + encodeURIComponent(houseNumber);
+
+            const response = await fetch(endpoint + query, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const text = await response.text();
+            let data = {};
+
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                setFeedback('Endpoint gaf geen geldige JSON terug. Controleer de 500-fout in Symfony.', true);
+                return;
+            }
+
+            if (!response.ok || !data.ok) {
+                setFeedback(data.details || data.error || 'Afhaalpunten ophalen is niet gelukt.', true);
+                return;
+            }
+
+            renderPickupResults(data.locations || []);
+            setFeedback('Kies een afhaalpunt uit de lijst.');
+        } catch (error) {
+            setFeedback(error.message || 'Er is een fout opgetreden bij het ophalen van afhaalpunten.', true);
+        }
+    }
+
+    function togglePickupSection() {
+        const selected = document.querySelector('input[name="shippingMethod"]:checked');
+        const method = selected ? selected.value : 'home';
+        const isPickup = method === 'pickup';
+        const isStorePickup = method === 'store_pickup';
+
+        pickupSection.classList.toggle('hidden', !isPickup);
+        storePickupSection.classList.toggle('hidden', !isStorePickup);
+
+        if (isPickup) {
+            const postalCode = postalCodeInput ? postalCodeInput.value.trim() : '';
+            const houseNumber = streetInput ? extractHouseNumber(streetInput.value) : '';
+
+            if (postalCode && houseNumber && pickupResults.innerHTML.trim() === '') {
+                searchPickupPoints();
+            }
+        } else {
+            clearPickupFields();
+            clearFeedback();
+            pickupResults.innerHTML = '';
+        }
+    }
+
+    function toggleCreateAccountFields() {
+        if (!createAccountCheckbox || !createAccountFields) {
+            return;
+        }
+
+        createAccountFields.classList.toggle('hidden', !createAccountCheckbox.checked);
+    }
+
+    function openLoginPanel() {
+        if (!loginPanel) {
+            return;
+        }
+
+        loginPanel.classList.remove('hidden');
+
+        if (loginChevron) {
+            loginChevron.classList.add('rotate-180');
+        }
+    }
+
+    function closeLoginPanel() {
+        if (!loginPanel) {
+            return;
+        }
+
+        loginPanel.classList.add('hidden');
+
+        if (loginChevron) {
+            loginChevron.classList.remove('rotate-180');
+        }
+    }
+
+    shippingInputs.forEach((input) => {
+        input.addEventListener('change', togglePickupSection);
+    });
+
+    if (pickupSearchButton) {
+        pickupSearchButton.addEventListener('click', searchPickupPoints);
+    }
+
+    if (createAccountCheckbox) {
+        createAccountCheckbox.addEventListener('change', toggleCreateAccountFields);
+    }
+
+    if (loginToggle) {
+        loginToggle.addEventListener('click', function () {
+            if (loginPanel.classList.contains('hidden')) {
+                openLoginPanel();
+            } else {
+                closeLoginPanel();
+            }
+        });
+    }
+
+    if (loginClose) {
+        loginClose.addEventListener('click', closeLoginPanel);
+    }
+
+    if (fillWithoutAccount) {
+        fillWithoutAccount.addEventListener('click', closeLoginPanel);
+    }
+
+    togglePickupSection();
+    toggleCreateAccountFields();
+});
+</script>
+
+{% if ga4_measurement_id and items is not empty %}
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    gtag('event', 'begin_checkout', {
+        currency: 'EUR',
+        value: {{ grandTotal|default(subtotal)|number_format(2, '.', '') }},
+        coupon: '{{ couponCode|default('')|e('js') }}',
+        items: [
+            {% for item in items %}
+            {
+                item_id: '{{ item.sku|e('js') }}',
+                item_name: '{{ item.name|e('js') }}',
+                item_brand: '{{ item.brand|default('')|e('js') }}',
+                item_variant: '{{ item.color|default('')|e('js') }}',
+                price: {{ item.price|number_format(2, '.', '') }},
+                quantity: {{ item.qty }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    });
+</script>
+{% endif %}
+
+{% endblock %}

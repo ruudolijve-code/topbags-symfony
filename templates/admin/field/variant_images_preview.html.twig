@@ -1,0 +1,33 @@
+{% set images = entity.instance.imagesPreview ?? [] %}
+
+<div class="ea-variant-images-preview">
+    {% if images is empty %}
+        <div class="text-muted">
+            Nog geen afbeeldingen geüpload.
+        </div>
+    {% else %}
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:16px;">
+            {% for image in images %}
+                <div style="border:1px solid #d9e2ec; border-radius:12px; padding:10px; background:#fff;">
+                    {% if image.previewUrl %}
+                        <div style="aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:#f8fafc; border-radius:8px; overflow:hidden; margin-bottom:8px;">
+                            <img
+                                src="{{ image.previewUrl }}"
+                                alt="{{ image.filename }}"
+                                style="max-width:100%; max-height:100%; object-fit:contain;"
+                            >
+                        </div>
+                    {% endif %}
+
+                    <div style="font-size:12px; line-height:1.4; word-break:break-word;">
+                        <div><strong>{{ image.filename }}</strong></div>
+                        <div>Positie: {{ image.position }}</div>
+                        {% if image.isPrimary %}
+                            <div style="color:#15803d; font-weight:600;">Primair</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

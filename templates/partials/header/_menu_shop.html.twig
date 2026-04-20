@@ -1,0 +1,94 @@
+    {# =========================
+       LAAG 2 · MEGA MENU (SHOP)
+       ========================= #}
+    <div class="bg-gray-50 border-t border-gray-200 relative z-40">
+        <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-center">
+
+            <ul class="flex items-center gap-10 h-full">
+
+                {% for category in menuShopCategories %}
+                    <li class="group h-full flex items-center">
+
+                        {# Hoofditem #}
+                        <a
+                            href="{{ path('category_show', { slug: category.slug }) }}"
+                            class="flex items-center gap-1.5 h-full
+                                   text-[14px] font-bold uppercase tracking-wider
+                                   text-gray-800 hover:text-amber-800
+                                   transition-colors"
+                        >
+                            {{ category.menuLabel ?? category.name }}
+
+                            {% if category.children|length > 0 %}
+                                <svg
+                                    class="w-3.5 h-3.5 text-gray-400
+                                           group-hover:text-amber-800 transition-colors"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2.5"
+                                        d="M19 9l-7 7-7-7"
+                                    />
+                                </svg>
+                            {% endif %}
+                        </a>
+
+                        {# =========================
+                           MEGA DROPDOWN
+                           ========================= #}
+                        {% if category.children|length > 0 %}
+                            <div
+                                class="absolute left-0 top-full w-full bg-white
+                                       border-b border-gray-200 shadow-xl
+                                       opacity-0 invisible
+                                       group-hover:opacity-100
+                                       group-hover:visible
+                                       transition-all duration-200 z-50"
+                            >
+                                <div
+                                    class="max-w-7xl mx-auto px-6 py-10
+                                           grid grid-cols-4 gap-8"
+                                >
+                                    {% for child in category.children %}
+                                        <a
+                                            href="{{ path('category_show', { slug: child.slug }) }}"
+                                            class="group/item"
+                                        >
+                                            <p
+                                                class="font-bold text-gray-900
+                                                       group-hover/item:text-amber-800
+                                                       transition-colors"
+                                            >
+                                                {{ child.menuLabel ?? child.name }}
+                                            </p>
+                                            <p class="text-xs text-gray-400 uppercase tracking-wide">
+                                                Ontdek collectie
+                                            </p>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </li>
+                {% endfor %}
+
+                 {# Vast sale-item in hoofdnav #}
+            <li class="flex h-full items-center">
+                <a
+                    href="{{ path('sale_index') }}"
+                    class="flex h-full items-center text-[14px] font-bold uppercase tracking-wider text-red-600 transition-colors hover:text-red-700"
+                >
+                    Sale
+                </a>
+            </li>
+            
+            </ul>
+        </div>
+    </div>
+
+</nav>

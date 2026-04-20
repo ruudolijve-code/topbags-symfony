@@ -1,0 +1,22 @@
+
+
+    <div class="bg-gray-50 border-t border-gray-200 relative z-40">
+        <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-center">
+
+            <ul class="flex items-center gap-10 h-full text-[14px] font-bold uppercase">
+
+            {% for category in menuBagsCategories %}
+                <li>
+                    <a href="{{ path('category_show', { slug: category.slug }) }}">
+                        {{ category.menuLabel ?? category.name }}
+                    </a>
+                </li>
+            {% endfor %}
+
+        </ul>
+
+
+    </div>
+    </div>
+
+</nav>

@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mijn account | Topbags{% endblock %}
+
+{% block body %}
+<div class="max-w-6xl mx-auto px-6 py-16">
+
+    <div class="flex items-start justify-between gap-6 mb-10">
+        <div>
+            <h1 class="text-3xl font-semibold tracking-tight">
+                Mijn account
+            </h1>
+            <p class="text-gray-600 mt-2">
+                Bekijk hier je bestellingen, bestelstatus en verzendinformatie.
+            </p>
+        </div>
+
+        <a href="{{ path('customer_logout') }}"
+           class="text-sm font-medium text-gray-700 hover:text-black underline underline-offset-4">
+            Uitloggen
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% if orders is empty %}
+        <div class="rounded-2xl border border-gray-200 bg-white p-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-3">
+                Nog geen bestellingen
+            </h2>
+
+            <p class="text-gray-600 mb-6">
+                Je hebt nog geen bestellingen geplaatst met dit account.
+            </p>
+
+            <a href="{{ path('shop_index') }}"
+               class="inline-flex items-center justify-center rounded-lg bg-black px-6 py-3 text-sm font-semibold text-white hover:bg-gray-900 transition">
+                Bekijk producten
+            </a>
+        </div>
+    {% else %}
+        <div class="space-y-5">
+            {% for order in orders %}
+                {% set statusLabel = {
+                    'pending_payment': 'Wacht op betaling',
+                    'paid': 'Betaald',
+                    'cancelled': 'Geannuleerd',
+                    'shipped': 'Verzonden',
+                    'failed': 'Mislukt',
+                    'expired': 'Verlopen'
+                } %}
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:items-start">
+                        <div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                Ordernummer
+                            </div>
+                            <div class="font-medium text-gray-900">
+                                {{ order.orderNumber }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                Datum
+                            </div>
+                            <div class="text-gray-700">
+                                {{ order.createdAt|date('d-m-Y H:i') }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                Status
+                            </div>
+
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium
+                                {% if order.status == 'paid' %}
+                                    bg-emerald-100 text-emerald-800
+                                {% elseif order.status == 'shipped' %}
+                                    bg-blue-100 text-blue-800
+                                {% elseif order.status in ['failed', 'cancelled', 'expired'] %}
+                                    bg-red-100 text-red-800
+                                {% else %}
+                                    bg-amber-100 text-amber-800
+                                {% endif %}
+                            ">
+                                {{ statusLabel[order.status] ?? order.status }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                Totaal
+                            </div>
+                            <div class="font-medium text-gray-900">
+                                € {{ order.total|number_format(2, ',', '.') }}
+                            </div>
+                        </div>
+
+                        <div class="lg:text-right">
+                            <a href="{{ path('order_success', { orderNumber: order.orderNumber }) }}"
+                               class="text-sm font-medium text-gray-700 hover:text-black underline underline-offset-4">
+                                Bekijken
+                            </a>
+                        </div>
+                    </div>
+
+                    {% if order.status == 'shipped' or order.trackingCode or order.trackingUrl %}
+                        <div class="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                <div class="space-y-2">
+                                    <div class="text-sm font-semibold text-blue-900">
+                                        Verzendinformatie
+                                    </div>
+
+                                    {% if order.shippedAt %}
+                                        <div class="text-sm text-blue-900/80">
+                                            Verzonden op {{ order.shippedAt|date('d-m-Y H:i') }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if order.trackingCode %}
+                                        <div class="text-sm text-blue-900/80">
+                                            Track &amp; trace code:
+                                            <span class="font-medium text-blue-950">{{ order.trackingCode }}</span>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if order.trackingUrl %}
+                                        <div class="pt-1">
+                                            <a href="{{ order.trackingUrl }}"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="inline-flex items-center justify-center rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-950 transition">
+                                                Volg je zending
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        {% if order.status == 'shipped' %}
+                                            <div class="text-sm text-blue-900/80">
+                                                Je bestelling is verzonden. De track &amp; trace link volgt zodra deze beschikbaar is.
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

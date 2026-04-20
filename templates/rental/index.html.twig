@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reiskoffer huren – Topbags / Holtkamp{% endblock %}
+
+{% block body %}
+<section class="bg-amber-50 border-b border-amber-200">
+    <div class="max-w-6xl mx-auto px-6 py-14 text-center">
+        <h1 class="text-4xl md:text-5xl font-semibold text-gray-900">
+            Reiskoffer huren
+        </h1>
+        <p class="mt-4 text-lg text-gray-700 max-w-2xl mx-auto">
+            Ga je maar af en toe op reis?  
+            Dan is huren vaak slimmer dan kopen: geen opslag, geen investering.
+        </p>
+    </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-6 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+
+        {# =====================
+           USP / INFO
+        ===================== #}
+        <ul class="space-y-5 text-gray-700">
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <div>
+                    <p class="font-medium text-gray-900">3 formaten reiskoffers</p>
+                    <ul class="mt-2 ml-4 text-sm space-y-1 text-gray-600">
+                        <li>S – 55 cm (handbagage)</li>
+                        <li>M – 67 cm (medium)</li>
+                        <li>L – 77 cm (groot)</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>Kwaliteitsmerken zoals <strong>Samsonite</strong> en <strong>American Tourister</strong></span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>Geen zorgen over airline-regels of afmetingen</span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>Borg: €50 per koffer</span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <div>
+                    <p class="font-medium text-gray-900">Huurprijs per dag <span class="text-sm font-normal">(min. 4 dagen)</span></p>
+                    <ul class="mt-2 ml-4 text-sm space-y-1">
+                        <li>S: € 3,25</li>
+                        <li>M: € 4,00</li>
+                        <li>L: € 7,50</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>Na iedere verhuur professioneel gereinigd en gecontroleerd</span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>10% korting op een underseater bij huur van koffer</span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500 ">●</span>
+                <span>Zelf ophalen en brengen bij onze winkel (of verzendkosten)</span>
+            </li>
+
+            <li class="flex gap-3">
+                <span class="text-amber-500">●</span>
+                <span>Op basis van beschikbaarheid, reserveer tijdig!</span>
+            </li>
+
+        </ul>
+
+        {# =====================
+           IMAGE
+        ===================== #}
+        <div class="sticky top-10 flex justify-center">
+            <img
+                src="{{ asset('images/koffer-huren.webp') }}"
+                alt="Reiskoffer huren bij Holtkamp"
+                class="rounded-2xl shadow-xl w-full max-w-sm object-cover aspect-[4/5]"
+            >
+        </div>
+
+    </div>
+</section>
+
+{# =====================
+   HOE WERKT HET
+===================== #}
+<section class="bg-amber-100/50 border-y border-amber-200">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h2 class="text-2xl font-semibold text-center text-gray-900 mb-12">
+            Zo werkt het huren
+        </h2>
+
+        {% set steps = [
+            {icon: 'suitcase', label: 'Kies je koffer'},
+            {icon: 'calendar', label: 'Kies periode'},
+            {icon: 'pick-up', label: 'Ophalen in winkel'},
+            {icon: 'plane', label: 'Zorgeloos op reis'},
+            {icon: 'deal', label: 'Terugbrengen'}
+        ] %}
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 text-center">
+
+            {% for step in steps %}
+                <div class="flex flex-col items-center">
+                    <div class="mb-4 bg-white border border-amber-200 rounded-2xl p-4 shadow-sm">
+                        <div class="w-12 h-12 flex items-center justify-center">
+                            {% include 'partials/icons/' ~ step.icon ~ '.svg.twig' with {
+                                class: 'w-full h-full'
+                            } %}
+                        </div>
+                    </div>
+                    <div class="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                        {{ step.label }}
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+{# =====================
+   CTA
+===================== #}
+<section class="bg-gray-900 text-white">
+    <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+        <h2 class="text-2xl font-semibold mb-6">
+            Direct een koffer huren?
+        </h2>
+
+        <div class="flex flex-col md:flex-row justify-center gap-10 text-lg">
+            <a href="tel:+31742912205" class="hover:text-amber-300 transition">
+                📞 074 – 291 2205
+            </a>
+            <a href="mailto:koffer-huren@topbags.nl" class="hover:text-amber-300 transition">
+                ✉️ koffer-huren@topbags.nl
+            </a>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-400">
+            Afhalen en retourneren bij onze winkel in Hengelo
+        </p>
+    </div>
+</section>
+{% endblock %}

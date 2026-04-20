@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Garantie | Topbags{% endblock %}
+
+{% block body %}
+
+<section class="max-w-3xl mx-auto px-6 py-16">
+    <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Reparatie & Servicepunt</h1>
+        <p class="text-lg text-gray-600 mt-2">Snelle reparatie van koffers en reistassen</p>
+    </header>
+
+<div class="space-y-4">
+
+    <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md" open>
+        <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="text-lg font-semibold text-gray-800">Kan mijn koffer gerepareerd worden?</span>
+            <div class="transition-transform duration-300 group-open:rotate-180">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </summary>
+        <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+            <p>
+                In veel gevallen is een koffer goed te repareren. Denk bijvoorbeeld aan defecte wielen,
+                kapotte ritsen, handgrepen of telescopische trekstangen.
+            </p>
+            <p>
+                Wij beoordelen altijd eerst of reparatie mogelijk en zinvol is.
+            </p>
+        </div>
+    </details>
+
+    <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+        <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="text-lg font-semibold text-gray-800">Officieel servicepunt</span>
+            <div class="transition-transform duration-300 group-open:rotate-180">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </summary>
+        <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+            <p>
+                Topbags is een officieel reparatie- en servicepunt voor verschillende koffermerken.
+            </p>
+            <p>
+                Dankzij toegang tot originele onderdelen kunnen veel reparaties snel en vakkundig worden uitgevoerd.
+            </p>
+        </div>
+    </details>
+
+    <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+        <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="text-lg font-semibold text-gray-800">Hoe werkt een reparatie?</span>
+            <div class="transition-transform duration-300 group-open:rotate-180">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </summary>
+        <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+            <p>
+                Breng je koffer langs in onze winkel in Hengelo of neem contact met ons op.
+            </p>
+            <p>
+                Wij bekijken het defect en laten je weten wat de mogelijkheden zijn.
+            </p>
+            <p>
+                Als de reparatie onder garantie valt, verzorgen wij de afhandeling met het merk.
+            </p>
+        </div>
+    </details>
+
+    <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
+        <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
+            <span class="text-lg font-semibold text-gray-800">Wat kost een reparatie?</span>
+            <div class="transition-transform duration-300 group-open:rotate-180">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </summary>
+        <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
+            <p>
+                De kosten zijn afhankelijk van het type reparatie en de benodigde onderdelen.
+            </p>
+            <p>
+                Voordat we een reparatie uitvoeren, ontvang je altijd een duidelijke indicatie van de kosten.
+            </p>
+        </div>
+    </details>
+
+</div>
+
+<footer class="mt-16 text-center p-8 bg-blue-50 rounded-3xl border border-blue-100">
+    <p class="font-medium text-blue-900">Een defect aan je koffer?</p>
+    <p class="text-sm text-blue-700 mt-1">Neem contact op of kom langs in onze winkel.</p>
+    <div class="mt-4">
+        <a href="/contact"
+           class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition">
+            Contact opnemen
+        </a>
+    </div>
+</footer>
+
+</section>
+{% endblock %}
