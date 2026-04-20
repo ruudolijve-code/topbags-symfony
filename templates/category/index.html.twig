@@ -26,12 +26,18 @@
             <aside class="lg:col-span-1 bg-white rounded-xl p-6 shadow-sm">
                 <form method="get" class="space-y-6">
 
-                    {% include 'shop/filter/_filter_brands.html.twig' %}
-                    {% include 'shop/filter/_filter_volume.html.twig' %}
-                    {% include 'shop/filter/_filter_color.html.twig' %}
-                    {% include 'shop/filter/_filter_airlines.html.twig' %}
-                    {% include 'shop/filter/_filter_flying_scope.html.twig' %}
-                    {% include 'shop/filter/_filter_cta.html.twig' %}
+                    {% if category.slug == 'bags' %}
+                        {% include 'shop/filter/_filter_brands.html.twig' %}
+                        {% include 'shop/filter/_filter_color.html.twig' %}
+                        {% include 'shop/filter/_filter_cta.html.twig' %}
+                    {% else %}
+                        {% include 'shop/filter/_filter_brands.html.twig' %}
+                        {% include 'shop/filter/_filter_volume.html.twig' %}
+                        {% include 'shop/filter/_filter_color.html.twig' %}
+                        {% include 'shop/filter/_filter_airlines.html.twig' %}
+                        {% include 'shop/filter/_filter_flying_scope.html.twig' %}
+                        {% include 'shop/filter/_filter_cta.html.twig' %}
+                    {% endif %}
 
                 </form>
             </aside>
