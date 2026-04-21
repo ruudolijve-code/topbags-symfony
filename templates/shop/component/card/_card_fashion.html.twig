@@ -79,26 +79,7 @@
           {% endif %}
         </div>
       {% endif %}
-
-      {# ===============================
-         Subtiele availability
-      =============================== #}
-      {% if availability is defined and availability %}
-        {% if availability.status == 'backorder' %}
-          <div class="mt-2 text-[11px] font-medium text-amber-700">
-            {{ availability.deliveryLabel }}
-          </div>
-        {% elseif availability.status == 'out_of_stock' %}
-          <div class="mt-2 text-[11px] font-medium text-gray-500">
-            Tijdelijk niet leverbaar
-          </div>
-        {% elseif availability.status == 'in_stock' %}
-          <div class="mt-2 text-[11px] font-medium text-emerald-700">
-            {{ availability.deliveryLabel }}
-          </div>
-        {% endif %}
-      {% endif %}
-
+   
     </div>
 
   </a>

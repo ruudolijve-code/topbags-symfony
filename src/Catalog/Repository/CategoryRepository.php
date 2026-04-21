@@ -15,10 +15,6 @@ final class CategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Category::class);
     }
 
-    /* ==========================================================
-       CONTEXT (shop / bags / work / school)
-    ========================================================== */
-
     public function findForContext(string $context): array
     {
         return $this->createQueryBuilder('c')
@@ -32,10 +28,6 @@ final class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-    /* ==========================================================
-       MENU STRUCTUUR
-    ========================================================== */
 
     public function findMenuRoots(): array
     {
@@ -62,10 +54,6 @@ final class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /* ==========================================================
-       FILTER BASIS
-    ========================================================== */
-
     public function findIdsBySlugs(array $slugs): array
     {
         if ($slugs === []) {
@@ -83,7 +71,7 @@ final class CategoryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Alleen categories met actieve producten
+     * Alleen categorieën met actieve producten.
      */
     public function findForShopFilter(): array
     {
@@ -97,10 +85,6 @@ final class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /* ==========================================================
-       SIZE / TYPE FILTERS
-    ========================================================== */
-
     public function findSizeCategories(): array
     {
         return $this->createQueryBuilder('c')
@@ -111,19 +95,16 @@ final class CategoryRepository extends ServiceEntityRepository
                 'handbagage',
                 'underseaters',
                 'beautycases',
-                'ruimbagage'
+                'ruimbagage',
             ])
             ->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Dynamische type-categorieën
-     */
     public function findTypeCategoriesDynamic(
         ?array $brandSlugs = null,
-        ?array $sizeSlugs = null
+        ?array $sizeSlugs = null,
     ): array {
         $qb = $this->createQueryBuilder('c')
             ->select('DISTINCT c')
@@ -132,15 +113,17 @@ final class CategoryRepository extends ServiceEntityRepository
             ->andWhere('c.isActive = true')
             ->andWhere('p.isActive = true');
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
-               ->setParameter('brands', $brandSlugs);
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
+                ->setParameter('brands', $brandSlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->innerJoin('p.categories', 'sizeCat')
-               ->andWhere('sizeCat.slug IN (:sizes)')
-               ->setParameter('sizes', $sizeSlugs);
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->innerJoin('p.categories', 'sizeCat')
+                ->andWhere('sizeCat.slug IN (:sizes)')
+                ->setParameter('sizes', $sizeSlugs);
         }
 
         return $qb
@@ -149,12 +132,9 @@ final class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Dynamische size-categorieën
-     */
     public function findSizeCategoriesDynamic(
         ?array $brandSlugs = null,
-        ?array $typeSlugs = null
+        ?array $typeSlugs = null,
     ): array {
         $qb = $this->createQueryBuilder('c')
             ->select('DISTINCT c')
@@ -167,45 +147,21 @@ final class CategoryRepository extends ServiceEntityRepository
             ->andWhere('parent.slug = :parent')
             ->setParameter('parent', 'geschikt-voor');
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
-               ->setParameter('brands', $brandSlugs);
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
+                ->setParameter('brands', $brandSlugs);
         }
 
-        if ($typeSlugs) {
-            $qb->andWhere('typeCat.slug IN (:types)')
-               ->setParameter('types', $typeSlugs);
+        if ($typeSlugs !== null && $typeSlugs !== []) {
+            $qb
+                ->andWhere('typeCat.slug IN (:types)')
+                ->setParameter('types', $typeSlugs);
         }
 
         return $qb
             ->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function findForCategoryGrid(Category $category): array
-    {
-        $categoryIds = $this->collectCategoryIds($category);
-
-        return $this->createQueryBuilder('p')
-            ->select('DISTINCT p')
-            ->innerJoin('p.categories', 'c')
-            ->andWhere('c.id IN (:ids)')
-            ->andWhere('p.isActive = true')
-            ->setParameter('ids', $categoryIds)
-            ->orderBy('p.id', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    private function collectCategoryIds(Category $category): array
-    {
-        $ids = [$category->getId()];
-
-        foreach ($category->getChildren() as $child) {
-            $ids = array_merge($ids, $this->collectCategoryIds($child));
-        }
-
-        return $ids;
     }
 }

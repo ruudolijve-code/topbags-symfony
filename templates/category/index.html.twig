@@ -14,28 +14,39 @@
             </h1>
 
             {% if category.description %}
-                <div class="text-lg text-gray-600 max-w-3xl">
+                <div class="max-w-3xl text-lg text-gray-600">
                     {{ category.description|raw }}
                 </div>
             {% endif %}
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
 
             {# Filters #}
-            <aside class="lg:col-span-1 bg-white rounded-xl p-6 shadow-sm">
+            <aside class="rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
                 <form method="get" class="space-y-6">
 
-                    {% if category.slug == 'bags' %}
+                    {% if 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
-                        {% include 'shop/filter/_filter_color.html.twig' %}
-                        {% include 'shop/filter/_filter_cta.html.twig' %}
-                    {% else %}
-                        {% include 'shop/filter/_filter_brands.html.twig' %}
+                    {% endif %}
+
+                    {% if 'volume' in allowedFilters %}
                         {% include 'shop/filter/_filter_volume.html.twig' %}
+                    {% endif %}
+
+                    {% if 'color' in allowedFilters %}
                         {% include 'shop/filter/_filter_color.html.twig' %}
+                    {% endif %}
+
+                    {% if 'airlines' in allowedFilters %}
                         {% include 'shop/filter/_filter_airlines.html.twig' %}
+                    {% endif %}
+
+                    {% if 'flying_scope' in allowedFilters %}
                         {% include 'shop/filter/_filter_flying_scope.html.twig' %}
+                    {% endif %}
+
+                    {% if 'cta' in allowedFilters %}
                         {% include 'shop/filter/_filter_cta.html.twig' %}
                     {% endif %}
 
@@ -47,19 +58,21 @@
 
                 <div class="mb-4 text-sm text-gray-500">
                     {{ pagination.totalItems }} modellen gevonden
+
                     {% if totalColors is defined and totalColors > 0 %}
                         <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
                     {% endif %}
+
                     {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
                         <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
                     {% endif %}
                 </div>
 
                 {% if items is not empty %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                         {% for item in items %}
                             {% include 'shop/component/card/_card.html.twig' with {
-                                context: 'shop',
+                                context: activeContext|default('shop'),
                                 product: item.product,
                                 variant: item.variant,
                                 master: item.master,
@@ -91,7 +104,7 @@
                         {% for p in pagination.pages %}
                             <a
                                 href="{{ path(routeName, { slug: category.slug }|merge(query)|merge({ page: p })) }}"
-                                class="rounded-full px-4 py-2 text-sm border {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
+                                class="rounded-full border px-4 py-2 text-sm {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
                             >
                                 {{ p }}
                             </a>

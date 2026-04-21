@@ -8,7 +8,6 @@ use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\BrandRepository;
 use App\Catalog\Repository\CategoryRepository;
-use App\Catalog\Repository\ColorRepository;
 use App\Catalog\Repository\ProductRepository;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
@@ -16,6 +15,7 @@ use App\Catalog\Service\VariantImagePathResolver;
 use App\Guide\Repository\AirlineBaggageRuleRepository;
 use App\Guide\Repository\AirlineRepository;
 use App\Shared\Pagination\PaginationService;
+use App\Shop\Service\CategoryFilterResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +26,8 @@ final class CategoryController extends AbstractController
     private const PER_PAGE = 15;
 
     public function __construct(
-        private VariantImagePathResolver $variantImagePathResolver
+        private readonly VariantImagePathResolver $variantImagePathResolver,
+        private readonly CategoryFilterResolver $categoryFilterResolver,
     ) {
     }
 
@@ -38,7 +39,6 @@ final class CategoryController extends AbstractController
         ProductRepository $productRepository,
         ProductVariantRepository $productVariantRepository,
         BrandRepository $brandRepository,
-        ColorRepository $colorRepository,
         AirlineRepository $airlineRepository,
         AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
         AvailabilityService $availabilityService,
@@ -53,57 +53,35 @@ final class CategoryController extends AbstractController
             throw $this->createNotFoundException('Categorie niet gevonden');
         }
 
-        $context = $this->resolveContext($category);
+        $activeContext = $this->resolveActiveContext($category);
+        $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($activeContext);
         $fixedCategorySlugs = [$category->getSlug()];
 
-        $brandSlugs = array_values(array_filter(
-            (array) $request->query->all('brand'),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
-
-        $airlineSlugs = array_values(array_filter(
-            (array) $request->query->all('airline'),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
-
-        $volumeRanges = array_values(array_filter(
-            (array) $request->query->all('volume'),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
-
-        $colorSlugs = array_values(array_filter(
-            (array) $request->query->all('color'),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
+        $brandSlugs = $this->getQueryArray($request, 'brand');
+        $airlineSlugs = $this->getQueryArray($request, 'airline');
+        $volumeRanges = $this->getQueryArray($request, 'volume');
+        $colorSlugs = $this->getQueryArray($request, 'color');
 
         $scope = $request->query->get('scope');
         $scopeSlugs = is_string($scope) && $scope !== '' ? [$scope] : [];
 
         $page = max(1, $request->query->getInt('page', 1));
 
-        $airlineRules = [];
-
-        if ($airlineSlugs !== []) {
-            $selectedAirlines = $airlineRepository->findBy([
-                'slug' => $airlineSlugs,
-                'isActive' => true,
-            ]);
-
-            foreach ($selectedAirlines as $airline) {
-                $rules = $airlineBaggageRuleRepository->findActiveForAirline($airline);
-                $airlineRules = array_merge($airlineRules, $rules);
-            }
-        }
+        $airlineRules = $this->resolveSelectedAirlineRules(
+            airlineSlugs: $airlineSlugs,
+            airlineRepository: $airlineRepository,
+            airlineBaggageRuleRepository: $airlineBaggageRuleRepository
+        );
 
         $totalItems = $productRepository->countForContextGridWithFilters(
-            context: $context,
-            brandSlugs: $brandSlugs !== [] ? $brandSlugs : null,
+            context: $activeContext,
+            brandSlugs: $brandSlugs ?: null,
             categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
-            scopeSlugs: $scopeSlugs !== [] ? $scopeSlugs : null,
-            airlineRules: $airlineRules !== [] ? $airlineRules : null,
-            volumeRanges: $volumeRanges !== [] ? $volumeRanges : null,
-            colorSlugs: $colorSlugs !== [] ? $colorSlugs : null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
         );
 
         $pagination = $paginationService->create(
@@ -113,16 +91,16 @@ final class CategoryController extends AbstractController
         );
 
         $products = $productRepository->findForContextGridWithFilters(
-            context: $context,
+            context: $activeContext,
             limit: $pagination->getLimit(),
             offset: $pagination->getOffset(),
-            brandSlugs: $brandSlugs !== [] ? $brandSlugs : null,
+            brandSlugs: $brandSlugs ?: null,
             categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
-            scopeSlugs: $scopeSlugs !== [] ? $scopeSlugs : null,
-            airlineRules: $airlineRules !== [] ? $airlineRules : null,
-            volumeRanges: $volumeRanges !== [] ? $volumeRanges : null,
-            colorSlugs: $colorSlugs !== [] ? $colorSlugs : null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
         );
 
         $matchingVariants = $colorSlugs !== []
@@ -144,11 +122,6 @@ final class CategoryController extends AbstractController
                 continue;
             }
 
-            /**
-             * Belangrijk:
-             * haal de variant vers en volledig op, inclusief images.
-             * Daarmee voorkom je dat grid-kaarten oude image-data gebruiken.
-             */
             $freshDisplayVariant = $productVariantRepository->findOneForGridBySku(
                 $displayVariant->getVariantSku()
             );
@@ -173,7 +146,7 @@ final class CategoryController extends AbstractController
         $allAirlines = $airlineRepository->findActiveOrdered();
 
         $availableAirlines = $this->resolveAvailableAirlinesForFacet(
-            context: $context,
+            context: $activeContext,
             allAirlines: $allAirlines,
             productRepository: $productRepository,
             airlineBaggageRuleRepository: $airlineBaggageRuleRepository,
@@ -184,33 +157,30 @@ final class CategoryController extends AbstractController
             colorSlugs: $colorSlugs
         );
 
-        $currentAirline = $airlineSlugs[0] ?? null;
-        $currentScope = $scopeSlugs[0] ?? null;
-
         $availableColors = $productRepository->findColorsForContextGridWithFilters(
-            context: $context,
-            brandSlugs: $brandSlugs !== [] ? $brandSlugs : null,
+            context: $activeContext,
+            brandSlugs: $brandSlugs ?: null,
             categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
-            scopeSlugs: $scopeSlugs !== [] ? $scopeSlugs : null,
-            airlineRules: $airlineRules !== [] ? $airlineRules : null,
-            volumeRanges: $volumeRanges !== [] ? $volumeRanges : null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
         );
 
         $availableBrands = $productRepository->findBrandsForContextGridWithFilters(
-            context: $context,
+            context: $activeContext,
             categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
-            scopeSlugs: $scopeSlugs !== [] ? $scopeSlugs : null,
-            airlineRules: $airlineRules !== [] ? $airlineRules : null,
-            volumeRanges: $volumeRanges !== [] ? $volumeRanges : null,
-            colorSlugs: $colorSlugs !== [] ? $colorSlugs : null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
         );
 
         $totalColors = $productRepository->countColorsForContextGridWithFilters(
-            context: $context,
+            context: $activeContext,
             brandSlugs: $brandSlugs ?: null,
-            categorySlugs: $fixedCategorySlugs ?: null,
+            categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
@@ -218,9 +188,9 @@ final class CategoryController extends AbstractController
         );
 
         $totalAvailableVariants = $productRepository->countAvailableVariantsForContextGridWithFilters(
-            context: $context,
+            context: $activeContext,
             brandSlugs: $brandSlugs ?: null,
-            categorySlugs: $fixedCategorySlugs ?: null,
+            categorySlugs: $fixedCategorySlugs,
             sizeSlugs: null,
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
@@ -230,10 +200,11 @@ final class CategoryController extends AbstractController
 
         return $this->render('category/index.html.twig', [
             'category' => $category,
-            'context' => $context,
+            'activeContext' => $activeContext,
+            'allowedFilters' => $allowedFilters,
             'items' => $items,
             'brands' => $availableBrands,
-            'categories' => $categoryRepository->findForContext($context),
+            'categories' => $categoryRepository->findForContext($activeContext),
             'airlines' => $availableAirlines,
             'colors' => $availableColors,
             'activeBrands' => $brandSlugs,
@@ -242,12 +213,47 @@ final class CategoryController extends AbstractController
             'activeScopes' => $scopeSlugs,
             'activeVolumes' => $volumeRanges,
             'activeColors' => $colorSlugs,
-            'currentAirline' => $currentAirline,
-            'currentScope' => $currentScope,
+            'currentAirline' => $airlineSlugs[0] ?? null,
+            'currentScope' => $scopeSlugs[0] ?? null,
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
         ]);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getQueryArray(Request $request, string $key): array
+    {
+        return array_values(array_filter(
+            (array) $request->query->all($key),
+            static fn (mixed $value): bool => is_string($value) && $value !== ''
+        ));
+    }
+
+    private function resolveSelectedAirlineRules(
+        array $airlineSlugs,
+        AirlineRepository $airlineRepository,
+        AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
+    ): array {
+        if ($airlineSlugs === []) {
+            return [];
+        }
+
+        $selectedAirlines = $airlineRepository->findBy([
+            'slug' => $airlineSlugs,
+            'isActive' => true,
+        ]);
+
+        $airlineRules = [];
+
+        foreach ($selectedAirlines as $airline) {
+            $rules = $airlineBaggageRuleRepository->findActiveForAirline($airline);
+            $airlineRules = array_merge($airlineRules, $rules);
+        }
+
+        return $airlineRules;
     }
 
     private function resolveAvailableAirlinesForFacet(
@@ -272,13 +278,13 @@ final class CategoryController extends AbstractController
 
             $hasProducts = $productRepository->hasProductsForContextGridWithFilters(
                 context: $context,
-                brandSlugs: $brandSlugs !== [] ? $brandSlugs : null,
-                categorySlugs: $categorySlugs !== [] ? $categorySlugs : null,
+                brandSlugs: $brandSlugs ?: null,
+                categorySlugs: $categorySlugs ?: null,
                 sizeSlugs: null,
-                scopeSlugs: $scopeSlugs !== [] ? $scopeSlugs : null,
+                scopeSlugs: $scopeSlugs ?: null,
                 airlineRules: $rules,
-                volumeRanges: $volumeRanges !== [] ? $volumeRanges : null,
-                colorSlugs: $colorSlugs !== [] ? $colorSlugs : null,
+                volumeRanges: $volumeRanges ?: null,
+                colorSlugs: $colorSlugs ?: null,
             );
 
             if ($hasProducts) {
@@ -289,7 +295,7 @@ final class CategoryController extends AbstractController
         return $available;
     }
 
-    private function resolveContext(Category $category): string
+    private function resolveActiveContext(Category $category): string
     {
         foreach ($category->getContexts() as $contextRelation) {
             $context = $contextRelation->getContext();

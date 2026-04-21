@@ -83,6 +83,7 @@ class Category
         cascade: ['persist', 'remove'],
         orphanRemoval: true
     )]
+    #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $contexts;
 
     public function __construct()
@@ -297,10 +298,8 @@ class Category
 
     public function removeChild(self $child): self
     {
-        if ($this->children->removeElement($child)) {
-            if ($child->getParent() === $this) {
-                $child->setParent(null);
-            }
+        if ($this->children->removeElement($child) && $child->getParent() === $this) {
+            $child->setParent(null);
         }
 
         return $this;
@@ -353,13 +352,55 @@ class Category
 
     public function removeContext(CategoryContext $context): self
     {
-        if ($this->contexts->removeElement($context)) {
-            if ($context->getCategory() === $this) {
-                $context->setCategory(null);
+        $this->contexts->removeElement($context);
+
+        return $this;
+    }
+
+    public function hasContext(string $context): bool
+    {
+        foreach ($this->contexts as $categoryContext) {
+            if ($categoryContext->getContext() === $context) {
+                return true;
             }
         }
 
-        return $this;
+        return false;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getContextValues(): array
+    {
+        $values = [];
+
+        foreach ($this->contexts as $categoryContext) {
+            $values[] = $categoryContext->getContext();
+        }
+
+        return $values;
+    }
+
+    public function getPrimaryContext(): ?string
+    {
+        $first = $this->contexts->first();
+
+        if ($first === false) {
+            return null;
+        }
+
+        return $first->getContext();
+    }
+
+    public function isShopContext(): bool
+    {
+        return $this->hasContext(Product::CONTEXT_SHOP);
+    }
+
+    public function isBagsContext(): bool
+    {
+        return $this->hasContext(Product::CONTEXT_BAGS);
     }
 
     public function __toString(): string
