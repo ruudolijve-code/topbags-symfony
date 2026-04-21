@@ -55,7 +55,7 @@
 </head>
 
 <body class="bg-white text-gray-900 antialiased" x-data="{ mobileMenuOpen: false }">
-{% set context = context ?? currentContext ?? 'shop' %}
+{% set context = activeContext ?? context ?? currentContext ?? 'shop' %}
 
 <div class="lg:hidden">
     {% include 'partials/header/mobile/_uspbar.html.twig' %}
