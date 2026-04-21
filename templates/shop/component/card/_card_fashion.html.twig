@@ -17,6 +17,18 @@
 
       <div class="relative aspect-[3/4]">
 
+        {# Leather badge #}
+        {% set materialName = product.material is defined and product.material ? product.material.name|lower|trim : '' %}
+        {% set isLeather = materialName in ['leer', 'leather'] %}
+
+        {% if isLeather %}
+            <span class="absolute top-3 right-3 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/95">
+                <span class="block h-12 w-12 text-stone-700">
+                    {% include 'partials/icons/leather.svg.twig' %}
+                </span>
+            </span>
+        {% endif %}
+
         {% if mediaPath is defined and mediaPath %}
 
           <img
