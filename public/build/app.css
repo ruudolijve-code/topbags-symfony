@@ -2860,6 +2860,11 @@
       max-width: 48vw;
     }
   }
+  .lg\:columns-3 {
+    @media (width >= 64rem) {
+      columns: 3;
+    }
+  }
   .lg\:columns-4 {
     @media (width >= 64rem) {
       columns: 4;
