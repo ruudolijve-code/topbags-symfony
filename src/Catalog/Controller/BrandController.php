@@ -67,11 +67,9 @@ final class BrandController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $context = Product::CONTEXT_SHOP;
         $page = max(1, $request->query->getInt('page', 1));
 
-        $totalItems = $productRepository->countForContextGridWithFilters(
-            context: $context,
+        $totalItems = $productRepository->countForBrandGrid(
             brandSlugs: [$brand->getSlug()]
         );
 
@@ -81,8 +79,7 @@ final class BrandController extends AbstractController
             totalItems: $totalItems
         );
 
-        $products = $productRepository->findForContextGridWithFilters(
-            context: $context,
+        $products = $productRepository->findForBrandGrid(
             limit: $pagination->getLimit(),
             offset: $pagination->getOffset(),
             brandSlugs: [$brand->getSlug()]
@@ -110,9 +107,9 @@ final class BrandController extends AbstractController
             'brand' => $brand,
             'items' => $items,
             'pagination' => $pagination,
-            'categories' => $categoryRepository->findForContext($context),
-            'context' => $context,
-            'currentContext' => $context,
+            'categories' => [], // of later dynamisch uit beide contexten
+            'context' => null,
+            'currentContext' => null,
         ]);
     }
 }

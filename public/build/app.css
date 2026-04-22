@@ -859,6 +859,9 @@
   .list-none {
     list-style-type: none;
   }
+  .columns-1 {
+    columns: 1;
+  }
   .columns-2 {
     columns: 2;
   }

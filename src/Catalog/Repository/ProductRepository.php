@@ -982,4 +982,45 @@ final class ProductRepository extends ServiceEntityRepository
 
         return $ordered;
     }
+
+    public function countForBrandGrid(array $brandSlugs = []): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT p.id)')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'mv', 'WITH', 'mv.isMaster = true AND mv.isActive = true')
+            ->andWhere('p.isActive = true');
+
+        if ($brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brandSlugs)')
+                ->setParameter('brandSlugs', $brandSlugs);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findForBrandGrid(
+        int $limit,
+        int $offset,
+        array $brandSlugs = []
+    ): array {
+        $qb = $this->createQueryBuilder('p')
+            ->select('DISTINCT p', 'b', 'mv', 'pi')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'mv', 'WITH', 'mv.isMaster = true AND mv.isActive = true')
+            ->leftJoin('mv.images', 'pi', 'WITH', 'pi.isPrimary = true')
+            ->andWhere('p.isActive = true')
+            ->orderBy('p.name', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        if ($brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brandSlugs)')
+                ->setParameter('brandSlugs', $brandSlugs);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
