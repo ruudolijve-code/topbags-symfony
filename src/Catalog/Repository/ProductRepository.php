@@ -1006,10 +1006,11 @@ final class ProductRepository extends ServiceEntityRepository
         array $brandSlugs = []
     ): array {
         $qb = $this->createQueryBuilder('p')
-            ->select('DISTINCT p', 'b', 'mv', 'pi')
+            ->select('DISTINCT p', 'b', 'mv', 'pi', 'v')
             ->innerJoin('p.brand', 'b')
             ->innerJoin('p.variants', 'mv', 'WITH', 'mv.isMaster = true AND mv.isActive = true')
             ->leftJoin('mv.images', 'pi', 'WITH', 'pi.isPrimary = true')
+            ->leftJoin('p.variants', 'v', 'WITH', 'v.isActive = true')
             ->andWhere('p.isActive = true')
             ->orderBy('p.name', 'ASC')
             ->setFirstResult($offset)

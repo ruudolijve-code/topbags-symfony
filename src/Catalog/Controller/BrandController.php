@@ -94,15 +94,23 @@ final class BrandController extends AbstractController
                 continue;
             }
 
-            $items[] = [
-                'product' => $product,
-                'variant' => $master,
-                'master' => $master,
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($master),
-                'availability' => $availabilityService->get($master),
-            ];
-        }
+            $activeVariants = array_values(array_filter(
 
+        $product->getVariants()->toArray(),
+
+        static fn ($variant) => $variant->isActive()
+
+    ));
+
+    $items[] = [
+        'product' => $product,
+        'variant' => $master,
+        'master' => $master,
+        'variants' => $activeVariants,
+        'mediaPath' => $this->variantImagePathResolver->fromVariant($master),
+        'availability' => $availabilityService->get($master),
+    ];
+}
         return $this->render('brand/show.html.twig', [
             'brand' => $brand,
             'items' => $items,
