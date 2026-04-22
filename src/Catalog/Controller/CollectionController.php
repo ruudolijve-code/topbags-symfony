@@ -23,6 +23,8 @@ final class CollectionController extends AbstractController
 {
     private const PER_PAGE = 16;
 
+    private const ALL_SCOPES = ['personal', 'cabin', 'hold'];
+
     public function __construct(
         private readonly VariantImagePathResolver $variantImagePathResolver,
         private readonly CategoryFilterResolver $categoryFilterResolver,
@@ -98,12 +100,20 @@ final class CollectionController extends AbstractController
         $volumeRanges = $this->getStringArrayQuery($request, 'volume');
         $colorSlugs = $this->getStringArrayQuery($request, 'color');
 
-        $scope = trim((string) $request->query->get('scope', ''));
-        $scopeSlugs = $scope !== '' ? [$scope] : [];
-
         $airlineSlugs = $context === Product::CONTEXT_SHOP
             ? $this->getStringArrayQuery($request, 'airline')
             : [];
+
+        $rawScope = trim((string) $request->query->get('scope', ''));
+        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true) ? $rawScope : '';
+
+        $scopeSlugs = $this->normalizeScopeSlugs(
+            context: $context,
+            selectedScope: $selectedScope,
+            airlineSlugs: $airlineSlugs,
+        );
+
+        $activeScopes = $selectedScope !== '' ? [$selectedScope] : [''];
 
         $page = max(1, $request->query->getInt('page', 1));
 
@@ -242,15 +252,43 @@ final class CollectionController extends AbstractController
             'activeBrands' => $brandSlugs,
             'activeCategories' => $categorySlugs,
             'activeAirlines' => $airlineSlugs,
-            'activeScopes' => $scopeSlugs,
+            'activeScopes' => $activeScopes,
             'activeVolumes' => $volumeRanges,
             'activeColors' => $colorSlugs,
             'currentAirline' => $airlineSlugs[0] ?? null,
-            'currentScope' => $scopeSlugs[0] ?? null,
+            'currentScope' => $selectedScope !== '' ? $selectedScope : 'all',
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
         ]);
+    }
+
+    /**
+     * Voor de query:
+     * - geen airline => geen scope-filter
+     * - airline + "alle bagagetypes" => alle drie scopes
+     * - airline + 1 scope => alleen die scope
+     *
+     * @return string[]
+     */
+    private function normalizeScopeSlugs(
+        string $context,
+        string $selectedScope,
+        array $airlineSlugs,
+    ): array {
+        if ($context !== Product::CONTEXT_SHOP) {
+            return [];
+        }
+
+        if ($airlineSlugs === []) {
+            return [];
+        }
+
+        if ($selectedScope === '') {
+            return self::ALL_SCOPES;
+        }
+
+        return [$selectedScope];
     }
 
     private function resolveSelectedAirlineRules(

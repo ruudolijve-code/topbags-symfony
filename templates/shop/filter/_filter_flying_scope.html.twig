@@ -12,10 +12,26 @@
     <div class="space-y-2 text-sm">
 
         <label class="flex items-start gap-2 cursor-pointer">
-            <input type="radio"
-                   name="scope"
-                   value="personal"
-                   {% if activeScopes[0] is defined and activeScopes[0] == 'personal' %}checked{% endif %}
+            <input
+                type="radio"
+                name="scope"
+                value=""
+                {% if activeScopes[0] is not defined or activeScopes[0] == '' %}checked{% endif %}
+            >
+            <span>
+                <strong>Alle bagagetypes</strong><br>
+                <span class="text-xs text-gray-600">
+                    Toon alle producten voor jouw geselecteerde luchtvaartmaatschappij
+                </span>
+            </span>
+        </label>
+
+        <label class="flex items-start gap-2 cursor-pointer">
+            <input
+                type="radio"
+                name="scope"
+                value="personal"
+                {% if activeScopes[0] is defined and activeScopes[0] == 'personal' %}checked{% endif %}
             >
             <span>
                 <strong>Personal item</strong><br>
@@ -26,10 +42,11 @@
         </label>
 
         <label class="flex items-start gap-2 cursor-pointer">
-            <input type="radio"
-                   name="scope"
-                   value="cabin"
-                   {% if activeScopes[0] is defined and activeScopes[0] == 'cabin' %}checked{% endif %}
+            <input
+                type="radio"
+                name="scope"
+                value="cabin"
+                {% if activeScopes[0] is defined and activeScopes[0] == 'cabin' %}checked{% endif %}
             >
             <span>
                 <strong>Handbagage</strong><br>
@@ -40,10 +57,11 @@
         </label>
 
         <label class="flex items-start gap-2 cursor-pointer">
-            <input type="radio"
-                   name="scope"
-                   value="hold"
-                   {% if activeScopes[0] is defined and activeScopes[0] == 'hold' %}checked{% endif %}
+            <input
+                type="radio"
+                name="scope"
+                value="hold"
+                {% if activeScopes[0] is defined and activeScopes[0] == 'hold' %}checked{% endif %}
             >
             <span>
                 <strong>Ruimbagage</strong><br>

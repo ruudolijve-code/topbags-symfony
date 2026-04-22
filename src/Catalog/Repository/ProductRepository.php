@@ -216,15 +216,20 @@ final class ProductRepository extends ServiceEntityRepository
 
     private function applyPlainScopeFilter(QueryBuilder $qb, array $scopes): void
     {
+        $selectedScopes = array_values(array_unique(array_filter($scopes)));
+
+        if ($selectedScopes === []) {
+            return;
+        }
+
         $or = $qb->expr()->orX();
 
-        foreach ($scopes as $scope) {
-            match ($scope) {
-                'personal' => $or->add('p.underseater = 1'),
-                'cabin' => $or->add('p.cabinSize = 1'),
-                'hold' => $or->add('p.underseater = 0 AND p.cabinSize = 0'),
-                default => null,
-            };
+        foreach ($selectedScopes as $scope) {
+            $condition = $this->buildScopeCondition($qb, $scope);
+
+            if ($condition !== null) {
+                $or->add($condition);
+            }
         }
 
         if ($or->count() > 0) {
@@ -237,65 +242,113 @@ final class ProductRepository extends ServiceEntityRepository
         array $rules,
         ?array $scopeSlugs
     ): void {
-        $scope = $scopeSlugs[0] ?? null;
-
-        if (!$scope) {
-            $qb->andWhere('1 = 0');
+        if ($rules === []) {
             return;
         }
 
         $rulesByScope = [];
+
         foreach ($rules as $rule) {
-            $rulesByScope[$rule->getRuleScope()][] = $rule;
+            $ruleScope = $rule->getRuleScope();
+
+            if (!in_array($ruleScope, ['personal', 'cabin', 'hold'], true)) {
+                continue;
+            }
+
+            $rulesByScope[$ruleScope][] = $rule;
         }
 
-        if (!isset($rulesByScope[$scope])) {
+        if ($rulesByScope === []) {
             $qb->andWhere('1 = 0');
             return;
         }
 
-        match ($scope) {
-            'personal' => $qb->andWhere('p.underseater = 1'),
-            'cabin' => $qb->andWhere('p.cabinSize = 1'),
-            'hold' => $qb->andWhere('p.underseater = 0'),
-            default => $qb->andWhere('1 = 0'),
-        };
+        $selectedScopes = array_values(array_unique(array_filter($scopeSlugs ?? [])));
 
-        $or = $qb->expr()->orX();
+        if ($selectedScopes === []) {
+            $selectedScopes = array_keys($rulesByScope);
+        }
+
+        $outerOr = $qb->expr()->orX();
         $i = 0;
 
-        foreach ($rulesByScope[$scope] as $rule) {
-            ++$i;
-            $and = $qb->expr()->andX();
+        foreach ($selectedScopes as $scope) {
+            if (!isset($rulesByScope[$scope])) {
+                continue;
+            }
 
-            if ($rule->getDimensionType() === 'box') {
-                if ($rule->getMaxHeightCm()) {
-                    $and->add("p.heightCm <= :h$i");
-                    $qb->setParameter("h$i", $rule->getMaxHeightCm());
-                }
+            $scopeCondition = $this->buildScopeCondition($qb, $scope);
 
-                if ($rule->getMaxWidthCm()) {
-                    $and->add("p.widthCm <= :w$i");
-                    $qb->setParameter("w$i", $rule->getMaxWidthCm());
-                }
+            if ($scopeCondition === null) {
+                continue;
+            }
 
-                if ($rule->getMaxDepthCm()) {
-                    $and->add($this->effectiveDepthExpr() . " <= :d$i");
-                    $qb->setParameter("d$i", $rule->getMaxDepthCm());
-                }
-            } elseif ($rule->getDimensionType() === 'linear_sum') {
-                if (!$rule->getMaxLinearCm()) {
+            $rulesOr = $qb->expr()->orX();
+
+            foreach ($rulesByScope[$scope] as $rule) {
+                ++$i;
+
+                $ruleAnd = $qb->expr()->andX();
+
+                if ($rule->getDimensionType() === 'box') {
+                    if ($rule->getMaxHeightCm()) {
+                        $ruleAnd->add("p.heightCm <= :h$i");
+                        $qb->setParameter("h$i", $rule->getMaxHeightCm());
+                    }
+
+                    if ($rule->getMaxWidthCm()) {
+                        $ruleAnd->add("p.widthCm <= :w$i");
+                        $qb->setParameter("w$i", $rule->getMaxWidthCm());
+                    }
+
+                    if ($rule->getMaxDepthCm()) {
+                        $ruleAnd->add($this->effectiveDepthExpr() . " <= :d$i");
+                        $qb->setParameter("d$i", $rule->getMaxDepthCm());
+                    }
+                } elseif ($rule->getDimensionType() === 'linear_sum') {
+                    if (!$rule->getMaxLinearCm()) {
+                        continue;
+                    }
+
+                    $ruleAnd->add($this->effectiveLinearExpr() . " <= :l$i");
+                    $qb->setParameter("l$i", $rule->getMaxLinearCm());
+                } else {
                     continue;
                 }
 
-                $and->add($this->effectiveLinearExpr() . " <= :l$i");
-                $qb->setParameter("l$i", $rule->getMaxLinearCm());
+                if ($ruleAnd->count() > 0) {
+                    $rulesOr->add($ruleAnd);
+                }
             }
 
-            $or->add($and);
+            if ($rulesOr->count() === 0) {
+                continue;
+            }
+
+            $outerOr->add(
+                $qb->expr()->andX(
+                    $scopeCondition,
+                    $rulesOr
+                )
+            );
         }
 
-        $qb->andWhere($or->count() ? $or : '1 = 0');
+        if ($outerOr->count() === 0) {
+            $qb->andWhere('1 = 0');
+            return;
+        }
+
+        $qb->andWhere($outerOr);
+    }
+
+    private function buildScopeCondition(QueryBuilder $qb, string $scope): ?string
+    {
+        return match ($scope) {
+            'personal' => 'p.underseater = 1',
+            'cabin' => 'p.cabinSize = 1',
+            'hold' => '(p.underseater = 0 AND p.cabinSize = 0)',
+            default => null,
+        };
     }
 
     private function applyVolumeRanges(QueryBuilder $qb, array $ranges): void
