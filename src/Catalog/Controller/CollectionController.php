@@ -185,17 +185,7 @@ final class CollectionController extends AbstractController
         }
 
         $availableAirlines = $context === Product::CONTEXT_SHOP
-            ? $this->resolveAvailableAirlinesForFacet(
-                context: $context,
-                allAirlines: $airlineRepository->findActiveOrdered(),
-                productRepository: $productRepository,
-                airlineBaggageRuleRepository: $airlineBaggageRuleRepository,
-                brandSlugs: $brandSlugs,
-                categorySlugs: $categorySlugs,
-                scopeSlugs: $scopeSlugs,
-                volumeRanges: $volumeRanges,
-                colorSlugs: $colorSlugs,
-            )
+            ? $airlineRepository->findActiveOrdered()
             : [];
 
         $availableColors = $productRepository->findColorsForContextGridWithFilters(
@@ -286,45 +276,6 @@ final class CollectionController extends AbstractController
         }
 
         return $airlineRules;
-    }
-
-    private function resolveAvailableAirlinesForFacet(
-        string $context,
-        array $allAirlines,
-        ProductRepository $productRepository,
-        AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
-        array $brandSlugs,
-        array $categorySlugs,
-        array $scopeSlugs,
-        array $volumeRanges,
-        array $colorSlugs,
-    ): array {
-        $available = [];
-
-        foreach ($allAirlines as $airline) {
-            $rules = $airlineBaggageRuleRepository->findActiveForAirline($airline);
-
-            if ($rules === []) {
-                continue;
-            }
-
-            $hasProducts = $productRepository->hasProductsForContextGridWithFilters(
-                context: $context,
-                brandSlugs: $brandSlugs ?: null,
-                categorySlugs: $categorySlugs ?: null,
-                sizeSlugs: null,
-                scopeSlugs: $scopeSlugs ?: null,
-                airlineRules: $rules,
-                volumeRanges: $volumeRanges ?: null,
-                colorSlugs: $colorSlugs ?: null,
-            );
-
-            if ($hasProducts) {
-                $available[] = $airline;
-            }
-        }
-
-        return $available;
     }
 
     /**
