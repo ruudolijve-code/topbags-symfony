@@ -75,6 +75,16 @@
            ========================= #}
         <template x-if="mobileContext === 'shop'">
             <div>
+                <div class="px-5 py-4 border-b border-gray-200 bg-white">
+                    <a
+                        href="{{ path('shop_index') }}"
+                        class="block w-full rounded-lg bg-gray-900 px-5 py-4 text-center text-sm font-bold uppercase tracking-widest text-white"
+                        @click="mobileMenuOpen = false"
+                    >
+                        Alle koffers &amp; reistassen
+                    </a>
+                </div>
+
                 <nav class="border-b border-gray-200">
                     {% for category in menuShopCategories %}
                         {% set categoryKey = category.id ?? loop.index %}
@@ -84,6 +94,7 @@
                                     type="button"
                                     @click="openCategory = openCategory === 'shop-{{ categoryKey }}' ? null : 'shop-{{ categoryKey }}'"
                                     class="w-full flex items-center justify-between px-5 py-5 text-left text-[26px] font-semibold text-gray-900"
+                                    :aria-expanded="openCategory === 'shop-{{ categoryKey }}'"
                                 >
                                     <span>{{ category.menuLabel ?? category.name }}</span>
 
@@ -169,6 +180,16 @@
            ========================= #}
         <template x-if="mobileContext === 'bags'">
             <div>
+                <div class="px-5 py-4 border-b border-gray-200 bg-white">
+                    <a
+                        href="{{ path('bags_index') }}"
+                        class="block w-full rounded-lg bg-gray-900 px-5 py-4 text-center text-sm font-bold uppercase tracking-widest text-white"
+                        @click="mobileMenuOpen = false"
+                    >
+                        Alle tassen
+                    </a>
+                </div>
+
                 <nav class="border-b border-gray-200">
                     {% for category in menuBagsCategories %}
                         {% set categoryKey = category.id ?? (loop.index + 1000) %}
@@ -178,6 +199,7 @@
                                     type="button"
                                     @click="openCategory = openCategory === 'bags-{{ categoryKey }}' ? null : 'bags-{{ categoryKey }}'"
                                     class="w-full flex items-center justify-between px-5 py-5 text-left text-[26px] font-semibold text-gray-900"
+                                    :aria-expanded="openCategory === 'bags-{{ categoryKey }}'"
                                 >
                                     <span>{{ category.menuLabel ?? category.name }}</span>
 
