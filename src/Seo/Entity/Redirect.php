@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RedirectRepository::class)]
 #[ORM\Table(name: 'redirect')]
-#[ORM\UniqueConstraint(name: 'uniq_redirect_old_path', columns: ['old_path'])]
 class Redirect
 {
     #[ORM\Id]
@@ -15,13 +14,13 @@ class Redirect
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'old_path', length: 500)]
+    #[ORM\Column(name: 'old_path', length: 500, unique: true)]
     private string $oldPath;
 
     #[ORM\Column(name: 'new_url', length: 500)]
     private string $newUrl;
 
-    #[ORM\Column(name: 'is_active', options: ['default' => true])]
+    #[ORM\Column(name: 'is_active', type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
     public function getId(): ?int
