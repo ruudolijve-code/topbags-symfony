@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Admin\Controller;
 
 use App\Seo\Entity\Redirect;
 use Doctrine\ORM\EntityManagerInterface;
