@@ -23,7 +23,6 @@
             {% endif %}
         </header>
 
-        {# Mobiele toolbar #}
         <div class="flex items-center justify-between gap-4 mb-6 lg:hidden">
             <button
                 type="button"
@@ -43,7 +42,6 @@
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
 
-            {# Desktop filters #}
             <aside class="hidden lg:block rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
                 <form method="get" class="space-y-6">
                     {% if 'brands' in allowedFilters %}
@@ -72,7 +70,6 @@
                 </form>
             </aside>
 
-            {# Product grid #}
             <section class="lg:col-span-3">
 
                 <div class="hidden lg:block mb-4 text-sm text-gray-500">
@@ -139,12 +136,10 @@
                         {% endif %}
                     </nav>
                 {% endif %}
-
             </section>
         </div>
     </div>
 
-    {# Mobiele filter overlay - geteleporteerd naar body voor iPhone Safari #}
     <template x-teleport="body">
         <div
             x-show="mobileFiltersOpen"
@@ -154,11 +149,12 @@
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
-            class="fixed inset-0 z-[9999] lg:hidden"
-            style="display: none;"
+            class="fixed inset-0 lg:hidden"
+            style="display: none; z-index: 9998;"
         >
             <div
                 class="fixed inset-0 bg-black/40"
+                style="z-index: 9998;"
                 @click="mobileFiltersOpen = false"
             ></div>
 
@@ -170,10 +166,10 @@
                 x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="translate-y-0"
                 x-transition:leave-end="translate-y-full"
-                class="fixed inset-x-0 top-0 bottom-0 z-[10000] flex flex-col bg-white shadow-2xl"
-                style="display: none;"
+                class="fixed inset-0 flex flex-col bg-white shadow-2xl"
+                style="display: none; z-index: 9999;"
             >
-                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0 bg-white">
                     <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
 
                     <button
@@ -188,7 +184,7 @@
                     </button>
                 </div>
 
-                <form method="get" class="flex-1 overflow-y-auto overscroll-contain px-5 py-5 space-y-6">
+                <form method="get" class="flex-1 overflow-y-auto px-5 py-5 space-y-6 bg-white">
                     {% if 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
