@@ -11,6 +11,7 @@ use App\Catalog\Entity\VariantSupply;
 use App\Shop\Entity\Order;
 use App\Marketing\Entity\NewsletterSubscription;
 use App\Shop\Entity\Coupon;
+use App\Seo\Entity\Redirect;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -61,6 +62,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Coupons', 'fas fa-percent', Coupon::class);
 
         yield MenuItem::section('SEO');
-        yield MenuItem::linkToCrud('Redirects', 'fa fa-exchange-alt', Redirect::class);
+        yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class);
     }
 }
