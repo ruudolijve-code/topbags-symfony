@@ -72,3 +72,7 @@ services:
         arguments:
             $ga4MeasurementId: '%ga4.measurement_id%'
             $appUrl: '%app.app_url%'
+
+    App\Seo\EventListener\RedirectOnNotFoundListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
