@@ -48,7 +48,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
+    #[ORM\OneToMany(mappedBy: 'customerUser', targetEntity: Order::class)]
     private Collection $orders;
 
     public function __construct()

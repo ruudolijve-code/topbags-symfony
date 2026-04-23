@@ -64,7 +64,7 @@ class Order
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $customerPhone = null;
 
-    #[ORM\ManyToOne(targetEntity: CustomerUser::class)]
+    #[ORM\ManyToOne(targetEntity: CustomerUser::class, inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?CustomerUser $customerUser = null;
 
