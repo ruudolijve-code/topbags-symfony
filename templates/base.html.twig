@@ -1,3 +1,5 @@
+{% set context = activeContext ?? currentContext ?? 'shop' %}
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -10,62 +12,62 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-    <meta name="google-site-verification" content="VhmOv6vDeWhBQ7LcAFD1qkBr4m2PuQgrmvLQW7aC4K0" />
-    {% include 'partials/analytics/google_analytics.html.twig' %}
+    <meta name="google-site-verification" content="VhmOv6vDeWhBQ7LcAFD1qkBr4m2PuQgrmvLQW7aC4K0">
 
+    {% include 'partials/analytics/google_analytics.html.twig' %}
+    {% set app_url = 'https://topbags.nl' %}
     {% block canonical %}
         {% if product is defined and variant is defined %}
-            <link rel="canonical" href="{{ absolute_url(path(
-                'product_show',
-                {
-                    slug: product.slug,
-                    colorSlug: variant.supplierColorSlug,
-                    variantSku: variant.variantSku
-                }
-            )) }}">
+            <link rel="canonical" href="{{ app_url ~ path('product_show', {
+                slug: product.slug,
+                colorSlug: variant.supplierColorSlug,
+                variantSku: variant.variantSku
+            }) }}">
         {% elseif category is defined %}
-            <link rel="canonical" href="{{ absolute_url(path('category_show', { slug: category.slug })) }}">
+            <link rel="canonical" href="{{ app_url ~ path('category_show', { slug: category.slug }) }}">
         {% elseif brand is defined %}
-            <link rel="canonical" href="{{ absolute_url(path('brand_show', { slug: brand.slug })) }}">
+            <link rel="canonical" href="{{ app_url ~ path('brand_show', { slug: brand.slug }) }}">
         {% else %}
-            <link rel="canonical" href="{{ absolute_url(path('home')) }}">
+            <link rel="canonical" href="{{ app_url ~ path('home') }}">
         {% endif %}
     {% endblock %}
 
     {% block meta_description %}
         {% if product is defined and variant is defined %}
-            <meta name="description"
-                  content="{{ variant.metaDescription
-                    ?? product.name ~ ' in ' ~ variant.supplierColorName ~ ' van ' ~ product.brand.name ~ '. Bekijk nu bij Topbags.' }}">
+            <meta
+                name="description"
+                content="{{ variant.metaDescription ?? (product.name ~ ' in ' ~ variant.supplierColorName ~ ' van ' ~ product.brand.name ~ '. Bekijk nu bij Topbags.') }}"
+            >
         {% elseif category is defined and category.description %}
-            <meta name="description"
-                  content="{{ category.description|striptags|length > 160
+            <meta
+                name="description"
+                content="{{ category.description|striptags|length > 160
                     ? category.description|striptags|slice(0, 157) ~ '...'
-                    : category.description|striptags }}">
+                    : category.description|striptags }}"
+            >
         {% elseif brand is defined and brand.description %}
-            <meta name="description"
-                  content="{{ brand.description|striptags|length > 160
+            <meta
+                name="description"
+                content="{{ brand.description|striptags|length > 160
                     ? brand.description|striptags|slice(0, 157) ~ '...'
-                    : brand.description|striptags }}">
+                    : brand.description|striptags }}"
+            >
         {% else %}
-            <meta name="description"
-                  content="Topbags – Jouw reis begint hier. Ontdek koffers, reistassen en rugzakken van topmerken.">
+            <meta
+                name="description"
+                content="Topbags – Jouw reis begint hier. Ontdek koffers, reistassen en rugzakken van topmerken."
+            >
         {% endif %}
     {% endblock %}
 </head>
 
 <body class="bg-white text-gray-900 antialiased" x-data="{ mobileMenuOpen: false }">
-{% set context = activeContext ?? context ?? currentContext ?? 'shop' %}
 
 <div class="lg:hidden">
     {% include 'partials/header/mobile/_uspbar.html.twig' %}
-    {% include 'partials/header/mobile/_header.html.twig' with {
-        context: context
-    } %}
+    {% include 'partials/header/mobile/_header.html.twig' with { context: context } %}
     {% include 'partials/header/mobile/_search.html.twig' %}
-    {% include 'partials/header/mobile/_menu_drawer.html.twig' with {
-        context: context
-    } %}
+    {% include 'partials/header/mobile/_menu_drawer.html.twig' with { context: context } %}
 </div>
 
 <div class="hidden lg:block">
@@ -89,7 +91,7 @@
     </header>
 </div>
 
-<main class="container mx-auto px-4 md:px-6 lg:px-8 py-8">
+<main class="container mx-auto px-4 py-8 md:px-6 lg:px-8">
     {% block body %}
         {% include 'partials/cart/_progress.html.twig' with {
             cartCount: cartCount ?? 0,
@@ -102,17 +104,20 @@
 {% include 'partials/footer.html.twig' %}
 
 {% if app.request.cookies.get('cookie_choice') is not same as('set') %}
-    <div id="cookie-banner" class="fixed bottom-4 left-4 right-4 md:left-1/2 md:right-auto md:w-full md:max-w-2xl md:-translate-x-1/2 z-50 rounded-2xl border border-gray-200 bg-white shadow-xl p-6">
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div
+        id="cookie-banner"
+        class="fixed bottom-4 left-4 right-4 z-50 rounded-2xl border border-gray-200 bg-white p-6 shadow-xl md:left-1/2 md:right-auto md:w-full md:max-w-2xl md:-translate-x-1/2"
+    >
+        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
                 <h3 class="text-lg font-semibold text-gray-900">Cookies op Topbags</h3>
-                <p class="mt-2 text-sm text-gray-600 leading-relaxed">
+                <p class="mt-2 text-sm leading-relaxed text-gray-600">
                     We gebruiken noodzakelijke cookies voor de werking van de webshop.
                     Met analytics-cookies verbeteren we de website en meten we bezoek.
                 </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex flex-col gap-2 sm:flex-row">
                 <button
                     type="button"
                     id="cookie-deny"
@@ -136,32 +141,22 @@
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <script>
-    /**
-     * Hulpfunctie voor het zetten van cookies
-     */
     function setCookie(name, value, seconds) {
         document.cookie = `${name}=${value}; path=/; max-age=${seconds}; SameSite=Lax`;
     }
 
-    /**
-     * Verwijder de banner uit de DOM
-     */
     function hideCookieBanner() {
         document.getElementById('cookie-banner')?.remove();
     }
 
-    /**
-     * Update de Google Consent status
-     */
     function updateGtagConsent(status) {
         if (typeof gtag === 'function') {
             gtag('consent', 'update', {
-                'analytics_storage': status
+                analytics_storage: status
             });
         }
     }
 
-    // Event Listener voor 'Alleen noodzakelijk'
     document.getElementById('cookie-deny')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'denied', 31536000);
@@ -169,14 +164,10 @@
         hideCookieBanner();
     });
 
-    // Event Listener voor 'Akkoord met analytics'
     document.getElementById('cookie-accept')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'granted', 31536000);
-        
-        // Update direct de toestemming in de reeds geladen gtag
         updateGtagConsent('granted');
-        
         hideCookieBanner();
     });
 </script>

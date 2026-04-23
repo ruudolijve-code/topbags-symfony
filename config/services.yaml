@@ -18,6 +18,7 @@ parameters:
     shop.shipping.default_cost: 7.95
 
     ga4.measurement_id: '%env(string:GA4_MEASUREMENT_ID)%'
+    app.app_url: '%env(string:APP_URL)%'
 
 services:
     _defaults:
@@ -70,4 +71,4 @@ services:
     App\Twig\AppGlobals:
         arguments:
             $ga4MeasurementId: '%ga4.measurement_id%'
-            
+            $appUrl: '%app.app_url%'
