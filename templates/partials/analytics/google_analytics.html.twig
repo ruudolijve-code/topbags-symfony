@@ -5,8 +5,17 @@
         function gtag(){dataLayer.push(arguments);}
 
         gtag('js', new Date());
+
         gtag('config', '{{ ga4_measurement_id|e('js') }}', {
-            debug_mode: true
+            debug_mode: true,
+            send_page_view: true
+        });
+
+        gtag('event', 'page_view', {
+            debug_mode: true,
+            page_location: window.location.href,
+            page_title: document.title,
+            page_path: window.location.pathname
         });
     </script>
 {% endif %}
