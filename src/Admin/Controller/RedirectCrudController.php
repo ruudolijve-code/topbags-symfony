@@ -37,15 +37,11 @@ final class RedirectCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id')
-                ->hideOnForm(),
-
+            IdField::new('id')->hideOnForm(),
             TextField::new('oldPath', 'Oud pad')
                 ->setHelp('Bijvoorbeeld: /onze-winkel of /tassen/crossbody.html'),
-
             TextField::new('newUrl', 'Nieuwe URL')
                 ->setHelp('Bijvoorbeeld: /winkel of /categorie/crossbody-tassen'),
-
             BooleanField::new('isActive', 'Actief'),
         ];
     }
@@ -99,10 +95,7 @@ final class RedirectCrudController extends AbstractCrudController
             return '/';
         }
 
-        if (
-            str_starts_with($url, 'http://') ||
-            str_starts_with($url, 'https://')
-        ) {
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
             return $url;
         }
 
