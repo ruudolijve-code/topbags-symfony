@@ -5,7 +5,10 @@
 {% endblock %}
 
 {% block body %}
-<div class="w-full border-b border-gray-200 bg-grey-50">
+<div
+    class="w-full border-b border-gray-200 bg-grey-50"
+    x-data="{ mobileFiltersOpen: false }"
+>
     <div class="mx-auto max-w-7xl px-6 py-8">
 
         <header class="mb-8">
@@ -18,10 +21,28 @@
             </div>
         </header>
 
+        {# Mobiele toolbar #}
+        <div class="mb-6 flex items-center justify-between gap-4 lg:hidden">
+            <button
+                type="button"
+                @click="mobileFiltersOpen = true"
+                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M6 12h12M10 18h4" />
+                </svg>
+                Filter kiezen
+            </button>
+
+            <div class="text-right text-sm text-gray-500">
+                {{ pagination.totalItems|default(items|length) }} modellen
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
 
-            {# Filters #}
-            <aside class="rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
+            {# Desktop filters #}
+            <aside class="hidden rounded-xl bg-white p-6 shadow-sm lg:col-span-1 lg:block">
                 <form method="get" class="space-y-6">
 
                     {% if allowedFilters is defined and 'brands' in allowedFilters %}
@@ -42,12 +63,12 @@
             {# Product grid #}
             <section class="lg:col-span-3">
 
-                <div class="mb-4 text-sm text-gray-500">
-                    {{ items|length }} modellen gevonden
+                <div class="mb-4 hidden text-sm text-gray-500 lg:block">
+                    {{ pagination.totalItems|default(items|length) }} modellen gevonden
                 </div>
 
                 {% if items is not empty %}
-                    <div class="columns-1 gap-8 space-y-8 md:columns-3 lg:columns-3">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {% for item in items %}
                             {% include 'shop/component/card/_card.html.twig' with {
                                 context: 'bags',
@@ -65,43 +86,118 @@
                     </div>
                 {% endif %}
 
-            </section>
+                {% if pagination is defined and pagination.totalPages > 1 %}
+                    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
+                        {% set routeName = app.request.attributes.get('_route') %}
+                        {% set query = app.request.query.all %}
 
+                        {% if pagination.hasPreviousPage %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: pagination.previousPage })) }}"
+                                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            >
+                                Vorige
+                            </a>
+                        {% endif %}
+
+                        {% for p in pagination.pages %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: p })) }}"
+                                class="rounded-full border px-4 py-2 text-sm {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
+                            >
+                                {{ p }}
+                            </a>
+                        {% endfor %}
+
+                        {% if pagination.hasNextPage %}
+                            <a
+                                href="{{ path(routeName, query|merge({ page: pagination.nextPage })) }}"
+                                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            >
+                                Volgende
+                            </a>
+                        {% endif %}
+                    </nav>
+                {% endif %}
+
+            </section>
+        </div>
+    </div>
+
+    {# Mobiele filter overlay #}
+    <div
+        x-show="mobileFiltersOpen"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-[120] lg:hidden"
+        style="display: none;"
+    >
+        <div
+            class="absolute inset-0 bg-black/40"
+            @click="mobileFiltersOpen = false"
+        ></div>
+
+        <div
+            x-show="mobileFiltersOpen"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full"
+            class="absolute inset-x-0 bottom-0 top-8 flex flex-col rounded-t-2xl bg-white shadow-2xl"
+            style="display: none;"
+        >
+            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+                <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
+
+                <button
+                    type="button"
+                    @click="mobileFiltersOpen = false"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700"
+                    aria-label="Sluit filters"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form method="get" class="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+
+                {% if allowedFilters is defined and 'brands' in allowedFilters %}
+                    {% include 'shop/filter/_filter_brands.html.twig' %}
+                {% endif %}
+
+                {% if allowedFilters is defined and 'color' in allowedFilters %}
+                    {% include 'shop/filter/_filter_color.html.twig' %}
+                {% endif %}
+
+                {% if allowedFilters is defined and 'cta' in allowedFilters %}
+                    {% include 'shop/filter/_filter_cta.html.twig' %}
+                {% endif %}
+
+                <div class="sticky bottom-0 flex gap-3 border-t border-gray-200 bg-white pt-4 pb-2">
+                    <a
+                        href="{{ path(app.request.attributes.get('_route')) }}"
+                        class="inline-flex flex-1 items-center justify-center rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700"
+                    >
+                        Wis filters
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="inline-flex flex-1 items-center justify-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white"
+                    >
+                        Toon resultaten
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-{% if pagination is defined and pagination.totalPages > 1 %}
-    <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
-        {% set routeName = app.request.attributes.get('_route') %}
-        {% set query = app.request.query.all %}
-
-        {% if pagination.hasPreviousPage %}
-            <a
-                href="{{ path(routeName, query|merge({ page: pagination.previousPage })) }}"
-                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
-            >
-                Vorige
-            </a>
-        {% endif %}
-
-        {% for p in pagination.pages %}
-            <a
-                href="{{ path(routeName, query|merge({ page: p })) }}"
-                class="rounded-full border px-4 py-2 text-sm {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
-            >
-                {{ p }}
-            </a>
-        {% endfor %}
-
-        {% if pagination.hasNextPage %}
-            <a
-                href="{{ path(routeName, query|merge({ page: pagination.nextPage })) }}"
-                class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
-            >
-                Volgende
-            </a>
-        {% endif %}
-    </nav>
-{% endif %}
 {% endblock %}

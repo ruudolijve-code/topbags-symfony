@@ -5,7 +5,10 @@
 {% endblock %}
 
 {% block body %}
-<div class="w-full border-b border-gray-200 bg-grey-50">
+<div
+    class="w-full border-b border-gray-200 bg-grey-50"
+    x-data="{ mobileFiltersOpen: false }"
+>
     <div class="max-w-7xl mx-auto px-6 py-8">
 
         <header class="mb-8">
@@ -20,12 +23,29 @@
             {% endif %}
         </header>
 
+        {# Mobiele toolbar #}
+        <div class="flex items-center justify-between gap-4 mb-6 lg:hidden">
+            <button
+                type="button"
+                @click="mobileFiltersOpen = true"
+                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M6 12h12M10 18h4" />
+                </svg>
+                Filter kiezen
+            </button>
+
+            <div class="text-sm text-gray-500 text-right">
+                {{ pagination.totalItems }} modellen
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
 
-            {# Filters #}
-            <aside class="rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
+            {# Desktop filters #}
+            <aside class="hidden lg:block rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
                 <form method="get" class="space-y-6">
-
                     {% if 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
@@ -49,14 +69,13 @@
                     {% if 'cta' in allowedFilters %}
                         {% include 'shop/filter/_filter_cta.html.twig' %}
                     {% endif %}
-
                 </form>
             </aside>
 
             {# Product grid #}
             <section class="lg:col-span-3">
 
-                <div class="mb-4 text-sm text-gray-500">
+                <div class="hidden lg:block mb-4 text-sm text-gray-500">
                     {{ pagination.totalItems }} modellen gevonden
 
                     {% if totalColors is defined and totalColors > 0 %}
@@ -122,7 +141,93 @@
                 {% endif %}
 
             </section>
+        </div>
+    </div>
 
+    {# Mobiele filter overlay #}
+    <div
+        x-show="mobileFiltersOpen"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-[120] lg:hidden"
+        style="display: none;"
+    >
+        <div
+            class="absolute inset-0 bg-black/40"
+            @click="mobileFiltersOpen = false"
+        ></div>
+
+        <div
+            x-show="mobileFiltersOpen"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full"
+            class="absolute inset-x-0 bottom-0 top-8 rounded-t-2xl bg-white shadow-2xl flex flex-col"
+            style="display: none;"
+        >
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
+
+                <button
+                    type="button"
+                    @click="mobileFiltersOpen = false"
+                    class="inline-flex items-center justify-center h-10 w-10 rounded-md border border-gray-300 bg-white text-gray-700"
+                    aria-label="Sluit filters"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form method="get" class="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+                {% if 'brands' in allowedFilters %}
+                    {% include 'shop/filter/_filter_brands.html.twig' %}
+                {% endif %}
+
+                {% if 'volume' in allowedFilters %}
+                    {% include 'shop/filter/_filter_volume.html.twig' %}
+                {% endif %}
+
+                {% if 'color' in allowedFilters %}
+                    {% include 'shop/filter/_filter_color.html.twig' %}
+                {% endif %}
+
+                {% if 'airlines' in allowedFilters %}
+                    {% include 'shop/filter/_filter_airlines.html.twig' %}
+                {% endif %}
+
+                {% if 'flying_scope' in allowedFilters %}
+                    {% include 'shop/filter/_filter_flying_scope.html.twig' %}
+                {% endif %}
+
+                {% if 'cta' in allowedFilters %}
+                    {% include 'shop/filter/_filter_cta.html.twig' %}
+                {% endif %}
+
+                <div class="sticky bottom-0 bg-white pt-4 pb-2 border-t border-gray-200 flex gap-3">
+                    <a
+                        href="{{ path(app.request.attributes.get('_route'), { slug: category.slug }) }}"
+                        class="flex-1 inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700"
+                    >
+                        Wis filters
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="flex-1 inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-3 text-sm font-semibold text-white"
+                    >
+                        Toon resultaten
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
