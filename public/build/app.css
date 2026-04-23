@@ -412,6 +412,9 @@
   .z-\[10000\] {
     z-index: 10000;
   }
+  .order-first {
+    order: -9999;
+  }
   .col-span-2 {
     grid-column: span 2 / span 2;
   }
@@ -1262,6 +1265,9 @@
   .bg-\[\#f4f1ea\] {
     background-color: #f4f1ea;
   }
+  .bg-\[\#f5f1ec\] {
+    background-color: #f5f1ec;
+  }
   .bg-\[\#f7f4ee\] {
     background-color: #f7f4ee;
   }
@@ -2055,6 +2061,10 @@
   .will-change-transform {
     will-change: transform;
   }
+  .outline-none {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
   .group-open\:rotate-180 {
     &:is(:where(.group):is([open], :popover-open, :open) *) {
       rotate: 180deg;
@@ -2532,6 +2542,11 @@
       border-color: var(--color-amber-500);
     }
   }
+  .focus\:border-black {
+    &:focus {
+      border-color: var(--color-black);
+    }
+  }
   .focus\:border-gray-400 {
     &:focus {
       border-color: var(--color-gray-400);
@@ -2884,6 +2899,11 @@
   .lg\:left-8 {
     @media (width >= 64rem) {
       left: calc(var(--spacing) * 8);
+    }
+  }
+  .lg\:order-none {
+    @media (width >= 64rem) {
+      order: 0;
     }
   }
   .lg\:col-span-1 {
