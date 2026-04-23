@@ -388,6 +388,12 @@
   .z-\[120\] {
     z-index: 120;
   }
+  .z-\[200\] {
+    z-index: 200;
+  }
+  .z-\[210\] {
+    z-index: 210;
+  }
   .col-span-full {
     grid-column: 1 / -1;
   }
