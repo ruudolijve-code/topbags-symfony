@@ -394,6 +394,12 @@
   .z-\[210\] {
     z-index: 210;
   }
+  .z-\[9999\] {
+    z-index: 9999;
+  }
+  .z-\[10000\] {
+    z-index: 10000;
+  }
   .col-span-full {
     grid-column: 1 / -1;
   }
@@ -1066,6 +1072,9 @@
   }
   .overflow-y-auto {
     overflow-y: auto;
+  }
+  .overscroll-contain {
+    overscroll-behavior: contain;
   }
   .rounded {
     border-radius: 0.25rem;
