@@ -59,5 +59,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Marketing');
         yield MenuItem::linkToCrud('Nieuwsbriefinschrijvingen', 'fa fa-envelope', NewsletterSubscription::class);
         yield MenuItem::linkToCrud('Coupons', 'fas fa-percent', Coupon::class);
+
+        yield MenuItem::section('SEO');
+        yield MenuItem::linkToCrud('Redirects', 'fa fa-exchange-alt', Redirect::class);
     }
 }
