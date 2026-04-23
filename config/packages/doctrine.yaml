@@ -77,6 +77,13 @@ doctrine:
                 is_bundle: false
                 alias: Account
 
+            Seo:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Seo/Entity'
+                prefix: 'App\Seo\Entity'
+                alias: Seo
+
                 
 when@test:
     doctrine:
