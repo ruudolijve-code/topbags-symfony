@@ -1,4 +1,5 @@
 {% set context = activeContext ?? currentContext ?? 'shop' %}
+{% set app_url = 'https://topbags.nl' %}
 
 <!DOCTYPE html>
 <html lang="nl">
@@ -15,7 +16,7 @@
     <meta name="google-site-verification" content="VhmOv6vDeWhBQ7LcAFD1qkBr4m2PuQgrmvLQW7aC4K0">
 
     {% include 'partials/analytics/google_analytics.html.twig' %}
-    {% set app_url = 'https://topbags.nl' %}
+
     {% block canonical %}
         {% if product is defined and variant is defined %}
             <link rel="canonical" href="{{ app_url ~ path('product_show', {
@@ -149,25 +150,15 @@
         document.getElementById('cookie-banner')?.remove();
     }
 
-    function updateGtagConsent(status) {
-        if (typeof gtag === 'function') {
-            gtag('consent', 'update', {
-                analytics_storage: status
-            });
-        }
-    }
-
     document.getElementById('cookie-deny')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'denied', 31536000);
-        updateGtagConsent('denied');
         hideCookieBanner();
     });
 
     document.getElementById('cookie-accept')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'granted', 31536000);
-        updateGtagConsent('granted');
         hideCookieBanner();
     });
 </script>

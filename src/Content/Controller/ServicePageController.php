@@ -43,4 +43,10 @@ final class ServicePageController extends AbstractController
     {
         return $this->render('service/cookies.html.twig');
     }
+
+     #[Route('/winkel', name: 'service_store')]
+     public function store(): Response
+     {
+        return $this->render('service/store.html.twig');
+     }
 }
