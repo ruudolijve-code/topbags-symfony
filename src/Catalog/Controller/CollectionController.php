@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class CollectionController extends AbstractController
 {
-    private const PER_PAGE = 16;
+    private const PER_PAGE = 15;
 
     private const ALL_SCOPES = ['personal', 'cabin', 'hold'];
 
