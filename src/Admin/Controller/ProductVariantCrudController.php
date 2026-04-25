@@ -49,6 +49,7 @@ class ProductVariantCrudController extends AbstractCrudController
                 'supplierColorName',
                 'supplierColorSlug',
                 'supplierColorCode',
+                'product',
             ]);
     }
 
