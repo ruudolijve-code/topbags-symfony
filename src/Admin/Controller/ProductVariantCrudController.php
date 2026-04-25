@@ -106,8 +106,8 @@ class ProductVariantCrudController extends AbstractCrudController
         yield TextField::new('supplierColorName', 'Supplier kleur')
             ->hideOnIndex();
 
-        yield TextField::new('supplierColorSlug', 'Supplier kleur slug')
-           ->setTargetFieldName('supplierColorName');
+        yield SlugField::new('supplierColorSlug', 'Supplier kleur slug')
+            ->setTargetFieldName('supplierColorName');    
 
         yield TextField::new('supplierColorCode', 'Supplier kleurcode')
             ->hideOnIndex();
