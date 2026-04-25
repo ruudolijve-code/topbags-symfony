@@ -49,7 +49,9 @@ class ProductVariantCrudController extends AbstractCrudController
                 'supplierColorName',
                 'supplierColorSlug',
                 'supplierColorCode',
-                'product',
+                'product.name',
+                'product.modelSku',
+                'product.brand.name',
             ]);
     }
 
@@ -64,6 +66,9 @@ class ProductVariantCrudController extends AbstractCrudController
         yield FormField::addPanel('Variant');
 
         yield AssociationField::new('product', 'Product');
+
+        yield TextField::new('product.brand.name', 'Merk')
+        ->onlyOnIndex();
 
         yield TextField::new('variantSku', 'SKU');
 
