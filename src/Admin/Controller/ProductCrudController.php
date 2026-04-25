@@ -149,6 +149,7 @@ class ProductCrudController extends AbstractCrudController
                 'Rits' => 'zip',
                 'Frame' => 'frame',
                 'Klep' => 'flap',
+                'Drukknoop' => 'snap',
             ])
             ->setRequired(false)
             ->hideOnIndex();
