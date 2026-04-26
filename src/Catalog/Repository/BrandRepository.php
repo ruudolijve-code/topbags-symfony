@@ -130,4 +130,13 @@ final class BrandRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findActiveForSitemap(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.slug IS NOT NULL')
+            ->orderBy('b.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
