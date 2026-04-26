@@ -47,6 +47,10 @@ shop_controllers:
     resource: ../src/Shop/Controller/
     type: attribute
 
+seo_controllers:
+    resource: ../src/Seo/Controller/
+    type: attribute
+
 controllers:
     resource: ../src/Controller/
     type: attribute
