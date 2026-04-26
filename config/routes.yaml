@@ -51,6 +51,10 @@ seo_controllers:
     resource: ../src/Seo/Controller/
     type: attribute
 
+feed_controllers:
+    resource: ../src/Feed/Controller/
+    type: attribute
+
 controllers:
     resource: ../src/Controller/
     type: attribute

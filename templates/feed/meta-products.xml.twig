@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:g="http://base.google.com/ns/1.0">
+    <channel>
+        <title>Topbags productcatalogus</title>
+        <link>https://www.topbags.nl</link>
+        <description>Productfeed voor Meta Commerce Manager</description>
+
+        {% for variant in variants %}
+            {% set product = variant.product %}
+            {% set brand = product.brand %}
+            {% set image = variant.primaryImage ?? null %}
+
+            <item>
+                <g:id>{{ variant.variantSku|e }}</g:id>
+
+                {% if product.modelSku %}
+                    <g:item_group_id>{{ product.modelSku|e }}</g:item_group_id>
+                {% else %}
+                    <g:item_group_id>{{ product.id }}</g:item_group_id>
+                {% endif %}
+
+                <g:title>{{ (brand.name ~ ' ' ~ product.name ~ ' ' ~ variant.supplierColorName)|trim|e }}</g:title>
+
+                <g:description>
+                    {{ product.description|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}
+                </g:description>
+
+                <g:link>{{ url('product_show', {
+                    slug: product.slug,
+                    colorSlug: variant.supplierColorSlug,
+                    variantSku: variant.variantSku
+                }) }}</g:link>
+
+                {% if image %}
+                    <g:image_link>{{ absolute_url(asset(image.path)) }}</g:image_link>
+                {% endif %}
+
+                <g:availability>
+                    {% if variant.inventoryOnHand is defined and variant.inventoryOnHand > 0 %}
+                        in stock
+                    {% else %}
+                        out of stock
+                    {% endif %}
+                </g:availability>
+
+                <g:condition>new</g:condition>
+
+                <g:price>{{ variant.price|number_format(2, '.', '') }} EUR</g:price>
+
+                {% if brand %}
+                    <g:brand>{{ brand.name|e }}</g:brand>
+                {% endif %}
+
+                {% if variant.ean %}
+                    <g:gtin>{{ variant.ean|e }}</g:gtin>
+                {% endif %}
+
+                {% if variant.supplierColorName %}
+                    <g:color>{{ variant.supplierColorName|e }}</g:color>
+                {% endif %}
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

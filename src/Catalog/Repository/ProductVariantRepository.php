@@ -58,4 +58,24 @@ class ProductVariantRepository extends ServiceEntityRepository
             ->setHint(Query::HINT_REFRESH, true)
             ->getOneOrNullResult();
     }
+
+    public function findActiveForMetaFeed(): array
+    {
+        return $this->createQueryBuilder('v')
+            ->innerJoin('v.product', 'p')
+            ->addSelect('p')
+            ->leftJoin('p.brand', 'b')
+            ->addSelect('b')
+            ->leftJoin('v.images', 'i')
+            ->addSelect('i')
+            ->andWhere('v.isActive = true')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.slug IS NOT NULL')
+            ->andWhere('v.variantSku IS NOT NULL')
+            ->andWhere('v.supplierColorSlug IS NOT NULL')
+            ->orderBy('p.id', 'DESC')
+            ->addOrderBy('v.isMaster', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
