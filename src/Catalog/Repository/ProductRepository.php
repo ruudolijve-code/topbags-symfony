@@ -1081,9 +1081,12 @@ final class ProductRepository extends ServiceEntityRepository
     public function findActiveForSitemap(): array
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.isActive = :active')
+            ->innerJoin('p.variants', 'mv')
+            ->addSelect('mv')
+            ->andWhere('p.isActive = true')
             ->andWhere('p.slug IS NOT NULL')
-            ->setParameter('active', true)
+            ->andWhere('mv.isActive = true')
+            ->andWhere('mv.isMaster = true')
             ->orderBy('p.id', 'DESC')
             ->getQuery()
             ->getResult();

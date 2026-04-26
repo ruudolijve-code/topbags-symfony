@@ -76,11 +76,29 @@ final class SitemapController extends AbstractController
 
         // Producten
         foreach ($productRepository->findActiveForSitemap() as $product) {
+            $masterVariant = null;
+
+            foreach ($product->getVariants() as $variant) {
+                if ($variant->isActive() && $variant->isMaster()) {
+                    $masterVariant = $variant;
+                    break;
+                }
+            }
+
+            if (!$masterVariant) {
+                continue;
+            }
+
+            if (!$masterVariant->getSupplierColorSlug() || !$masterVariant->getVariantSku()) {
+                continue;
+            }
+
             $urls[] = [
                 'loc' => $urlGenerator->generate('product_show', [
                     'slug' => $product->getSlug(),
+                    'colorSlug' => $masterVariant->getSupplierColorSlug(),
+                    'variantSku' => $masterVariant->getVariantSku(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL),
-                'lastmod' => $product->getUpdatedAt()?->format('Y-m-d'),
                 'priority' => '0.9',
                 'changefreq' => 'weekly',
             ];
