@@ -12,6 +12,8 @@
             {% set product = variant.product %}
             {% set brand = product.brand %}
             {% set brandName = brand ? brand.name : 'Topbags' %}
+            {% set stockAvailable = variant.stockAvailable %}
+            {% set isBackorder = stockAvailable <= 0 and variant.allowsBackorder %}
 
             <item>
                 <g:id>{{ variant.variantSku|e }}</g:id>
@@ -34,13 +36,20 @@
 
                 <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
 
-                {% if variant.isPurchasable %}
+                {% if stockAvailable > 0 %}
                     <g:availability>in stock</g:availability>
+                    <g:inventory>{{ stockAvailable }}</g:inventory>
+                    <g:quantity_to_sell_on_facebook>{{ stockAvailable }}</g:quantity_to_sell_on_facebook>
+                {% elseif isBackorder %}
+                    <g:availability>preorder</g:availability>
+                    <g:inventory>0</g:inventory>
+                    <g:quantity_to_sell_on_facebook>1</g:quantity_to_sell_on_facebook>
                 {% else %}
                     <g:availability>out of stock</g:availability>
+                    <g:inventory>0</g:inventory>
+                    <g:quantity_to_sell_on_facebook>0</g:quantity_to_sell_on_facebook>
                 {% endif %}
 
-                <g:inventory>{{ variant.stockAvailable }}</g:inventory>
                 <g:condition>new</g:condition>
 
                 <g:price>{{ variant.price|number_format(2, '.', '') }} EUR</g:price>
