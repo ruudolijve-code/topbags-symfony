@@ -11,6 +11,7 @@
             {% set imagePath = item.imagePath %}
             {% set product = variant.product %}
             {% set brand = product.brand %}
+            {% set brandName = brand ? brand.name : 'Topbags' %}
 
             <item>
                 <g:id>{{ variant.variantSku|e }}</g:id>
@@ -21,7 +22,7 @@
                     <g:item_group_id>{{ product.id }}</g:item_group_id>
                 {% endif %}
 
-                <g:title>{{ (brand.name ~ ' ' ~ product.name ~ ' ' ~ variant.supplierColorName)|trim|e }}</g:title>
+                <g:title>{{ (brandName ~ ' ' ~ product.name ~ ' ' ~ variant.supplierColorName)|trim|e }}</g:title>
 
                 <g:description>{{ product.description|default(product.name)|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}</g:description>
 
@@ -31,9 +32,7 @@
                     variantSku: variant.variantSku
                 }) }}</g:link>
 
-                {% if imagePath %}
-                    <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
-                {% endif %}
+                <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
 
                 {% if variant.isPurchasable %}
                     <g:availability>in stock</g:availability>
@@ -41,6 +40,7 @@
                     <g:availability>out of stock</g:availability>
                 {% endif %}
 
+                <g:inventory>{{ variant.stockAvailable }}</g:inventory>
                 <g:condition>new</g:condition>
 
                 <g:price>{{ variant.price|number_format(2, '.', '') }} EUR</g:price>
@@ -49,9 +49,8 @@
                     <g:sale_price>{{ variant.displayPrice|number_format(2, '.', '') }} EUR</g:sale_price>
                 {% endif %}
 
-                {% if brand %}
-                    <g:brand>{{ brand.name|e }}</g:brand>
-                {% endif %}
+                <g:brand>{{ brandName|e }}</g:brand>
+                <g:mpn>{{ variant.variantSku|e }}</g:mpn>
 
                 {% if variant.ean %}
                     <g:gtin>{{ variant.ean|e }}</g:gtin>
