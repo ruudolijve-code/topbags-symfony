@@ -68,6 +68,8 @@ class ProductVariantRepository extends ServiceEntityRepository
             ->addSelect('b')
             ->leftJoin('v.images', 'i')
             ->addSelect('i')
+            ->leftJoin('v.stock', 's')
+            ->addSelect('s')
             ->andWhere('v.isActive = true')
             ->andWhere('p.isActive = true')
             ->andWhere('p.slug IS NOT NULL')
@@ -75,6 +77,7 @@ class ProductVariantRepository extends ServiceEntityRepository
             ->andWhere('v.supplierColorSlug IS NOT NULL')
             ->orderBy('p.id', 'DESC')
             ->addOrderBy('v.isMaster', 'DESC')
+            ->addOrderBy('i.position', 'ASC')
             ->getQuery()
             ->getResult();
     }

@@ -6,10 +6,11 @@
         <link>https://www.topbags.nl</link>
         <description>Productfeed voor Meta Commerce Manager</description>
 
-        {% for variant in variants %}
+        {% for item in feedItems %}
+            {% set variant = item.variant %}
+            {% set imagePath = item.imagePath %}
             {% set product = variant.product %}
             {% set brand = product.brand %}
-            {% set image = variant.primaryImage ?? null %}
 
             <item>
                 <g:id>{{ variant.variantSku|e }}</g:id>
@@ -22,9 +23,7 @@
 
                 <g:title>{{ (brand.name ~ ' ' ~ product.name ~ ' ' ~ variant.supplierColorName)|trim|e }}</g:title>
 
-                <g:description>
-                    {{ product.description|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}
-                </g:description>
+                <g:description>{{ product.description|default(product.name)|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}</g:description>
 
                 <g:link>{{ url('product_show', {
                     slug: product.slug,
@@ -32,21 +31,23 @@
                     variantSku: variant.variantSku
                 }) }}</g:link>
 
-                {% if image %}
-                    <g:image_link>{{ absolute_url(asset(image.path)) }}</g:image_link>
+                {% if imagePath %}
+                    <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
                 {% endif %}
 
-                <g:availability>
-                    {% if variant.inventoryOnHand is defined and variant.inventoryOnHand > 0 %}
-                        in stock
-                    {% else %}
-                        out of stock
-                    {% endif %}
-                </g:availability>
+                {% if variant.isPurchasable %}
+                    <g:availability>in stock</g:availability>
+                {% else %}
+                    <g:availability>out of stock</g:availability>
+                {% endif %}
 
                 <g:condition>new</g:condition>
 
                 <g:price>{{ variant.price|number_format(2, '.', '') }} EUR</g:price>
+
+                {% if variant.hasActiveSale %}
+                    <g:sale_price>{{ variant.displayPrice|number_format(2, '.', '') }} EUR</g:sale_price>
+                {% endif %}
 
                 {% if brand %}
                     <g:brand>{{ brand.name|e }}</g:brand>
