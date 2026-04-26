@@ -13,7 +13,7 @@
             {% set brand = product.brand %}
             {% set brandName = brand ? brand.name : 'Topbags' %}
             {% set stockAvailable = variant.stockAvailable %}
-            {% set isBackorder = stockAvailable <= 0 and variant.allowsBackorder %}
+            {% set isBackorder = stockAvailable <= 0 and variant.allowsBackorder() %}
 
             <item>
                 <g:id>{{ variant.variantSku|e }}</g:id>
