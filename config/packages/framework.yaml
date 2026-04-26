@@ -2,6 +2,9 @@
 framework:
   secret: '%env(APP_SECRET)%'
 
+  router:
+    default_uri: '%env(DEFAULT_URI)%'
+
   # Session wordt alleen gestart als je hem gebruikt
   session:
     enabled: true
@@ -16,4 +19,4 @@ when@test:
   framework:
     test: true
     session:
-      storage_factory_id: session.storage.factory.mock_file 
+      storage_factory_id: session.storage.factory.mock_file

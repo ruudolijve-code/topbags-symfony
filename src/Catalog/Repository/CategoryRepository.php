@@ -164,4 +164,15 @@ final class CategoryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findActiveForSitemap(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.isActive = :active')
+            ->andWhere('c.slug IS NOT NULL')
+            ->setParameter('active', true)
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

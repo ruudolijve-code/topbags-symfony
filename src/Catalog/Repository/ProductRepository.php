@@ -1077,4 +1077,15 @@ final class ProductRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findActiveForSitemap(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.isActive = :active')
+            ->andWhere('p.slug IS NOT NULL')
+            ->setParameter('active', true)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
