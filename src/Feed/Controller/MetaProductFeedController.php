@@ -23,13 +23,7 @@ final class MetaProductFeedController extends AbstractController
             $imagePath = $imagePathResolver->fromVariant($variant);
 
             if ($imagePath === null || trim($imagePath) === '') {
-                throw new \RuntimeException(sprintf(
-                    'Meta feed imagePath ontbreekt voor variantSku "%s", kleur "%s", product "%s", images: %d',
-                    $variant->getVariantSku(),
-                    $variant->getSupplierColorName(),
-                    $variant->getProduct()->getName(),
-                    $variant->getImages()->count()
-                ));
+                continue;
             }
 
             $feedItems[] = [

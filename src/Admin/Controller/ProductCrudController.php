@@ -150,6 +150,7 @@ class ProductCrudController extends AbstractCrudController
                 'Frame' => 'frame',
                 'Klep' => 'flap',
                 'Drukknoop' => 'snap',
+                'Draaisluiting' => 'twist',
             ])
             ->setRequired(false)
             ->hideOnIndex();
