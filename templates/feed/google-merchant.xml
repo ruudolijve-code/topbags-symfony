@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:g="http://base.google.com/ns/1.0">
+    <channel>
+        <title>Topbags productcatalogus</title>
+        <link>https://www.topbags.nl</link>
+        <description>Productfeed voor Google Merchant Center</description>
+
+        {% for item in feedItems %}
+            {% set variant = item.variant %}
+            {% set imagePath = item.imagePath %}
+            {% set product = variant.product %}
+            {% set brand = product.brand %}
+            {% set brandName = brand ? brand.name : 'Topbags' %}
+            {% set stockAvailable = variant.stockAvailable %}
+            {% set isBackorder = stockAvailable <= 0 and variant.allowsBackorder() %}
+
+            <item>
+                <g:id>{{ variant.variantSku|e }}</g:id>
+
+                {% if product.modelSku %}
+                    <g:item_group_id>{{ product.modelSku|e }}</g:item_group_id>
+                {% else %}
+                    <g:item_group_id>{{ product.id }}</g:item_group_id>
+                {% endif %}
+
+                <g:title>{{ (brandName ~ ' ' ~ product.name ~ ' ' ~ variant.supplierColorName)|trim|e }}</g:title>
+
+                <g:description>{{ product.description|default(product.name)|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}</g:description>
+
+                <g:link>{{ url('product_show', {
+                    slug: product.slug,
+                    colorSlug: variant.supplierColorSlug,
+                    variantSku: variant.variantSku
+                }) }}</g:link>
+
+                <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
+
+                {% if stockAvailable > 0 %}
+                    <g:availability>in_stock</g:availability>
+                {% elseif isBackorder %}
+                    <g:availability>backorder</g:availability>
+                {% else %}
+                    <g:availability>out_of_stock</g:availability>
+                {% endif %}
+
+                <g:condition>new</g:condition>
+
+                <g:price>{{ variant.price|number_format(2, '.', '') }} EUR</g:price>
+
+                {% if variant.hasActiveSale %}
+                    <g:sale_price>{{ variant.displayPrice|number_format(2, '.', '') }} EUR</g:sale_price>
+                {% endif %}
+
+                <g:brand>{{ brandName|e }}</g:brand>
+                <g:mpn>{{ variant.variantSku|e }}</g:mpn>
+
+                {% if variant.ean %}
+                    <g:gtin>{{ variant.ean|e }}</g:gtin>
+                {% endif %}
+
+                {% if variant.supplierColorName %}
+                    <g:color>{{ variant.supplierColorName|e }}</g:color>
+                {% endif %}
+            </item>
+        {% endfor %}
+    </channel>
+</rss>
