@@ -39,7 +39,7 @@
                 {% if stockAvailable > 0 %}
                     <g:availability>in_stock</g:availability>
                 {% elseif isBackorder %}
-                    <g:availability>backorder</g:availability>
+                    <g:availability>in_stock</g:availability>
                 {% else %}
                     <g:availability>out_of_stock</g:availability>
                 {% endif %}
