@@ -28,13 +28,13 @@
 
                 <g:description>{{ product.description|default(product.name)|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}</g:description>
 
-                <g:link>{{ url('product_show', {
+                <g:link>{{ (app_url ~ path('product_show', {
                     slug: product.slug,
                     colorSlug: variant.supplierColorSlug,
                     variantSku: variant.variantSku
-                }) }}</g:link>
+                }))|e }}</g:link>
 
-                <g:image_link>{{ absolute_url(asset(imagePath)) }}</g:image_link>
+                <g:image_link>{{ (app_url ~ asset(imagePath))|e }}</g:image_link>
 
                 {% if stockAvailable > 0 %}
                     <g:availability>in_stock</g:availability>
