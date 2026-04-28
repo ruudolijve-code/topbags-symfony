@@ -5,6 +5,7 @@
         <title>Topbags productcatalogus</title>
         <link>https://www.topbags.nl</link>
         <description>Productfeed voor Google Merchant Center</description>
+        {% set feed_base_url = 'https://www.topbags.nl' %}
 
         {% for item in feedItems %}
             {% set variant = item.variant %}
@@ -28,13 +29,13 @@
 
                 <g:description>{{ product.description|default(product.name)|striptags|replace({"\n": " ", "\r": " "})|slice(0, 5000)|e }}</g:description>
 
-                <g:link>{{ (app_url ~ path('product_show', {
+                <g:link>{{ (feed_base_url ~ path('product_show', {
                     slug: product.slug,
                     colorSlug: variant.supplierColorSlug,
                     variantSku: variant.variantSku
                 }))|e }}</g:link>
 
-                <g:image_link>{{ (app_url ~ asset(imagePath))|e }}</g:image_link>
+                <g:image_link>{{ (feed_base_url ~ asset(imagePath))|e }}</g:image_link>
 
                 {% if stockAvailable > 0 %}
                     <g:availability>in_stock</g:availability>
