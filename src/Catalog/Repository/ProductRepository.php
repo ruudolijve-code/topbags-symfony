@@ -4,6 +4,7 @@ namespace App\Catalog\Repository;
 
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
+use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Product;
 use App\Catalog\Entity\ProductVariant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -1088,6 +1089,36 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('mv.isActive = true')
             ->andWhere('mv.isMaster = true')
             ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findActiveByBrandForContext(Brand $brand, string $context, int $limit = 12): array
+    {
+        $ids = $this->createQueryBuilder('p')
+            ->select('p.id')
+            ->andWhere('p.brand = :brand')
+            ->andWhere('p.isActive = true')
+            ->setParameter('brand', $brand)
+            ->orderBy('p.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        if ($ids === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.variants', 'v')
+            ->addSelect('v')
+            ->leftJoin('v.images', 'i')
+            ->addSelect('i')
+            ->andWhere('p.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('p.name', 'ASC')
+            ->addOrderBy('v.id', 'ASC')
+            ->addOrderBy('i.position', 'ASC')
             ->getQuery()
             ->getResult();
     }

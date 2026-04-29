@@ -1,0 +1,259 @@
+{% extends 'base.html.twig' %}
+
+{% set readableType = typeConfig.label|default(type) %}
+{% set singularType = typeConfig.singular|default(type) %}
+{% set cityName = city.name %}
+
+{% block title %}
+    {{ brand.name }} {{ readableType }} kopen in {{ cityName }} | Holtkamp Tassen & Koffers
+{% endblock %}
+
+{% block body %}
+<section class="bg-white">
+    <div class="mx-auto max-w-7xl px-6 py-12">
+
+        <nav class="mb-6 text-sm text-gray-500">
+            <a href="{{ path('home') }}" class="hover:text-gray-900">Home</a>
+            <span class="mx-2">/</span>
+            <a href="{{ path('service_store') }}" class="hover:text-gray-900">Winkel in Hengelo</a>
+            <span class="mx-2">/</span>
+            <span>{{ brand.name }} {{ readableType }} {{ cityName }}</span>
+        </nav>
+
+        <div class="grid gap-10 lg:grid-cols-12 lg:items-start">
+            <div class="lg:col-span-7">
+                <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                    Holtkamp Tassen & Koffers · Hengelo · Twente
+                </p>
+
+                <h1 class="mb-6 text-4xl font-bold tracking-tight text-gray-900">
+                    {{ brand.name }} {{ readableType }} kopen in {{ cityName }}
+                </h1>
+
+                <div class="space-y-5 text-lg leading-8 text-gray-700">
+                    {% if city.is_store_city %}
+                        <p>
+                            Ben je op zoek naar {{ brand.name }} {{ readableType }} in Hengelo?
+                            Bij Holtkamp Tassen & Koffers kun je terecht voor deskundig advies,
+                            een ruime collectie en persoonlijke service.
+                        </p>
+                    {% else %}
+                        <p>
+                            Ben je op zoek naar {{ brand.name }} {{ readableType }} in {{ cityName }}?
+                            {{ city.intro }}
+                            {% if city.distance %}
+                                De winkel ligt op {{ city.distance }} van {{ cityName }}.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
+                    <p>
+                        Via Topbags.nl bekijk je eenvoudig onze actuele collectie.
+                        Wil je liever eerst voelen, passen of vergelijken?
+                        Kom dan langs in onze winkel aan de Wemenstraat 5–7 in Hengelo.
+                    </p>
+
+                    <p>
+                        Ons team helpt je graag met de juiste keuze: van formaat en gewicht
+                        tot indeling, wielen, sloten, materiaal en reisdoel.
+                    </p>
+                </div>
+
+                <div class="mt-8 flex flex-wrap gap-4">
+                    <a
+                        href="{{ path('brand_show', { slug: brand.slug }) }}"
+                        class="inline-flex rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-700"
+                    >
+                        Bekijk alle {{ brand.name }} producten
+                    </a>
+
+                    <a
+                        href="{{ path('service_store') }}"
+                        class="inline-flex rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+                    >
+                        Bezoek onze winkel in Hengelo
+                    </a>
+                </div>
+            </div>
+
+            <aside class="rounded-2xl bg-gray-50 p-6 shadow-sm lg:col-span-5">
+                <h2 class="mb-4 text-xl font-bold text-gray-900">
+                    Holtkamp Tassen & Koffers
+                </h2>
+
+                <div class="space-y-3 text-gray-700">
+                    <p>
+                        <strong>Adres</strong><br>
+                        Wemenstraat 5–7<br>
+                        7551 ET Hengelo
+                    </p>
+
+                    <p>
+                        <strong>Voor klanten uit {{ cityName }}</strong><br>
+                        {% if city.is_store_city %}
+                            Onze winkel bevindt zich in het centrum van Hengelo.
+                        {% else %}
+                            Bekijk de collectie online en kom naar Hengelo voor persoonlijk advies,
+                            service en het vergelijken van {{ brand.name }} {{ readableType }}.
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        <strong>Service</strong><br>
+                        Advies in de winkel, meer dan 60 merken, reparatieservice
+                        en een vertrouwd team met jarenlange ervaring.
+                    </p>
+                </div>
+
+                <div class="mt-6">
+                    <a
+                        href="{{ path('service_store') }}"
+                        class="text-sm font-semibold text-gray-900 underline"
+                    >
+                        Bekijk adres, route en openingstijden
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{% if items is not empty %}
+    <section class="bg-gray-50">
+        <div class="mx-auto max-w-7xl px-6 py-12">
+            <div class="mb-8 flex items-end justify-between gap-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Populaire {{ brand.name }} {{ readableType }}
+                    </h2>
+                    <p class="mt-2 text-gray-600">
+                        Een selectie uit onze actuele collectie voor klanten uit {{ cityName }} en omgeving.
+                    </p>
+                </div>
+
+                <a
+                    href="{{ path('brand_show', { slug: brand.slug }) }}"
+                    class="hidden text-sm font-semibold text-gray-900 underline sm:inline"
+                >
+                    Alles van {{ brand.name }} bekijken
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {% for item in items %}
+                    {% set product = item.product %}
+                    {% set displayVariant = item.displayVariant %}
+                    {% set imagePath = item.mediaPath %}
+
+                    <article class="overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md">
+                        <a href="{{ path('brand_show', { slug: brand.slug }) }}" class="block">
+                            <div class="aspect-square bg-white">
+                                {% if imagePath %}
+                                    <img
+                                        src="{{ asset(imagePath) }}"
+                                        alt="{{ product.name }}"
+                                        class="h-full w-full object-contain p-6"
+                                        loading="lazy"
+                                    >
+                                {% else %}
+                                    <div class="flex h-full items-center justify-center p-6 text-sm text-gray-400">
+                                        Geen afbeelding beschikbaar
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="p-5">
+                                <h3 class="text-base font-semibold text-gray-900">
+                                    {{ product.name }}
+                                </h3>
+
+                                {% if displayVariant %}
+                                    <p class="mt-2 text-sm font-bold text-gray-900">
+                                        € {{ displayVariant.displayPrice|number_format(2, ',', '.') }}
+                                    </p>
+                                {% endif %}
+
+                                <p class="mt-3 text-sm font-semibold text-gray-900 underline">
+                                    Bekijk {{ brand.name }}
+                                </p>
+                            </div>
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="bg-white">
+    <div class="mx-auto max-w-4xl px-6 py-12">
+        <h2 class="mb-6 text-2xl font-bold text-gray-900">
+            Waarom {{ brand.name }} {{ readableType }} kopen bij Holtkamp in Hengelo?
+        </h2>
+
+        <div class="grid gap-6 md:grid-cols-2">
+            <div class="rounded-2xl border border-gray-200 p-6">
+                <h3 class="mb-2 font-semibold text-gray-900">
+                    Deskundig advies
+                </h3>
+                <p class="text-gray-600">
+                    Wij helpen je kiezen op basis van gebruik, reisduur, formaat,
+                    gewicht en persoonlijke voorkeur.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 p-6">
+                <h3 class="mb-2 font-semibold text-gray-900">
+                    Online bekijken, lokaal kopen
+                </h3>
+                <p class="text-gray-600">
+                    Bekijk de collectie online en kom langs in Hengelo om producten
+                    in het echt te vergelijken.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 p-6">
+                <h3 class="mb-2 font-semibold text-gray-900">
+                    Service sinds 1900
+                </h3>
+                <p class="text-gray-600">
+                    Holtkamp is al generaties lang een vertrouwd adres voor tassen,
+                    koffers en lederwaren in Twente.
+                </p>
+            </div>
+
+            <div class="rounded-2xl border border-gray-200 p-6">
+                <h3 class="mb-2 font-semibold text-gray-900">
+                    Reparatie en nazorg
+                </h3>
+                <p class="text-gray-600">
+                    Ook na aankoop denken we mee over onderhoud, onderdelen en reparatie.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-gray-50">
+    <div class="mx-auto max-w-4xl px-6 py-12">
+        <h2 class="mb-6 text-2xl font-bold text-gray-900">
+            {{ brand.name }} {{ readableType }} in plaatsen rondom Hengelo
+        </h2>
+
+        <div class="flex flex-wrap gap-3">
+            {% for otherCitySlug, otherCity in allowedCities %}
+                <a
+                    href="{{ path('local_brand_landing', {
+                        brandSlug: brand.slug,
+                        type: type,
+                        citySlug: otherCitySlug
+                    }) }}"
+                    class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-100"
+                >
+                    {{ brand.name }} {{ readableType }} {{ otherCity.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
