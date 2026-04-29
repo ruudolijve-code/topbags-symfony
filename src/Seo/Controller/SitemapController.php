@@ -52,7 +52,7 @@ final class SitemapController extends AbstractController
                 'delden',
             ],
         ],
-         [
+        [
             'brandSlug' => 'tommy-hilfiger',
             'type' => 'tassen',
             'cities' => [
@@ -90,38 +90,39 @@ final class SitemapController extends AbstractController
         $urls = [];
 
         $today = (new \DateTimeImmutable())->format('Y-m-d');
+        $baseUrl = rtrim((string) ($_ENV['APP_URL'] ?? 'https://www.topbags.nl'), '/');
 
         // Vaste pagina’s
         $urls[] = [
-            'loc' => $urlGenerator->generate('home', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'loc' => $this->absoluteUrl($urlGenerator, 'home', [], $baseUrl),
             'priority' => '1.0',
             'changefreq' => 'daily',
             'lastmod' => $today,
         ];
 
         $urls[] = [
-            'loc' => $urlGenerator->generate('shop_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'loc' => $this->absoluteUrl($urlGenerator, 'shop_index', [], $baseUrl),
             'priority' => '0.9',
             'changefreq' => 'daily',
             'lastmod' => $today,
         ];
 
         $urls[] = [
-            'loc' => $urlGenerator->generate('bags_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'loc' => $this->absoluteUrl($urlGenerator, 'bags_index', [], $baseUrl),
             'priority' => '0.8',
             'changefreq' => 'weekly',
             'lastmod' => $today,
         ];
 
         $urls[] = [
-            'loc' => $urlGenerator->generate('brand_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'loc' => $this->absoluteUrl($urlGenerator, 'brand_index', [], $baseUrl),
             'priority' => '0.7',
             'changefreq' => 'weekly',
             'lastmod' => $today,
         ];
 
         $urls[] = [
-            'loc' => $urlGenerator->generate('service_store', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'loc' => $this->absoluteUrl($urlGenerator, 'service_store', [], $baseUrl),
             'priority' => '0.7',
             'changefreq' => 'monthly',
             'lastmod' => $today,
@@ -131,11 +132,11 @@ final class SitemapController extends AbstractController
         foreach (self::LOCAL_BRAND_LANDINGS as $landing) {
             foreach ($landing['cities'] as $citySlug) {
                 $urls[] = [
-                    'loc' => $urlGenerator->generate('local_brand_landing', [
+                    'loc' => $this->absoluteUrl($urlGenerator, 'local_brand_landing', [
                         'brandSlug' => $landing['brandSlug'],
                         'type' => $landing['type'],
                         'citySlug' => $citySlug,
-                    ], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ], $baseUrl),
                     'priority' => '0.7',
                     'changefreq' => 'weekly',
                     'lastmod' => $today,
@@ -146,9 +147,9 @@ final class SitemapController extends AbstractController
         // Categorieën
         foreach ($categoryRepository->findActiveForSitemap() as $category) {
             $urls[] = [
-                'loc' => $urlGenerator->generate('category_show', [
+                'loc' => $this->absoluteUrl($urlGenerator, 'category_show', [
                     'slug' => $category->getSlug(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL),
+                ], $baseUrl),
                 'priority' => '0.8',
                 'changefreq' => 'weekly',
                 'lastmod' => $today,
@@ -158,9 +159,9 @@ final class SitemapController extends AbstractController
         // Merken
         foreach ($brandRepository->findActiveForSitemap() as $brand) {
             $urls[] = [
-                'loc' => $urlGenerator->generate('brand_show', [
+                'loc' => $this->absoluteUrl($urlGenerator, 'brand_show', [
                     'slug' => $brand->getSlug(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL),
+                ], $baseUrl),
                 'priority' => '0.7',
                 'changefreq' => 'weekly',
                 'lastmod' => $today,
@@ -187,11 +188,11 @@ final class SitemapController extends AbstractController
             }
 
             $urls[] = [
-                'loc' => $urlGenerator->generate('product_show', [
+                'loc' => $this->absoluteUrl($urlGenerator, 'product_show', [
                     'slug' => $product->getSlug(),
                     'colorSlug' => $masterVariant->getSupplierColorSlug(),
                     'variantSku' => $masterVariant->getVariantSku(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL),
+                ], $baseUrl),
                 'priority' => '0.9',
                 'changefreq' => 'weekly',
                 'lastmod' => $today,
@@ -205,5 +206,14 @@ final class SitemapController extends AbstractController
         $response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
 
         return $response;
+    }
+
+    private function absoluteUrl(
+        UrlGeneratorInterface $urlGenerator,
+        string $route,
+        array $parameters,
+        string $baseUrl
+    ): string {
+        return $baseUrl . $urlGenerator->generate($route, $parameters, UrlGeneratorInterface::ABSOLUTE_PATH);
     }
 }
