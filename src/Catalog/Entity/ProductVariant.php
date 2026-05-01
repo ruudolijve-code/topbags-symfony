@@ -613,7 +613,7 @@ class ProductVariant
                 return sprintf('ca. %d werkdagen', $min);
             }
 
-            return 'Leverbaar via leverancier';
+            return 'Leverbaar';
         }
 
         return 'Niet op voorraad';

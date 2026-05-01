@@ -83,7 +83,7 @@
             <span class="text-emerald-700 font-semibold">Op voorraad</span>
             <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
           {% elseif availability.status == 'backorder' %}
-            <span class="text-amber-700 font-semibold">Leverbaar</span>
+            <span class="text-amber-700 font-semibold">Op voorraad</span>
             <span class="text-gray-500">– {{ availability.deliveryLabel }}</span>
           {% else %}
             <span class="text-gray-500 font-semibold">Tijdelijk uitverkocht</span>
