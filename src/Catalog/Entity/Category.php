@@ -29,6 +29,12 @@ class Category
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $introDescription = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $seoDescription = null;
+
     #[ORM\Column(options: ['default' => 0])]
     private int $position = 0;
 
@@ -147,6 +153,30 @@ class Category
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getIntroDescription(): ?string
+    {
+        return $this->introDescription;
+    }
+
+    public function setIntroDescription(?string $introDescription): self
+    {
+        $this->introDescription = $introDescription;
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    public function setSeoDescription(?string $seoDescription): self
+    {
+        $this->seoDescription = $seoDescription;
 
         return $this;
     }
