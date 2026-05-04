@@ -1,27 +1,41 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Shop – Topbags{% endblock %}
+{% block title %}
+    {% if category is defined and category %}
+        {{ category.name }} – Topbags
+    {% else %}
+        Shop – Topbags
+    {% endif %}
+{% endblock %}
 
 {% block body %}
 <div
     class="w-full border-b border-gray-200 bg-grey-50"
     x-data="{ mobileFiltersOpen: false }"
 >
-    <div class="max-w-7xl mx-auto px-6 py-2">
+    <div class="max-w-7xl mx-auto px-6 py-8">
 
         <header class="mb-8">
             <h1 class="text-3xl font-bold mb-4">
-                Travel shop
+                {% if category is defined and category %}
+                    {{ category.menuLabel ?: category.name }}
+                {% else %}
+                    Travel shop
+                {% endif %}
             </h1>
 
-            {# Intro boven productgrid #}
-            {% if category is defined and category.introDescription %}
-                <div class="max-w-3xl text-lg text-gray-600 leading-relaxed">
+            {# Intro tekst boven productgrid #}
+            {% if category is defined and category and category.introDescription %}
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.introDescription|raw }}
                 </div>
-            {% elseif category is defined and category.description %}
-                <div class="max-w-3xl text-lg text-gray-600 leading-relaxed">
+            {% elseif category is defined and category and category.description %}
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.description|raw }}
+                </div>
+            {% else %}
+                <div class="max-w-3xl text-lg text-gray-600 leading-relaxed">
+                    Ontdek onze collectie koffers, reistassen en slimme reisoplossingen.
                 </div>
             {% endif %}
         </header>
@@ -40,7 +54,7 @@
             </button>
 
             <div class="text-sm text-gray-500 text-right">
-                {{ pagination.totalItems }} modellen
+                {{ pagination.totalItems|default(items|length) }} modellen
             </div>
         </div>
 
@@ -93,7 +107,7 @@
                     </div>
                 {% endif %}
 
-                {% if pagination.totalPages > 1 %}
+                {% if pagination is defined and pagination.totalPages > 1 %}
                     <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
                         {% set routeName = app.request.attributes.get('_route') %}
                         {% set query = app.request.query.all %}
@@ -131,9 +145,9 @@
         </div>
 
         {# SEO tekst onder productgrid #}
-        {% if category is defined and category.seoDescription %}
+        {% if category is defined and category and category.seoDescription %}
             <section class="mt-14 border-t border-gray-200 pt-10">
-                <div class="prose prose-lg max-w-4xl text-gray-700">
+                <div class="rich-text-content max-w-4xl text-lg text-gray-700 leading-relaxed">
                     {{ category.seoDescription|raw }}
                 </div>
             </section>

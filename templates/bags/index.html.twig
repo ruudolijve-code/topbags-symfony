@@ -26,11 +26,11 @@
 
             {# Intro tekst boven productgrid #}
             {% if category is defined and category and category.introDescription %}
-                <div class="max-w-3xl text-lg text-gray-600 leading-relaxed">
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.introDescription|raw }}
                 </div>
             {% elseif category is defined and category and category.description %}
-                <div class="max-w-3xl text-lg text-gray-600 leading-relaxed">
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.description|raw }}
                 </div>
             {% else %}
@@ -63,7 +63,6 @@
             {# Desktop filters #}
             <aside class="hidden rounded-xl bg-white p-6 shadow-sm lg:col-span-1 lg:block">
                 <form method="get" class="space-y-6">
-
                     {% if allowedFilters is defined and 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
@@ -75,7 +74,6 @@
                     {% if allowedFilters is defined and 'cta' in allowedFilters %}
                         {% include 'shop/filter/_filter_cta.html.twig' %}
                     {% endif %}
-
                 </form>
             </aside>
 
@@ -153,7 +151,7 @@
         {# SEO tekst onder productgrid #}
         {% if category is defined and category and category.seoDescription %}
             <section class="mt-14 border-t border-gray-200 pt-10">
-                <div class="prose prose-lg max-w-4xl text-gray-700">
+                <div class="rich-text-content max-w-4xl text-lg text-gray-700 leading-relaxed">
                     {{ category.seoDescription|raw }}
                 </div>
             </section>
@@ -206,7 +204,6 @@
             </div>
 
             <form method="get" class="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-
                 {% if allowedFilters is defined and 'brands' in allowedFilters %}
                     {% include 'shop/filter/_filter_brands.html.twig' %}
                 {% endif %}
