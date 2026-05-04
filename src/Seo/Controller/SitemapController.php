@@ -78,6 +78,20 @@ final class SitemapController extends AbstractController
                 'delden',
             ],
         ],
+
+        [
+            'brandSlug' => 'Guess',
+            'type' => 'tassen',
+            'cities' => [
+                'hengelo',
+                'almelo',
+                'enschede',
+                'haaksbergen',
+                'borne',
+                'oldenzaal',
+                'delden',
+            ],
+        ],
     ];
 
     #[Route('/sitemap.xml', name: 'sitemap_xml', defaults: ['_format' => 'xml'])]
