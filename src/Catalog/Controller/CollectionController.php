@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Catalog\Controller;
 
+use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
@@ -45,6 +46,7 @@ final class CollectionController extends AbstractController
         return $this->renderCollection(
             context: Product::CONTEXT_SHOP,
             template: 'shop/index.html.twig',
+            landingCategorySlug: 'shop',
             request: $request,
             productRepository: $productRepository,
             productVariantRepository: $productVariantRepository,
@@ -70,6 +72,7 @@ final class CollectionController extends AbstractController
         return $this->renderCollection(
             context: Product::CONTEXT_BAGS,
             template: 'bags/index.html.twig',
+            landingCategorySlug: 'bags',
             request: $request,
             productRepository: $productRepository,
             productVariantRepository: $productVariantRepository,
@@ -84,6 +87,7 @@ final class CollectionController extends AbstractController
     private function renderCollection(
         string $context,
         string $template,
+        string $landingCategorySlug,
         Request $request,
         ProductRepository $productRepository,
         ProductVariantRepository $productVariantRepository,
@@ -93,6 +97,10 @@ final class CollectionController extends AbstractController
         AvailabilityService $availabilityService,
         PaginationService $paginationService,
     ): Response {
+        $landingCategory = $categoryRepository->findOneBy([
+            'slug' => $landingCategorySlug,
+        ]);
+
         $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($context);
 
         $brandSlugs = $this->getStringArrayQuery($request, 'brand');
@@ -243,6 +251,10 @@ final class CollectionController extends AbstractController
             'activeContext' => $context,
             'context' => $context,
             'currentContext' => $context,
+
+            'category' => $landingCategory,
+            'landingCategory' => $landingCategory,
+
             'allowedFilters' => $allowedFilters,
             'items' => $items,
             'brands' => $availableBrands,
