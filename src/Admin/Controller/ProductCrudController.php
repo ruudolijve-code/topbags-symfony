@@ -151,6 +151,7 @@ class ProductCrudController extends AbstractCrudController
                 'Klep' => 'flap',
                 'Drukknoop' => 'snap',
                 'Draaisluiting' => 'twist',
+                'magnetische sluiting' => 'magnetic',
             ])
             ->setRequired(false)
             ->hideOnIndex();
