@@ -63,8 +63,14 @@
             {# Product grid #}
             <section class="lg:col-span-3">
 
-                <div class="mb-4 hidden text-sm text-gray-500 lg:block">
-                    {{ pagination.totalItems|default(items|length) }} modellen gevonden
+                <div class="hidden lg:block mb-4 text-sm text-gray-500">
+                    {{ pagination.totalItems }} modellen gevonden
+                    {% if totalColors is defined and totalColors > 0 %}
+                        <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+                    {% endif %}
+                    {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                        <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+                    {% endif %}
                 </div>
 
                 {% if items is not empty %}
