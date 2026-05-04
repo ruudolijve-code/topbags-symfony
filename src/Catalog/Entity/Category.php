@@ -18,10 +18,10 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private string $name;
+    private string $name = '';
 
     #[ORM\Column(length: 255, unique: true)]
-    private string $slug;
+    private string $slug = '';
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $menuLabel = null;
@@ -91,6 +91,11 @@ class Category
         $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
         $this->contexts = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->menuLabel ?: $this->name;
     }
 
     public function getId(): ?int
@@ -273,6 +278,10 @@ class Category
 
     public function setParent(?self $parent): self
     {
+        if ($parent === $this) {
+            return $this;
+        }
+
         $this->parent = $parent;
 
         return $this;
@@ -359,13 +368,7 @@ class Category
 
     public function hasContext(string $context): bool
     {
-        foreach ($this->contexts as $categoryContext) {
-            if ($categoryContext->getContext() === $context) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->findContext($context) !== null;
     }
 
     /**
@@ -398,13 +401,87 @@ class Category
         return $this->hasContext(Product::CONTEXT_SHOP);
     }
 
+    public function setShopContext(bool $enabled): self
+    {
+        return $this->setContextEnabled(Product::CONTEXT_SHOP, $enabled);
+    }
+
     public function isBagsContext(): bool
     {
         return $this->hasContext(Product::CONTEXT_BAGS);
     }
 
-    public function __toString(): string
+    public function setBagsContext(bool $enabled): self
     {
-        return $this->menuLabel ?: $this->name;
+        return $this->setContextEnabled(Product::CONTEXT_BAGS, $enabled);
+    }
+
+    public function getShopMenuPosition(): ?int
+    {
+        return $this->getContextPosition(Product::CONTEXT_SHOP);
+    }
+
+    public function setShopMenuPosition(?int $position): self
+    {
+        return $this->setContextPosition(Product::CONTEXT_SHOP, $position);
+    }
+
+    public function getBagsMenuPosition(): ?int
+    {
+        return $this->getContextPosition(Product::CONTEXT_BAGS);
+    }
+
+    public function setBagsMenuPosition(?int $position): self
+    {
+        return $this->setContextPosition(Product::CONTEXT_BAGS, $position);
+    }
+
+    private function findContext(string $context): ?CategoryContext
+    {
+        foreach ($this->contexts as $categoryContext) {
+            if ($categoryContext->getContext() === $context) {
+                return $categoryContext;
+            }
+        }
+
+        return null;
+    }
+
+    private function setContextEnabled(string $context, bool $enabled): self
+    {
+        $existingContext = $this->findContext($context);
+
+        if ($enabled && $existingContext === null) {
+            $categoryContext = new CategoryContext();
+            $categoryContext->setContext($context);
+            $categoryContext->setPosition($this->position);
+            $this->addContext($categoryContext);
+        }
+
+        if (!$enabled && $existingContext !== null) {
+            $this->removeContext($existingContext);
+        }
+
+        return $this;
+    }
+
+    private function getContextPosition(string $context): ?int
+    {
+        return $this->findContext($context)?->getPosition();
+    }
+
+    private function setContextPosition(string $context, ?int $position): self
+    {
+        $categoryContext = $this->findContext($context);
+
+        if ($categoryContext === null) {
+            $categoryContext = new CategoryContext();
+            $categoryContext->setContext($context);
+            $this->addContext($categoryContext);
+        }
+
+        $categoryContext->setPosition((int) ($position ?? 0));
+
+        return $this;
     }
 }

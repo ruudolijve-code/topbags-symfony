@@ -20,6 +20,11 @@ class CategoryContext
     #[ORM\Column]
     private int $position = 0;
 
+    public function __toString(): string
+    {
+        return $this->context . ' #' . $this->position;
+    }
+
     public function getCategory(): Category
     {
         return $this->category;
@@ -28,6 +33,7 @@ class CategoryContext
     public function setCategory(Category $category): self
     {
         $this->category = $category;
+
         return $this;
     }
 
@@ -39,6 +45,7 @@ class CategoryContext
     public function setContext(string $context): self
     {
         $this->context = $context;
+
         return $this;
     }
 
@@ -50,6 +57,7 @@ class CategoryContext
     public function setPosition(int $position): self
     {
         $this->position = $position;
+
         return $this;
     }
 }
