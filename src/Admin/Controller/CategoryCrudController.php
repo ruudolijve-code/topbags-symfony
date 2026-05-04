@@ -53,21 +53,41 @@ class CategoryCrudController extends AbstractCrudController
             ->setHelp('Optioneel. Laat leeg om de gewone categorienaam te gebruiken.');
 
         yield TextField::new('slug', 'Slug')
-            ->setHelp('Bijvoorbeeld: handbagage, koffers, schoudertassen');
+            ->setHelp('Bijvoorbeeld: koffers, handbagage, schoudertassen.');
 
         yield AssociationField::new('parent', 'Hoofdcategorie')
             ->setHelp('Optioneel. Gebruik dit als deze categorie onder een andere categorie valt.');
 
-        yield IntegerField::new('position', 'Menuvolgorde')
-            ->setHelp('Lager nummer komt eerder in het menu.');
+        yield IntegerField::new('position', 'Algemene volgorde')
+            ->setHelp('Algemene sortering. Lager nummer komt eerder.');
 
         yield BooleanField::new('isActive', 'Actief');
 
         yield BooleanField::new('showInMenu', 'Toon in menu');
 
-       yield TextEditorField::new('description', 'Omschrijving')
+        yield BooleanField::new('shopContext', 'Toon in shop/koffers')
+            ->setHelp('Gebruik deze categorie binnen de shop/koffer-context.');
+
+        yield IntegerField::new('shopMenuPosition', 'Volgorde shop/koffers')
+            ->setHelp('Lager nummer komt eerder in het shop-menu.');
+
+        yield BooleanField::new('bagsContext', 'Toon in bags/tassen')
+            ->setHelp('Gebruik deze categorie binnen de bags/tassen-context.');
+
+        yield IntegerField::new('bagsMenuPosition', 'Volgorde bags/tassen')
+            ->setHelp('Lager nummer komt eerder in het bags-menu.');
+
+        yield TextEditorField::new('introDescription', 'Intro tekst boven producten')
             ->hideOnIndex()
-            ->setHelp('Deze tekst wordt gebruikt op de categoriepagina.');
+            ->setHelp('Korte tekst boven het productgrid. Houd dit compact: ongeveer 80–150 woorden.');
+
+        yield TextEditorField::new('seoDescription', 'SEO tekst onder producten')
+            ->hideOnIndex()
+            ->setHelp('Uitgebreide SEO-/advies tekst onder het productgrid.');
+
+        yield TextEditorField::new('description', 'Oude omschrijving')
+            ->hideOnIndex()
+            ->setHelp('Tijdelijke fallback. Gebruik dit veld alleen nog voor bestaande oude teksten.');
 
         yield BooleanField::new('allowsPersonal', 'Personal item')
             ->hideOnIndex();
@@ -89,6 +109,5 @@ class CategoryCrudController extends AbstractCrudController
 
         yield BooleanField::new('transportBus', 'Bus')
             ->hideOnIndex();
-
     }
 }
