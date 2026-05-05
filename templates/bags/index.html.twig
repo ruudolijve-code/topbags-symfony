@@ -53,9 +53,17 @@
                 Filter kiezen
             </button>
 
-            <div class="text-right text-sm text-gray-500">
-                {{ pagination.totalItems|default(items|length) }} modellen
-            </div>
+            <div class="hidden lg:block mb-4 text-sm text-gray-500">
+                    {{ pagination.totalItems }} modellen gevonden
+
+                    {% if totalColors is defined and totalColors > 0 %}
+                        <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+                    {% endif %}
+
+                    {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                        <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+                    {% endif %}
+                </div>
         </div>
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
