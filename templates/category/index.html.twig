@@ -13,16 +13,22 @@
 
         <header class="mb-8">
             <h1 class="text-3xl font-bold mb-4">
-                {{ category.name }}
+                {{ category.menuLabel ?: category.name }}
             </h1>
 
-            {% if category.description %}
-                <div class="max-w-3xl text-lg text-gray-600">
+            {# Intro tekst boven productgrid #}
+            {% if category.introDescription %}
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
+                    {{ category.introDescription|raw }}
+                </div>
+            {% elseif category.description %}
+                <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.description|raw }}
                 </div>
             {% endif %}
         </header>
 
+        {# Mobiele toolbar #}
         <div class="flex items-center justify-between gap-4 mb-6 lg:hidden">
             <button
                 type="button"
@@ -35,21 +41,22 @@
                 Filter kiezen
             </button>
 
-            <div class=" mb-4 text-sm text-gray-500 text-right">
-                    {{ pagination.totalItems }} modellen gevonden
+            <div class="text-sm text-gray-500 text-right">
+                {{ pagination.totalItems }} modellen gevonden
 
-                    {% if totalColors is defined and totalColors > 0 %}
-                        <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
-                    {% endif %}
+                {% if totalColors is defined and totalColors > 0 %}
+                    <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+                {% endif %}
 
-                    {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
-                        <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
-                    {% endif %}
-                </div>
+                {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                    <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+                {% endif %}
+            </div>
         </div>
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
 
+            {# Desktop filters #}
             <aside class="hidden lg:block rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
                 <form method="get" class="space-y-6">
                     {% if 'brands' in allowedFilters %}
@@ -78,6 +85,7 @@
                 </form>
             </aside>
 
+            {# Product grid #}
             <section class="lg:col-span-3">
 
                 <div class="hidden lg:block mb-4 text-sm text-gray-500">
@@ -146,8 +154,18 @@
                 {% endif %}
             </section>
         </div>
+
+        {# SEO tekst onder productgrid #}
+        {% if category.seoDescription %}
+            <section class="mt-14 border-t border-gray-200 pt-10">
+                <div class="rich-text-content max-w-4xl text-lg text-gray-700 leading-relaxed">
+                    {{ category.seoDescription|raw }}
+                </div>
+            </section>
+        {% endif %}
     </div>
 
+    {# Mobiele filter overlay #}
     <template x-teleport="body">
         <div
             x-show="mobileFiltersOpen"
@@ -178,7 +196,9 @@
                 style="display: none; z-index: 9999;"
             >
                 <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 shrink-0 bg-white">
-                    <h2 class="text-lg font-semibold text-gray-900">Filters</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Filters
+                    </h2>
 
                     <button
                         type="button"
