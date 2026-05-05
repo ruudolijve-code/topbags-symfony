@@ -12,6 +12,74 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class SitemapController extends AbstractController
 {
+    private const STATIC_ROUTES = [
+        [
+            'route' => 'home',
+            'priority' => '1.0',
+            'changefreq' => 'daily',
+        ],
+        [
+            'route' => 'shop_index',
+            'priority' => '0.9',
+            'changefreq' => 'daily',
+        ],
+        [
+            'route' => 'bags_index',
+            'priority' => '0.8',
+            'changefreq' => 'weekly',
+        ],
+        [
+            'route' => 'brand_index',
+            'priority' => '0.7',
+            'changefreq' => 'weekly',
+        ],
+        [
+            'route' => 'service_store',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'contact_index',
+            'priority' => '0.8',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_returns',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_shipping',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_payment_methods',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_warranty',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_terms',
+            'priority' => '0.7',
+            'changefreq' => 'monthly',
+        ],
+        [
+            'route' => 'service_privacy',
+            'priority' => '0.5',
+            'changefreq' => 'yearly',
+        ],
+        [
+            'route' => 'service_cookies',
+            'priority' => '0.5',
+            'changefreq' => 'yearly',
+        ],
+    ];
+
     private const LOCAL_BRAND_LANDINGS = [
         [
             'brandSlug' => 'samsonite',
@@ -78,9 +146,8 @@ final class SitemapController extends AbstractController
                 'delden',
             ],
         ],
-
         [
-            'brandSlug' => 'Guess',
+            'brandSlug' => 'guess',
             'type' => 'tassen',
             'cities' => [
                 'hengelo',
@@ -94,7 +161,7 @@ final class SitemapController extends AbstractController
         ],
     ];
 
-    #[Route('/sitemap.xml', name: 'sitemap_xml', defaults: ['_format' => 'xml'])]
+    #[Route('/sitemap.xml', name: 'sitemap_xml', defaults: ['_format' => 'xml'], methods: ['GET'])]
     public function index(
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
@@ -104,43 +171,17 @@ final class SitemapController extends AbstractController
         $urls = [];
 
         $today = (new \DateTimeImmutable())->format('Y-m-d');
-        $baseUrl = rtrim((string) ($_ENV['APP_URL'] ?? 'https://www.topbags.nl'), '/');
+        $baseUrl = rtrim((string) ($_ENV['APP_URL'] ?? 'https://topbags.nl'), '/');
 
         // Vaste pagina’s
-        $urls[] = [
-            'loc' => $this->absoluteUrl($urlGenerator, 'home', [], $baseUrl),
-            'priority' => '1.0',
-            'changefreq' => 'daily',
-            'lastmod' => $today,
-        ];
-
-        $urls[] = [
-            'loc' => $this->absoluteUrl($urlGenerator, 'shop_index', [], $baseUrl),
-            'priority' => '0.9',
-            'changefreq' => 'daily',
-            'lastmod' => $today,
-        ];
-
-        $urls[] = [
-            'loc' => $this->absoluteUrl($urlGenerator, 'bags_index', [], $baseUrl),
-            'priority' => '0.8',
-            'changefreq' => 'weekly',
-            'lastmod' => $today,
-        ];
-
-        $urls[] = [
-            'loc' => $this->absoluteUrl($urlGenerator, 'brand_index', [], $baseUrl),
-            'priority' => '0.7',
-            'changefreq' => 'weekly',
-            'lastmod' => $today,
-        ];
-
-        $urls[] = [
-            'loc' => $this->absoluteUrl($urlGenerator, 'service_store', [], $baseUrl),
-            'priority' => '0.7',
-            'changefreq' => 'monthly',
-            'lastmod' => $today,
-        ];
+        foreach (self::STATIC_ROUTES as $staticRoute) {
+            $urls[] = [
+                'loc' => $this->absoluteUrl($urlGenerator, $staticRoute['route'], [], $baseUrl),
+                'priority' => $staticRoute['priority'],
+                'changefreq' => $staticRoute['changefreq'],
+                'lastmod' => $today,
+            ];
+        }
 
         // Lokale merk/plaats landingspagina’s
         foreach (self::LOCAL_BRAND_LANDINGS as $landing) {
