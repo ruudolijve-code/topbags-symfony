@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Betaalmethoden – Topbags{% endblock %}
+
+{% block body %}
+<section class="bg-white">
+    <div class="mx-auto max-w-5xl px-6 py-16 lg:py-20">
+
+        <nav class="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
+            <a href="{{ path('home') }}" class="hover:text-gray-900">Home</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">Betaalmethoden</span>
+        </nav>
+
+        <header class="mb-12 max-w-3xl">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-orange-600">
+                Veilig betalen
+            </p>
+
+            <h1 class="mb-5 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+                Betaalmethoden
+            </h1>
+
+            <p class="text-lg leading-8 text-gray-600">
+                Bij Topbags.nl betaal je veilig en eenvoudig online. Je betaling wordt verwerkt via
+                Mollie, een betrouwbare betaalprovider voor webshops. Tijdens het afrekenen zie je
+                automatisch welke betaalmethoden beschikbaar zijn voor jouw bestelling.
+            </p>
+        </header>
+
+        <div class="grid gap-8 lg:grid-cols-3">
+            <div class="lg:col-span-2">
+                <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+                    <h2 class="mb-6 text-2xl font-bold text-gray-900">
+                        Online betalen
+                    </h2>
+
+                    <div class="space-y-6 text-gray-700">
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                iDEAL/WERO
+                            </h3>
+                            <p class="leading-7">
+                                Je kunt bij Topbags.nl betalen met iDEAL/WERO. Hiermee betaal je veilig
+                                via je eigen bankomgeving.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Andere beschikbare betaalmethoden
+                            </h3>
+                            <p class="leading-7">
+                                Afhankelijk van je bestelling, land en de instellingen van onze betaalprovider
+                                kunnen er tijdens het afrekenen aanvullende betaalmethoden beschikbaar zijn.
+                                De betaalmogelijkheden die je in de checkout ziet, zijn altijd leidend.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Veilig verwerkt via Mollie
+                            </h3>
+                            <p class="leading-7">
+                                Betalingen worden beveiligd verwerkt via Mollie. Topbags.nl bewaart zelf geen
+                                betaalkaartgegevens of bankgegevens.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Prijzen inclusief btw
+                            </h3>
+                            <p class="leading-7">
+                                Alle prijzen op Topbags.nl zijn inclusief btw. Eventuele verzendkosten worden
+                                duidelijk getoond in de winkelwagen en tijdens het afrekenen voordat je betaalt.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Bevestiging van je bestelling
+                            </h3>
+                            <p class="leading-7">
+                                Na het plaatsen van je bestelling ontvang je een bevestiging per e-mail.
+                                Heb je geen bevestiging ontvangen? Controleer dan ook je spammap of neem
+                                contact met ons op.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="space-y-6">
+                <div class="rounded-2xl border border-orange-200 bg-orange-50 p-6">
+                    <h2 class="mb-3 text-lg font-bold text-gray-900">
+                        Hulp nodig?
+                    </h2>
+
+                    <p class="mb-5 text-sm leading-6 text-gray-700">
+                        Kom je er tijdens het betalen niet uit? Neem gerust contact met ons op.
+                    </p>
+
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <p>
+                            <strong>Telefoon:</strong><br>
+                            <a href="tel:+31742912251" class="underline hover:text-gray-900">
+                                074 291 22 51
+                            </a>
+                        </p>
+
+                        <p>
+                            <strong>E-mail:</strong><br>
+                            <a href="mailto:klantenservice@topbags.nl" class="underline hover:text-gray-900">
+                                klantenservice@topbags.nl
+                            </a>
+                        </p>
+
+                        <p>
+                            <strong>Winkel:</strong><br>
+                            Holtkamp tassen &amp; koffers<br>
+                            Wemenstraat 5–7<br>
+                            7551 ET Hengelo
+                        </p>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                    <h2 class="mb-3 text-lg font-bold text-gray-900">
+                        Topbags.nl
+                    </h2>
+
+                    <p class="text-sm leading-6 text-gray-700">
+                        Topbags.nl is de webshop van Holtkamp tassen &amp; koffers in Hengelo.
+                    </p>
+
+                    <dl class="mt-5 space-y-2 text-sm text-gray-700">
+                        <div>
+                            <dt class="font-semibold text-gray-900">KvK</dt>
+                            <dd>96254874</dd>
+                        </div>
+
+                        <div>
+                            <dt class="font-semibold text-gray-900">BTW</dt>
+                            <dd>NL005199626B22</dd>
+                        </div>
+                    </dl>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

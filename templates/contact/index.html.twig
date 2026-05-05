@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Contact | Topbags{% endblock %}
+{% block title %}Contact – Topbags{% endblock %}
 
 {% block body %}
 
@@ -9,131 +9,297 @@
   {# =========================================================
      HERO
      ========================================================= #}
-  <div class="relative overflow-hidden border-b border-gray-200">
-
-    <div class="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+  <div class="relative overflow-hidden border-b border-gray-200 bg-gray-50">
+    <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2">
 
       <div>
-        <h1 class="text-3xl md:text-4xl font-semibold text-gray-900 leading-tight">
-          Persoonlijk advies <br> of een vraag?
+        <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-600">
+          Contact
+        </p>
+
+        <h1 class="text-3xl font-semibold leading-tight text-gray-900 md:text-4xl">
+          Persoonlijk advies of een vraag?
         </h1>
 
-        <p class="mt-4 text-gray-600 text-base leading-relaxed max-w-lg">
-          Wij helpen je graag bij het kiezen van de juiste koffer,
-          het huren van bagage of een reparatievraag.
-          Je ontvangt meestal binnen <strong>1 werkdag</strong> een reactie.
+        <p class="mt-4 max-w-lg text-base leading-relaxed text-gray-600">
+          Wij helpen je graag bij het kiezen van de juiste koffer, een vraag over je bestelling,
+          garantie of een reparatie. Je ontvangt meestal binnen <strong>1 werkdag</strong> een reactie.
         </p>
 
         <div class="mt-8 flex flex-wrap gap-4">
-          <a href="tel:+31642485211"
-             class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition">
-            📞 Bel ons
+          <a href="tel:+31742912251"
+             class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50">
+            📞 Bel 074 291 22 51
           </a>
 
           <a href="https://wa.me/31642485211"
-             target="_blank" rel="noopener"
-             class="inline-flex items-center rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 transition">
+             target="_blank"
+             rel="noopener"
+             class="inline-flex items-center rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700">
             💬 WhatsApp
           </a>
         </div>
       </div>
 
-      <div class="rounded-3xl bg-amber-50 border border-amber-200 p-8 shadow-sm">
-        <h3 class="text-sm font-semibold text-gray-900">
-          Waarom contact opnemen met Topbags?
-        </h3>
+      <div class="rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm">
+        <h2 class="text-lg font-bold text-gray-900">
+          Topbags.nl
+        </h2>
 
-        <ul class="mt-6 space-y-4 text-sm text-gray-700">
-          <li class="flex gap-3"><span class="text-amber-600">✔</span><span>Meer dan 100 jaar ervaring in tassen & koffers</span></li>
-          <li class="flex gap-3"><span class="text-amber-600">✔</span><span>Officieel dealer van gerenommeerde merken</span></li>
-          <li class="flex gap-3"><span class="text-amber-600">✔</span><span>Persoonlijk advies op basis van jouw reis</span></li>
-          <li class="flex gap-3"><span class="text-amber-600">✔</span><span>Snelle reactie – meestal binnen 1 werkdag</span></li>
-          <li class="flex gap-3"><span class="text-amber-600">✔</span><span>Specialist in reparatie & verhuur</span></li>
-        </ul>
+        <p class="mt-3 text-sm leading-6 text-gray-700">
+          Topbags.nl is de webshop van Holtkamp tassen &amp; koffers in Hengelo.
+          Vanuit onze winkel helpen wij klanten online én offline met koffers, tassen,
+          reisadvies, garantie en reparatie.
+        </p>
+
+        <dl class="mt-6 space-y-3 text-sm text-gray-700">
+          <div>
+            <dt class="font-semibold text-gray-900">Winkeladres</dt>
+            <dd>
+              Holtkamp tassen &amp; koffers<br>
+              Wemenstraat 5–7<br>
+              7551 ET Hengelo
+            </dd>
+          </div>
+
+          <div>
+            <dt class="font-semibold text-gray-900">Telefoon</dt>
+            <dd>
+              <a href="tel:+31742912251" class="underline hover:text-gray-900">
+                074 291 22 51
+              </a>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="font-semibold text-gray-900">E-mail</dt>
+            <dd>
+              <a href="mailto:klantenservice@topbags.nl" class="underline hover:text-gray-900">
+                klantenservice@topbags.nl
+              </a>
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 pt-2">
+            <div>
+              <dt class="font-semibold text-gray-900">KvK</dt>
+              <dd>96254874</dd>
+            </div>
+
+            <div>
+              <dt class="font-semibold text-gray-900">BTW</dt>
+              <dd>NL005199626B22</dd>
+            </div>
+          </div>
+        </dl>
       </div>
 
     </div>
   </div>
 
   {# =========================================================
-     FORM
+     TRUST / SERVICE
      ========================================================= #}
-  <div class="mx-auto max-w-4xl px-4 py-16">
+  <div class="mx-auto max-w-6xl px-4 py-10">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="font-semibold text-gray-900">Deskundig advies</h2>
+        <p class="mt-2 text-sm leading-6 text-gray-600">
+          Meer dan 100 jaar ervaring in tassen, koffers en reisbagage.
+        </p>
+      </div>
 
-    <div class="rounded-3xl border border-gray-200 bg-white p-10 shadow-sm">
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="font-semibold text-gray-900">Garantie &amp; reparatie</h2>
+        <p class="mt-2 text-sm leading-6 text-gray-600">
+          Hulp bij garantievragen en reparaties via ons servicepunt in Hengelo.
+        </p>
+      </div>
 
-      {# ================= FLASH MESSAGES ================= #}
-      {% for message in app.flashes('success') %}
-        <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 shadow-sm">
-          <div class="flex items-center gap-2 text-sm font-medium">
-            <span>✔</span>
-            <span>{{ message }}</span>
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="font-semibold text-gray-900">Online én in de winkel</h2>
+        <p class="mt-2 text-sm leading-6 text-gray-600">
+          Bestel online via Topbags.nl of kom langs bij Holtkamp tassen &amp; koffers.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {# =========================================================
+     FORM + CONTACT DETAILS
+     ========================================================= #}
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 pb-16 lg:grid-cols-3">
+
+    <div class="lg:col-span-2">
+      <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm md:p-10">
+
+        <header class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-900">
+            Stuur ons een bericht
+          </h2>
+
+          <p class="mt-2 text-sm leading-6 text-gray-600">
+            Vul het formulier in. We reageren meestal binnen 1 werkdag.
+          </p>
+        </header>
+
+        {# ================= FLASH MESSAGES ================= #}
+        {% for message in app.flashes('success') %}
+          <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 shadow-sm">
+            <div class="flex items-center gap-2 text-sm font-medium">
+              <span>✔</span>
+              <span>{{ message }}</span>
+            </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
 
-      {% for message in app.flashes('error') %}
-        <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
-          <div class="flex items-center gap-2 text-sm font-medium">
-            <span>⚠</span>
-            <span>{{ message }}</span>
+        {% for message in app.flashes('error') %}
+          <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800 shadow-sm">
+            <div class="flex items-center gap-2 text-sm font-medium">
+              <span>⚠</span>
+              <span>{{ message }}</span>
+            </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
 
-      {{ form_start(form, { attr: { class: 'space-y-6' } }) }}
+        {{ form_start(form, { attr: { class: 'space-y-6' } }) }}
 
-        <div class="grid md:grid-cols-2 gap-6">
+          <div class="grid gap-6 md:grid-cols-2">
+            <div>
+              {{ form_label(form.name, null, { label_attr: { class: 'mb-2 block text-sm font-medium text-gray-900' } }) }}
+              {{ form_widget(form.name, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500' } }) }}
+              {{ form_errors(form.name) }}
+            </div>
+
+            <div>
+              {{ form_label(form.email, null, { label_attr: { class: 'mb-2 block text-sm font-medium text-gray-900' } }) }}
+              {{ form_widget(form.email, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500' } }) }}
+              {{ form_errors(form.email) }}
+            </div>
+          </div>
 
           <div>
-            {{ form_label(form.name, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
-            {{ form_widget(form.name, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500' } }) }}
-            {{ form_errors(form.name) }}
+            {{ form_label(form.phone, null, { label_attr: { class: 'mb-2 block text-sm font-medium text-gray-900' } }) }}
+            {{ form_widget(form.phone, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500' } }) }}
+            {{ form_errors(form.phone) }}
           </div>
 
           <div>
-            {{ form_label(form.email, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
-            {{ form_widget(form.email, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500' } }) }}
-            {{ form_errors(form.email) }}
+            {{ form_label(form.subject, null, { label_attr: { class: 'mb-2 block text-sm font-medium text-gray-900' } }) }}
+            {{ form_widget(form.subject, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500' } }) }}
+            {{ form_errors(form.subject) }}
           </div>
 
-        </div>
+          <div>
+            {{ form_label(form.message, null, { label_attr: { class: 'mb-2 block text-sm font-medium text-gray-900' } }) }}
+            {{ form_widget(form.message, { attr: { class: 'min-h-36 w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500' } }) }}
+            {{ form_errors(form.message) }}
+          </div>
 
-        <div>
-          {{ form_label(form.phone, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
-          {{ form_widget(form.phone, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500' } }) }}
-          {{ form_errors(form.phone) }}
-        </div>
+          {{ form_widget(form.source) }}
 
-        <div>
-          {{ form_label(form.subject, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
-          {{ form_widget(form.subject, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500' } }) }}
-          {{ form_errors(form.subject) }}
-        </div>
+          <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p class="max-w-sm text-xs text-gray-500">
+              Door dit formulier te versturen ga je akkoord met onze
+              <a href="{{ path('service_privacy') }}" class="underline hover:text-gray-900">privacyverklaring</a>.
+              We gebruiken je gegevens uitsluitend om je vraag te beantwoorden.
+            </p>
 
-        <div>
-          {{ form_label(form.message, null, { label_attr: { class: 'block text-sm font-medium text-gray-900 mb-2' } }) }}
-          {{ form_widget(form.message, { attr: { class: 'w-full rounded-xl border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500' } }) }}
-          {{ form_errors(form.message) }}
-        </div>
+            <button type="submit"
+                    class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700">
+              Bericht verzenden →
+            </button>
+          </div>
 
-        {{ form_widget(form.source) }}
+        {{ form_end(form) }}
 
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mt-6">
-          <p class="text-xs text-gray-500 max-w-sm">
-            Door dit formulier te versturen ga je akkoord met onze privacyverklaring.
-            We gebruiken je gegevens uitsluitend om je vraag te beantwoorden.
+      </div>
+    </div>
+
+    <aside class="space-y-6">
+      <div class="rounded-3xl border border-gray-200 bg-gray-50 p-6">
+        <h2 class="mb-4 text-lg font-bold text-gray-900">
+          Direct contact
+        </h2>
+
+        <div class="space-y-4 text-sm leading-6 text-gray-700">
+          <p>
+            <strong>Telefoon:</strong><br>
+            <a href="tel:+31742912251" class="underline hover:text-gray-900">
+              074 291 22 51
+            </a>
           </p>
 
-          <button type="submit"
-                  class="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white hover:bg-amber-700 transition shadow-sm">
-            Bericht verzenden →
-          </button>
+          <p>
+            <strong>WhatsApp:</strong><br>
+            <a href="https://wa.me/31642485211" target="_blank" rel="noopener" class="underline hover:text-gray-900">
+              WhatsApp ons
+            </a>
+          </p>
+
+          <p>
+            <strong>E-mail:</strong><br>
+            <a href="mailto:klantenservice@topbags.nl" class="underline hover:text-gray-900">
+              klantenservice@topbags.nl
+            </a>
+          </p>
         </div>
+      </div>
 
-      {{ form_end(form) }}
+      <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-bold text-gray-900">
+          Winkel in Hengelo
+        </h2>
 
-    </div>
+        <address class="not-italic text-sm leading-6 text-gray-700">
+          Holtkamp tassen &amp; koffers<br>
+          Wemenstraat 5–7<br>
+          7551 ET Hengelo<br>
+          Nederland
+        </address>
+
+        <dl class="mt-5 space-y-2 text-sm text-gray-700">
+          <div>
+            <dt class="font-semibold text-gray-900">KvK</dt>
+            <dd>96254874</dd>
+          </div>
+
+          <div>
+            <dt class="font-semibold text-gray-900">BTW</dt>
+            <dd>NL005199626B22</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+        <h2 class="mb-3 text-lg font-bold text-gray-900">
+          Veelgestelde servicevragen
+        </h2>
+
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li>
+            <a href="{{ path('service_shipping') }}" class="underline hover:text-gray-900">
+              Levering &amp; verzending
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('service_returns') }}" class="underline hover:text-gray-900">
+              Ruilen &amp; retourneren
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('service_payment_methods') }}" class="underline hover:text-gray-900">
+              Betaalmethoden
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('service_warranty') }}" class="underline hover:text-gray-900">
+              Garantie &amp; reparatie
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
   </div>
 

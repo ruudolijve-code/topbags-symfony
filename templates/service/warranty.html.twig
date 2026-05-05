@@ -1,131 +1,295 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Garantie | Topbags{% endblock %}
+{% block title %}Garantie & Reparatie – Topbags{% endblock %}
 
 {% block body %}
-<section class="max-w-3xl mx-auto px-6 py-16">
-    <header class="mb-12 text-center">
-        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Garantie</h1>
-        <p class="text-lg text-gray-600 mt-2">Informatie over garantie en service</p>
-    </header>
+<section class="bg-white">
+    <div class="mx-auto max-w-5xl px-6 py-16 lg:py-20">
 
-    <div class="space-y-4">
+        <nav class="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
+            <a href="{{ path('home') }}" class="hover:text-gray-900">Home</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-900">Garantie &amp; Reparatie</span>
+        </nav>
 
-        {# Item 1 #}
-        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md" open>
-            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span class="text-lg font-semibold text-gray-800">Welke garantie krijg ik op mijn product?</span>
-                <div class="transition-transform duration-300 group-open:rotate-180">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                    </svg>
+        <header class="mb-12 max-w-3xl">
+            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-orange-600">
+                Servicepunt in Hengelo
+            </p>
+
+            <h1 class="mb-5 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+                Garantie &amp; Reparatie
+            </h1>
+
+            <p class="text-lg leading-8 text-gray-600">
+                Heb je een vraag over garantie, een defect aan je koffer of een reparatieverzoek?
+                Topbags.nl is de webshop van Holtkamp tassen &amp; koffers in Hengelo. Wij helpen je
+                graag met garantie, service en reparatie van koffers en reistassen.
+            </p>
+        </header>
+
+        <div class="grid gap-10 lg:grid-cols-3">
+
+            <div class="lg:col-span-2">
+                <div class="space-y-4">
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md" open>
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Welke garantie krijg ik op mijn product?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                Op alle producten die je bij Topbags.nl koopt, geldt minimaal de wettelijke garantie.
+                                Dit betekent dat een product moet doen wat je er redelijkerwijs van mag verwachten.
+                            </p>
+
+                            <p>
+                                Veel merken bieden daarnaast een aanvullende fabrieksgarantie. De duur en voorwaarden
+                                hiervan verschillen per merk en model.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Wat valt er onder garantie?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                Garantie dekt fabricage- en materiaalfouten die ontstaan bij normaal gebruik van het product.
+                            </p>
+
+                            <p>
+                                Denk bijvoorbeeld aan problemen met ritsen, wielen, handgrepen of trekstangen die niet
+                                zijn veroorzaakt door verkeerd gebruik, overbelasting of schade van buitenaf.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Wat valt meestal niet onder garantie?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                Schade door verkeerd gebruik, normale slijtage, overbelasting of externe factoren valt
+                                meestal niet onder garantie.
+                            </p>
+
+                            <p>
+                                Denk bijvoorbeeld aan cosmetische schade, schade door luchtvaartmaatschappijen,
+                                verkeerd gebruik of beschadigingen die ontstaan zijn tijdens vervoer buiten onze invloed.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Kan mijn koffer gerepareerd worden?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                In veel gevallen is een koffer goed te repareren. Denk aan defecte wielen, kapotte ritsen,
+                                handgrepen, sloten of telescopische trekstangen.
+                            </p>
+
+                            <p>
+                                Wij beoordelen altijd eerst of reparatie mogelijk en zinvol is. Als een reparatie onder
+                                garantie valt, helpen wij je met de verdere afhandeling.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Officieel reparatie- en servicepunt
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                Holtkamp tassen &amp; koffers is een servicepunt voor verschillende koffermerken.
+                                Dankzij ervaring met koffers, reistassen en onderdelen kunnen veel reparaties vakkundig
+                                worden beoordeeld en uitgevoerd.
+                            </p>
+
+                            <p>
+                                Waar mogelijk werken wij met passende of originele onderdelen. De beschikbaarheid van
+                                onderdelen verschilt per merk, model en leeftijd van het product.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Hoe werkt een garantie- of reparatieaanvraag?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                Neem contact op met onze klantenservice of kom langs in onze winkel in Hengelo.
+                                Neem bij voorkeur je aankoopbewijs, ordernummer en duidelijke foto’s van het defect mee
+                                of stuur deze mee in je bericht.
+                            </p>
+
+                            <p>
+                                Wij bekijken het product en laten je weten wat de mogelijkheden zijn. Als het defect
+                                onder garantie valt, begeleiden wij de afhandeling. Als het buiten garantie valt,
+                                ontvang je vooraf een indicatie van de eventuele reparatiekosten.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 bg-white transition-all duration-300 open:shadow-md">
+                        <summary class="flex cursor-pointer list-none items-center justify-between p-5">
+                            <span class="text-lg font-semibold text-gray-900">
+                                Wat kost een reparatie?
+                            </span>
+
+                            <span class="transition-transform duration-300 group-open:rotate-180">
+                                <svg class="h-5 w-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </span>
+                        </summary>
+
+                        <div class="space-y-3 border-t border-gray-100 p-5 pt-4 text-gray-600 leading-7">
+                            <p>
+                                De kosten zijn afhankelijk van het merk, het type reparatie en de benodigde onderdelen.
+                            </p>
+
+                            <p>
+                                Voordat wij een betaalde reparatie uitvoeren, geven wij altijd eerst een duidelijke
+                                indicatie van de kosten.
+                            </p>
+                        </div>
+                    </details>
+
                 </div>
-            </summary>
-            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
-                <p>
-                    Op alle producten die je bij Topbags koopt, geldt minimaal de wettelijke garantie.
-                    Dit betekent dat een product moet doen wat je er redelijkerwijs van mag verwachten.
-                </p>
-                <p>
-                    Veel merken bieden daarnaast een aanvullende fabrieksgarantie. De duur hiervan
-                    verschilt per merk en model en kan oplopen tot meerdere jaren.
-                </p>
             </div>
-        </details>
 
-        {# Item 2 #}
-        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
-            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span class="text-lg font-semibold text-gray-800">Wat valt er onder garantie?</span>
-                <div class="transition-transform duration-300 group-open:rotate-180">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </summary>
-            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
-                <p>
-                    Garantie dekt fabricage- en materiaalfouten die ontstaan bij normaal gebruik van het product.
-                </p>
-                <p>
-                    Denk bijvoorbeeld aan problemen met ritsen, wielen of handgrepen die niet door verkeerd gebruik zijn veroorzaakt.
-                </p>
-            </div>
-        </details>
+            <aside class="space-y-6">
+                <div class="rounded-2xl border border-orange-200 bg-orange-50 p-6">
+                    <h2 class="mb-3 text-lg font-bold text-gray-900">
+                        Garantie of reparatie aanvragen?
+                    </h2>
 
-        {# Item 3 #}
-        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
-            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span class="text-lg font-semibold text-gray-800">Wat valt niet onder garantie?</span>
-                <div class="transition-transform duration-300 group-open:rotate-180">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </summary>
-            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
-                <p>
-                    Schade door verkeerd gebruik, normale slijtage of externe factoren
-                    (zoals transport door luchtvaartmaatschappijen) valt meestal niet onder garantie.
-                </p>
-                <p>
-                    Ook cosmetische schade of beschadigingen door overbelasting kunnen buiten de garantie vallen.
-                </p>
-            </div>
-        </details>
+                    <p class="mb-5 text-sm leading-6 text-gray-700">
+                        Neem contact met ons op of kom langs in onze winkel. We beoordelen graag wat er mogelijk is.
+                    </p>
 
-        {# Item 4 #}
-        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
-            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span class="text-lg font-semibold text-gray-800">Hoe kan ik garantie aanvragen?</span>
-                <div class="transition-transform duration-300 group-open:rotate-180">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </summary>
-            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
-                <p>
-                    Neem contact op met onze klantenservice of kom langs in onze winkel in Hengelo.
-                </p>
-                <p>
-                    Wij bekijken het product en helpen je met de verdere afhandeling van de garantie of reparatie.
-                </p>
-            </div>
-        </details>
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <p>
+                            <strong>Telefoon:</strong><br>
+                            <a href="tel:+31742912251" class="underline hover:text-gray-900">
+                                074 291 22 51
+                            </a>
+                        </p>
 
-        {# Item 5 #}
-        <details class="group border border-gray-200 rounded-2xl bg-white transition-all duration-300 open:shadow-md">
-            <summary class="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span class="text-lg font-semibold text-gray-800">Reparatie & servicepunt</span>
-                <div class="transition-transform duration-300 group-open:rotate-180">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                    </svg>
+                        <p>
+                            <strong>E-mail:</strong><br>
+                            <a href="mailto:klantenservice@topbags.nl" class="underline hover:text-gray-900">
+                                klantenservice@topbags.nl
+                            </a>
+                        </p>
+
+                        <p>
+                            <strong>Contactformulier:</strong><br>
+                            <a href="{{ path('contact_index') }}" class="underline hover:text-gray-900">
+                                Stel je vraag online
+                            </a>
+                        </p>
+                    </div>
                 </div>
-            </summary>
-            <div class="p-5 pt-0 text-gray-600 leading-relaxed border-t border-gray-50 space-y-3">
-                <p>
-                    Topbags is een officieel servicepunt voor diverse koffermerken.
-                    Dankzij onze toegang tot originele onderdelen kunnen veel reparaties snel worden uitgevoerd.
-                </p>
-                <p>
-                    Twijfel je of een defect onder garantie valt? Neem gerust contact met ons op.
-                </p>
-            </div>
-        </details>
+
+                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                    <h2 class="mb-3 text-lg font-bold text-gray-900">
+                        Onze winkel
+                    </h2>
+
+                    <p class="mb-4 text-sm leading-6 text-gray-700">
+                        Topbags.nl is de webshop van Holtkamp tassen &amp; koffers in Hengelo.
+                    </p>
+
+                    <address class="text-sm not-italic leading-6 text-gray-700">
+                        Holtkamp tassen &amp; koffers<br>
+                        Wemenstraat 5–7<br>
+                        7551 ET Hengelo
+                    </address>
+
+                    <dl class="mt-4 space-y-2 text-sm text-gray-700">
+                        <div>
+                            <dt class="font-semibold text-gray-900">Openingstijden</dt>
+                            <dd>ma–vr 9:30 – 18:00</dd>
+                            <dd>za 10:00 – 17:00</dd>
+                        </div>
+
+                        <div>
+                            <dt class="font-semibold text-gray-900">KvK</dt>
+                            <dd>96254874</dd>
+                        </div>
+
+                        <div>
+                            <dt class="font-semibold text-gray-900">BTW</dt>
+                            <dd>NL005199626B22</dd>
+                        </div>
+                    </dl>
+                </div>
+            </aside>
+
+        </div>
 
     </div>
-
-    <footer class="mt-16 text-center p-8 bg-blue-50 rounded-3xl border border-blue-100">
-        <p class="font-medium text-blue-900">Vraag niet beantwoord?</p>
-        <p class="text-sm text-blue-700 mt-1">Neem direct contact op met onze klantenservice.</p>
-        <div class="mt-4">
-            <a href="/contact"
-               class="inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 transition">
-                Contactformulier
-            </a>
-        </div>
-    </footer>
 </section>
 {% endblock %}
