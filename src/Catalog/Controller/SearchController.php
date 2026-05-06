@@ -41,8 +41,8 @@ final class SearchController extends AbstractController
         $matchedBrand = $brandRepository->findActiveBySearchTerm($query);
 
         if ($matchedBrand !== null) {
-            return $this->redirectToRoute('shop_index', [
-                'brand' => [$matchedBrand->getSlug()],
+            return $this->redirectToRoute('brand_show', [
+                'slug' => $matchedBrand->getSlug(),
             ]);
         }
 
