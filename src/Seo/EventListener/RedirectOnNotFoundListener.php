@@ -4,13 +4,16 @@ namespace App\Seo\EventListener;
 
 use App\Seo\Repository\RedirectRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class RedirectOnNotFoundListener
 {
+    private const TARGET_DOMAIN = 'https://topbags.nl';
+
     public function __construct(
-        private RedirectRepository $redirectRepository,
+        private readonly RedirectRepository $redirectRepository,
     ) {
     }
 
@@ -28,12 +31,7 @@ final class RedirectOnNotFoundListener
             return;
         }
 
-        $path = $request->getPathInfo();
-        $path = rtrim($path, '/');
-
-        if ($path === '') {
-            $path = '/';
-        }
+        $path = rtrim($request->getPathInfo(), '/') ?: '/';
 
         $redirect = $this->redirectRepository->findActiveByPath($path);
 
@@ -41,6 +39,16 @@ final class RedirectOnNotFoundListener
             return;
         }
 
-        $event->setResponse(new RedirectResponse($redirect->getNewUrl(), 301));
+        $newUrl = trim($redirect->getNewUrl());
+
+        if ($newUrl === '') {
+            return;
+        }
+
+        if (str_starts_with($newUrl, '/')) {
+            $newUrl = self::TARGET_DOMAIN . $newUrl;
+        }
+
+        $event->setResponse(new RedirectResponse($newUrl, Response::HTTP_MOVED_PERMANENTLY));
     }
 }
