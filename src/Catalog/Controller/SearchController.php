@@ -54,17 +54,27 @@ final class SearchController extends AbstractController
 
         $items = [];
 
-        foreach ($products as $product) {
+       foreach ($products as $product) {
+            $activeVariants = array_values(array_filter(
+                $product->getVariants()->toArray(),
+                static fn ($variant): bool => $variant->isActive(),
+            ));
+
+            if ($activeVariants === []) {
+                continue;
+            }
+
             $masterVariant = $product->getMasterVariant();
 
             if ($masterVariant === null || !$masterVariant->isActive()) {
-                continue;
+                $masterVariant = $activeVariants[0];
             }
 
             $items[] = [
                 'product' => $product,
                 'variant' => $masterVariant,
                 'master' => $masterVariant,
+                'variants' => $activeVariants,
                 'mediaPath' => $this->variantImagePathResolver->fromVariant($masterVariant),
                 'availability' => $availabilityService->get($masterVariant),
             ];
