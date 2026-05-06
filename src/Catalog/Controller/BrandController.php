@@ -4,7 +4,6 @@ namespace App\Catalog\Controller;
 
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\BrandRepository;
-use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
@@ -66,10 +65,25 @@ final class BrandController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        /*
+         * Merkpagina's mogen niet vast op shop staan.
+         * Guess zit bijvoorbeeld in bags, Samsonite meestal in shop.
+         *
+         * Eerst controleren of dit merk actieve producten in bags heeft.
+         * Zo ja: toon de merkpagina als bags-context.
+         * Zo nee: val terug op shop-context.
+         */
+        $brandContext = $productRepository->countForContextGridWithFilters(
+            context: Product::CONTEXT_BAGS,
+            brandSlugs: [$brand->getSlug()],
+        ) > 0
+            ? Product::CONTEXT_BAGS
+            : Product::CONTEXT_SHOP;
+
         $page = max(1, $request->query->getInt('page', 1));
 
         $totalItems = $productRepository->countForContextGridWithFilters(
-            context: Product::CONTEXT_SHOP,
+            context: $brandContext,
             brandSlugs: [$brand->getSlug()],
         );
 
@@ -80,7 +94,7 @@ final class BrandController extends AbstractController
         );
 
         $products = $productRepository->findForContextGridWithFilters(
-            context: Product::CONTEXT_SHOP,
+            context: $brandContext,
             limit: $pagination->getLimit(),
             offset: $pagination->getOffset(),
             brandSlugs: [$brand->getSlug()],
@@ -119,8 +133,8 @@ final class BrandController extends AbstractController
             'items' => $items,
             'pagination' => $pagination,
             'categories' => [],
-            'context' => Product::CONTEXT_SHOP,
-            'currentContext' => Product::CONTEXT_SHOP,
+            'context' => $brandContext,
+            'currentContext' => $brandContext,
         ]);
     }
 }
