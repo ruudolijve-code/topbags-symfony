@@ -13,6 +13,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class SearchController extends AbstractController
 {
+    public function __construct(
+        private readonly VariantImagePathResolver $variantImagePathResolver,
+    ) {
+    }
+
     #[Route('/search', name: 'search', methods: ['GET'])]
     public function index(
         Request $request,
@@ -60,7 +65,7 @@ final class SearchController extends AbstractController
                 'product' => $product,
                 'variant' => $masterVariant,
                 'master' => $masterVariant,
-                'mediaPath' => VariantImagePathResolver::fromVariant($masterVariant),
+                'mediaPath' => $this->variantImagePathResolver->fromVariant($masterVariant),
                 'availability' => $availabilityService->get($masterVariant),
             ];
         }
