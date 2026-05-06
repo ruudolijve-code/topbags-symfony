@@ -757,23 +757,22 @@ final class ProductRepository extends ServiceEntityRepository
         $search = '%' . mb_strtolower($query) . '%';
 
         return $this->createQueryBuilder('p')
-            ->select('DISTINCT p, b, v, c')
+            ->select('DISTINCT p')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.variants', 'v')
-            ->leftJoin('v.color', 'c')
             ->andWhere('p.isActive = true')
             ->andWhere('p.productContext = :context')
             ->andWhere(
                 'LOWER(p.name) LIKE :search
                 OR LOWER(p.slug) LIKE :search
+                OR LOWER(p.series) LIKE :search
+                OR LOWER(p.modelSku) LIKE :search
                 OR LOWER(b.name) LIKE :search
                 OR LOWER(v.variantSku) LIKE :search
                 OR LOWER(v.ean) LIKE :search
                 OR LOWER(v.supplierColorName) LIKE :search
                 OR LOWER(v.supplierColorCode) LIKE :search
-                OR LOWER(v.supplierColorSlug) LIKE :search
-                OR LOWER(c.name) LIKE :search
-                OR LOWER(c.slug) LIKE :search'
+                OR LOWER(v.supplierColorSlug) LIKE :search'
             )
             ->setParameter('context', Product::CONTEXT_SHOP)
             ->setParameter('search', $search)
