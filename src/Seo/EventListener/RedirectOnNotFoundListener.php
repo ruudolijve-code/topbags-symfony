@@ -27,13 +27,18 @@ final class RedirectOnNotFoundListener
 
         $request = $event->getRequest();
 
-        if (!$request->isMethod('GET')) {
+        if (!$request->isMethod('GET') && !$request->isMethod('HEAD')) {
             return;
         }
 
-        $path = rtrim($request->getPathInfo(), '/') ?: '/';
+        $path = $request->getPathInfo();
+        $normalizedPath = rtrim($path, '/') ?: '/';
 
-        $redirect = $this->redirectRepository->findActiveByPath($path);
+        $redirect = $this->redirectRepository->findActiveByPath($normalizedPath);
+
+        if (!$redirect && $normalizedPath !== '/') {
+            $redirect = $this->redirectRepository->findActiveByPath($normalizedPath . '/');
+        }
 
         if (!$redirect) {
             return;
