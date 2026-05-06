@@ -754,35 +754,29 @@ final class ProductRepository extends ServiceEntityRepository
             return [];
         }
 
+        $search = '%' . mb_strtolower($query) . '%';
+
         return $this->createQueryBuilder('p')
-            ->select('DISTINCT p', 'b', 'master', 'variants', 'variantColor', 'categories')
+            ->select('DISTINCT p, b, v, c')
             ->leftJoin('p.brand', 'b')
-            ->leftJoin('p.categories', 'categories')
-            ->leftJoin(
-                'p.variants',
-                'master',
-                'WITH',
-                'master.isMaster = 1 AND master.isActive = 1'
-            )
-            ->leftJoin(
-                'p.variants',
-                'variants',
-                'WITH',
-                'variants.isActive = 1'
-            )
-            ->leftJoin('variants.color', 'variantColor')
-            ->andWhere('p.isActive = 1')
+            ->leftJoin('p.variants', 'v')
+            ->leftJoin('v.color', 'c')
+            ->andWhere('p.isActive = true')
             ->andWhere('p.productContext = :context')
-            ->andWhere('
-                p.name LIKE :q
-                OR p.series LIKE :q
-                OR p.modelSku LIKE :q
-                OR b.name LIKE :q
-                OR categories.name LIKE :q
-                OR variantColor.name LIKE :q
-            ')
+            ->andWhere(
+                'LOWER(p.name) LIKE :search
+                OR LOWER(p.slug) LIKE :search
+                OR LOWER(b.name) LIKE :search
+                OR LOWER(v.variantSku) LIKE :search
+                OR LOWER(v.ean) LIKE :search
+                OR LOWER(v.supplierColorName) LIKE :search
+                OR LOWER(v.supplierColorCode) LIKE :search
+                OR LOWER(v.supplierColorSlug) LIKE :search
+                OR LOWER(c.name) LIKE :search
+                OR LOWER(c.slug) LIKE :search'
+            )
             ->setParameter('context', Product::CONTEXT_SHOP)
-            ->setParameter('q', '%' . $query . '%')
+            ->setParameter('search', $search)
             ->orderBy('p.name', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
