@@ -1,5 +1,5 @@
 {% set context = activeContext ?? currentContext ?? 'shop' %}
-{% set app_url = 'https://topbags.nl' %}
+{% set app_url = app_url|default('https://topbags.nl')|trim('/') %}
 
 <!DOCTYPE html>
 <html lang="nl">
@@ -7,31 +7,10 @@
     <meta charset="UTF-8">
     <title>{% block title %}Topbags – Jouw reis begint hier{% endblock %}</title>
 
-    <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}">
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-32x32.png') }}" sizes="32x32">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon/favicon.svg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ asset('build/app.css') }}">
-    <meta name="google-site-verification" content="VhmOv6vDeWhBQ7LcAFD1qkBr4m2PuQgrmvLQW7aC4K0">
 
-    {% include 'partials/analytics/google_analytics.html.twig' %}
-
-    {% block canonical %}
-        {% if product is defined and variant is defined %}
-            <link rel="canonical" href="{{ app_url ~ path('product_show', {
-                slug: product.slug,
-                colorSlug: variant.supplierColorSlug,
-                variantSku: variant.variantSku
-            }) }}">
-        {% elseif category is defined %}
-            <link rel="canonical" href="{{ app_url ~ path('category_show', { slug: category.slug }) }}">
-        {% elseif brand is defined %}
-            <link rel="canonical" href="{{ app_url ~ path('brand_show', { slug: brand.slug }) }}">
-        {% else %}
-            <link rel="canonical" href="{{ app_url ~ path('home') }}">
-        {% endif %}
+    {% block robots %}
+        <meta name="robots" content="index, follow">
     {% endblock %}
 
     {% block meta_description %}
@@ -54,6 +33,11 @@
                     ? brand.description|striptags|slice(0, 157) ~ '...'
                     : brand.description|striptags }}"
             >
+        {% elseif brand is defined %}
+            <meta
+                name="description"
+                content="Ontdek {{ brand.name }} bij Topbags.nl. Online en in de winkel van Holtkamp tassen &amp; koffers in Hengelo."
+            >
         {% else %}
             <meta
                 name="description"
@@ -61,6 +45,33 @@
             >
         {% endif %}
     {% endblock %}
+
+    {% block canonical %}
+        {% if product is defined and variant is defined %}
+            <link rel="canonical" href="{{ app_url ~ path('product_show', {
+                slug: product.slug,
+                colorSlug: variant.supplierColorSlug,
+                variantSku: variant.variantSku
+            }) }}">
+        {% elseif category is defined %}
+            <link rel="canonical" href="{{ app_url ~ path('category_show', { slug: category.slug }) }}">
+        {% elseif brand is defined %}
+            <link rel="canonical" href="{{ app_url ~ path('brand_show', { slug: brand.slug }) }}">
+        {% else %}
+            <link rel="canonical" href="{{ app_url ~ app.request.pathInfo }}">
+        {% endif %}
+    {% endblock %}
+
+    <link rel="icon" href="{{ asset('images/favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-32x32.png') }}" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/favicon/apple-touch-icon.png') }}">
+
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+
+    <meta name="google-site-verification" content="VhmOv6vDeWhBQ7LcAFD1qkBr4m2PuQgrmvLQW7aC4K0">
+
+    {% include 'partials/analytics/google_analytics.html.twig' %}
 </head>
 
 <body class="bg-white text-gray-900 antialiased" x-data="{ mobileMenuOpen: false }">
@@ -93,13 +104,15 @@
     </header>
 </div>
 
-<main class="container mx-auto px-4 py-8 md:px-6 lg:px-8">
+<main>
     {% block body %}
-        {% include 'partials/cart/_progress.html.twig' with {
-            cartCount: cartCount ?? 0,
-            cartSubtotal: cartSubtotal ?? 0,
-            freeShippingThreshold: 49
-        } %}
+        <div class="container mx-auto px-4 py-8 md:px-6 lg:px-8">
+            {% include 'partials/cart/_progress.html.twig' with {
+                cartCount: cartCount ?? 0,
+                cartSubtotal: cartSubtotal ?? 0,
+                freeShippingThreshold: 49
+            } %}
+        </div>
     {% endblock %}
 </main>
 
@@ -154,12 +167,26 @@
     document.getElementById('cookie-deny')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'denied', 31536000);
+
+        if (typeof gtag === 'function') {
+            gtag('consent', 'update', {
+                analytics_storage: 'denied'
+            });
+        }
+
         hideCookieBanner();
     });
 
     document.getElementById('cookie-accept')?.addEventListener('click', () => {
         setCookie('cookie_choice', 'set', 31536000);
         setCookie('cookie_analytics', 'granted', 31536000);
+
+        if (typeof gtag === 'function') {
+            gtag('consent', 'update', {
+                analytics_storage: 'granted'
+            });
+        }
+
         hideCookieBanner();
     });
 </script>

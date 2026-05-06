@@ -2,6 +2,10 @@
 
 {% block title %}Admin login{% endblock %}
 
+{% block robots %}
+    <meta name="robots" content="noindex, nofollow, noarchive">
+{% endblock %}
+
 {% block body %}
 <div class="max-w-md mx-auto px-6 py-16">
     <h1 class="text-2xl font-semibold mb-6">Admin login</h1>
@@ -22,6 +26,7 @@
                 value="{{ last_username }}"
                 required
                 autofocus
+                autocomplete="username"
                 class="w-full rounded-md border border-gray-300 px-3 py-2"
             >
         </div>
@@ -33,6 +38,7 @@
                 id="password"
                 name="password"
                 required
+                autocomplete="current-password"
                 class="w-full rounded-md border border-gray-300 px-3 py-2"
             >
         </div>
