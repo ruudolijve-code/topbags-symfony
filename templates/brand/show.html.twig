@@ -1,30 +1,123 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ brand.name }} | Topbags{% endblock %}
+{% block title %}{{ brand.name }} bij Topbags | Tassen & koffers{% endblock %}
 
 {% block body %}
 <div class="w-full border-b border-gray-200 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-6 py-12 lg:py-16">
+    <div class="mx-auto max-w-7xl px-6 py-12 lg:py-16">
 
-        <header class="max-w-4xl mb-10">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">
-                {{ brand.name }}
-            </h1>
+        {# =========================
+           BRAND HERO
+           ========================= #}
+        <header class="mb-12 rounded-3xl bg-white p-8 shadow-sm lg:p-10">
+            <div class="grid gap-8 lg:grid-cols-[1fr_220px] lg:items-start">
 
-            {% if brand.description %}
-                <div class="prose prose-gray max-w-none text-gray-700">
-                    {{ brand.description|raw }}
+                <div class="max-w-4xl">
+                    <nav class="mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+                        <a href="{{ path('home') }}" class="hover:text-gray-900">Home</a>
+                        <span class="mx-2">/</span>
+                        <a href="{{ path('brand_index') }}" class="hover:text-gray-900">Merken</a>
+                        <span class="mx-2">/</span>
+                        <span class="text-gray-900">{{ brand.name }}</span>
+                    </nav>
+
+                    <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-600">
+                        Merkcollectie
+                    </p>
+
+                    <h1 class="mb-6 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+                        {{ brand.name }} bij Topbags
+                    </h1>
+
+                    {% if brand.description %}
+                        <div class="prose prose-gray max-w-none text-gray-700">
+                            {{ brand.description|raw }}
+                        </div>
+                    {% else %}
+                        <div class="space-y-4 text-lg leading-8 text-gray-600">
+                            <p>
+                                Ontdek {{ brand.name }} bij Topbags.nl. Wij verkopen {{ brand.name }}
+                                online en in onze winkel Holtkamp tassen &amp; koffers in Hengelo.
+                            </p>
+
+                            <p>
+                                Nog niet alle producten van {{ brand.name }} staan altijd online.
+                                Zoek je een specifiek model, kleur of maat? Neem gerust contact met ons op
+                                of kom langs voor de actuele collectie.
+                            </p>
+                        </div>
+                    {% endif %}
                 </div>
-            {% else %}
-                <p class="text-lg text-gray-600 leading-relaxed">
-                    Ontdek de collectie van {{ brand.name }} bij Topbags.
-                </p>
-            {% endif %}
+
+                {% if brand.logo %}
+                    <div class="flex justify-start lg:justify-end">
+                        <div class="flex h-40 w-full max-w-[220px] items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                            {% set logoPath = brand.logo starts with 'http'
+                                ? brand.logo
+                                : asset('images/brands/' ~ brand.logo)
+                            %}
+
+                            <img
+                                src="{{ logoPath }}"
+                                alt="{{ brand.name }} logo"
+                                class="max-h-28 max-w-full object-contain"
+                                loading="eager"
+                            >
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <div class="mt-8 grid gap-4 border-t border-gray-100 pt-8 md:grid-cols-3">
+                <div class="rounded-2xl bg-gray-50 p-5">
+                    <h2 class="font-semibold text-gray-900">
+                        Online &amp; in de winkel
+                    </h2>
+                    <p class="mt-2 text-sm leading-6 text-gray-600">
+                        Bestel online of bezoek Holtkamp tassen &amp; koffers in Hengelo.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-gray-50 p-5">
+                    <h2 class="font-semibold text-gray-900">
+                        Persoonlijk advies
+                    </h2>
+                    <p class="mt-2 text-sm leading-6 text-gray-600">
+                        Wij helpen je graag bij het kiezen van het juiste model.
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-gray-50 p-5">
+                    <h2 class="font-semibold text-gray-900">
+                        Service &amp; garantie
+                    </h2>
+                    <p class="mt-2 text-sm leading-6 text-gray-600">
+                        Hulp bij garantie, reparatie en servicevragen.
+                    </p>
+                </div>
+            </div>
         </header>
 
+        {# =========================
+           PRODUCT GRID
+           ========================= #}
         <section>
-            <div class="mb-4 text-sm text-gray-500">
-                {{ pagination.totalItems }} producten gevonden
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        {{ brand.name }} collectie
+                    </h2>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ pagination.totalItems }} {{ pagination.totalItems == 1 ? 'product' : 'producten' }} gevonden
+                    </p>
+                </div>
+
+                <a href="{{ path('contact_index') }}"
+                   class="inline-flex w-fit rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                    Vraag naar {{ brand.name }}
+                </a>
             </div>
 
             {% if items is not empty %}
@@ -41,20 +134,54 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="rounded-xl bg-white p-8 text-gray-500 shadow-sm">
-                    Wij verkopen de collectie van {{ brand.name }} in onze winkel in Hengelo. Nog niet alle producten staan online. Neem contact op of kom langs bij Holtkamp tassen &amp; koffers in Hengelo voor de actuele collectie. 
+                <div class="rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm">
+                    <h2 class="mb-4 text-2xl font-bold text-gray-900">
+                        {{ brand.name }} verkrijgbaar in onze winkel
+                    </h2>
+
+                    <div class="max-w-3xl space-y-4 text-gray-700 leading-7">
+                        <p>
+                            Wij verkopen {{ brand.name }} in onze winkel Holtkamp tassen &amp; koffers in Hengelo.
+                            Nog niet alle producten van {{ brand.name }} staan online in onze webshop.
+                        </p>
+
+                        <p>
+                            Zoek je een specifiek model, kleur of maat? Neem gerust contact met ons op of kom langs
+                            voor de actuele collectie.
+                        </p>
+                    </div>
+
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <a href="{{ path('contact_index') }}"
+                           class="rounded-full bg-amber-600 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-700">
+                            Vraag naar {{ brand.name }}
+                        </a>
+
+                        <a href="{{ path('service_store') }}"
+                           class="rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                            Bekijk onze winkel
+                        </a>
+
+                        <a href="{{ path('brand_index') }}"
+                           class="rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                            Bekijk alle merken
+                        </a>
+                    </div>
                 </div>
             {% endif %}
 
+            {# =========================
+               PAGINATION
+               ========================= #}
             {% if pagination.totalPages > 1 %}
-                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
+                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Paginering">
                     {% set routeName = app.request.attributes.get('_route') %}
                     {% set query = app.request.query.all %}
 
                     {% if pagination.hasPreviousPage %}
                         <a
                             href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: pagination.previousPage })) }}"
-                            class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
                         >
                             Vorige
                         </a>
@@ -63,7 +190,8 @@
                     {% for p in pagination.pages %}
                         <a
                             href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: p })) }}"
-                            class="rounded-full px-4 py-2 text-sm border {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
+                            class="rounded-full border px-4 py-2 text-sm {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 bg-white hover:bg-gray-50' }}"
+                            {% if p == pagination.page %}aria-current="page"{% endif %}
                         >
                             {{ p }}
                         </a>
@@ -72,7 +200,7 @@
                     {% if pagination.hasNextPage %}
                         <a
                             href="{{ path(routeName, { slug: brand.slug }|merge(query)|merge({ page: pagination.nextPage })) }}"
-                            class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+                            class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
                         >
                             Volgende
                         </a>
