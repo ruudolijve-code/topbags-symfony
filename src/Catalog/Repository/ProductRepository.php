@@ -782,6 +782,46 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function searchAllActive(string $query, int $limit = 24): array
+    {
+        $query = trim($query);
+
+        if ($query === '') {
+            return [];
+        }
+
+        $search = '%' . mb_strtolower($query) . '%';
+
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin('p.variants', 'v')
+            ->leftJoin('v.color', 'variantColor')
+            ->andWhere('p.isActive = true')
+            ->andWhere(
+                'LOWER(p.name) LIKE :search
+                OR LOWER(p.slug) LIKE :search
+                OR LOWER(p.series) LIKE :search
+                OR LOWER(p.modelSku) LIKE :search
+                OR LOWER(b.name) LIKE :search
+                OR LOWER(categories.name) LIKE :search
+                OR LOWER(categories.slug) LIKE :search
+                OR LOWER(v.variantSku) LIKE :search
+                OR LOWER(v.ean) LIKE :search
+                OR LOWER(v.supplierColorName) LIKE :search
+                OR LOWER(v.supplierColorCode) LIKE :search
+                OR LOWER(v.supplierColorSlug) LIKE :search
+                OR LOWER(variantColor.name) LIKE :search
+                OR LOWER(variantColor.slug) LIKE :search'
+            )
+            ->setParameter('search', $search)
+            ->orderBy('p.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function searchForBags(string $query, int $limit = 24): array
     {
         $query = trim($query);

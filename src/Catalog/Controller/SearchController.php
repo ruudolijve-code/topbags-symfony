@@ -46,11 +46,11 @@ final class SearchController extends AbstractController
             ]);
         }
 
-        /*
-         * Zoek alleen binnen reisartikelen / shop-context.
-         * Damestassen horen niet in deze zoekflow thuis.
-         */
-        $products = $productRepository->searchForShop($query, 24);
+       /*
+        * Zoek sitebreed: shop + bags.
+        * Geen contextfilter, omdat merken zoals Guess zowel bags als koffers kunnen bevatten.
+        */
+        $products = $productRepository->searchAllActive($query, 24);
 
         $items = [];
 
