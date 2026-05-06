@@ -54,7 +54,6 @@ final class BrandController extends AbstractController
         Request $request,
         BrandRepository $brandRepository,
         ProductRepository $productRepository,
-        CategoryRepository $categoryRepository,
         AvailabilityService $availabilityService,
         PaginationService $paginationService
     ): Response {
@@ -69,55 +68,59 @@ final class BrandController extends AbstractController
 
         $page = max(1, $request->query->getInt('page', 1));
 
-        $totalItems = $productRepository->countForBrandGrid(
-            brandSlugs: [$brand->getSlug()]
+        $totalItems = $productRepository->countForContextGridWithFilters(
+            context: Product::CONTEXT_SHOP,
+            brandSlugs: [$brand->getSlug()],
         );
 
         $pagination = $paginationService->create(
             page: $page,
             limit: self::PER_PAGE,
-            totalItems: $totalItems
+            totalItems: $totalItems,
         );
 
-        $products = $productRepository->findForBrandGrid(
+        $products = $productRepository->findForContextGridWithFilters(
+            context: Product::CONTEXT_SHOP,
             limit: $pagination->getLimit(),
             offset: $pagination->getOffset(),
-            brandSlugs: [$brand->getSlug()]
+            brandSlugs: [$brand->getSlug()],
         );
 
         $items = [];
 
         foreach ($products as $product) {
-            $master = $product->getMasterVariant();
+            $activeVariants = array_values(array_filter(
+                $product->getVariants()->toArray(),
+                static fn ($variant): bool => $variant->isActive(),
+            ));
 
-            if ($master === null || !$master->isActive()) {
+            if ($activeVariants === []) {
                 continue;
             }
 
-            $activeVariants = array_values(array_filter(
+            $master = $product->getMasterVariant();
 
-        $product->getVariants()->toArray(),
+            if ($master === null || !$master->isActive()) {
+                $master = $activeVariants[0];
+            }
 
-        static fn ($variant) => $variant->isActive()
+            $items[] = [
+                'product' => $product,
+                'variant' => $master,
+                'master' => $master,
+                'variants' => $activeVariants,
+                'mediaPath' => $this->variantImagePathResolver->fromVariant($master),
+                'availability' => $availabilityService->get($master),
+            ];
+        }
 
-    ));
-
-    $items[] = [
-        'product' => $product,
-        'variant' => $master,
-        'master' => $master,
-        'variants' => $activeVariants,
-        'mediaPath' => $this->variantImagePathResolver->fromVariant($master),
-        'availability' => $availabilityService->get($master),
-    ];
-}
         return $this->render('brand/show.html.twig', [
             'brand' => $brand,
             'items' => $items,
             'pagination' => $pagination,
-            'categories' => [], // of later dynamisch uit beide contexten
-            'context' => null,
-            'currentContext' => null,
+            'categories' => [],
+            'context' => Product::CONTEXT_SHOP,
+            'currentContext' => Product::CONTEXT_SHOP,
         ]);
     }
 }
