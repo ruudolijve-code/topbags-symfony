@@ -1155,4 +1155,65 @@ final class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countColorsForSearch(string $query): int
+    {
+        $query = trim($query);
+
+        if ($query === '') {
+            return 0;
+        }
+
+        $search = '%' . mb_strtolower($query) . '%';
+
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT c.id)')
+            ->leftJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'v')
+            ->innerJoin('v.color', 'c')
+            ->where('p.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->andWhere(
+                'LOWER(p.name) LIKE :search
+                OR LOWER(p.modelSku) LIKE :search
+                OR LOWER(p.series) LIKE :search
+                OR LOWER(b.name) LIKE :search
+                OR LOWER(v.variantSku) LIKE :search'
+            )
+            ->setParameter('search', $search)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countAvailableVariantsForSearch(string $query): int
+    {
+        $query = trim($query);
+
+        if ($query === '') {
+            return 0;
+        }
+
+        $search = '%' . mb_strtolower($query) . '%';
+
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT v.id)')
+            ->leftJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'v')
+            ->leftJoin('v.stock', 's')
+            ->where('p.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->andWhere(
+                'LOWER(p.name) LIKE :search
+                OR LOWER(p.modelSku) LIKE :search
+                OR LOWER(p.series) LIKE :search
+                OR LOWER(b.name) LIKE :search
+                OR LOWER(v.variantSku) LIKE :search'
+            )
+            ->andWhere(
+                '(s.onHand - s.reserved) > 0 OR v.allowBackorder = true'
+            )
+            ->setParameter('search', $search)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

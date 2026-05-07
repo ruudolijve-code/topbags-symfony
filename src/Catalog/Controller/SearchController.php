@@ -31,12 +31,14 @@ final class SearchController extends AbstractController
             return $this->render('search/index.html.twig', [
                 'query' => '',
                 'items' => [],
+                'totalColors' => 0,
+                'totalAvailableVariants' => 0,
             ]);
         }
 
         /*
          * Als de zoekterm exact of sterk overeenkomt met een merk,
-         * stuur dan door naar de shop met merkfilter.
+         * stuur dan door naar de merkpagina.
          */
         $matchedBrand = $brandRepository->findActiveBySearchTerm($query);
 
@@ -46,15 +48,15 @@ final class SearchController extends AbstractController
             ]);
         }
 
-       /*
-        * Zoek sitebreed: shop + bags.
-        * Geen contextfilter, omdat merken zoals Guess zowel bags als koffers kunnen bevatten.
-        */
+        /*
+         * Zoek sitebreed: shop + bags.
+         * Geen contextfilter, omdat merken zoals Guess zowel bags als koffers kunnen bevatten.
+         */
         $products = $productRepository->searchAllActive($query, 24);
 
         $items = [];
 
-       foreach ($products as $product) {
+        foreach ($products as $product) {
             $activeVariants = array_values(array_filter(
                 $product->getVariants()->toArray(),
                 static fn ($variant): bool => $variant->isActive(),
@@ -80,9 +82,14 @@ final class SearchController extends AbstractController
             ];
         }
 
+        $totalColors = $productRepository->countColorsForSearch($query);
+        $totalAvailableVariants = $productRepository->countAvailableVariantsForSearch($query);
+
         return $this->render('search/index.html.twig', [
             'query' => $query,
             'items' => $items,
+            'totalColors' => $totalColors,
+            'totalAvailableVariants' => $totalAvailableVariants,
         ]);
     }
 }

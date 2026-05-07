@@ -3,10 +3,12 @@
 {% block title %}Zoekresultaten voor "{{ query }}" | Topbags{% endblock %}
 
 {% block body %}
-<div class="max-w-7xl mx-auto">
-    <h1 class="text-2xl font-semibold mb-6">
-        Zoekresultaten voor "{{ query }}"
-    </h1>
+<div class="mx-auto max-w-7xl px-6 py-8">
+    <header class="mb-8">
+        <h1 class="mb-3 text-2xl font-semibold">
+            Zoekresultaten voor "{{ query }}"
+        </h1>
+    </header>
 
     {% if query == '' %}
         <p class="text-gray-500">
@@ -17,14 +19,22 @@
             Geen producten gevonden.
         </p>
     {% else %}
-        <div class="mb-6 text-sm text-gray-500">
-            {{ items|length }} producten gevonden
+        <div class="mb-4 text-sm text-gray-500">
+            {{ items|length }} modellen gevonden
+
+            {% if totalColors is defined and totalColors > 0 %}
+                <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+            {% endif %}
+
+            {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+            {% endif %}
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-3">
             {% for item in items %}
                 {% include 'shop/component/card/_card.html.twig' with {
-                    context: 'shop',
+                    context: item.context|default('shop'),
                     product: item.product,
                     variant: item.variant,
                     master: item.master,
