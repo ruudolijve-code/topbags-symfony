@@ -27,7 +27,6 @@ security:
             security: false
 
         admin:
-            admin:
             pattern: ^/(admin_dedtwaw|2fa|logout)
             lazy: true
             provider: admin_user_provider
