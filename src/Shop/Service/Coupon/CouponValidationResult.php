@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Shop\Service\Coupon;
 
 use App\Shop\Entity\Coupon;
@@ -7,10 +9,10 @@ use App\Shop\Entity\Coupon;
 final class CouponValidationResult
 {
     public function __construct(
-        private bool $valid,
-        private ?Coupon $coupon = null,
-        private ?string $message = null,
-        private float $discountAmount = 0.0
+        private readonly bool $valid,
+        private readonly ?Coupon $coupon = null,
+        private readonly ?string $message = null,
+        private readonly float $discountAmount = 0.0,
     ) {
     }
 
@@ -20,7 +22,7 @@ final class CouponValidationResult
             valid: true,
             coupon: $coupon,
             message: null,
-            discountAmount: $discountAmount
+            discountAmount: $discountAmount,
         );
     }
 
@@ -30,7 +32,7 @@ final class CouponValidationResult
             valid: false,
             coupon: null,
             message: $message,
-            discountAmount: 0.0
+            discountAmount: 0.0,
         );
     }
 

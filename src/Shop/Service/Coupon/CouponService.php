@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Shop\Service\Coupon;
 
 use App\Shop\Entity\Coupon;
@@ -8,7 +10,7 @@ use App\Shop\Repository\CouponRepository;
 final class CouponService
 {
     public function __construct(
-        private CouponRepository $couponRepository
+        private readonly CouponRepository $couponRepository,
     ) {
     }
 
@@ -58,14 +60,10 @@ final class CouponService
 
     public function calculateDiscountAmount(Coupon $coupon, float $subtotal): float
     {
-        $percent = $coupon->getDiscountPercentAsFloat();
-
-        if ($percent <= 0 || $subtotal <= 0) {
+        if ($subtotal <= 0) {
             return 0.0;
         }
 
-        $discount = $subtotal * ($percent / 100);
-
-        return round($discount, 2);
+        return round($coupon->calculateDiscountAmount($subtotal), 2);
     }
 }
