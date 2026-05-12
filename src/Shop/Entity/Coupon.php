@@ -3,36 +3,46 @@
 namespace App\Shop\Entity;
 
 use App\Shop\Repository\CouponRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CouponRepository::class)]
 #[ORM\Table(name: 'coupon')]
 class Coupon
 {
+    public const TYPE_PERCENTAGE = 'percentage';
+    public const TYPE_FIXED_AMOUNT = 'fixed_amount';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 80, unique: true)]
-    private string $code;
+    private string $code = '';
 
     #[ORM\Column(length: 150)]
-    private string $name;
+    private string $name = '';
 
-    #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
+    #[ORM\Column(length: 30, options: ['default' => self::TYPE_PERCENTAGE])]
+    private string $discountType = self::TYPE_PERCENTAGE;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
     private string $discountPercent = '0.00';
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $discountAmount = null;
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $startsAt = null;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $endsAt = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $minimumOrderAmount = null;
 
     #[ORM\Column(nullable: true)]
@@ -41,7 +51,7 @@ class Coupon
     #[ORM\Column(options: ['default' => 0])]
     private int $timesRedeemed = 0;
 
-    #[ORM\Column(type: 'datetime_immutable')]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
     public function __construct()
@@ -49,6 +59,12 @@ class Coupon
         $this->createdAt = new \DateTimeImmutable();
         $this->timesRedeemed = 0;
         $this->isActive = true;
+        $this->discountType = self::TYPE_PERCENTAGE;
+    }
+
+    public function __toString(): string
+    {
+        return $this->code !== '' ? $this->code : 'Coupon';
     }
 
     public function getId(): ?int
@@ -68,6 +84,7 @@ class Coupon
     public function setCode(string $code): self
     {
         $this->code = mb_strtoupper(trim($code));
+
         return $this;
     }
 
@@ -83,11 +100,42 @@ class Coupon
     public function setName(string $name): self
     {
         $this->name = trim($name);
+
         return $this;
     }
 
     /* ======================
-       DISCOUNT
+       DISCOUNT TYPE
+    ====================== */
+
+    public function getDiscountType(): string
+    {
+        return $this->discountType;
+    }
+
+    public function setDiscountType(string $discountType): self
+    {
+        if (!in_array($discountType, [self::TYPE_PERCENTAGE, self::TYPE_FIXED_AMOUNT], true)) {
+            throw new \InvalidArgumentException('Invalid discount type.');
+        }
+
+        $this->discountType = $discountType;
+
+        return $this;
+    }
+
+    public function isPercentageDiscount(): bool
+    {
+        return $this->discountType === self::TYPE_PERCENTAGE;
+    }
+
+    public function isFixedAmountDiscount(): bool
+    {
+        return $this->discountType === self::TYPE_FIXED_AMOUNT;
+    }
+
+    /* ======================
+       PERCENTAGE DISCOUNT
     ====================== */
 
     public function getDiscountPercent(): string
@@ -114,6 +162,50 @@ class Coupon
     }
 
     /* ======================
+       FIXED AMOUNT DISCOUNT
+    ====================== */
+
+    public function getDiscountAmount(): ?string
+    {
+        return $this->discountAmount;
+    }
+
+    public function getDiscountAmountAsFloat(): float
+    {
+        return $this->discountAmount !== null
+            ? (float) $this->discountAmount
+            : 0.0;
+    }
+
+    public function setDiscountAmount(string|float|int|null $amount): self
+    {
+        if ($amount === null || $amount === '') {
+            $this->discountAmount = null;
+
+            return $this;
+        }
+
+        $value = (float) $amount;
+
+        if ($value < 0) {
+            throw new \InvalidArgumentException('Discount amount cannot be negative.');
+        }
+
+        $this->discountAmount = number_format($value, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getFormattedDiscount(): string
+    {
+        if ($this->isFixedAmountDiscount()) {
+            return '€' . number_format($this->getDiscountAmountAsFloat(), 2, ',', '.');
+        }
+
+        return number_format($this->getDiscountPercentAsFloat(), 2, ',', '.') . '%';
+    }
+
+    /* ======================
        ACTIVE
     ====================== */
 
@@ -125,6 +217,7 @@ class Coupon
     public function setIsActive(bool $active): self
     {
         $this->isActive = $active;
+
         return $this;
     }
 
@@ -140,6 +233,7 @@ class Coupon
     public function setStartsAt(?\DateTimeImmutable $date): self
     {
         $this->startsAt = $date;
+
         return $this;
     }
 
@@ -151,6 +245,7 @@ class Coupon
     public function setEndsAt(?\DateTimeImmutable $date): self
     {
         $this->endsAt = $date;
+
         return $this;
     }
 
@@ -174,6 +269,7 @@ class Coupon
     {
         if ($amount === null || $amount === '') {
             $this->minimumOrderAmount = null;
+
             return $this;
         }
 
@@ -216,12 +312,14 @@ class Coupon
     public function setTimesRedeemed(int $times): self
     {
         $this->timesRedeemed = max(0, $times);
+
         return $this;
     }
 
     public function incrementTimesRedeemed(): self
     {
         $this->timesRedeemed++;
+
         return $this;
     }
 
@@ -260,5 +358,43 @@ class Coupon
         }
 
         return $this->timesRedeemed < $this->maxRedemptions;
+    }
+
+    public function canBeUsedForAmount(float $orderAmount, ?\DateTimeImmutable $now = null): bool
+    {
+        if (!$this->isActive) {
+            return false;
+        }
+
+        if (!$this->isWithinDateWindow($now)) {
+            return false;
+        }
+
+        if (!$this->hasRemainingRedemptions()) {
+            return false;
+        }
+
+        $minimumOrderAmount = $this->getMinimumOrderAmountAsFloat();
+
+        if ($minimumOrderAmount !== null && $orderAmount < $minimumOrderAmount) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function calculateDiscountAmount(float $orderAmount): float
+    {
+        if ($orderAmount <= 0) {
+            return 0.0;
+        }
+
+        if ($this->isFixedAmountDiscount()) {
+            return min($orderAmount, $this->getDiscountAmountAsFloat());
+        }
+
+        $discount = $orderAmount * ($this->getDiscountPercentAsFloat() / 100);
+
+        return min($orderAmount, round($discount, 2));
     }
 }
