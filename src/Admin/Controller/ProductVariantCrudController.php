@@ -23,6 +23,9 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[IsGranted('ROLE_ADMIN')]
 
 class ProductVariantCrudController extends AbstractCrudController
 {

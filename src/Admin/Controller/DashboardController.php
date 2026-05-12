@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Admin\Controller;
 
+use App\Admin\Entity\AdminUser;
 use App\Catalog\Entity\Brand;
-use App\Catalog\Entity\Material;
 use App\Catalog\Entity\Category;
+use App\Catalog\Entity\Material;
 use App\Catalog\Entity\Product;
 use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Entity\Supplier;
 use App\Catalog\Entity\VariantSupply;
-use App\Marketing\Entity\NewsletterSubscription;
 use App\Loyalty\Entity\TravelMilesMember;
 use App\Loyalty\Entity\TravelMilesVoucher;
+use App\Marketing\Entity\NewsletterSubscription;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
-use App\Admin\Entity\AdminUser;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -23,7 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class DashboardController extends AbstractDashboardController
+final class DashboardController extends AbstractDashboardController
 {
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
@@ -50,35 +52,69 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 
-        yield MenuItem::section('Shop');
-        yield MenuItem::linkToCrud('Orders', 'fa fa-receipt', Order::class);
+        /*
+         * Winkelmedewerker + volledige admin
+         *
+         * Door role_hierarchy geldt:
+         * ROLE_ADMIN heeft ook ROLE_STORE.
+         */
+        if ($this->isGranted('ROLE_STORE')) {
+            yield MenuItem::section('Shop');
+            yield MenuItem::linkToCrud('Orders', 'fa fa-receipt', Order::class)
+                ->setController(OrderCrudController::class);
 
-        yield MenuItem::section('Catalogus');
-        yield MenuItem::linkToCrud('Merken', 'fa fa-tag', Brand::class);
-        yield MenuItem::linkToCrud('Leveranciers', 'fa fa-truck', Supplier::class);
-        yield MenuItem::linkToCrud('Variant supplier overrides', 'fa fa-link', VariantSupply::class);
-        yield MenuItem::linkToCrud('Producten', 'fa fa-box', Product::class);
-        yield MenuItem::linkToCrud('Varianten', 'fa fa-tags', ProductVariant::class);
-        yield MenuItem::linkToCrud('Materialen', 'fa fa-layer-group', Material::class)
-            ->setController(MaterialCrudController::class);
-        yield MenuItem::linkToCrud('Categorieën / menu', 'fa fa-folder-tree', Category::class)
-            ->setController(CategoryCrudController::class);
+            yield MenuItem::section('Loyalty');
+            yield MenuItem::linkToCrud('Travelmiles leden', 'fa fa-stamp', TravelMilesMember::class)
+                ->setController(TravelMilesMemberCrudController::class);
 
-        yield MenuItem::section('Marketing');
-        yield MenuItem::linkToCrud('Nieuwsbriefinschrijvingen', 'fa fa-envelope', NewsletterSubscription::class);
-        yield MenuItem::linkToCrud('Coupons', 'fa fa-percent', Coupon::class);
+            yield MenuItem::linkToCrud('Travelmiles vouchers', 'fa fa-gift', TravelMilesVoucher::class)
+                ->setController(TravelMilesVoucherCrudController::class);
+        }
 
-        yield MenuItem::section('Loyalty');
-        yield MenuItem::linkToCrud('Travelmiles leden', 'fa fa-stamp', TravelMilesMember::class)
-            ->setController(TravelMilesMemberCrudController::class);
-        yield MenuItem::linkToCrud('Travelmiles vouchers', 'fa fa-gift', TravelMilesVoucher::class)
-            ->setController(TravelMilesVoucherCrudController::class);
+        /*
+         * Alleen volledige admin
+         */
+        if ($this->isGranted('ROLE_ADMIN')) {
+            yield MenuItem::section('Catalogus');
 
-        yield MenuItem::section('SEO');
-        yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class);
+            yield MenuItem::linkToCrud('Merken', 'fa fa-tag', Brand::class)
+                ->setController(BrandCrudController::class);
 
-        yield MenuItem::section('Beheer');
-        yield MenuItem::linkToCrud('Admin gebruikers', 'fa fa-users-gear', AdminUser::class)
-            ->setController(AdminUserCrudController::class);
+            yield MenuItem::linkToCrud('Leveranciers', 'fa fa-truck', Supplier::class)
+                ->setController(SupplierCrudController::class);
+
+            yield MenuItem::linkToCrud('Variant supplier overrides', 'fa fa-link', VariantSupply::class)
+                ->setController(VariantSupplyCrudController::class);
+
+            yield MenuItem::linkToCrud('Producten', 'fa fa-box', Product::class)
+                ->setController(ProductCrudController::class);
+
+            yield MenuItem::linkToCrud('Varianten', 'fa fa-tags', ProductVariant::class)
+                ->setController(ProductVariantCrudController::class);
+
+            yield MenuItem::linkToCrud('Materialen', 'fa fa-layer-group', Material::class)
+                ->setController(MaterialCrudController::class);
+
+            yield MenuItem::linkToCrud('Categorieën / menu', 'fa fa-folder-tree', Category::class)
+                ->setController(CategoryCrudController::class);
+
+            yield MenuItem::section('Marketing');
+
+            yield MenuItem::linkToCrud('Nieuwsbriefinschrijvingen', 'fa fa-envelope', NewsletterSubscription::class)
+                ->setController(NewsletterSubscriptionCrudController::class);
+
+            yield MenuItem::linkToCrud('Coupons', 'fa fa-percent', Coupon::class)
+                ->setController(CouponCrudController::class);
+
+            yield MenuItem::section('SEO');
+
+            yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class)
+                ->setController(RedirectCrudController::class);
+
+            yield MenuItem::section('Beheer');
+
+            yield MenuItem::linkToCrud('Admin gebruikers', 'fa fa-users-gear', AdminUser::class)
+                ->setController(AdminUserCrudController::class);
+        }
     }
 }
