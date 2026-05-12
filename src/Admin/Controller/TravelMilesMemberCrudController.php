@@ -9,14 +9,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CountryField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-
 
 final class TravelMilesMemberCrudController extends AbstractCrudController
 {
@@ -35,6 +34,15 @@ final class TravelMilesMemberCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_EDIT, 'Travelmiles lid bewerken')
             ->setDefaultSort([
                 'createdAt' => 'DESC',
+            ])
+            ->setSearchFields([
+                'email',
+                'firstName',
+                'lastName',
+                'street',
+                'postalCode',
+                'city',
+                'source',
             ]);
     }
 
@@ -44,12 +52,15 @@ final class TravelMilesMemberCrudController extends AbstractCrudController
             ->add('isActive')
             ->add('voucherSent')
             ->add('email')
+            ->add('source')
             ->add('createdAt')
             ->add('dateOfBirth');
     }
 
     public function configureFields(string $pageName): iterable
     {
+        yield FormField::addPanel('Lid');
+
         yield IdField::new('id')
             ->onlyOnIndex();
 
@@ -62,16 +73,21 @@ final class TravelMilesMemberCrudController extends AbstractCrudController
         yield DateField::new('dateOfBirth', 'Geboortedatum')
             ->setFormat('dd-MM-yyyy');
 
-        yield BooleanField::new('isActive', 'Actief');
-
-        yield BooleanField::new('voucherSent', 'Voucher verzonden');
-
         yield ChoiceField::new('source', 'Ingeschreven via')
             ->setChoices([
                 'Topbags webshop' => 'topbags_webshop',
                 'Holtkamp winkel' => 'holtkamp_store',
                 'Handmatig admin' => 'admin_manual',
-            ]);
+            ])
+            ->setHelp('Gebruik “Holtkamp winkel” voor inschrijvingen die in de winkel zijn gedaan.');
+
+        yield BooleanField::new('isActive', 'Actief');
+
+        yield BooleanField::new('voucherSent', 'Voucher verzonden')
+            ->setHelp('Tijdelijke indicatie. Straks vervangen we dit door echte Travelmiles vouchers.');
+
+        yield FormField::addPanel('Adresgegevens voor postacties')
+            ->onlyOnForms();
 
         yield TextField::new('street', 'Straat')
             ->hideOnIndex();
@@ -85,16 +101,21 @@ final class TravelMilesMemberCrudController extends AbstractCrudController
         yield TextField::new('city', 'Plaats')
             ->hideOnIndex();
 
-        yield CountryField::new('country', 'Land')
-            ->hideOnIndex();
+        yield TextField::new('country', 'Land')
+            ->hideOnIndex()
+            ->setHelp('Gebruik bijvoorbeeld NL.');
+
+        yield FormField::addPanel('Toestemming')
+            ->onlyOnForms();
 
         yield DateTimeField::new('consentGivenAt', 'E-mail toestemming gegeven op')
             ->setFormat('dd-MM-yyyy HH:mm')
-            ->hideOnForm();
+            ->setHelp('Bij webshop-aanmelding automatisch gevuld. Bij winkelinschrijving handmatig invullen op het toestemmingsmoment.');
 
         yield DateTimeField::new('postalMailConsentAt', 'Post toestemming gegeven op')
             ->setFormat('dd-MM-yyyy HH:mm')
-            ->hideOnForm();
+            ->setRequired(false)
+            ->setHelp('Alleen invullen als klant toestemming geeft voor fysieke kaarten of postacties.');
 
         yield DateTimeField::new('createdAt', 'Aangemaakt op')
             ->setFormat('dd-MM-yyyy HH:mm')

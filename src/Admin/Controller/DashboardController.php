@@ -11,6 +11,7 @@ use App\Catalog\Entity\Supplier;
 use App\Catalog\Entity\VariantSupply;
 use App\Marketing\Entity\NewsletterSubscription;
 use App\Loyalty\Entity\TravelMilesMember;
+use App\Loyalty\Entity\TravelMilesVoucher;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
@@ -69,6 +70,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Loyalty');
         yield MenuItem::linkToCrud('Travelmiles leden', 'fa fa-stamp', TravelMilesMember::class)
             ->setController(TravelMilesMemberCrudController::class);
+        yield MenuItem::linkToCrud('Travelmiles vouchers', 'fa fa-gift', TravelMilesVoucher::class)
+            ->setController(TravelMilesVoucherCrudController::class);
 
         yield MenuItem::section('SEO');
         yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class);

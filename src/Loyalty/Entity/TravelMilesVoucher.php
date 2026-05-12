@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Loyalty\Entity;
 
+use App\Shop\Entity\Coupon;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,6 +27,10 @@ class TravelMilesVoucher
     #[ORM\ManyToOne(targetEntity: TravelMilesMember::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?TravelMilesMember $member = null;
+
+    #[ORM\OneToOne(targetEntity: Coupon::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Coupon $coupon = null;
 
     #[ORM\Column(length: 50)]
     private string $code = '';
@@ -94,6 +99,23 @@ class TravelMilesVoucher
         return $this;
     }
 
+    public function getCoupon(): ?Coupon
+    {
+        return $this->coupon;
+    }
+
+    public function setCoupon(?Coupon $coupon): self
+    {
+        $this->coupon = $coupon;
+
+        return $this;
+    }
+
+    public function hasCoupon(): bool
+    {
+        return $this->coupon instanceof Coupon;
+    }
+
     public function getCode(): string
     {
         return $this->code;
@@ -103,6 +125,10 @@ class TravelMilesVoucher
     {
         $this->code = strtoupper(trim($code));
 
+        if ($this->coupon instanceof Coupon) {
+            $this->coupon->setCode($this->code);
+        }
+
         return $this;
     }
 
@@ -111,9 +137,18 @@ class TravelMilesVoucher
         return $this->amount;
     }
 
+    public function getAmountAsFloat(): float
+    {
+        return (float) $this->amount;
+    }
+
     public function setAmount(string|float|int $amount): self
     {
         $this->amount = number_format((float) $amount, 2, '.', '');
+
+        if ($this->coupon instanceof Coupon) {
+            $this->coupon->setDiscountAmount($this->amount);
+        }
 
         return $this;
     }
@@ -159,6 +194,18 @@ class TravelMilesVoucher
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_CREATED => 'Aangemaakt',
+            self::STATUS_SENT => 'Verstuurd',
+            self::STATUS_REDEEMED => 'Gebruikt',
+            self::STATUS_EXPIRED => 'Verlopen',
+            self::STATUS_CANCELLED => 'Geannuleerd',
+            default => $this->status,
+        };
     }
 
     public function getCampaign(): ?string
@@ -212,6 +259,10 @@ class TravelMilesVoucher
         $this->status = self::STATUS_REDEEMED;
         $this->redeemedAt = new \DateTimeImmutable();
 
+        if ($this->coupon instanceof Coupon) {
+            $this->coupon->incrementTimesRedeemed();
+        }
+
         return $this;
     }
 
@@ -223,6 +274,10 @@ class TravelMilesVoucher
     public function setExpiresAt(?\DateTimeImmutable $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
+
+        if ($this->coupon instanceof Coupon) {
+            $this->coupon->setEndsAt($expiresAt);
+        }
 
         return $this;
     }
@@ -243,6 +298,10 @@ class TravelMilesVoucher
     {
         $this->status = self::STATUS_CANCELLED;
         $this->cancelledAt = new \DateTimeImmutable();
+
+        if ($this->coupon instanceof Coupon) {
+            $this->coupon->setIsActive(false);
+        }
 
         return $this;
     }
