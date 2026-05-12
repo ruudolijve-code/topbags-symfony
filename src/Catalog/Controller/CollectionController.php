@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Catalog\Controller;
 
-use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
@@ -34,6 +33,67 @@ final class CollectionController extends AbstractController
 
     #[Route('/shop', name: 'shop_index', methods: ['GET'])]
     public function shop(
+        CategoryRepository $categoryRepository,
+        ProductRepository $productRepository,
+        ProductVariantRepository $productVariantRepository,
+        AvailabilityService $availabilityService,
+    ): Response {
+        $landingCategory = $categoryRepository->findOneBy([
+            'slug' => 'shop',
+        ]);
+
+        $featuredProducts = $productRepository->findForContextGridWithFilters(
+            context: Product::CONTEXT_SHOP,
+            limit: 4,
+            offset: 0,
+            brandSlugs: null,
+            categorySlugs: ['koffers'],
+            sizeSlugs: null,
+            scopeSlugs: null,
+            airlineRules: null,
+            volumeRanges: null,
+            colorSlugs: null,
+        );
+
+        $featuredItems = [];
+
+        foreach ($featuredProducts as $product) {
+            $master = $product->getMasterVariant();
+
+            if ($master === null || !$master->isActive()) {
+                continue;
+            }
+
+            $freshMaster = $productVariantRepository->findOneForGridBySku(
+                $master->getVariantSku()
+            );
+
+            if ($freshMaster === null || !$freshMaster->isActive()) {
+                continue;
+            }
+
+            $featuredItems[] = [
+                'product' => $product,
+                'variant' => $freshMaster,
+                'master' => $freshMaster,
+                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshMaster),
+                'availability' => $availabilityService->get($freshMaster),
+            ];
+        }
+
+        return $this->render('shop/landing.html.twig', [
+            'activeContext' => Product::CONTEXT_SHOP,
+            'context' => Product::CONTEXT_SHOP,
+            'currentContext' => Product::CONTEXT_SHOP,
+            'category' => $landingCategory,
+            'landingCategory' => $landingCategory,
+            'featuredItems' => $featuredItems,
+            'categories' => $categoryRepository->findForContext(Product::CONTEXT_SHOP),
+        ]);
+    }
+
+    #[Route('/shop/alles', name: 'shop_all', methods: ['GET'])]
+    public function shopAll(
         Request $request,
         ProductRepository $productRepository,
         ProductVariantRepository $productVariantRepository,

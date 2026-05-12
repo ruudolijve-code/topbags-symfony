@@ -31,6 +31,11 @@
   color: #dc2626;
 }
 
+/* hoogte slider carousel */
+[x-cloak] {
+    display: none !important;
+}
+
 /* Rich text / SEO content uit EasyAdmin */
 .rich-text-content {
   @apply text-gray-700 leading-relaxed;

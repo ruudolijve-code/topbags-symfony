@@ -105,6 +105,12 @@ class Product
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isFeatured = false;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $featuredPosition = 0;
+
     #[ORM\Column(
         name: 'weight_per_liter',
         type: 'integer',
@@ -261,7 +267,7 @@ class Product
 
     public function setSeries(?string $series): self
     {
-        $this->series = $series;
+        $this->series = $series !== null ? trim($series) : null;
 
         return $this;
     }
@@ -273,7 +279,7 @@ class Product
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = trim($name);
 
         return $this;
     }
@@ -285,7 +291,7 @@ class Product
 
     public function setSlug(string $slug): self
     {
-        $this->slug = $slug;
+        $this->slug = trim($slug);
 
         return $this;
     }
@@ -429,7 +435,7 @@ class Product
 
     public function setWarrantyYears(?string $warrantyYears): self
     {
-        $this->warrantyYears = $warrantyYears;
+        $this->warrantyYears = $warrantyYears !== null ? trim($warrantyYears) : null;
 
         return $this;
     }
@@ -441,7 +447,7 @@ class Product
 
     public function setLuggageType(?string $luggageType): self
     {
-        $this->luggageType = $luggageType;
+        $this->luggageType = $luggageType !== null ? trim($luggageType) : null;
 
         return $this;
     }
@@ -511,7 +517,7 @@ class Product
 
     public function setClosureType(?string $closureType): self
     {
-        $this->closureType = $closureType;
+        $this->closureType = $closureType !== null ? trim($closureType) : null;
 
         return $this;
     }
@@ -548,6 +554,30 @@ class Product
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(bool $isFeatured): self
+    {
+        $this->isFeatured = $isFeatured;
+
+        return $this;
+    }
+
+    public function getFeaturedPosition(): int
+    {
+        return $this->featuredPosition;
+    }
+
+    public function setFeaturedPosition(int $featuredPosition): self
+    {
+        $this->featuredPosition = max(0, $featuredPosition);
 
         return $this;
     }
@@ -613,8 +643,8 @@ class Product
     {
         if ($this->variants->removeElement($variant)) {
             if ($variant->getProduct() === $this) {
-                // alleen loskoppelen als jouw relation nullable is;
-                // anders laat je dit weg
+                // Alleen loskoppelen als jouw relation nullable is.
+                // Anders bewust niets doen.
             }
         }
 
