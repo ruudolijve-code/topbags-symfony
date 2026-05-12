@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Loyalty\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,6 +26,24 @@ class TravelMilesMember
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $lastName = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $dateOfBirth = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $street = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $houseNumber = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $postalCode = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 2, options: ['default' => 'NL'])]
+    private string $country = 'NL';
+
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
@@ -36,6 +55,9 @@ class TravelMilesMember
 
     #[ORM\Column]
     private \DateTimeImmutable $consentGivenAt;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $postalMailConsentAt = null;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -77,7 +99,7 @@ class TravelMilesMember
 
     public function setFirstName(?string $firstName): self
     {
-        $this->firstName = $firstName !== null ? trim($firstName) : null;
+        $this->firstName = $this->normalizeNullableString($firstName);
 
         return $this;
     }
@@ -89,9 +111,115 @@ class TravelMilesMember
 
     public function setLastName(?string $lastName): self
     {
-        $this->lastName = $lastName !== null ? trim($lastName) : null;
+        $this->lastName = $this->normalizeNullableString($lastName);
 
         return $this;
+    }
+
+    public function getFullName(): string
+    {
+        return trim(sprintf(
+            '%s %s',
+            $this->firstName ?? '',
+            $this->lastName ?? ''
+        ));
+    }
+
+    public function getDateOfBirth(): ?\DateTimeImmutable
+    {
+        return $this->dateOfBirth;
+    }
+
+    public function setDateOfBirth(?\DateTimeImmutable $dateOfBirth): self
+    {
+        $this->dateOfBirth = $dateOfBirth;
+
+        return $this;
+    }
+
+    public function getStreet(): ?string
+    {
+        return $this->street;
+    }
+
+    public function setStreet(?string $street): self
+    {
+        $this->street = $this->normalizeNullableString($street);
+
+        return $this;
+    }
+
+    public function getHouseNumber(): ?string
+    {
+        return $this->houseNumber;
+    }
+
+    public function setHouseNumber(?string $houseNumber): self
+    {
+        $this->houseNumber = $this->normalizeNullableString($houseNumber);
+
+        return $this;
+    }
+
+    public function getPostalCode(): ?string
+    {
+        return $this->postalCode;
+    }
+
+    public function setPostalCode(?string $postalCode): self
+    {
+        $postalCode = $this->normalizeNullableString($postalCode);
+
+        $this->postalCode = $postalCode !== null
+            ? strtoupper(str_replace(' ', '', $postalCode))
+            : null;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $this->normalizeNullableString($city);
+
+        return $this;
+    }
+
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): self
+    {
+        $country = strtoupper(trim($country));
+
+        $this->country = $country !== '' ? mb_substr($country, 0, 2) : 'NL';
+
+        return $this;
+    }
+
+    public function hasPostalAddress(): bool
+    {
+        return $this->street !== null
+            && $this->houseNumber !== null
+            && $this->postalCode !== null
+            && $this->city !== null;
+    }
+
+    public function getPostalAddressLine(): string
+    {
+        return trim(sprintf(
+            '%s %s, %s %s',
+            $this->street ?? '',
+            $this->houseNumber ?? '',
+            $this->postalCode ?? '',
+            $this->city ?? ''
+        ));
     }
 
     public function isActive(): bool
@@ -125,7 +253,7 @@ class TravelMilesMember
 
     public function setSource(?string $source): self
     {
-        $this->source = $source;
+        $this->source = $this->normalizeNullableString($source);
 
         return $this;
     }
@@ -142,6 +270,23 @@ class TravelMilesMember
         return $this;
     }
 
+    public function getPostalMailConsentAt(): ?\DateTimeImmutable
+    {
+        return $this->postalMailConsentAt;
+    }
+
+    public function setPostalMailConsentAt(?\DateTimeImmutable $postalMailConsentAt): self
+    {
+        $this->postalMailConsentAt = $postalMailConsentAt;
+
+        return $this;
+    }
+
+    public function hasPostalMailConsent(): bool
+    {
+        return $this->postalMailConsentAt !== null;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -152,5 +297,16 @@ class TravelMilesMember
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    private function normalizeNullableString(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value !== '' ? $value : null;
     }
 }

@@ -1,52 +1,268 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Travelmiles – Spaar voor je volgende reis | Topbags{% endblock %}
+{% block title %}Travelmiles – Ontvang €10 tegoed | Topbags{% endblock %}
 
 {% block body %}
 <div class="bg-amber-50">
 
-    <!-- Hero -->
-    <section class="max-w-6xl mx-auto px-6 py-20">
-        <div class="max-w-3xl">
-            <span class="inline-block mb-4 rounded-full bg-amber-100 px-4 py-1 text-sm font-semibold text-amber-700">
-                Loyaliteitsprogramma
-            </span>
+    {# Hero + aanmeldformulier #}
+    <section class="max-w-6xl mx-auto px-6 py-16 lg:py-20">
+        <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
 
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">
-                Travelmiles
-            </h1>
+            <div class="max-w-3xl">
+                <span class="inline-block mb-4 rounded-full bg-amber-100 px-4 py-1 text-sm font-semibold text-amber-700">
+                    Loyaliteitsprogramma
+                </span>
 
-            <p class="text-xl text-gray-700 mb-6">
-                Spaar stempels. Beleef je volgende reis al vóór vertrek.
-            </p>
+                <h1 class="mb-4 text-4xl font-bold text-gray-900">
+                    Travelmiles
+                </h1>
 
-            <p class="text-gray-600 mb-8">
-                Sommige reizen beginnen niet op het vliegveld.
-                Ze beginnen bij het uitpakken van een nieuwe koffer,
-                het sluiten van een rits, of het gevoel:
-                <em>ik ben er bijna</em>.
-            </p>
+                <p class="mb-6 text-xl text-gray-700">
+                    Meld je gratis aan en ontvang €10 Travelmiles tegoed.
+                </p>
 
-            <p class="text-gray-600 mb-8">
-                Met <strong>Travelmiles</strong> van Topbags spaar je niet alleen voordeel,
-                maar werk je stap voor stap toe naar je volgende reis — net zoals bij AirMiles,
-                maar dan voor alles wat je meeneemt.
-            </p>
+                <p class="mb-6 text-gray-600">
+                    Spaar straks automatisch mee voor korting op je volgende aankoop.
+                    Travelmiles is het voordeelprogramma van Topbags voor iedereen die
+                    online én in onze winkel in Hengelo wil sparen.
+                </p>
 
-            <div class="flex flex-wrap gap-4">
-                <a href="#hoe-werkt-het"
-                   class="rounded-xl bg-amber-600 px-6 py-3 text-white font-semibold hover:bg-amber-700 transition">
-                    Zo werkt Travelmiles
-                </a>
-                <a href="/account"
-                   class="rounded-xl bg-white px-6 py-3 text-amber-700 font-semibold border border-amber-200 hover:bg-amber-100 transition">
-                    Mijn Travelmiles
-                </a>
+                <div class="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-amber-100">
+                    <h2 class="mb-4 text-lg font-bold text-gray-900">
+                        Waarom aanmelden?
+                    </h2>
+
+                    <ul class="list-disc list-outside pl-6 space-y-2 text-gray-700 marker:text-amber-600">
+                        <li>Je ontvangt €10 Travelmiles tegoed als welkomstvoordeel</li>
+                        <li>Je krijgt speciale acties en ledenvoordelen per e-mail</li>
+                        <li>Je verjaardag gebruiken we voor een persoonlijke verrassing</li>
+                        <li>Adres invullen is optioneel, voor fysieke kaarten of postacties</li>
+                    </ul>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="#hoe-werkt-het"
+                       class="rounded-xl bg-amber-600 px-6 py-3 text-white font-semibold hover:bg-amber-700 transition">
+                        Zo werkt Travelmiles
+                    </a>
+
+                    <a href="#aanmelden"
+                       class="rounded-xl bg-white px-6 py-3 text-amber-700 font-semibold border border-amber-200 hover:bg-amber-100 transition">
+                        Direct aanmelden
+                    </a>
+                </div>
+            </div>
+
+            <div id="aanmelden" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-amber-100 md:p-8">
+                <div class="mb-6">
+                    <span class="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+                        Welkomstactie
+                    </span>
+
+                    <h2 class="mt-3 text-2xl font-bold text-gray-900">
+                        Ontvang €10 Travelmiles tegoed
+                    </h2>
+
+                    <p class="mt-2 text-gray-600">
+                        Vul je gegevens in en meld je gratis aan. We sturen je Travelmiles-voordeel per e-mail.
+                    </p>
+                </div>
+
+                {% if success is defined and success %}
+                    <div class="mb-6 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                        Bedankt voor je aanmelding. Je staat nu ingeschreven voor Travelmiles.
+                        We sturen je welkomstvoordeel per e-mail.
+                    </div>
+                {% endif %}
+
+                {% if error is defined and error %}
+                    <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('travelmiles_index') }}" class="space-y-5">
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="firstName" class="mb-1 block text-sm font-medium text-gray-700">
+                                Voornaam *
+                            </label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                value="{{ formData.firstName|default('') }}"
+                                required
+                                autocomplete="given-name"
+                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="lastName" class="mb-1 block text-sm font-medium text-gray-700">
+                                Achternaam *
+                            </label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                value="{{ formData.lastName|default('') }}"
+                                required
+                                autocomplete="family-name"
+                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="mb-1 block text-sm font-medium text-gray-700">
+                            E-mailadres *
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ formData.email|default('') }}"
+                            required
+                            autocomplete="email"
+                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="dateOfBirth" class="mb-1 block text-sm font-medium text-gray-700">
+                            Geboortedatum *
+                        </label>
+                        <input
+                            type="date"
+                            id="dateOfBirth"
+                            name="dateOfBirth"
+                            value="{{ formData.dateOfBirth|default('') }}"
+                            required
+                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                        >
+                        <p class="mt-1 text-xs text-gray-500">
+                            We gebruiken je geboortedatum voor persoonlijke Travelmiles-acties, zoals een verjaardagsvoordeel.
+                        </p>
+                    </div>
+
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <h3 class="mb-2 font-semibold text-gray-900">
+                            Adresgegevens voor postacties
+                        </h3>
+
+                        <p class="mb-4 text-sm text-gray-600">
+                            Optioneel. Vul dit alleen in als je ook fysieke kaarten, vouchers of verrassingen per post wilt kunnen ontvangen.
+                        </p>
+
+                        <div class="grid gap-4 sm:grid-cols-3">
+                            <div class="sm:col-span-2">
+                                <label for="street" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Straat
+                                </label>
+                                <input
+                                    type="text"
+                                    id="street"
+                                    name="street"
+                                    value="{{ formData.street|default('') }}"
+                                    autocomplete="address-line1"
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="houseNumber" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Huisnr.
+                                </label>
+                                <input
+                                    type="text"
+                                    id="houseNumber"
+                                    name="houseNumber"
+                                    value="{{ formData.houseNumber|default('') }}"
+                                    autocomplete="address-line2"
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                            <div>
+                                <label for="postalCode" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Postcode
+                                </label>
+                                <input
+                                    type="text"
+                                    id="postalCode"
+                                    name="postalCode"
+                                    value="{{ formData.postalCode|default('') }}"
+                                    autocomplete="postal-code"
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                                >
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <label for="city" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Plaats
+                                </label>
+                                <input
+                                    type="text"
+                                    id="city"
+                                    name="city"
+                                    value="{{ formData.city|default('') }}"
+                                    autocomplete="address-level2"
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                                >
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="country" value="{{ formData.country|default('NL') }}">
+
+                        <label class="mt-4 flex gap-3 text-sm text-gray-700">
+                            <input
+                                type="checkbox"
+                                name="postalConsent"
+                                value="1"
+                                {% if formData.postalConsent|default(false) %}checked{% endif %}
+                                class="mt-1 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                            >
+                            <span>
+                                Ik wil ook fysieke Travelmiles-kaarten, vouchers of postacties kunnen ontvangen.
+                            </span>
+                        </label>
+                    </div>
+
+                    <label class="flex gap-3 rounded-xl bg-amber-50 p-4 text-sm text-gray-700">
+                        <input
+                            type="checkbox"
+                            name="consent"
+                            value="1"
+                            required
+                            class="mt-1 h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                        >
+                        <span>
+                            Ik meld mij aan voor Travelmiles en geef toestemming om e-mails te ontvangen
+                            met Travelmiles-voordelen, acties en vouchers van Topbags.
+                        </span>
+                    </label>
+
+                    <button
+                        type="submit"
+                        class="w-full rounded-xl bg-gray-900 px-6 py-3 font-semibold text-white transition hover:bg-gray-800"
+                    >
+                        Meld mij aan en ontvang €10 tegoed
+                    </button>
+
+                    <p class="text-xs text-gray-500">
+                        Je kunt je later altijd afmelden. We gebruiken je gegevens voor Travelmiles,
+                        ledenvoordelen en het versturen van relevante Topbags-acties.
+                    </p>
+                </form>
             </div>
         </div>
     </section>
 
-    <!-- AirMiles gevoel -->
+    {# AirMiles gevoel #}
     <section class="bg-white">
         <div class="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -55,17 +271,14 @@
                 </h2>
 
                 <p class="text-gray-600 mb-4">
-                    Wie TravelMiles spaart, spaart niet voor punten.
-                    Je spaart voor een weekend weg.
-                    Voor een upgrade.
-                    Voor dat ene moment waarop je zegt: <em>nu is het zover</em>.
+                    Wie Travelmiles spaart, spaart niet zomaar punten.
+                    Je spaart voor een weekend weg, een upgrade of extra voordeel
+                    op iets dat je écht gebruikt.
                 </p>
 
                 <p class="text-gray-600">
-                    Travelmiles werkt precies zo.
-                    Elke aankoop is een stap onderweg.
-                    En bij elke stap ontvang je een <strong>stempel</strong>
-                    in jouw Travelmiles-kaart.
+                    In V1 ontvang je Travelmiles-acties en vouchers per e-mail.
+                    In V2 willen we aankopen automatisch laten meetellen.
                 </p>
             </div>
 
@@ -80,7 +293,7 @@
         </div>
     </section>
 
-    <!-- Het paspoort -->
+    {# Het paspoort #}
     <section id="hoe-werkt-het" class="bg-amber-100">
         <div class="max-w-6xl mx-auto px-6 py-16">
             <h2 class="text-2xl font-bold mb-6">
@@ -88,21 +301,18 @@
             </h2>
 
             <p class="max-w-3xl text-gray-600 mb-6">
-                Zie je aankopen als reizen.
-                Soms klein, soms groot — maar allemaal onderdeel van jouw reisverhaal.
-                Bij elke ‘reis’ ontvang je een stempel.
-                Geen punten die je moet omrekenen, maar iets tastbaars dat direct waarde heeft.
+                Zie je aankopen als reizen. Soms klein, soms groot — maar allemaal onderdeel
+                van jouw reisverhaal. Travelmiles maakt voordeel persoonlijker en leuker.
             </p>
 
             <p class="max-w-3xl text-gray-600">
-                Net als bij AirMiles bouw je iets op.
-                Niet in één keer, maar stap voor stap.
-                Tot je besluit: <em>nu ga ik ze gebruiken</em>.
+                Nu begin je met een welkomstvoordeel van €10. Later bouwen we dit verder uit,
+                zodat aankopen automatisch kunnen meetellen voor extra Travelmiles.
             </p>
         </div>
     </section>
 
-    <!-- Beloningen -->
+    {# Beloningen #}
     <section class="bg-white">
         <div class="max-w-6xl mx-auto px-6 py-16">
             <h2 class="text-2xl font-bold mb-8">
@@ -111,33 +321,30 @@
 
             <div class="grid md:grid-cols-3 gap-8">
                 <div class="bg-amber-50 rounded-xl p-6 border border-amber-200">
-                    <h3 class="font-semibold mb-2">Korting</h3>
+                    <h3 class="font-semibold mb-2">€10 welkomsttegoed</h3>
                     <p class="text-gray-600">
-                        Gebruik je Travelmiles voor korting
-                        op je volgende aankoop.
+                        Meld je aan en ontvang je eerste Travelmiles-voordeel per e-mail.
                     </p>
                 </div>
 
                 <div class="bg-amber-50 rounded-xl p-6 border border-amber-200">
-                    <h3 class="font-semibold mb-2">Gratis producten</h3>
+                    <h3 class="font-semibold mb-2">Speciale acties</h3>
                     <p class="text-gray-600">
-                        Wissel stempels in voor accessoires
-                        of geselecteerde producten.
+                        Denk aan acties rond vakantieperiodes, Moederdag of winkelmomenten.
                     </p>
                 </div>
 
                 <div class="bg-amber-50 rounded-xl p-6 border border-amber-200">
                     <h3 class="font-semibold mb-2">Extra voordelen</h3>
                     <p class="text-gray-600">
-                        Speciale acties en momenten
-                        waarop je extra Travelmiles verdient.
+                        Als Travelmiles-lid hoor je eerder van extra voordeel bij Topbags.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Extra stempels -->
+    {# Extra stempels #}
     <section class="bg-amber-50">
         <div class="max-w-6xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -146,40 +353,39 @@
                 </h2>
 
                 <p class="text-gray-600 mb-4">
-                    Net als bij AirMiles loont het om actief te zijn.
-                    Kleine stappen maken samen het verschil.
+                    Straks willen we Travelmiles automatisch koppelen aan je aankopen.
+                    Zo spaar je zonder gedoe mee, online én in onze winkel.
                 </p>
 
                 <ul class="list-disc list-outside pl-6 space-y-2 text-gray-600 marker:text-amber-600">
                     <li>Maak je profiel compleet</li>
-                    <li>Deel je reisvoorkeuren</li>
-                    <li>Doe mee aan acties of events</li>
+                    <li>Ontvang persoonlijke acties</li>
+                    <li>Doe mee aan tijdelijke Travelmiles-acties</li>
                 </ul>
             </div>
 
             <div class="bg-white rounded-2xl p-8 shadow-sm">
                 <p class="text-gray-700">
-                    Al je Travelmiles zie je overzichtelijk terug in je account.
-                    Je weet altijd waar je staat — en hoe dichtbij je volgende
-                    beloning is.
+                    Het puntenoverzicht in je account volgt in een volgende versie.
+                    Voor nu ontvang je Travelmiles-voordelen en vouchers per e-mail.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Waarom -->
+    {# Waarom #}
     <section class="bg-amber-600 text-white">
         <div class="max-w-6xl mx-auto px-6 py-16">
             <h2 class="text-2xl font-bold mb-6">
-                Waarom Travelmiles
+                Waarom Travelmiles?
             </h2>
 
             <ul class="grid md:grid-cols-2 gap-4">
-                <li>✓ Spaar voor iets groters dan korting</li>
-                <li>✓ Elke aankoop voelt als een reisstap</li>
-                <li>✓ Geen punten, maar tastbare stempels</li>
-                <li>✓ Online én in de winkel geldig</li>
-                <li>✓ Altijd inzicht in je voortgang</li>
+                <li>✓ Start met €10 Travelmiles tegoed</li>
+                <li>✓ Ontvang acties en vouchers per e-mail</li>
+                <li>✓ Geen ingewikkeld puntensysteem</li>
+                <li>✓ Online én in de winkel te gebruiken</li>
+                <li>✓ Later automatisch sparen bij aankopen</li>
                 <li>✓ Helder, eerlijk en typisch Topbags</li>
             </ul>
         </div>
