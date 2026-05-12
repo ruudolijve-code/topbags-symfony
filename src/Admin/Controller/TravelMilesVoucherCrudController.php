@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Admin\Controller;
 
 use App\Loyalty\Entity\TravelMilesVoucher;
+use App\Loyalty\Service\TravelMilesVoucherFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -20,6 +22,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 final class TravelMilesVoucherCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private readonly TravelMilesVoucherFactory $voucherFactory,
+    ) {
+    }
+
     public static function getEntityFqcn(): string
     {
         return TravelMilesVoucher::class;
@@ -42,6 +49,7 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
                 'member.email',
                 'member.firstName',
                 'member.lastName',
+                'coupon.code',
             ]);
     }
 
@@ -72,7 +80,7 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
             ->setHelp('Kies het Travelmiles-lid waarvoor deze voucher is.');
 
         yield TextField::new('code', 'Code')
-            ->setHelp('Wordt automatisch aangemaakt. Deze code moet straks ook als coupon in checkout werken.');
+            ->setHelp('Wordt automatisch aangemaakt. Bij opslaan wordt hiermee ook een coupon voor checkout aangemaakt.');
 
         yield MoneyField::new('amount', 'Waarde')
             ->setCurrency('EUR')
@@ -95,6 +103,9 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
         yield TextField::new('campaign', 'Campagne')
             ->setRequired(false)
             ->setHelp('Bijvoorbeeld: Welkomstvoucher, Moederdag 2026 of Verjaardag.');
+
+        yield AssociationField::new('coupon', 'Gekoppelde checkout-coupon')
+            ->onlyOnDetail();
 
         yield FormField::addPanel('Statusdatums');
 
@@ -121,5 +132,31 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
         yield DateTimeField::new('createdAt', 'Aangemaakt op')
             ->setFormat('dd-MM-yyyy HH:mm')
             ->hideOnForm();
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof TravelMilesVoucher) {
+            $this->voucherFactory->syncCouponWithVoucher($entityInstance);
+
+            if ($entityInstance->getCoupon() !== null) {
+                $entityManager->persist($entityInstance->getCoupon());
+            }
+        }
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if ($entityInstance instanceof TravelMilesVoucher) {
+            $this->voucherFactory->syncCouponWithVoucher($entityInstance);
+
+            if ($entityInstance->getCoupon() !== null) {
+                $entityManager->persist($entityInstance->getCoupon());
+            }
+        }
+
+        parent::updateEntity($entityManager, $entityInstance);
     }
 }
