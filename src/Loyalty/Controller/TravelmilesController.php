@@ -84,7 +84,7 @@ final class TravelmilesController extends AbstractController
                         ->setPostalMailConsentAt($postalMailConsentAt)
                         ->setIsActive(true)
                         ->setConsentGivenAt(new \DateTimeImmutable())
-                        ->setSource('travelmiles');
+                        ->setSource('topbags_webshop');
 
                     $success = true;
                 } else {
@@ -103,7 +103,7 @@ final class TravelmilesController extends AbstractController
                         ->setPostalMailConsentAt($postalMailConsentAt)
                         ->setIsActive(true)
                         ->setVoucherSent(false)
-                        ->setSource('travelmiles')
+                        ->setSource('topbags_webshop')
                         ->setConsentGivenAt(new \DateTimeImmutable());
 
                     $entityManager->persist($member);

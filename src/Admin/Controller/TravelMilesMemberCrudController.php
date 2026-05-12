@@ -15,6 +15,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+
 
 final class TravelMilesMemberCrudController extends AbstractCrudController
 {
@@ -64,8 +66,12 @@ final class TravelMilesMemberCrudController extends AbstractCrudController
 
         yield BooleanField::new('voucherSent', 'Voucher verzonden');
 
-        yield TextField::new('source', 'Bron')
-            ->hideOnIndex();
+        yield ChoiceField::new('source', 'Ingeschreven via')
+            ->setChoices([
+                'Topbags webshop' => 'topbags_webshop',
+                'Holtkamp winkel' => 'holtkamp_store',
+                'Handmatig admin' => 'admin_manual',
+            ]);
 
         yield TextField::new('street', 'Straat')
             ->hideOnIndex();
