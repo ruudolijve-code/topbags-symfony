@@ -1216,4 +1216,27 @@ final class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * @return Product[]
+     */
+    public function findFeaturedForContext(string $context, int $limit = 4): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('b')
+            ->addSelect('v')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.variants', 'v')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.isFeatured = true')
+            ->andWhere('v.isMaster = true')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', $context)
+            ->orderBy('p.featuredPosition', 'ASC')
+            ->addOrderBy('p.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

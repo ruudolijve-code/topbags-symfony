@@ -62,6 +62,12 @@ class ProductCrudController extends AbstractCrudController
             ->setRequired(false)
             ->hideOnIndex();
 
+        yield BooleanField::new('isFeatured', 'Populair op shop-home')
+            ->setHelp('Aanvinken om dit product te tonen bij “Populaire koffers” op /shop.');
+
+        yield IntegerField::new('featuredPosition', 'Populair positie')
+            ->setHelp('Lage nummers komen eerst. Gebruik bijvoorbeeld 10, 20, 30, 40.');
+
         yield ChoiceField::new('productContext', 'Context')
             ->setChoices([
                 'Koffers & Reistassen' => Product::CONTEXT_SHOP,

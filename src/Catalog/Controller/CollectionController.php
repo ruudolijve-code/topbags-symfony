@@ -42,17 +42,9 @@ final class CollectionController extends AbstractController
             'slug' => 'shop',
         ]);
 
-        $featuredProducts = $productRepository->findForContextGridWithFilters(
+        $featuredProducts = $productRepository->findFeaturedForContext(
             context: Product::CONTEXT_SHOP,
             limit: 4,
-            offset: 0,
-            brandSlugs: null,
-            categorySlugs: ['koffers'],
-            sizeSlugs: null,
-            scopeSlugs: null,
-            airlineRules: null,
-            volumeRanges: null,
-            colorSlugs: null,
         );
 
         $featuredItems = [];
