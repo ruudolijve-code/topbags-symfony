@@ -6,11 +6,13 @@ namespace App\Admin\Controller;
 
 use App\Loyalty\Entity\TravelMilesVoucher;
 use App\Loyalty\Service\TravelMilesVoucherFactory;
+use App\Loyalty\Service\TravelMilesVoucherMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -19,11 +21,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 final class TravelMilesVoucherCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly TravelMilesVoucherFactory $voucherFactory,
+        private readonly TravelMilesVoucherMailer $voucherMailer,
     ) {
     }
 
@@ -55,8 +59,17 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $sendGiftcard = Action::new('sendGiftcard', 'Verstuur giftcard', 'fa fa-paper-plane')
+            ->linkToCrudAction('sendGiftcard')
+            ->displayIf(static function (TravelMilesVoucher $voucher): bool {
+                return $voucher->getStatus() !== TravelMilesVoucher::STATUS_REDEEMED
+                    && $voucher->getStatus() !== TravelMilesVoucher::STATUS_CANCELLED;
+            });
+
         return $actions
-            ->add(Crud::PAGE_INDEX, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $sendGiftcard)
+            ->add(Crud::PAGE_DETAIL, $sendGiftcard);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -158,5 +171,33 @@ final class TravelMilesVoucherCrudController extends AbstractCrudController
         }
 
         parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    public function sendGiftcard(AdminContext $context): RedirectResponse
+    {
+        $voucher = $context->getEntity()->getInstance();
+
+        if (!$voucher instanceof TravelMilesVoucher) {
+            $this->addFlash('danger', 'Geen geldige Travelmiles voucher gevonden.');
+
+            return $this->redirect($context->getReferrer() ?? $this->generateUrl('admin'));
+        }
+
+        try {
+            $this->voucherFactory->syncCouponWithVoucher($voucher);
+            $this->voucherMailer->sendGiftcard($voucher);
+
+            $this->addFlash(
+                'success',
+                sprintf('Giftcard %s is verstuurd.', $voucher->getCode())
+            );
+        } catch (\Throwable $exception) {
+            $this->addFlash(
+                'danger',
+                'Giftcard kon niet worden verstuurd: ' . $exception->getMessage()
+            );
+        }
+
+        return $this->redirect($context->getReferrer() ?? $this->generateUrl('admin'));
     }
 }

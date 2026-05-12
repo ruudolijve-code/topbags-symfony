@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Je Travelmiles tegoed staat klaar</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f6f6;font-family:Arial, sans-serif;">
+
+<div style="padding:40px 0;">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.06);">
+
+        {# ================= HEADER ================= #}
+        <div style="background:#d97706;padding:32px 32px 28px 32px;text-align:left;">
+
+            <img src="https://www.topbags.nl/images/topbags.svg"
+                 alt="Topbags"
+                 style="display:block;height:32px;width:auto;margin-bottom:10px;">
+
+            <div style="font-size:13px;color:#ffffff;opacity:0.9;">
+                Travelmiles – spaar voor je volgende reis
+            </div>
+
+        </div>
+
+        {# ================= CONTENT ================= #}
+        <div style="padding:32px;">
+
+            <p style="font-size:16px;color:#111;margin-top:0;">
+                Beste {{ member.firstName ?: 'Travelmiles-lid' }},
+            </p>
+
+            <p style="font-size:15px;color:#444;line-height:1.7;">
+                Welkom bij <strong>Topbags Travelmiles</strong>. Je welkomsttegoed staat klaar.
+                Gebruik je giftcard-code online bij Topbags.nl of neem de code mee naar onze winkel
+                Holtkamp Tassen &amp; Koffers in Hengelo.
+            </p>
+
+            {# ================= GIFTCARD ================= #}
+            <div style="margin:30px 0;padding:0;border-radius:22px;overflow:hidden;background:#111827;box-shadow:0 14px 28px rgba(0,0,0,0.16);">
+                <div style="padding:26px 28px;background:linear-gradient(135deg,#111827 0%,#3f2b12 55%,#d97706 100%);">
+
+                    <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#fef3c7;font-weight:bold;">
+                        Topbags Travelmiles
+                    </div>
+
+                    <div style="margin-top:18px;font-size:42px;line-height:1;color:#ffffff;font-weight:bold;">
+                        {{ voucher.formattedAmount|default('€10,00') }}
+                    </div>
+
+                    <div style="margin-top:8px;font-size:14px;color:#fde68a;">
+                        Travelmiles tegoed
+                    </div>
+
+                    <div style="margin-top:26px;padding:14px 16px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:14px;">
+                        <div style="font-size:11px;color:#fde68a;text-transform:uppercase;letter-spacing:1.5px;">
+                            Giftcard-code
+                        </div>
+
+                        <div style="margin-top:5px;font-size:24px;letter-spacing:2px;color:#ffffff;font-weight:bold;">
+                            {{ voucher.code }}
+                        </div>
+                    </div>
+
+                    {% if voucher.expiresAt %}
+                        <div style="margin-top:16px;font-size:12px;color:#fef3c7;">
+                            Geldig t/m {{ voucher.expiresAt|date('d-m-Y') }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ================= CTA ================= #}
+            <div style="margin-top:30px;text-align:center;">
+                <a href="https://www.topbags.nl/shop"
+                   style="display:inline-block;background:#d97706;color:#ffffff;padding:14px 24px;border-radius:999px;text-decoration:none;font-size:14px;font-weight:bold;">
+                    Shop met je Travelmiles tegoed
+                </a>
+            </div>
+
+            {# ================= UITLEG ================= #}
+            <div style="margin:30px 0 0 0;padding:20px;background:#fafafa;border-radius:14px;">
+                <h3 style="margin:0 0 12px 0;font-size:15px;color:#111;">
+                    Zo gebruik je je tegoed
+                </h3>
+
+                <ul style="margin:0;font-size:13px;color:#555;line-height:1.8;padding-left:18px;">
+                    <li>Gebruik de code <strong>{{ voucher.code }}</strong> in de winkelwagen op Topbags.nl.</li>
+                    <li>Of laat de code zien in onze winkel Holtkamp Tassen &amp; Koffers in Hengelo.</li>
+                    <li>De giftcard is éénmalig te gebruiken.</li>
+                    {% if voucher.expiresAt %}
+                        <li>Geldig t/m {{ voucher.expiresAt|date('d-m-Y') }}.</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            {# ================= TRUST BLOK ================= #}
+            <h3 style="font-size:15px;color:#111;margin-top:28px;">
+                Waarom kiezen voor Topbags?
+            </h3>
+
+            <ul style="font-size:13px;color:#555;line-height:1.8;padding-left:18px;">
+                <li>✔ Meer dan 100 jaar ervaring</li>
+                <li>✔ Officieel dealer van premium merken</li>
+                <li>✔ Online én vertrouwd in onze winkel in Hengelo</li>
+                <li>✔ Persoonlijk advies van een deskundig team</li>
+            </ul>
+
+            <p style="margin-top:26px;font-size:13px;color:#666;line-height:1.6;">
+                Heb je vragen over je Travelmiles tegoed?
+                Bel ons gerust, stuur een WhatsApp of kom langs in de winkel.
+            </p>
+
+            <div style="margin-top:22px;text-align:center;">
+                <a href="https://wa.me/31642485211"
+                   style="display:inline-block;background:#25D366;color:#ffffff;padding:12px 20px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:bold;">
+                    💬 WhatsApp Topbags
+                </a>
+            </div>
+
+            <p style="margin-top:28px;font-size:14px;color:#111;">
+                Veel plezier met je Travelmiles,<br>
+                <strong>Team Topbags</strong>
+            </p>
+
+        </div>
+
+        {# ================= FOOTER ================= #}
+        <div style="background:#fafafa;padding:20px;text-align:center;font-size:12px;color:#888;">
+            Topbags – Premium koffers &amp; reisbagage<br>
+            Ook te gebruiken bij Holtkamp tassen &amp; koffers in Hengelo<br>
+            <a href="https://www.topbags.nl" style="color:#d97706;text-decoration:none;">www.topbags.nl</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
