@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Admin\Entity;
 
 use App\Admin\Repository\AdminUserRepository;
@@ -11,22 +13,34 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: AdminUserRepository::class)]
 class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
+    public const ROLE_ADMIN_USER = 'ROLE_ADMIN_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_STORE = 'ROLE_STORE';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    private string $email;
+    private string $email = '';
 
+    /**
+     * @var string[]
+     */
     #[ORM\Column]
     private array $roles = [];
 
     #[ORM\Column]
-    private string $password;
+    private string $password = '';
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleAuthenticatorSecret = null;
+
+    public function __toString(): string
+    {
+        return $this->email;
+    }
 
     public function getId(): ?int
     {
@@ -56,9 +70,23 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface, Tw
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_ADMIN';
+
+        // Basisrol voor iedereen die in de adminomgeving mag inloggen.
+        // Niet automatisch ROLE_ADMIN toevoegen, anders krijgt een winkelgebruiker volledige rechten.
+        $roles[] = self::ROLE_ADMIN_USER;
 
         return array_values(array_unique($roles));
+    }
+
+    /**
+     * Dit zijn alleen de expliciet opgeslagen rollen.
+     * Handig voor EasyAdmin, zodat ROLE_ADMIN_USER niet steeds als opgeslagen rol verschijnt.
+     *
+     * @return string[]
+     */
+    public function getStoredRoles(): array
+    {
+        return $this->roles;
     }
 
     /**
@@ -66,9 +94,32 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface, Tw
      */
     public function setRoles(array $roles): static
     {
-        $this->roles = array_values(array_unique($roles));
+        $allowedRoles = [
+            self::ROLE_ADMIN,
+            self::ROLE_STORE,
+        ];
+
+        $this->roles = array_values(array_unique(array_filter(
+            $roles,
+            static fn (mixed $role): bool => is_string($role) && in_array($role, $allowedRoles, true)
+        )));
 
         return $this;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->getRoles(), true);
+    }
+
+    public function isFullAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
+    }
+
+    public function isStoreUser(): bool
+    {
+        return $this->hasRole(self::ROLE_STORE);
     }
 
     public function getPassword(): string
@@ -90,7 +141,11 @@ class AdminUser implements UserInterface, PasswordAuthenticatedUserInterface, Tw
 
     public function setGoogleAuthenticatorSecret(?string $googleAuthenticatorSecret): static
     {
-        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret;
+        $googleAuthenticatorSecret = $googleAuthenticatorSecret !== null
+            ? trim($googleAuthenticatorSecret)
+            : null;
+
+        $this->googleAuthenticatorSecret = $googleAuthenticatorSecret !== '' ? $googleAuthenticatorSecret : null;
 
         return $this;
     }

@@ -15,6 +15,7 @@ use App\Loyalty\Entity\TravelMilesVoucher;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
+use App\Admin\Entity\AdminUser;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -75,5 +76,9 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('SEO');
         yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class);
+
+        yield MenuItem::section('Beheer');
+        yield MenuItem::linkToCrud('Admin gebruikers', 'fa fa-users-gear', AdminUser::class)
+            ->setController(AdminUserCrudController::class);
     }
 }
