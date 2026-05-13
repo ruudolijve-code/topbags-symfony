@@ -211,7 +211,7 @@
 
         </div>
     </section>
-    
+
     {# Categorie tegels #}
     <section class="border-y border-gray-200 bg-gray-50">
         <div class="mx-auto max-w-7xl px-6 py-10">
@@ -220,15 +220,15 @@
                     Shop per soort bagage
                 </h2>
                 <p class="mt-2 text-gray-600">
-                    Kies snel wat past bij jouw reis.
+                    Kies snel wat past bij jouw reis. Advies nodig? Kijk dan bij onze bagage-gids of kom langs in de winkel.
                 </p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
 
                 <a href="{{ path('category_show', { slug: 'koffers' }) }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/suitcase.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
@@ -237,8 +237,8 @@
                 </a>
 
                 <a href="{{ path('category_show', { slug: 'handbagage' }) }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/plane.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
@@ -247,8 +247,8 @@
                 </a>
 
                 <a href="{{ path('category_show', { slug: 'reistassen' }) }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/duffle.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
@@ -257,8 +257,8 @@
                 </a>
 
                 <a href="{{ path('category_show', { slug: 'rugzakken' }) }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/backpack.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
@@ -267,8 +267,8 @@
                 </a>
 
                 <a href="{{ path('brand_index') }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/certificate.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
@@ -276,9 +276,29 @@
                     </div>
                 </a>
 
+                <a href="{{ path('guide_index') }}"
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/centimeter.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">
+                       Bagage-gids
+                    </div>
+                </a>
+
+                <a href="{{ path('rental_index') }}"
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/sandclock.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">
+                       Huren
+                    </div>
+                </a>
+
                 <a href="{{ path('travelmiles_index') }}"
-                class="group rounded-2xl bg-white p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mx-auto flex h-14 w-14 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
                         {% include 'partials/icons/gift.svg.twig' %}
                     </div>
                     <div class="mt-3 text-sm font-bold text-gray-900">
