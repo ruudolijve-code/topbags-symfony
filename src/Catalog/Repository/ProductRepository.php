@@ -1247,12 +1247,11 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-        /**
+    /**
      * Laatste actieve varianten binnen een context en categorie.
      *
-     * Wordt gebruikt voor homepage-rijen zoals:
-     * - Nieuw binnen bij koffers
-     * - Nieuwe kleuren binnen bestaande koffercollecties
+     * Eerst halen we alleen variant-ID's op.
+     * Daarna laden we de volledige varianten met product, merk, kleur, afbeeldingen en voorraad.
      *
      * @return ProductVariant[]
      */
@@ -1261,15 +1260,11 @@ final class ProductRepository extends ServiceEntityRepository
         string $categorySlug,
         int $limit = 4
     ): array {
-        return $this->getEntityManager()->createQueryBuilder()
-            ->select('v', 'p', 'b', 'c', 'color', 'images', 'stock')
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('DISTINCT v.id AS id')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
-            ->leftJoin('p.brand', 'b')
-            ->leftJoin('p.categories', 'c')
-            ->leftJoin('v.color', 'color')
-            ->leftJoin('v.images', 'images')
-            ->leftJoin('v.stock', 'stock')
+            ->innerJoin('p.categories', 'c')
             ->andWhere('p.isActive = true')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = true')
@@ -1277,17 +1272,46 @@ final class ProductRepository extends ServiceEntityRepository
             ->setParameter('context', $context)
             ->setParameter('categorySlug', $categorySlug)
             ->orderBy('v.id', 'DESC')
-            ->addOrderBy('images.position', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
+            ->getScalarResult();
+
+        $ids = array_map(
+            static fn (array $row): int => (int) $row['id'],
+            $rows
+        );
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $variants = $this->getEntityManager()->createQueryBuilder()
+            ->select('v', 'p', 'b', 'categories', 'color', 'images', 'stock', 'master')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'images')
+            ->leftJoin('v.stock', 'stock')
+            ->leftJoin(
+                'p.variants',
+                'master',
+                'WITH',
+                'master.isMaster = true AND master.isActive = true'
+            )
+            ->andWhere('v.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('v.id', 'DESC')
+            ->addOrderBy('images.position', 'ASC')
+            ->getQuery()
             ->getResult();
+
+        return $this->orderVariantsByIds($variants, $ids);
     }
 
     /**
      * Laatste actieve varianten binnen een context.
-     *
-     * Wordt gebruikt voor homepage-rijen zoals:
-     * - Nieuw binnen bij damestassen
      *
      * @return ProductVariant[]
      */
@@ -1295,22 +1319,75 @@ final class ProductRepository extends ServiceEntityRepository
         string $context,
         int $limit = 4
     ): array {
-        return $this->getEntityManager()->createQueryBuilder()
-            ->select('v', 'p', 'b', 'color', 'images', 'stock')
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('DISTINCT v.id AS id')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
-            ->leftJoin('p.brand', 'b')
-            ->leftJoin('v.color', 'color')
-            ->leftJoin('v.images', 'images')
-            ->leftJoin('v.stock', 'stock')
             ->andWhere('p.isActive = true')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = true')
             ->setParameter('context', $context)
             ->orderBy('v.id', 'DESC')
-            ->addOrderBy('images.position', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
+            ->getScalarResult();
+
+        $ids = array_map(
+            static fn (array $row): int => (int) $row['id'],
+            $rows
+        );
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $variants = $this->getEntityManager()->createQueryBuilder()
+            ->select('v', 'p', 'b', 'categories', 'color', 'images', 'stock', 'master')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'images')
+            ->leftJoin('v.stock', 'stock')
+            ->leftJoin(
+                'p.variants',
+                'master',
+                'WITH',
+                'master.isMaster = true AND master.isActive = true'
+            )
+            ->andWhere('v.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('v.id', 'DESC')
+            ->addOrderBy('images.position', 'ASC')
+            ->getQuery()
             ->getResult();
+
+        return $this->orderVariantsByIds($variants, $ids);
+    }
+
+    /**
+     * @param ProductVariant[] $variants
+     * @param int[] $ids
+     *
+     * @return ProductVariant[]
+     */
+    private function orderVariantsByIds(array $variants, array $ids): array
+    {
+        $byId = [];
+
+        foreach ($variants as $variant) {
+            $byId[$variant->getId()] = $variant;
+        }
+
+        $ordered = [];
+
+        foreach ($ids as $id) {
+            if (isset($byId[$id])) {
+                $ordered[] = $byId[$id];
+            }
+        }
+
+        return $ordered;
     }
 }

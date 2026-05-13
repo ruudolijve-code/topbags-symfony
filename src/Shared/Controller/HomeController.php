@@ -30,16 +30,32 @@ final class HomeController extends AbstractController
         $featuredBags = [];
         $newBagVariants = [];
 
-        /*
-         * Populaire koffers
-         * Op basis van producten/mastervariant, zoals je nu al deed.
-         */
         $koffersCategory = $categoryRepository->findOneBy([
             'slug' => 'koffers',
             'isActive' => true,
         ]);
 
-        if ($koffersCategory !== null) {
+        /*
+         * Populaire koffers
+         * Belangrijk: gebruikt isFeatured + featuredPosition.
+         */
+        $featuredSuitcaseProducts = $productRepository->findFeaturedForContext(
+            context: Product::CONTEXT_SHOP,
+            limit: 4,
+        );
+
+        foreach ($featuredSuitcaseProducts as $product) {
+            $card = $this->createCardFromProduct($product, $availabilityService);
+
+            if ($card !== null) {
+                $featuredSuitcases[] = $card;
+            }
+        }
+
+        /*
+         * Fallback: als er nog geen featured koffers zijn ingesteld.
+         */
+        if ($featuredSuitcases === [] && $koffersCategory !== null) {
             $products = $productRepository->findForContextGridWithFilters(
                 context: Product::CONTEXT_SHOP,
                 limit: 4,
@@ -58,10 +74,9 @@ final class HomeController extends AbstractController
 
         /*
          * Nieuw binnen bij koffers
-         * Variant-gebaseerd, zodat nieuwe kleuren van bestaande modellen
-         * ook op de homepage zichtbaar kunnen worden.
+         * Variant-gebaseerd, zodat nieuwe kleuren van bestaande modellen zichtbaar worden.
          */
-        if ($koffersCategory !== null && method_exists($productRepository, 'findLatestVariantsForContextAndCategory')) {
+        if ($koffersCategory !== null) {
             $variants = $productRepository->findLatestVariantsForContextAndCategory(
                 context: Product::CONTEXT_SHOP,
                 categorySlug: $koffersCategory->getSlug(),
@@ -79,16 +94,14 @@ final class HomeController extends AbstractController
 
         /*
          * Populaire damestassen
-         * Context bags, zodat de homepage ook echt ruimte geeft aan tassen.
+         * Ook op basis van featured producten binnen context bags.
          */
-        $bagProducts = $productRepository->findForContextGridWithFilters(
+        $featuredBagProducts = $productRepository->findFeaturedForContext(
             context: Product::CONTEXT_BAGS,
             limit: 4,
-            offset: 0,
-            categorySlugs: [],
         );
 
-        foreach ($bagProducts as $product) {
+        foreach ($featuredBagProducts as $product) {
             $card = $this->createCardFromProduct($product, $availabilityService);
 
             if ($card !== null) {
@@ -97,33 +110,42 @@ final class HomeController extends AbstractController
         }
 
         /*
-         * Nieuw binnen bij damestassen
-         * Ook variant-gebaseerd.
+         * Fallback: als er nog geen featured damestassen zijn ingesteld.
          */
-        if (method_exists($productRepository, 'findLatestVariantsForContext')) {
-            $variants = $productRepository->findLatestVariantsForContext(
+        if ($featuredBags === []) {
+            $bagProducts = $productRepository->findForContextGridWithFilters(
                 context: Product::CONTEXT_BAGS,
                 limit: 4,
+                offset: 0,
+                categorySlugs: [],
             );
 
-            foreach ($variants as $variant) {
-                $card = $this->createCardFromVariant($variant, $availabilityService);
+            foreach ($bagProducts as $product) {
+                $card = $this->createCardFromProduct($product, $availabilityService);
 
                 if ($card !== null) {
-                    $newBagVariants[] = $card;
+                    $featuredBags[] = $card;
                 }
             }
         }
 
         /*
-         * Optioneel SEO-blok onderaan.
-         * Als je later een echte homepage SEO-categorie of contentpagina maakt,
-         * kun je deze vervangen door die bron.
+         * Nieuw binnen bij damestassen
          */
-        $landingCategory = $categoryRepository->findOneBy([
-            'slug' => 'koffers',
-            'isActive' => true,
-        ]);
+        $variants = $productRepository->findLatestVariantsForContext(
+            context: Product::CONTEXT_BAGS,
+            limit: 4,
+        );
+
+        foreach ($variants as $variant) {
+            $card = $this->createCardFromVariant($variant, $availabilityService);
+
+            if ($card !== null) {
+                $newBagVariants[] = $card;
+            }
+        }
+
+        $landingCategory = $koffersCategory;
 
         return $this->render('home/index.html.twig', [
             'featuredSuitcases' => $featuredSuitcases,
