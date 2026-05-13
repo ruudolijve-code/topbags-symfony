@@ -1131,8 +1131,10 @@ final class ProductRepository extends ServiceEntityRepository
         $ids = $this->createQueryBuilder('p')
             ->select('p.id')
             ->andWhere('p.brand = :brand')
+            ->andWhere('p.productContext = :context')
             ->andWhere('p.isActive = true')
             ->setParameter('brand', $brand)
+            ->setParameter('context', $context)
             ->orderBy('p.name', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
@@ -1143,13 +1145,18 @@ final class ProductRepository extends ServiceEntityRepository
         }
 
         return $this->createQueryBuilder('p')
-            ->leftJoin('p.variants', 'v')
+            ->leftJoin('p.brand', 'b')
+            ->addSelect('b')
+            ->leftJoin('p.variants', 'v', 'WITH', 'v.isActive = true')
             ->addSelect('v')
+            ->leftJoin('v.color', 'color')
+            ->addSelect('color')
             ->leftJoin('v.images', 'i')
             ->addSelect('i')
             ->andWhere('p.id IN (:ids)')
             ->setParameter('ids', $ids)
             ->orderBy('p.name', 'ASC')
+            ->addOrderBy('v.isMaster', 'DESC')
             ->addOrderBy('v.id', 'ASC')
             ->addOrderBy('i.position', 'ASC')
             ->getQuery()
@@ -1235,6 +1242,73 @@ final class ProductRepository extends ServiceEntityRepository
             ->setParameter('context', $context)
             ->orderBy('p.featuredPosition', 'ASC')
             ->addOrderBy('p.name', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+        /**
+     * Laatste actieve varianten binnen een context en categorie.
+     *
+     * Wordt gebruikt voor homepage-rijen zoals:
+     * - Nieuw binnen bij koffers
+     * - Nieuwe kleuren binnen bestaande koffercollecties
+     *
+     * @return ProductVariant[]
+     */
+    public function findLatestVariantsForContextAndCategory(
+        string $context,
+        string $categorySlug,
+        int $limit = 4
+    ): array {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('v', 'p', 'b', 'c', 'color', 'images', 'stock')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'c')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'images')
+            ->leftJoin('v.stock', 'stock')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->andWhere('c.slug = :categorySlug')
+            ->setParameter('context', $context)
+            ->setParameter('categorySlug', $categorySlug)
+            ->orderBy('v.id', 'DESC')
+            ->addOrderBy('images.position', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Laatste actieve varianten binnen een context.
+     *
+     * Wordt gebruikt voor homepage-rijen zoals:
+     * - Nieuw binnen bij damestassen
+     *
+     * @return ProductVariant[]
+     */
+    public function findLatestVariantsForContext(
+        string $context,
+        int $limit = 4
+    ): array {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('v', 'p', 'b', 'color', 'images', 'stock')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'images')
+            ->leftJoin('v.stock', 'stock')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', $context)
+            ->orderBy('v.id', 'DESC')
+            ->addOrderBy('images.position', 'ASC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

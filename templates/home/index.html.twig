@@ -1,188 +1,323 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Topbags – Koffers, reistassen en slim reisadvies{% endblock %}
+{% block title %}Topbags – Koffers, reistassen, handbagage en damestassen{% endblock %}
 
 {% block body %}
-<!-- DEBUG GA ID: {{ ga4_measurement_id|default('LEEG') }} -->
-{# =========================================
-   1. HERO
-   ========================================= #}
-<section class="border-b border-gray-200 bg-[#f7f4ee]">
-    <div class="mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
+<div class="bg-white">
 
-        <div class="max-w-xl">
-            <div class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gray-600 shadow-sm">
-                Specialist in koffers & reistassen
+    {# =========================================
+       1. HERO IN SHOP-STIJL
+       ========================================= #}
+    <section class="mx-auto max-w-7xl px-6 py-8 lg:py-12">
+        <div class="grid gap-6 lg:grid-cols-12 lg:items-stretch">
+
+            {# Grote hero carousel #}
+            <div
+                class="relative overflow-hidden rounded-3xl shadow-sm lg:col-span-8"
+                x-data="{
+                    slide: 0,
+                    interval: null,
+                    slides: [
+                        {
+                            image: '{{ asset('images/shop/hero-koffers.jpg') }}',
+                            label: 'Koffers',
+                            title: 'Vind de juiste koffer voor jouw reis',
+                            text: 'Van handbagage tot grote reiskoffer. Kies uit sterke merken en laat je helpen door onze bagagekennis.',
+                            url: '{{ path('category_show', { slug: 'koffers' }) }}',
+                            cta: 'Shop koffers'
+                        },
+                        {
+                            image: '{{ asset('images/home/damestas.png') }}',
+                            label: 'Damestassen',
+                            title: 'Stijlvolle tassen voor iedere dag',
+                            text: 'Ontdek onze collectie damestassen, schoudertassen en praktische favorieten voor werk en onderweg.',
+                            url: '{{ path('bags_index') }}',
+                            cta: 'Shop damestassen'
+                        },
+                        {
+                            image: '{{ asset('images/shop/hero-handbagage.jpg') }}',
+                            label: 'Handbagage',
+                            title: 'Zorgeloos mee aan boord',
+                            text: 'Vind handbagage die past bij jouw vlucht, reisduur en favoriete vliegmaatschappij.',
+                            url: '{{ path('category_show', { slug: 'handbagage' }) }}',
+                            cta: 'Bekijk handbagage'
+                        },
+                        {
+                            image: '{{ asset('images/shop/hero-bagage-gids.jpg') }}',
+                            label: 'Bagage-gids',
+                            title: 'Welke koffer past bij jouw reis?',
+                            text: 'Gebruik onze bagagegids en voorkom verrassingen over formaat, gewicht en handbagageregels.',
+                            url: '{{ path('guide_index') }}',
+                            cta: 'Start de gids'
+                        }
+                    ],
+                    next() {
+                        this.slide = (this.slide + 1) % this.slides.length
+                    },
+                    prev() {
+                        this.slide = this.slide === 0 ? this.slides.length - 1 : this.slide - 1
+                    },
+                    goTo(index) {
+                        this.slide = index
+                    }
+                }"
+                x-init="interval = setInterval(() => next(), 6500)"
+                @mouseenter="clearInterval(interval)"
+                @mouseleave="interval = setInterval(() => next(), 6500)"
+            >
+                <div class="relative h-[440px] overflow-hidden lg:h-[540px]">
+
+                    <template x-for="(item, index) in slides" :key="index">
+                        <div
+                            x-cloak
+                            x-show="slide === index"
+                            x-transition:enter="transition-opacity duration-700 ease-out"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition-opacity duration-700 ease-in"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="absolute inset-0"
+                        >
+                            <img
+                                :src="item.image"
+                                :alt="item.title"
+                                class="absolute inset-0 h-full w-full object-cover"
+                            >
+
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10"></div>
+
+                            <div class="absolute inset-x-0 bottom-0 z-10 p-7 text-white lg:p-10">
+                                <div
+                                    class="mb-3 inline-flex rounded-full bg-white/15 px-4 py-1 text-xs font-bold uppercase tracking-widest backdrop-blur"
+                                    x-text="item.label"
+                                ></div>
+
+                                <h1
+                                    class="max-w-2xl text-4xl font-bold tracking-tight lg:text-5xl"
+                                    x-text="item.title"
+                                ></h1>
+
+                                <p
+                                    class="mt-4 max-w-xl text-base leading-relaxed text-white/90 lg:text-lg"
+                                    x-text="item.text"
+                                ></p>
+
+                                <div class="mt-6 flex flex-wrap gap-3">
+                                    <a
+                                        :href="item.url"
+                                        class="rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700"
+                                        x-text="item.cta"
+                                    ></a>
+
+                                    <a
+                                        href="{{ path('shop_index') }}"
+                                        class="rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-100"
+                                    >
+                                        Naar de travelshop
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <button
+                        type="button"
+                        @click="prev()"
+                        class="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-2xl leading-none text-gray-900 shadow hover:bg-white"
+                        aria-label="Vorige slide"
+                    >
+                        ‹
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="next()"
+                        class="absolute right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-2xl leading-none text-gray-900 shadow hover:bg-white"
+                        aria-label="Volgende slide"
+                    >
+                        ›
+                    </button>
+
+                    <div class="absolute bottom-5 right-6 z-20 flex gap-2">
+                        <template x-for="(item, index) in slides" :key="index">
+                            <button
+                                type="button"
+                                @click="goTo(index)"
+                                class="h-2.5 rounded-full transition-all"
+                                :class="slide === index ? 'w-8 bg-white' : 'w-2.5 bg-white/50'"
+                                aria-label="Ga naar slide"
+                            ></button>
+                        </template>
+                    </div>
+                </div>
             </div>
 
-            <h1 class="mt-6 text-4xl font-semibold leading-tight tracking-tight text-gray-900 lg:text-6xl">
-                Vind de juiste bagage voor jouw reis
-            </h1>
+            {# Rechter beeldcards #}
+            <div class="grid gap-6 lg:col-span-4">
+                <a href="{{ path('bags_index') }}"
+                   class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
+                    <img
+                        src="{{ asset('images/home/spotlight-damestassen.jpg') }}"
+                        alt="Damestassen"
+                        class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    >
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"></div>
 
-            <p class="mt-6 text-lg leading-relaxed text-gray-600">
-                Van handbagage tot ruime koffers en lichte reistassen.
-                Kies direct uit onze collectie of laat je helpen door de bagagegids.
-            </p>
-
-            <div class="mt-8 flex flex-wrap gap-4">
-                <a href="{{ path('guide_index') }}"
-                   class="inline-flex items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900">
-                    Start de bagagegids
+                    <div class="absolute inset-x-0 bottom-0 z-10 p-7 text-white">
+                        <div class="mb-2 text-xs font-bold uppercase tracking-widest text-amber-300">
+                            Nieuw bij Topbags
+                        </div>
+                        <h2 class="text-2xl font-bold">
+                            Damestassen
+                        </h2>
+                        <p class="mt-2 text-sm text-white/90">
+                            Stijlvol voor werk, stad en dagelijks gebruik.
+                        </p>
+                        <div class="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900">
+                            Shop damestassen
+                        </div>
+                    </div>
                 </a>
+
+                <a href="{{ path('service_store') }}"
+                   class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
+                    <img
+                        src="{{ asset('images/store/holtkamp-winkel-3.jpg') }}"
+                        alt="Holtkamp Tassen en Koffers in Hengelo"
+                        class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    >
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+                    <div class="absolute inset-x-0 bottom-0 z-10 p-7 text-white">
+                        <div class="mb-2 text-xs font-bold uppercase tracking-widest text-amber-300">
+                            Winkel in Hengelo
+                        </div>
+                        <h2 class="text-2xl font-bold">
+                            Persoonlijk advies
+                        </h2>
+                        <p class="mt-2 text-sm text-white/90">
+                            125 jaar ervaring, eigen service en parkeren om de hoek.
+                        </p>
+                        <div class="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900">
+                            Bekijk de winkel
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    {# =========================================
+       2. CATEGORIE TEGELS
+       ========================================= #}
+    <section class="border-y border-gray-200 bg-gray-50">
+        <div class="mx-auto max-w-7xl px-6 py-10">
+            <div class="mb-8 text-center">
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Shop snel verder
+                </h2>
+                <p class="mt-2 text-gray-600">
+                    Kies direct wat je zoekt of laat je helpen door onze bagage-gids.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8">
 
                 <a href="{{ path('category_show', { slug: 'koffers' }) }}"
-                   class="inline-flex items-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-900 transition hover:bg-white">
-                    Shop koffers
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/suitcase.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Koffers</div>
                 </a>
-            </div>
 
-            <div class="mt-8 flex flex-wrap gap-6 text-sm text-gray-500">
-                <span>Officieel dealer</span>
-                <span>30 dagen retour</span>
-                <span>Familiebedrijf sinds 1900</span>
-            </div>
-        </div>
+                <a href="{{ path('category_show', { slug: 'handbagage' }) }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/plane.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Handbagage</div>
+                </a>
 
-        <div class="relative">
-            <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl">
-                <img
-                    src="{{ asset('images/home/hero-travel.jpg') }}"
-                    alt="Koffers en reistassen van Topbags"
-                    class="h-[470px] w-full object-cover lg:h-[590px]"
-                >
-            </div>
-        </div>
+                <a href="{{ path('category_show', { slug: 'reistassen' }) }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/duffle.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Reistassen</div>
+                </a>
 
-    </div>
-</section>
+                <a href="{{ path('category_show', { slug: 'rugzakken' }) }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/backpack.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Rugzakken</div>
+                </a>
 
-{# =========================================
-   2. CATEGORIE INGANGEN
-   ========================================= #}
-<section class="bg-white py-14 lg:py-18">
-    <div class="mx-auto max-w-7xl px-6">
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-900">Shop per categorie</h2>
-            <p class="mt-2 text-gray-600">Snel naar de juiste bagage voor jouw reisstijl.</p>
-        </div>
+                <a href="{{ path('bags_index') }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/bags.svg.twig' ignore missing %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Damestassen</div>
+                </a>
 
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            <a href="{{ path('category_show', { slug: 'koffers' }) }}"
-               class="group overflow-hidden rounded-3xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="aspect-[4/5] overflow-hidden bg-gray-50">
-                    <img src="{{ asset('images/home/koffer.jpg') }}"
-                         alt="Koffers"
-                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Koffers</h3>
-                    <p class="mt-2 text-sm text-gray-600">Voor weekendtrips, vakanties en verre reizen.</p>
-                </div>
-            </a>
+                <a href="{{ path('brand_index') }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/certificate.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Merken</div>
+                </a>
 
-            <a href="{{ path('category_show', { slug: 'reistassen' }) }}"
-               class="group overflow-hidden rounded-3xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="aspect-[4/5] overflow-hidden bg-gray-50">
-                    <img src="{{ asset('images/home/reistas.jpg') }}"
-                         alt="Reistassen"
-                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Reistassen</h3>
-                    <p class="mt-2 text-sm text-gray-600">Licht, flexibel en praktisch onderweg.</p>
-                </div>
-            </a>
-
-            <a href="{{ path('category_show', { slug: 'handbagage' }) }}"
-               class="group overflow-hidden rounded-3xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="aspect-[4/5] overflow-hidden bg-gray-50">
-                    <img src="{{ asset('images/home/rugzak.jpg') }}"
-                         alt="Handbagage"
-                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Handbagage</h3>
-                    <p class="mt-2 text-sm text-gray-600">Compact, slim en geschikt voor cabinegebruik.</p>
-                </div>
-            </a>
-
-            <a href="{{ path('bags_index') }}"
-               class="group overflow-hidden rounded-3xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="aspect-[4/5] overflow-hidden bg-gray-50">
-                    <img src="{{ asset('images/home/damestas.png') }}"
-                         alt="Damestassen"
-                         class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-                </div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-900">Damestassen</h3>
-                    <p class="mt-2 text-sm text-gray-600">Stijlvolle tassen voor dagelijks gebruik en onderweg.</p>
-                </div>
-            </a>
-        </div>
-    </div>
-</section>
-
-{# =========================================
-   3. BAGAGEGIDS
-   ========================================= #}
-<section class="bg-[#f7f4ee] py-16 lg:py-20">
-    <div class="mx-auto grid max-w-7xl items-center gap-10 px-6 lg:grid-cols-2">
-        <div>
-            <div class="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-                Bagagegids
-            </div>
-            <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900">
-                Twijfel je welke koffer of tas past bij jouw reis?
-            </h2>
-            <p class="mt-4 max-w-xl text-base leading-relaxed text-gray-600">
-                Beantwoord een paar vragen over je reis, vervoer en voorkeuren.
-                Daarna laten we direct zien welke bagage het beste past.
-            </p>
-
-            <div class="mt-8 flex flex-wrap gap-4">
                 <a href="{{ path('guide_index') }}"
-                   class="inline-flex items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900">
-                    Start de gids
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/centimeter.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Bagage-gids</div>
                 </a>
 
-                <a href="{{ path('shop_index') }}"
-                   class="inline-flex items-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-900 transition hover:bg-white">
-                    Bekijk collectie
+                <a href="{{ path('service_store') }}"
+                   class="group rounded-2xl bg-white px-3 py-4 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center text-gray-900 [&_svg]:h-11 [&_svg]:w-11 [&_svg]:stroke-current">
+                        {% include 'partials/icons/shop.svg.twig' %}
+                    </div>
+                    <div class="mt-3 text-sm font-bold text-gray-900">Winkel</div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    {# =========================================
+       3. POPULAIRE KOFFERS
+       ========================================= #}
+    {% if featuredSuitcases is defined and featuredSuitcases is not empty %}
+        <section class="mx-auto max-w-7xl px-6 py-14">
+            <div class="mb-8 flex items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Populaire koffers
+                    </h2>
+                    <p class="mt-2 text-gray-600">
+                        Veelgekozen reisgenoten voor vakantie, citytrip en zakenreis.
+                    </p>
+                </div>
+
+                <a href="{{ path('category_show', { slug: 'koffers' }) }}"
+                   class="hidden rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 md:inline-flex">
+                    Bekijk alle koffers
                 </a>
             </div>
-        </div>
 
-        <div class="overflow-hidden rounded-[2rem] bg-white shadow-xl">
-            <img
-                src="{{ asset('images/home/hero.jpg') }}"
-                alt="Bagagegids van Topbags"
-                class="h-[320px] w-full object-cover lg:h-[420px]"
-            >
-        </div>
-    </div>
-</section>
-
-{# =========================================
-   4. POPULAIRE KOFFERS
-   ========================================= #}
-<section class="bg-white py-16 lg:py-20">
-    <div class="mx-auto max-w-7xl px-6">
-        <div class="mb-8 flex items-end justify-between gap-6">
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-900">Populaire koffers</h2>
-                <p class="mt-2 text-gray-600">Veelgekozen modellen voor citytrips, vakanties en verre reizen.</p>
-            </div>
-
-            <a href="{{ path('category_show', { slug: 'koffers' }) }}"
-               class="hidden text-sm font-semibold text-gray-700 transition hover:text-black lg:inline">
-                Bekijk alle koffers →
-            </a>
-        </div>
-
-        {% if featuredSuitcases is defined and featuredSuitcases is not empty %}
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {% for item in featuredSuitcases %}
-                    {% include 'shop/component/card/_card_functional.html.twig' with {
+                    {% include 'shop/component/card/_card.html.twig' with {
+                        context: 'shop',
                         product: item.product,
                         variant: item.variant,
                         master: item.master,
@@ -191,114 +326,113 @@
                     } only %}
                 {% endfor %}
             </div>
-        {% else %}
-            <div class="rounded-2xl border border-dashed border-gray-300 p-8 text-sm text-gray-400">
-                Nog geen uitgelichte koffers beschikbaar.
-            </div>
-        {% endif %}
-    </div>
-</section>
+        </section>
+    {% endif %}
 
-{# =========================================
-   5. MERKENBLOKKEN
-   ========================================= #}
-<section class="bg-white pb-16 lg:pb-20">
-    <div class="mx-auto max-w-7xl px-6">
-        <div class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-900">Shop per merk</h2>
-            <p class="mt-2 text-gray-600">Ontdek collecties van toonaangevende bagagemerken.</p>
+    {# =========================================
+       4. NIEUW BINNEN BIJ KOFFERS
+       ========================================= #}
+    {% if newSuitcaseVariants is defined and newSuitcaseVariants is not empty %}
+        <section class="bg-gray-50">
+            <div class="mx-auto max-w-7xl px-6 py-14">
+                <div class="mb-8 flex items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Nieuw binnen bij koffers
+                        </h2>
+                        <p class="mt-2 text-gray-600">
+                            Nieuwe kleuren en varianten, ook van bestaande populaire modellen.
+                        </p>
+                    </div>
+
+                    <a href="{{ path('category_show', { slug: 'koffers' }) }}"
+                       class="hidden rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-white md:inline-flex">
+                        Bekijk alle koffers
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for item in newSuitcaseVariants %}
+                        {% include 'shop/component/card/_card.html.twig' with {
+                            context: 'shop',
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {# =========================================
+       5. DAMESTASSEN SPOTLIGHT
+       ========================================= #}
+    <section class="mx-auto max-w-7xl px-6 py-14">
+        <div class="relative overflow-hidden rounded-[2rem] bg-gray-900 shadow-sm">
+            <img
+                src="{{ asset('images/home/spotlight-damestassen.jpg') }}"
+                alt="Damestassen bij Topbags"
+                class="absolute inset-0 h-full w-full object-cover opacity-70"
+            >
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent"></div>
+
+            <div class="relative z-10 max-w-2xl px-7 py-14 text-white lg:px-12 lg:py-20">
+                <div class="text-sm font-bold uppercase tracking-widest text-amber-300">
+                    Damestassen
+                </div>
+
+                <h2 class="mt-3 text-3xl font-bold tracking-tight lg:text-4xl">
+                    Meer dan alleen reisbagage
+                </h2>
+
+                <p class="mt-4 text-base leading-relaxed text-white/90 lg:text-lg">
+                    Ontdek stijlvolle damestassen voor werk, stad, weekend en dagelijks gebruik.
+                    Van praktische shopper tot elegante schoudertas.
+                </p>
+
+                <div class="mt-7 flex flex-wrap gap-3">
+                    <a href="{{ path('bags_index') }}"
+                       class="rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700">
+                        Shop damestassen
+                    </a>
+
+                    <a href="{{ path('brand_index') }}"
+                       class="rounded-full bg-white px-6 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-100">
+                        Bekijk merken
+                    </a>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            <a href="/merk/samsonite" class="rounded-3xl border border-gray-200 bg-white p-8 transition hover:shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-900">Samsonite</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Innovatieve koffers en reisoplossingen voor intensief gebruik.
-                </p>
-            </a>
+    {# =========================================
+       6. POPULAIRE DAMESTASSEN
+       ========================================= #}
+    {% if featuredBags is defined and featuredBags is not empty %}
+        <section class="mx-auto max-w-7xl px-6 pb-14">
+            <div class="mb-8 flex items-end justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Populaire damestassen
+                    </h2>
+                    <p class="mt-2 text-gray-600">
+                        Favorieten voor dagelijks gebruik, werk en onderweg.
+                    </p>
+                </div>
 
-            <a href="/merk/delsey" class="rounded-3xl border border-gray-200 bg-white p-8 transition hover:shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-900">Delsey</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Franse elegantie met focus op lichtgewicht en comfort.
-                </p>
-            </a>
-
-            <a href="/merk/cabinzero" class="rounded-3xl border border-gray-200 bg-white p-8 transition hover:shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-900">CabinZero</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Slimme, lichte tassen en rugzakken voor cabine- en citytrips.
-                </p>
-            </a>
-
-            <a href="{{ path('shop_index') }}" class="rounded-3xl border border-gray-200 bg-white p-8 transition hover:shadow-lg">
-                <h3 class="text-xl font-semibold text-gray-900">Alle merken</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Bekijk de volledige collectie met premium en praktische reismerken.
-                </p>
-            </a>
-        </div>
-    </div>
-</section>
-
-{# =========================================
-   6. REISTASSEN / DAMESTASSEN SPOTLIGHT
-   ========================================= #}
-<section class="bg-[#f7f4ee] py-16 lg:py-20">
-    <div class="mx-auto grid max-w-7xl gap-6 px-6 lg:grid-cols-2">
-        <a href="{{ path('category_show', { slug: 'reistassen' }) }}"
-           class="group overflow-hidden rounded-[2rem] bg-white shadow-sm transition hover:shadow-xl">
-            <div class="aspect-[12/10] overflow-hidden">
-                <img src="{{ asset('images/home/spotlight-reistassen.jpg') }}"
-                     alt="Reistassen"
-                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-            </div>
-            <div class="p-8">
-                <h3 class="text-2xl font-semibold text-gray-900">Reistassen voor flexibel reizen</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Kies voor licht, ruim en praktisch. Ideaal voor auto, trein of korte vliegreizen.
-                </p>
-            </div>
-        </a>
-
-        <a href="{{ path('bags_index') }}"
-           class="group overflow-hidden rounded-[2rem] bg-white shadow-sm transition hover:shadow-xl">
-            <div class="aspect-[12/10] overflow-hidden">
-                <img src="{{ asset('images/home/spotlight-damestassen.jpg') }}"
-                     alt="Damestassen"
-                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
-            </div>
-            <div class="p-8">
-                <h3 class="text-2xl font-semibold text-gray-900">Damestassen voor werk en onderweg</h3>
-                <p class="mt-3 text-sm leading-relaxed text-gray-600">
-                    Van stijlvolle schoudertas tot praktische dagelijkse favoriet.
-                </p>
-            </div>
-        </a>
-    </div>
-</section>
-
-{# =========================================
-   7. UITGELICHTE REISTASSEN
-   ========================================= #}
-<section class="bg-white py-16 lg:py-20">
-    <div class="mx-auto max-w-7xl px-6">
-        <div class="mb-8 flex items-end justify-between gap-6">
-            <div>
-                <h2 class="text-2xl font-semibold text-gray-900">Uitgelichte reistassen</h2>
-                <p class="mt-2 text-gray-600">Licht, praktisch en klaar voor vertrek.</p>
+                <a href="{{ path('bags_index') }}"
+                   class="hidden rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 md:inline-flex">
+                    Bekijk alle damestassen
+                </a>
             </div>
 
-            <a href="{{ path('category_show', { slug: 'reistassen' }) }}"
-               class="hidden text-sm font-semibold text-gray-700 transition hover:text-black lg:inline">
-                Bekijk alle reistassen →
-            </a>
-        </div>
-
-        {% if featuredTravelBags is defined and featuredTravelBags is not empty %}
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {% for item in featuredTravelBags %}
-                    {% include 'shop/component/card/_card_functional.html.twig' with {
+                {% for item in featuredBags %}
+                    {% include 'shop/component/card/_card.html.twig' with {
+                        context: 'bags',
                         product: item.product,
                         variant: item.variant,
                         master: item.master,
@@ -307,36 +441,126 @@
                     } only %}
                 {% endfor %}
             </div>
-        {% else %}
-            <div class="rounded-2xl border border-dashed border-gray-300 p-8 text-sm text-gray-400">
-                Nog geen uitgelichte reistassen beschikbaar.
-            </div>
-        {% endif %}
-    </div>
-</section>
+        </section>
+    {% endif %}
 
-{# =========================================
-   8. TRUST / VERHAAL
-   ========================================= #}
-<section class="bg-white py-16 lg:py-20">
-    <div class="mx-auto max-w-5xl px-6">
-        <div class="rounded-[2rem] border border-gray-200 bg-white p-8 shadow-sm lg:p-12">
-            <h2 class="text-2xl font-semibold text-gray-900 lg:text-3xl">
-                Topbags – specialist in koffers, reistassen en slimme bagagekeuzes
-            </h2>
+    {# =========================================
+       7. NIEUW BINNEN BIJ DAMESTASSEN
+       ========================================= #}
+    {% if newBagVariants is defined and newBagVariants is not empty %}
+        <section class="bg-gray-50">
+            <div class="mx-auto max-w-7xl px-6 py-14">
+                <div class="mb-8 flex items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Nieuw binnen bij damestassen
+                        </h2>
+                        <p class="mt-2 text-gray-600">
+                            De nieuwste kleuren, modellen en varianten in onze tassencollectie.
+                        </p>
+                    </div>
 
-            <div class="mt-6 space-y-4 text-base leading-relaxed text-gray-600">
-                <p>
-                    Bij Topbags helpen we je niet alleen een product te kiezen, maar vooral de juiste bagage voor jouw reis.
-                    Of je nu op citytrip gaat, een verre vakantie plant of dagelijks onderweg bent.
-                </p>
-                <p>
-                    Als officieel dealer van sterke merken combineren we kwaliteit, service en praktisch advies.
-                    Daarbij kun je ook rekenen op de ervaring van Holtkamp Tassen &amp; Koffers, familiebedrijf sinds 1900.
-                </p>
+                    <a href="{{ path('bags_index') }}"
+                       class="hidden rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-white md:inline-flex">
+                        Bekijk alle damestassen
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for item in newBagVariants %}
+                        {% include 'shop/component/card/_card.html.twig' with {
+                            context: 'bags',
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
             </div>
+        </section>
+    {% endif %}
+
+    {# =========================================
+       8. GIDS / MERKEN / WINKEL
+       ========================================= #}
+    <section class="bg-white">
+        <div class="mx-auto grid max-w-7xl gap-6 px-6 py-14 lg:grid-cols-3">
+
+            <a href="{{ path('airline_index') }}"
+               class="rounded-3xl bg-gray-50 p-8 shadow-sm transition hover:shadow-md">
+                <div class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                    Bagage-gids
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Welke handbagage mag mee?
+                </h2>
+                <p class="mt-3 text-gray-600">
+                    Check eenvoudig de regels per vliegmaatschappij en voorkom verrassingen op de luchthaven.
+                </p>
+                <div class="mt-6 font-semibold text-amber-700">
+                    Bekijk vliegmaatschappijen →
+                </div>
+            </a>
+
+            <a href="{{ path('brand_index') }}"
+               class="rounded-3xl bg-gray-50 p-8 shadow-sm transition hover:shadow-md">
+                <div class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                    Merken
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Meer dan 60 merken
+                </h2>
+                <p class="mt-3 text-gray-600">
+                    Ontdek koffers, reistassen, rugzakken en damestassen van sterke merken.
+                </p>
+                <div class="mt-6 font-semibold text-amber-700">
+                    Bekijk alle merken →
+                </div>
+            </a>
+
+            <a href="{{ path('service_store') }}"
+               class="rounded-3xl bg-gray-50 p-8 shadow-sm transition hover:shadow-md">
+                <div class="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                    Winkel in Hengelo
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Advies & service
+                </h2>
+                <p class="mt-3 text-gray-600">
+                    Kom langs bij Holtkamp Tassen &amp; Koffers voor persoonlijk advies, reparatie en service.
+                </p>
+                <div class="mt-6 font-semibold text-amber-700">
+                    Bekijk onze winkel →
+                </div>
+            </a>
+
         </div>
-    </div>
-</section>
+    </section>
 
+    {# =========================================
+       9. SEO TEKST
+       ========================================= #}
+    {% if landingCategory is defined and landingCategory and landingCategory.seoDescription %}
+        <section class="mx-auto max-w-7xl px-6 py-14">
+            <div class="rich-text-content max-w-4xl text-gray-700">
+                {{ landingCategory.seoDescription|raw }}
+            </div>
+        </section>
+    {% else %}
+        <section class="mx-auto max-w-7xl px-6 py-14">
+            <div class="max-w-4xl text-gray-700">
+                <h2 class="text-2xl font-bold text-gray-900">
+                    Topbags – koffers, reistassen en damestassen met persoonlijk advies
+                </h2>
+                <p class="mt-4 leading-relaxed">
+                    Bij Topbags vind je sterke koffers, praktische reistassen, handbagage en stijlvolle damestassen.
+                    Online bestel je eenvoudig, en voor persoonlijk advies kun je terecht bij Holtkamp Tassen &amp; Koffers in Hengelo.
+                </p>
+            </div>
+        </section>
+    {% endif %}
+
+</div>
 {% endblock %}
