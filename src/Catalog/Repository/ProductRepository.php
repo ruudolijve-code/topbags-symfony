@@ -1267,8 +1267,9 @@ final class ProductRepository extends ServiceEntityRepository
             ->innerJoin('p.categories', 'c')
             ->andWhere('p.isActive = true')
             ->andWhere('p.productContext = :context')
-            ->andWhere('v.isActive = true')
             ->andWhere('c.slug = :categorySlug')
+            ->andWhere('v.isActive = true')
+            ->andWhere('v.isMaster = false')
             ->setParameter('context', $context)
             ->setParameter('categorySlug', $categorySlug)
             ->orderBy('v.id', 'DESC')
@@ -1392,27 +1393,27 @@ final class ProductRepository extends ServiceEntityRepository
     }
 
     public function findFeaturedForCategorySlug(
-        string $context,
-        string $categorySlug,
-        int $limit = 4,
-    ): array {
-        return $this->createQueryBuilder('p')
-            ->select('DISTINCT p, b, masterVariant')
-            ->innerJoin('p.brand', 'b')
-            ->innerJoin('p.categories', 'c')
-            ->innerJoin('p.variants', 'masterVariant', 'WITH', 'masterVariant.isMaster = true AND masterVariant.isActive = true')
-            ->andWhere('p.productContext = :context')
-            ->andWhere('p.isActive = true')
-            ->andWhere('p.isFeatured = true')
-            ->andWhere('c.slug = :categorySlug')
-            ->setParameter('context', $context)
-            ->setParameter('categorySlug', $categorySlug)
-            ->orderBy('p.featuredPosition', 'ASC')
-            ->addOrderBy('p.id', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
+    string $context,
+    string $categorySlug,
+    int $limit = 4,
+): array {
+    return $this->createQueryBuilder('p')
+        ->select('DISTINCT p, b, masterVariant')
+        ->innerJoin('p.brand', 'b')
+        ->innerJoin('p.categories', 'c')
+        ->innerJoin('p.variants', 'masterVariant', 'WITH', 'masterVariant.isMaster = true AND masterVariant.isActive = true')
+        ->andWhere('p.productContext = :context')
+        ->andWhere('p.isActive = true')
+        ->andWhere('p.isFeatured = true')
+        ->andWhere('c.slug = :categorySlug')
+        ->setParameter('context', $context)
+        ->setParameter('categorySlug', $categorySlug)
+        ->orderBy('p.featuredPosition', 'ASC')
+        ->addOrderBy('p.id', 'DESC')
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getResult();
+}
 
     public function findLatestForCategorySlug(
         string $context,
@@ -1435,4 +1436,5 @@ final class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
 }

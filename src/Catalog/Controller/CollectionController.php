@@ -7,6 +7,7 @@ namespace App\Catalog\Controller;
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
+use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
@@ -54,11 +55,21 @@ final class CollectionController extends AbstractController
             limit: 4,
         );
 
-        $latestTravelBagProducts = $productRepository->findLatestForCategorySlug(
+        $latestTravelBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_SHOP,
             categorySlug: 'reistassen',
             limit: 4,
         );
+
+        $latestTravelBagItems = [];
+
+        foreach ($latestTravelBagVariants as $variant) {
+            $card = $this->createCardFromVariant($variant, $availabilityService);
+
+            if ($card !== null) {
+                $latestTravelBagItems[] = $card;
+            }
+        }
 
         return $this->render('shop/landing.html.twig', [
             'activeContext' => Product::CONTEXT_SHOP,
@@ -80,11 +91,7 @@ final class CollectionController extends AbstractController
                 $availabilityService,
             ),
 
-            'latestTravelBagItems' => $this->mapProductsToLandingItems(
-                $latestTravelBagProducts,
-                $productVariantRepository,
-                $availabilityService,
-            ),
+            'latestTravelBagItems' => $latestTravelBagItems,
 
             'categories' => $categoryRepository->findForContext(Product::CONTEXT_SHOP),
         ]);
@@ -440,5 +447,30 @@ final class CollectionController extends AbstractController
         }
 
         return $items;
+    }
+
+    private function createCardFromVariant(
+        ProductVariant $variant,
+        AvailabilityService $availabilityService,
+    ): ?array {
+        $product = $variant->getProduct();
+
+        if ($product === null || !$product->isActive() || !$variant->isActive()) {
+            return null;
+        }
+
+        $master = $product->getMasterVariant();
+
+        if ($master === null || !$master->isActive()) {
+            $master = $variant;
+        }
+
+        return [
+            'product' => $product,
+            'variant' => $variant,
+            'master' => $master,
+            'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
+            'availability' => $availabilityService->get($variant),
+        ];
     }
 }
