@@ -97,8 +97,9 @@ final class HomeController extends AbstractController
          * Populaire damestassen
          * Ook op basis van featured producten binnen context bags.
          */
-        $featuredBagProducts = $productRepository->findFeaturedForContext(
+        $featuredBagProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_BAGS,
+            categorySlug: 'damestassen',
             limit: 4,
         );
 
