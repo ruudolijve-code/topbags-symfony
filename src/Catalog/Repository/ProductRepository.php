@@ -1269,7 +1269,6 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('p.productContext = :context')
             ->andWhere('c.slug = :categorySlug')
             ->andWhere('v.isActive = true')
-            ->andWhere('v.isMaster = false')
             ->setParameter('context', $context)
             ->setParameter('categorySlug', $categorySlug)
             ->orderBy('v.id', 'DESC')
