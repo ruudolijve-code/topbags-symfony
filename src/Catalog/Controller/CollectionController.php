@@ -42,44 +42,50 @@ final class CollectionController extends AbstractController
             'slug' => 'shop',
         ]);
 
-        $featuredProducts = $productRepository->findFeaturedForContext(
+        $featuredProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_SHOP,
+            categorySlug: 'koffers',
             limit: 4,
         );
 
-        $featuredItems = [];
+        $popularBackpackProducts = $productRepository->findFeaturedForCategorySlug(
+            context: Product::CONTEXT_SHOP,
+            categorySlug: 'rugzakken',
+            limit: 4,
+        );
 
-        foreach ($featuredProducts as $product) {
-            $master = $product->getMasterVariant();
-
-            if ($master === null || !$master->isActive()) {
-                continue;
-            }
-
-            $freshMaster = $productVariantRepository->findOneForGridBySku(
-                $master->getVariantSku()
-            );
-
-            if ($freshMaster === null || !$freshMaster->isActive()) {
-                continue;
-            }
-
-            $featuredItems[] = [
-                'product' => $product,
-                'variant' => $freshMaster,
-                'master' => $freshMaster,
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshMaster),
-                'availability' => $availabilityService->get($freshMaster),
-            ];
-        }
+        $latestTravelBagProducts = $productRepository->findLatestForCategorySlug(
+            context: Product::CONTEXT_SHOP,
+            categorySlug: 'reistassen',
+            limit: 4,
+        );
 
         return $this->render('shop/landing.html.twig', [
             'activeContext' => Product::CONTEXT_SHOP,
             'context' => Product::CONTEXT_SHOP,
             'currentContext' => Product::CONTEXT_SHOP,
+
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
-            'featuredItems' => $featuredItems,
+
+            'featuredItems' => $this->mapProductsToLandingItems(
+                $featuredProducts,
+                $productVariantRepository,
+                $availabilityService,
+            ),
+
+            'popularBackpackItems' => $this->mapProductsToLandingItems(
+                $popularBackpackProducts,
+                $productVariantRepository,
+                $availabilityService,
+            ),
+
+            'latestTravelBagItems' => $this->mapProductsToLandingItems(
+                $latestTravelBagProducts,
+                $productVariantRepository,
+                $availabilityService,
+            ),
+
             'categories' => $categoryRepository->findForContext(Product::CONTEXT_SHOP),
         ]);
     }
@@ -389,5 +395,50 @@ final class CollectionController extends AbstractController
             (array) $request->query->all($key),
             static fn (mixed $value): bool => is_string($value) && $value !== ''
         ));
+    }
+
+    /**
+     * @param Product[] $products
+     *
+     * @return array<int, array{
+     *     product: Product,
+     *     variant: mixed,
+     *     master: mixed,
+     *     mediaPath: string|null,
+     *     availability: mixed
+     * }>
+     */
+    private function mapProductsToLandingItems(
+        array $products,
+        ProductVariantRepository $productVariantRepository,
+        AvailabilityService $availabilityService,
+    ): array {
+        $items = [];
+
+        foreach ($products as $product) {
+            $master = $product->getMasterVariant();
+
+            if ($master === null || !$master->isActive()) {
+                continue;
+            }
+
+            $freshMaster = $productVariantRepository->findOneForGridBySku(
+                $master->getVariantSku()
+            );
+
+            if ($freshMaster === null || !$freshMaster->isActive()) {
+                continue;
+            }
+
+            $items[] = [
+                'product' => $product,
+                'variant' => $freshMaster,
+                'master' => $freshMaster,
+                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshMaster),
+                'availability' => $availabilityService->get($freshMaster),
+            ];
+        }
+
+        return $items;
     }
 }

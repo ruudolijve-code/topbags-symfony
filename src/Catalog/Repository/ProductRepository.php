@@ -1390,4 +1390,50 @@ final class ProductRepository extends ServiceEntityRepository
 
         return $ordered;
     }
+
+    public function findFeaturedForCategorySlug(
+        string $context,
+        string $categorySlug,
+        int $limit = 4,
+    ): array {
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p, b, masterVariant')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.categories', 'category')
+            ->innerJoin('p.variants', 'masterVariant', 'WITH', 'masterVariant.isMaster = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.isFeatured = true')
+            ->andWhere('masterVariant.isActive = true')
+            ->andWhere('category.slug = :categorySlug')
+            ->setParameter('context', $context)
+            ->setParameter('categorySlug', $categorySlug)
+            ->orderBy('p.featuredPosition', 'ASC')
+            ->addOrderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findLatestForCategorySlug(
+        string $context,
+        string $categorySlug,
+        int $limit = 4,
+    ): array {
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p, b, masterVariant')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.categories', 'category')
+            ->innerJoin('p.variants', 'masterVariant', 'WITH', 'masterVariant.isMaster = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('p.isActive = true')
+            ->andWhere('masterVariant.isActive = true')
+            ->andWhere('category.slug = :categorySlug')
+            ->setParameter('context', $context)
+            ->setParameter('categorySlug', $categorySlug)
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }
