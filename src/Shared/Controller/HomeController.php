@@ -39,8 +39,9 @@ final class HomeController extends AbstractController
          * Populaire koffers
          * Belangrijk: gebruikt isFeatured + featuredPosition.
          */
-        $featuredSuitcaseProducts = $productRepository->findFeaturedForContext(
+       $featuredSuitcaseProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_SHOP,
+            categorySlug: 'koffers',
             limit: 4,
         );
 
