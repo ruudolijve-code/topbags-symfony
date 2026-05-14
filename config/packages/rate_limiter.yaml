@@ -4,3 +4,8 @@ framework:
       policy: 'sliding_window'
       limit: 5
       interval: '10 minutes'
+
+    newsletter_subscribe:
+      policy: 'sliding_window'
+      limit: 3
+      interval: '10 minutes'

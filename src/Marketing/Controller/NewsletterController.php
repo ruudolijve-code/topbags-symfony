@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Marketing\Controller;
 
 use App\Marketing\Entity\NewsletterSubscription;
@@ -8,17 +10,65 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
-class NewsletterController extends AbstractController
+final class NewsletterController extends AbstractController
 {
+    private const CSRF_TOKEN_ID = 'newsletter_subscribe';
+    private const MIN_SECONDS_BEFORE_SUBMIT = 2;
+
     #[Route('/newsletter/subscribe', name: 'newsletter_subscribe', methods: ['POST'])]
     public function subscribe(
         Request $request,
         EntityManagerInterface $em,
-        NewsletterSubscriptionRepository $repository
+        NewsletterSubscriptionRepository $repository,
+        RateLimiterFactory $newsletterSubscribeLimiter,
     ): Response {
         $email = mb_strtolower(trim((string) $request->request->get('email', '')));
+        $token = (string) $request->request->get('_token', '');
+        $honeypot = trim((string) $request->request->get('website', ''));
+        $startedAt = (int) $request->request->get('form_started_at', 0);
+
+        $limiterKey = sprintf(
+            '%s:%s',
+            $request->getClientIp() ?? 'unknown',
+            $email !== '' ? hash('sha256', $email) : 'empty'
+        );
+
+        $limit = $newsletterSubscribeLimiter
+            ->create($limiterKey)
+            ->consume(1);
+
+        if (!$limit->isAccepted()) {
+            $this->addFlash('newsletter_error', 'Je hebt te vaak geprobeerd je in te schrijven. Probeer het later opnieuw.');
+
+            return $this->redirectBack($request);
+        }
+
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, $token)) {
+            $this->addFlash('newsletter_error', 'De inschrijving kon niet worden verwerkt. Probeer het opnieuw.');
+
+            return $this->redirectBack($request);
+        }
+
+        /*
+         * Honeypot:
+         * Echte bezoekers zien/vullen dit veld niet in.
+         * Bots vullen vaak automatisch alle velden in.
+         */
+        if ($honeypot !== '') {
+            return $this->redirectBack($request);
+        }
+
+        /*
+         * Tijdcontrole:
+         * Een formulier dat direct binnen 1 à 2 seconden wordt verzonden,
+         * is meestal een bot.
+         */
+        if ($startedAt > 0 && (time() - $startedAt) < self::MIN_SECONDS_BEFORE_SUBMIT) {
+            return $this->redirectBack($request);
+        }
 
         if ($email === '') {
             $this->addFlash('newsletter_error', 'Vul je e-mailadres in.');
@@ -37,6 +87,7 @@ class NewsletterController extends AbstractController
         if ($existing instanceof NewsletterSubscription) {
             if (!$existing->isActive()) {
                 $existing->setIsActive(true);
+                $existing->setSource('footer');
                 $em->flush();
             }
 
