@@ -978,98 +978,6 @@ final class ProductRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function countSaleProductsForContext(string $context): int
-    {
-        $now = new \DateTimeImmutable();
-
-        return (int) $this->createQueryBuilder('p')
-            ->select('COUNT(DISTINCT p.id)')
-            ->innerJoin('p.variants', 'v')
-            ->andWhere('p.isActive = 1')
-            ->andWhere('p.productContext = :context')
-            ->andWhere('v.isActive = 1')
-            ->andWhere('v.salePercentage IS NOT NULL')
-            ->andWhere('v.salePercentage > 0')
-            ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
-            ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
-            ->setParameter('context', $context)
-            ->setParameter('now', $now)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    public function findSaleProductsForContext(
-        string $context,
-        int $limit,
-        int $offset
-    ): array {
-        $now = new \DateTimeImmutable();
-
-        $ids = $this->createQueryBuilder('p')
-            ->select('DISTINCT p.id AS id')
-            ->innerJoin('p.variants', 'v')
-            ->andWhere('p.isActive = 1')
-            ->andWhere('p.productContext = :context')
-            ->andWhere('v.isActive = 1')
-            ->andWhere('v.salePercentage IS NOT NULL')
-            ->andWhere('v.salePercentage > 0')
-            ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
-            ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
-            ->orderBy('p.id', 'DESC')
-            ->setParameter('context', $context)
-            ->setParameter('now', $now)
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getScalarResult();
-
-        $productIds = array_map(
-            static fn (array $row): int => (int) $row['id'],
-            $ids
-        );
-
-        if ($productIds === []) {
-            return [];
-        }
-
-        $products = $this->createQueryBuilder('p')
-            ->select('p', 'b', 'c', 'master', 'masterImage', 'variants', 'variantColor')
-            ->leftJoin('p.brand', 'b')
-            ->leftJoin('p.categories', 'c')
-            ->leftJoin(
-                'p.variants',
-                'master',
-                'WITH',
-                'master.isMaster = 1 AND master.isActive = 1'
-            )
-            ->leftJoin('master.images', 'masterImage', 'WITH', 'masterImage.isPrimary = 1')
-            ->leftJoin(
-                'p.variants',
-                'variants',
-                'WITH',
-                'variants.isActive = 1'
-            )
-            ->leftJoin('variants.color', 'variantColor')
-            ->andWhere('p.id IN (:ids)')
-            ->setParameter('ids', $productIds)
-            ->getQuery()
-            ->getResult();
-
-        $byId = [];
-        foreach ($products as $product) {
-            $byId[$product->getId()] = $product;
-        }
-
-        $ordered = [];
-        foreach ($productIds as $id) {
-            if (isset($byId[$id])) {
-                $ordered[] = $byId[$id];
-            }
-        }
-
-        return $ordered;
-    }
-
     public function countForBrandGrid(array $brandSlugs = []): int
     {
         $qb = $this->createQueryBuilder('p')
@@ -1436,4 +1344,93 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
     
+    public function countSaleVariantsForContext(string $context): int
+    {
+        $now = new \DateTimeImmutable();
+
+        return (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT v.id)')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->andWhere('v.salePercentage IS NOT NULL')
+            ->andWhere('v.salePercentage > 0')
+            ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
+            ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
+            ->setParameter('context', $context)
+            ->setParameter('now', $now)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return ProductVariant[]
+     */
+    public function findSaleVariantsForContext(
+        string $context,
+        int $limit,
+        int $offset
+    ): array {
+        $now = new \DateTimeImmutable();
+
+        /**
+         * Eerst alleen variant-ID's ophalen.
+         * We selecteren salePercentage mee, omdat MySQL 8 dit vereist
+         * wanneer DISTINCT gecombineerd wordt met ORDER BY op salePercentage.
+         */
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('DISTINCT v.id AS id, v.salePercentage AS salePercentage')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->andWhere('v.salePercentage IS NOT NULL')
+            ->andWhere('v.salePercentage > 0')
+            ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
+            ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
+            ->setParameter('context', $context)
+            ->setParameter('now', $now)
+            ->orderBy('v.salePercentage', 'DESC')
+            ->addOrderBy('v.id', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult();
+
+        $ids = array_map(
+            static fn (array $row): int => (int) $row['id'],
+            $rows
+        );
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $variants = $this->getEntityManager()->createQueryBuilder()
+            ->select('v', 'p', 'b', 'categories', 'color', 'images', 'stock', 'master')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'images')
+            ->leftJoin('v.stock', 'stock')
+            ->leftJoin(
+                'p.variants',
+                'master',
+                'WITH',
+                'master.isMaster = true AND master.isActive = true'
+            )
+            ->andWhere('v.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('v.id', 'DESC')
+            ->addOrderBy('images.position', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->orderVariantsByIds($variants, $ids);
+    }
 }

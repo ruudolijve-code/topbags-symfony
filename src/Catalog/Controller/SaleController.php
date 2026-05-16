@@ -33,7 +33,7 @@ final class SaleController extends AbstractController
         $context = Product::CONTEXT_SHOP;
         $page = max(1, $request->query->getInt('page', 1));
 
-        $totalItems = $productRepository->countSaleProductsForContext($context);
+        $totalItems = $productRepository->countSaleVariantsForContext($context);
 
         $pagination = $paginationService->create(
             page: $page,
@@ -41,7 +41,7 @@ final class SaleController extends AbstractController
             totalItems: $totalItems
         );
 
-        $products = $productRepository->findSaleProductsForContext(
+        $variants = $productRepository->findSaleVariantsForContext(
             context: $context,
             limit: $pagination->getLimit(),
             offset: $pagination->getOffset()
@@ -49,36 +49,19 @@ final class SaleController extends AbstractController
 
         $items = [];
 
-        foreach ($products as $product) {
-            $displayVariant = null;
+        foreach ($variants as $variant) {
+            $product = $variant->getProduct();
 
-            foreach ($product->getVariants() as $variant) {
-                if (!$variant->isActive() || !$variant->isSaleActive()) {
-                    continue;
-                }
-
-                $displayVariant = $variant;
-                break;
-            }
-
-            if ($displayVariant === null) {
-                $master = $product->getMasterVariant();
-
-                if ($master !== null && $master->isActive() && $master->isSaleActive()) {
-                    $displayVariant = $master;
-                }
-            }
-
-            if ($displayVariant === null) {
+            if ($product === null) {
                 continue;
             }
 
             $items[] = [
                 'product' => $product,
-                'variant' => $displayVariant,
+                'variant' => $variant,
                 'master' => $product->getMasterVariant(),
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($displayVariant),
-                'availability' => $availabilityService->get($displayVariant),
+                'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
+                'availability' => $availabilityService->get($variant),
             ];
         }
 
