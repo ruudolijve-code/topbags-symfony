@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Catalog\Controller;
 
 use App\Catalog\Entity\Product;
+use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
-use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
@@ -19,13 +19,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class CollectionController extends AbstractController
 {
     private const PER_PAGE = 15;
-
     private const ALL_SCOPES = ['personal', 'cabin', 'hold'];
+    private const CANONICAL_HOST = 'https://topbags.nl';
 
     public function __construct(
         private readonly VariantImagePathResolver $variantImagePathResolver,
@@ -40,9 +39,7 @@ final class CollectionController extends AbstractController
         ProductVariantRepository $productVariantRepository,
         AvailabilityService $availabilityService,
     ): Response {
-        $landingCategory = $categoryRepository->findOneBy([
-            'slug' => 'shop',
-        ]);
+        $landingCategory = $categoryRepository->findOneBy(['slug' => 'shop']);
 
         $featuredProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_SHOP,
@@ -76,7 +73,7 @@ final class CollectionController extends AbstractController
             'activeContext' => Product::CONTEXT_SHOP,
             'context' => Product::CONTEXT_SHOP,
             'currentContext' => Product::CONTEXT_SHOP,
-            'canonical_url' => $this->generateUrl('shop_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('shop_index'),
 
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
@@ -94,7 +91,6 @@ final class CollectionController extends AbstractController
             ),
 
             'latestTravelBagItems' => $latestTravelBagItems,
-
             'categories' => $categoryRepository->findForContext(Product::CONTEXT_SHOP),
         ]);
     }
@@ -164,9 +160,7 @@ final class CollectionController extends AbstractController
         AvailabilityService $availabilityService,
         PaginationService $paginationService,
     ): Response {
-        $landingCategory = $categoryRepository->findOneBy([
-            'slug' => $landingCategorySlug,
-        ]);
+        $landingCategory = $categoryRepository->findOneBy(['slug' => $landingCategorySlug]);
 
         $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($context);
 
@@ -314,15 +308,14 @@ final class CollectionController extends AbstractController
             colorSlugs: $colorSlugs ?: null,
         );
 
+        $canonicalRoute = $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all';
+
         return $this->render($template, [
             'activeContext' => $context,
             'context' => $context,
             'currentContext' => $context,
-            'canonical_url' => $this->generateUrl(
-                $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ),
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl($canonicalRoute),
+
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
 
@@ -346,24 +339,12 @@ final class CollectionController extends AbstractController
         ]);
     }
 
-    /**
-     * Voor de query:
-     * - geen airline => geen scope-filter
-     * - airline + "alle bagagetypes" => alle drie scopes
-     * - airline + 1 scope => alleen die scope
-     *
-     * @return string[]
-     */
     private function normalizeScopeSlugs(
         string $context,
         string $selectedScope,
         array $airlineSlugs,
     ): array {
-        if ($context !== Product::CONTEXT_SHOP) {
-            return [];
-        }
-
-        if ($airlineSlugs === []) {
+        if ($context !== Product::CONTEXT_SHOP || $airlineSlugs === []) {
             return [];
         }
 
@@ -412,14 +393,6 @@ final class CollectionController extends AbstractController
 
     /**
      * @param Product[] $products
-     *
-     * @return array<int, array{
-     *     product: Product,
-     *     variant: mixed,
-     *     master: mixed,
-     *     mediaPath: string|null,
-     *     availability: mixed
-     * }>
      */
     private function mapProductsToLandingItems(
         array $products,

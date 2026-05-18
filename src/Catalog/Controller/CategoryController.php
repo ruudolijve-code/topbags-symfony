@@ -20,11 +20,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class CategoryController extends AbstractController
 {
     private const PER_PAGE = 15;
+    private const CANONICAL_HOST = 'https://topbags.nl';
 
     public function __construct(
         private readonly VariantImagePathResolver $variantImagePathResolver,
@@ -59,16 +59,23 @@ final class CategoryController extends AbstractController
         $fixedCategorySlugs = [$category->getSlug()];
 
         $brandSlugs = $this->getQueryArray($request, 'brand');
-        $airlineSlugs = $this->getQueryArray($request, 'airline');
         $volumeRanges = $this->getQueryArray($request, 'volume');
         $colorSlugs = $this->getQueryArray($request, 'color');
 
-        $scope = trim((string) $request->query->get('scope', ''));
+        $airlineSlugs = $activeContext === Product::CONTEXT_SHOP
+            ? $this->getQueryArray($request, 'airline')
+            : [];
+
+        $scope = $activeContext === Product::CONTEXT_SHOP
+            ? trim((string) $request->query->get('scope', ''))
+            : '';
+
         $scopeSlugs = $scope !== '' ? [$scope] : [];
 
         $page = max(1, $request->query->getInt('page', 1));
 
         $airlineRules = $this->resolveSelectedAirlineRules(
+            context: $activeContext,
             airlineSlugs: $airlineSlugs,
             airlineRepository: $airlineRepository,
             airlineBaggageRuleRepository: $airlineBaggageRuleRepository,
@@ -191,11 +198,9 @@ final class CategoryController extends AbstractController
 
         return $this->render('category/index.html.twig', [
             'category' => $category,
-            'canonical_url' => $this->generateUrl(
-                'category_show',
-                ['slug' => $category->getSlug()],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ),
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('category_show', [
+                'slug' => $category->getSlug(),
+            ]),
             'activeContext' => $activeContext,
             'context' => $activeContext,
             'currentContext' => $activeContext,
@@ -231,11 +236,12 @@ final class CategoryController extends AbstractController
     }
 
     private function resolveSelectedAirlineRules(
+        string $context,
         array $airlineSlugs,
         AirlineRepository $airlineRepository,
         AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
     ): array {
-        if ($airlineSlugs === []) {
+        if ($context !== Product::CONTEXT_SHOP || $airlineSlugs === []) {
             return [];
         }
 
@@ -253,7 +259,6 @@ final class CategoryController extends AbstractController
 
         return $airlineRules;
     }
-
 
     private function resolveActiveContext(Category $category): string
     {
