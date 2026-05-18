@@ -19,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class CollectionController extends AbstractController
 {
@@ -75,6 +76,7 @@ final class CollectionController extends AbstractController
             'activeContext' => Product::CONTEXT_SHOP,
             'context' => Product::CONTEXT_SHOP,
             'currentContext' => Product::CONTEXT_SHOP,
+            'canonical_url' => $this->generateUrl('shop_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
 
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
@@ -316,7 +318,11 @@ final class CollectionController extends AbstractController
             'activeContext' => $context,
             'context' => $context,
             'currentContext' => $context,
-
+            'canonical_url' => $this->generateUrl(
+                $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all',
+                [],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ),
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
 

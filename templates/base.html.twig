@@ -47,7 +47,9 @@
     {% endblock %}
 
     {% block canonical %}
-        {% if product is defined and variant is defined %}
+        {% if canonical_url is defined and canonical_url %}
+            <link rel="canonical" href="{{ canonical_url }}">
+        {% elseif product is defined and variant is defined %}
             <link rel="canonical" href="{{ app_url ~ path('product_show', {
                 slug: product.slug,
                 colorSlug: variant.supplierColorSlug,

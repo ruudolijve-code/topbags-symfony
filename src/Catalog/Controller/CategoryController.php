@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class CategoryController extends AbstractController
 {
@@ -190,6 +191,11 @@ final class CategoryController extends AbstractController
 
         return $this->render('category/index.html.twig', [
             'category' => $category,
+            'canonical_url' => $this->generateUrl(
+                'category_show',
+                ['slug' => $category->getSlug()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            ),
             'activeContext' => $activeContext,
             'context' => $activeContext,
             'currentContext' => $activeContext,
