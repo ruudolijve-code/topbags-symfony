@@ -21,7 +21,14 @@ final class BrandRepository extends ServiceEntityRepository
      * ========================================================== */
 
     /**
-     * Alle actieve merken (admin / generiek gebruik)
+     * Alle actieve merken, ook als er nog geen producten online staan.
+     *
+     * Gebruik voor:
+     * - /merken
+     * - admin
+     * - algemene merkoverzichten
+     *
+     * @return Brand[]
      */
     public function findAllActiveOrdered(): array
     {
@@ -32,44 +39,63 @@ final class BrandRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /* ==========================================================
-     * CONTEXT (SHOP / BAGS / WORK / SCHOOL)
-     * ========================================================== */
-
     /**
-     * Merken die actieve producten hebben binnen een context
+     * Alle actieve merken alfabetisch.
      *
-     * Wordt gebruikt voor:
-     * - shop filters
-     * - menu’s
-     * - context-switching
+     * Gebruik voor /merken.
+     *
+     * @return Brand[]
      */
-    public function findForContext(string $context): array
+    public function findAllOrderedByName(): array
     {
         return $this->createQueryBuilder('b')
-            ->innerJoin('b.products', 'p')
-            ->innerJoin('p.categories', 'c')
-            ->innerJoin('c.contexts', 'cc')
-            ->andWhere('cc.context = :context')
-            ->setParameter('context', $context)
             ->andWhere('b.isActive = true')
-            ->andWhere('p.isActive = true')
-            ->groupBy('b.id')
             ->orderBy('b.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
     /* ==========================================================
-     * DYNAMISCHE FILTERS (SHOP)
+     * CONTEXT-FILTERS
      * ========================================================== */
 
     /**
-     * Merken die mogelijk zijn binnen de huidige selectie
+     * Merken die actieve producten hebben binnen een context.
      *
-     * @param string      $context        shop | bags | …
+     * Gebruik voor:
+     * - shop filters
+     * - bags filters
+     * - contextmenu’s waar lege merken ongewenst zijn
+     *
+     * @return Brand[]
+     */
+    public function findForContext(string $context): array
+    {
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.products', 'p')
+            ->innerJoin('p.variants', 'v')
+            ->andWhere('b.isActive = true')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', $context)
+            ->groupBy('b.id')
+            ->orderBy('b.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Dynamische merkfilters binnen een selectie.
+     *
+     * Hier wil je juist geen lege merken tonen,
+     * omdat een filter anders naar 0 resultaten leidt.
+     *
+     * @param string        $context
      * @param string[]|null $categorySlugs
      * @param string[]|null $sizeSlugs
+     *
+     * @return Brand[]
      */
     public function findForContextFilterDynamic(
         string $context,
@@ -78,26 +104,25 @@ final class BrandRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('b')
             ->innerJoin('b.products', 'p')
-            ->innerJoin('p.categories', 'c')
-            ->innerJoin('c.contexts', 'cc')
-            ->andWhere('cc.context = :context')
-            ->setParameter('context', $context)
+            ->innerJoin('p.variants', 'v')
+            ->leftJoin('p.categories', 'c')
             ->andWhere('b.isActive = true')
             ->andWhere('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', $context)
             ->groupBy('b.id');
 
-        // Type / categorie filter
-        if ($categorySlugs) {
+        if ($categorySlugs !== null && $categorySlugs !== []) {
             $qb
-                ->andWhere('c.slug IN (:categories)')
-                ->setParameter('categories', $categorySlugs);
+                ->andWhere('c.slug IN (:categorySlugs)')
+                ->setParameter('categorySlugs', $categorySlugs);
         }
 
-        // Size (cabin / underseater als semantische categorie)
-        if ($sizeSlugs) {
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
             $qb
-                ->andWhere('c.slug IN (:sizes)')
-                ->setParameter('sizes', $sizeSlugs);
+                ->andWhere('c.slug IN (:sizeSlugs)')
+                ->setParameter('sizeSlugs', $sizeSlugs);
         }
 
         return $qb
@@ -106,14 +131,9 @@ final class BrandRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findAllOrderedByName(): array
-    {
-        return $this->createQueryBuilder('b')
-            ->orderBy('b.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
+    /**
+     * Exacte merk-match voor zoekfunctie.
+     */
     public function findActiveBySearchTerm(string $query): ?Brand
     {
         $query = mb_strtolower(trim($query));
@@ -123,7 +143,7 @@ final class BrandRepository extends ServiceEntityRepository
         }
 
         return $this->createQueryBuilder('b')
-            ->andWhere('b.isActive = 1')
+            ->andWhere('b.isActive = true')
             ->andWhere('LOWER(b.name) = :query OR LOWER(b.slug) = :query')
             ->setParameter('query', $query)
             ->setMaxResults(1)
@@ -131,55 +151,22 @@ final class BrandRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Actieve merken voor sitemap.
+     *
+     * Ook merken zonder online producten mogen hierin,
+     * omdat de merkpagina dan als winkel-/informatiepagina kan dienen.
+     *
+     * @return Brand[]
+     */
     public function findActiveForSitemap(): array
     {
         return $this->createQueryBuilder('b')
+            ->andWhere('b.isActive = true')
             ->andWhere('b.slug IS NOT NULL')
+            ->andWhere('b.slug != :empty')
+            ->setParameter('empty', '')
             ->orderBy('b.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Telt actieve producten voor een merk, over alle contexts heen.
-     */
-    public function countForBrandGrid(string $brandSlug): int
-    {
-        return (int) $this->createQueryBuilder('p')
-            ->select('COUNT(DISTINCT p.id)')
-            ->innerJoin('p.brand', 'b')
-            ->andWhere('p.isActive = true')
-            ->andWhere('b.isActive = true')
-            ->andWhere('b.slug = :brandSlug')
-            ->setParameter('brandSlug', $brandSlug)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    /**
-     * Haalt actieve producten voor een merk op, over alle contexts heen.
-     *
-     * @return Product[]
-     */
-    public function findForBrandGrid(
-        string $brandSlug,
-        int $limit = 12,
-        int $offset = 0
-    ): array {
-        return $this->createQueryBuilder('p')
-            ->select('DISTINCT p, b, v, c')
-            ->innerJoin('p.brand', 'b')
-            ->leftJoin('p.variants', 'v')
-            ->leftJoin('p.categories', 'c')
-            ->andWhere('p.isActive = true')
-            ->andWhere('b.isActive = true')
-            ->andWhere('b.slug = :brandSlug')
-            ->andWhere('v.isActive = true')
-            ->setParameter('brandSlug', $brandSlug)
-            ->orderBy('p.productContext', 'DESC')
-            ->addOrderBy('p.name', 'ASC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
     }

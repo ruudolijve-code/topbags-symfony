@@ -983,8 +983,10 @@ final class ProductRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('p')
             ->select('COUNT(DISTINCT p.id)')
             ->innerJoin('p.brand', 'b')
-            ->innerJoin('p.variants', 'mv', 'WITH', 'mv.isMaster = true AND mv.isActive = true')
-            ->andWhere('p.isActive = true');
+            ->innerJoin('p.variants', 'v')
+            ->andWhere('p.isActive = true')
+            ->andWhere('b.isActive = true')
+            ->andWhere('v.isActive = true');
 
         if ($brandSlugs !== []) {
             $qb
@@ -992,44 +994,66 @@ final class ProductRepository extends ServiceEntityRepository
                 ->setParameter('brandSlugs', $brandSlugs);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
+    /**
+     * Producten voor merkpagina's, context-overstijgend.
+     *
+     * Eerst halen we unieke product-ID's op met pagination.
+     * Daarna laden we de volledige producten met varianten en afbeeldingen.
+     *
+     * @return Product[]
+     */
     public function findForBrandGrid(
         int $limit,
         int $offset,
         array $brandSlugs = []
     ): array {
-        $qb = $this->createQueryBuilder('p')
-            ->select('DISTINCT p', 'b', 'mv', 'pi', 'v')
+       $idQb = $this->createQueryBuilder('p')
+            ->select('p.id AS id')
+            ->addSelect('MIN(p.name) AS sortName')
             ->innerJoin('p.brand', 'b')
-            ->innerJoin('p.variants', 'mv', 'WITH', 'mv.isMaster = true AND mv.isActive = true')
-            ->leftJoin('mv.images', 'pi', 'WITH', 'pi.isPrimary = true')
-            ->leftJoin('p.variants', 'v', 'WITH', 'v.isActive = true')
+            ->innerJoin('p.variants', 'v')
             ->andWhere('p.isActive = true')
-            ->orderBy('p.name', 'ASC')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit);
+            ->andWhere('b.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->groupBy('p.id');
 
         if ($brandSlugs !== []) {
-            $qb
+            $idQb
                 ->andWhere('b.slug IN (:brandSlugs)')
                 ->setParameter('brandSlugs', $brandSlugs);
         }
 
-        return $qb->getQuery()->getResult();
-    }
+       $rows = $idQb
+            ->orderBy('sortName', 'ASC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult();
 
-    public function findActiveForSitemap(): array
-    {
+        $ids = array_map('intval', array_column($rows, 'id'));
+
+        if ($ids === []) {
+            return [];
+        }
+
         return $this->createQueryBuilder('p')
-            ->innerJoin('p.variants', 'mv')
-            ->addSelect('mv')
-            ->andWhere('p.isActive = true')
-            ->andWhere('p.slug IS NOT NULL')
-            ->andWhere('mv.isActive = true')
-            ->andWhere('mv.isMaster = true')
-            ->orderBy('p.id', 'DESC')
+            ->select('DISTINCT p, b, v, color, i, c')
+            ->innerJoin('p.brand', 'b')
+            ->leftJoin('p.variants', 'v', 'WITH', 'v.isActive = true')
+            ->leftJoin('v.color', 'color')
+            ->leftJoin('v.images', 'i')
+            ->leftJoin('p.categories', 'c')
+            ->andWhere('p.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->orderBy('p.name', 'ASC')
+            ->addOrderBy('v.isMaster', 'DESC')
+            ->addOrderBy('v.id', 'ASC')
+            ->addOrderBy('i.position', 'ASC')
             ->getQuery()
             ->getResult();
     }
