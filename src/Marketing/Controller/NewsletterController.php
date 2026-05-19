@@ -86,10 +86,22 @@ final class NewsletterController extends AbstractController
 
         if ($existing instanceof NewsletterSubscription) {
             if (!$existing->isActive()) {
-                $existing->setIsActive(true);
-                $existing->setSource('footer');
+                $existing
+                    ->resubscribe()
+                    ->setSource('footer');
+
                 $em->flush();
+
+                $this->addFlash('newsletter_success', 'Bedankt! Je bent opnieuw ingeschreven voor de nieuwsbrief.');
+
+                return $this->redirectBack($request);
             }
+
+            /*
+             * Voor bestaande oude records die zijn aangemaakt vóór unsubscribeToken.
+             */
+            $existing->ensureUnsubscribeToken();
+            $em->flush();
 
             $this->addFlash('newsletter_success', 'Dit e-mailadres is al ingeschreven.');
 
@@ -100,7 +112,8 @@ final class NewsletterController extends AbstractController
         $subscription
             ->setEmail($email)
             ->setIsActive(true)
-            ->setSource('footer');
+            ->setSource('footer')
+            ->ensureUnsubscribeToken();
 
         $em->persist($subscription);
         $em->flush();
@@ -108,6 +121,38 @@ final class NewsletterController extends AbstractController
         $this->addFlash('newsletter_success', 'Bedankt! Je bent ingeschreven voor de nieuwsbrief.');
 
         return $this->redirectBack($request);
+    }
+
+    #[Route('/newsletter/unsubscribe/{token}', name: 'newsletter_unsubscribe', methods: ['GET'])]
+    public function unsubscribe(
+        string $token,
+        NewsletterSubscriptionRepository $repository,
+        EntityManagerInterface $em,
+    ): Response {
+        $token = trim($token);
+
+        if ($token === '') {
+            $this->addFlash('newsletter_error', 'Deze uitschrijflink is ongeldig.');
+
+            return $this->redirectToRoute('home');
+        }
+
+        $subscription = $repository->findOneBy(['unsubscribeToken' => $token]);
+
+        if (!$subscription instanceof NewsletterSubscription) {
+            $this->addFlash('newsletter_error', 'Deze uitschrijflink is ongeldig of verlopen.');
+
+            return $this->redirectToRoute('home');
+        }
+
+        if ($subscription->isActive()) {
+            $subscription->unsubscribe();
+            $em->flush();
+        }
+
+        $this->addFlash('newsletter_success', 'Je bent uitgeschreven voor de nieuwsbrief.');
+
+        return $this->redirectToRoute('home');
     }
 
     private function redirectBack(Request $request): Response
