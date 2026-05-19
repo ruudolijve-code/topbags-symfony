@@ -999,6 +999,52 @@ final class ProductRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function countColorsForBrandGrid(array $brandSlugs = []): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT color.id)')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'v')
+            ->leftJoin('v.color', 'color')
+            ->andWhere('p.isActive = true')
+            ->andWhere('b.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->andWhere('color.id IS NOT NULL');
+
+        if ($brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brandSlugs)')
+                ->setParameter('brandSlugs', $brandSlugs);
+        }
+
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countAvailableVariantsForBrandGrid(array $brandSlugs = []): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT v.id)')
+            ->innerJoin('p.brand', 'b')
+            ->innerJoin('p.variants', 'v')
+            ->leftJoin('v.stock', 's')
+            ->andWhere('p.isActive = true')
+            ->andWhere('b.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->andWhere('((s.onHand - s.reserved) > 0 OR v.allowBackorder = true)');
+
+        if ($brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brandSlugs)')
+                ->setParameter('brandSlugs', $brandSlugs);
+        }
+
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * Producten voor merkpagina's, context-overstijgend.
      *

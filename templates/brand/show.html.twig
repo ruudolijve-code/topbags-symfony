@@ -65,7 +65,6 @@
                         </div>
                     </div>
                 {% endif %}
-
             </div>
 
             <div class="mt-8 grid gap-4 border-t border-gray-100 pt-8 md:grid-cols-3">
@@ -102,15 +101,23 @@
            PRODUCT GRID
            ========================= #}
         <section>
-            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900">
                         {{ brand.name }} collectie
                     </h2>
 
-                    <p class="mt-1 text-sm text-gray-500">
-                        {{ pagination.totalItems }} {{ pagination.totalItems == 1 ? 'product' : 'producten' }} gevonden
-                    </p>
+                    <div class="mt-1 text-sm text-gray-500">
+                        {{ pagination.totalItems }} {{ pagination.totalItems == 1 ? 'model' : 'modellen' }} gevonden
+
+                        {% if totalColors is defined and totalColors > 0 %}
+                            <span class="text-gray-400">– in {{ totalColors }} {{ totalColors == 1 ? 'kleur' : 'kleuren' }}</span>
+                        {% endif %}
+
+                        {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                            <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare {{ totalAvailableVariants == 1 ? 'product' : 'producten' }}</span>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <a href="{{ path('contact_index') }}"
@@ -122,7 +129,7 @@
             {% if items is not empty %}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                     {% for item in items %}
-                        {% include 'shop/component/card/_card.html.twig' with {
+                        {% include 'shop/component/card/_card_functional.html.twig' with {
                             context: item.context|default(null),
                             product: item.product,
                             variant: item.variant,

@@ -70,6 +70,8 @@ final class BrandController extends AbstractController
         $brandSlugs = [$brandSlug];
 
         $totalItems = $productRepository->countForBrandGrid($brandSlugs);
+        $totalColors = $productRepository->countColorsForBrandGrid($brandSlugs);
+        $totalAvailableVariants = $productRepository->countAvailableVariantsForBrandGrid($brandSlugs);
 
         $pagination = $paginationService->create(
             page: $page,
@@ -119,6 +121,8 @@ final class BrandController extends AbstractController
             'items' => $items,
             'pagination' => $pagination,
             'categories' => [],
+            'totalColors' => $totalColors,
+            'totalAvailableVariants' => $totalAvailableVariants,
 
             // Merkpagina toont bewust alle contexts.
             'context' => null,
