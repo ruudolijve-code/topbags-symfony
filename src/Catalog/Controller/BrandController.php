@@ -2,7 +2,6 @@
 
 namespace App\Catalog\Controller;
 
-use App\Catalog\Entity\Product;
 use App\Catalog\Repository\BrandRepository;
 use App\Catalog\Repository\ProductRepository;
 use App\Catalog\Service\AvailabilityService;
@@ -18,7 +17,7 @@ final class BrandController extends AbstractController
     private const PER_PAGE = 12;
 
     public function __construct(
-        private VariantImagePathResolver $variantImagePathResolver
+        private readonly VariantImagePathResolver $variantImagePathResolver
     ) {
     }
 
@@ -65,27 +64,12 @@ final class BrandController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        /*
-         * Merkpagina's mogen niet vast op shop staan.
-         * Guess zit bijvoorbeeld in bags, Samsonite meestal in shop.
-         *
-         * Eerst controleren of dit merk actieve producten in bags heeft.
-         * Zo ja: toon de merkpagina als bags-context.
-         * Zo nee: val terug op shop-context.
-         */
-        $brandContext = $productRepository->countForContextGridWithFilters(
-            context: Product::CONTEXT_BAGS,
-            brandSlugs: [$brand->getSlug()],
-        ) > 0
-            ? Product::CONTEXT_BAGS
-            : Product::CONTEXT_SHOP;
-
         $page = max(1, $request->query->getInt('page', 1));
+        
+        $brandSlug = $brand->getSlug();
+        $brandSlugs = [$brandSlug];
 
-        $totalItems = $productRepository->countForContextGridWithFilters(
-            context: $brandContext,
-            brandSlugs: [$brand->getSlug()],
-        );
+        $totalItems = $productRepository->countForBrandGrid($brandSlugs);
 
         $pagination = $paginationService->create(
             page: $page,
@@ -93,11 +77,10 @@ final class BrandController extends AbstractController
             totalItems: $totalItems,
         );
 
-        $products = $productRepository->findForContextGridWithFilters(
-            context: $brandContext,
-            limit: $pagination->getLimit(),
-            offset: $pagination->getOffset(),
-            brandSlugs: [$brand->getSlug()],
+        $products = $productRepository->findForBrandGrid(
+            $pagination->getLimit(),
+            $pagination->getOffset(),
+            $brandSlugs
         );
 
         $items = [];
@@ -125,6 +108,9 @@ final class BrandController extends AbstractController
                 'variants' => $activeVariants,
                 'mediaPath' => $this->variantImagePathResolver->fromVariant($master),
                 'availability' => $availabilityService->get($master),
+
+                // Nodig voor de juiste productlink/context in de card.
+                'context' => $product->getProductContext(),
             ];
         }
 
@@ -133,8 +119,10 @@ final class BrandController extends AbstractController
             'items' => $items,
             'pagination' => $pagination,
             'categories' => [],
-            'context' => $brandContext,
-            'currentContext' => $brandContext,
+
+            // Merkpagina toont bewust alle contexts.
+            'context' => null,
+            'currentContext' => null,
         ]);
     }
 }

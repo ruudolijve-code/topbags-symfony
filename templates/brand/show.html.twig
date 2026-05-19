@@ -41,9 +41,8 @@
                             </p>
 
                             <p>
-                                Nog niet alle producten van {{ brand.name }} staan altijd online.
-                                Zoek je een specifiek model, kleur of maat? Neem gerust contact met ons op
-                                of kom langs voor de actuele collectie.
+                                Van koffers en reistassen tot tassen voor dagelijks gebruik: op deze merkpagina
+                                vind je de actuele online collectie van {{ brand.name }}.
                             </p>
                         </div>
                     {% endif %}
@@ -124,10 +123,11 @@
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                     {% for item in items %}
                         {% include 'shop/component/card/_card.html.twig' with {
-                            context: 'shop',
+                            context: item.context|default(null),
                             product: item.product,
                             variant: item.variant,
                             master: item.master,
+                            variants: item.variants|default([]),
                             mediaPath: item.mediaPath,
                             availability: item.availability
                         } only %}

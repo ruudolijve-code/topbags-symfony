@@ -139,4 +139,48 @@ final class BrandRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Telt actieve producten voor een merk, over alle contexts heen.
+     */
+    public function countForBrandGrid(string $brandSlug): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT p.id)')
+            ->innerJoin('p.brand', 'b')
+            ->andWhere('p.isActive = true')
+            ->andWhere('b.isActive = true')
+            ->andWhere('b.slug = :brandSlug')
+            ->setParameter('brandSlug', $brandSlug)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Haalt actieve producten voor een merk op, over alle contexts heen.
+     *
+     * @return Product[]
+     */
+    public function findForBrandGrid(
+        string $brandSlug,
+        int $limit = 12,
+        int $offset = 0
+    ): array {
+        return $this->createQueryBuilder('p')
+            ->select('DISTINCT p, b, v, c')
+            ->innerJoin('p.brand', 'b')
+            ->leftJoin('p.variants', 'v')
+            ->leftJoin('p.categories', 'c')
+            ->andWhere('p.isActive = true')
+            ->andWhere('b.isActive = true')
+            ->andWhere('b.slug = :brandSlug')
+            ->andWhere('v.isActive = true')
+            ->setParameter('brandSlug', $brandSlug)
+            ->orderBy('p.productContext', 'DESC')
+            ->addOrderBy('p.name', 'ASC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
 }
