@@ -51,8 +51,16 @@ final class ImportNewsletterSubscriptionsCommand extends Command
 
         $created = 0;
         $skippedExisting = 0;
+        $skippedDuplicateInFile = 0;
         $skippedInvalid = 0;
         $rowNumber = 0;
+
+        /**
+         * Voorkomt dubbele adressen binnen hetzelfde CSV-bestand.
+         *
+         * @var array<string, true> $seenEmails
+         */
+        $seenEmails = [];
 
         while (($row = fgetcsv($handle, 0, ',')) !== false) {
             ++$rowNumber;
@@ -71,12 +79,22 @@ final class ImportNewsletterSubscriptionsCommand extends Command
                 continue;
             }
 
+            /*
+             * Dubbel adres binnen hetzelfde importbestand overslaan.
+             */
+            if (isset($seenEmails[$email])) {
+                ++$skippedDuplicateInFile;
+                continue;
+            }
+
+            $seenEmails[$email] = true;
+
             $existing = $this->repository->findOneByEmail($email);
 
             if ($existing instanceof NewsletterSubscription) {
                 /*
-                 * Veiligste AVG-keuze:
-                 * bestaande adressen niet wijzigen en niet opnieuw activeren.
+                 * Bestaande adressen niet opnieuw activeren.
+                 * Wel token garanderen voor oude records.
                  */
                 $existing->ensureUnsubscribeToken();
 
@@ -94,9 +112,8 @@ final class ImportNewsletterSubscriptionsCommand extends Command
             $this->em->persist($subscription);
             ++$created;
 
-            if (($created + $skippedExisting + $skippedInvalid) % 100 === 0) {
+            if (($created + $skippedExisting + $skippedDuplicateInFile + $skippedInvalid) % 100 === 0) {
                 $this->em->flush();
-                $this->em->clear();
             }
         }
 
@@ -107,6 +124,7 @@ final class ImportNewsletterSubscriptionsCommand extends Command
         $output->writeln('<info>Import klaar.</info>');
         $output->writeln(sprintf('Nieuw toegevoegd: %d', $created));
         $output->writeln(sprintf('Bestaand overgeslagen: %d', $skippedExisting));
+        $output->writeln(sprintf('Dubbel in bestand overgeslagen: %d', $skippedDuplicateInFile));
         $output->writeln(sprintf('Ongeldig overgeslagen: %d', $skippedInvalid));
 
         return Command::SUCCESS;
