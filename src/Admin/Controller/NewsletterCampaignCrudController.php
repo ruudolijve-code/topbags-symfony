@@ -51,7 +51,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
-    public function configureActions(Actions $actions): Actions
+   public function configureActions(Actions $actions): Actions
     {
         $preview = Action::new('previewNewsletter', 'Preview', 'fa fa-eye')
             ->linkToUrl(function (NewsletterCampaign $campaign): string {
@@ -67,11 +67,24 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                 'rel' => 'noopener noreferrer',
             ]);
 
+        $testMail = Action::new('testNewsletter', 'Testmail', 'fa fa-paper-plane')
+            ->linkToUrl(function (NewsletterCampaign $campaign): string {
+                return $this->adminUrlGenerator
+                    ->unsetAll()
+                    ->setRoute('admin_newsletter_campaign_test_mail', [
+                        'id' => $campaign->getId(),
+                    ])
+                    ->generateUrl();
+            });
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $preview)
+            ->add(Crud::PAGE_INDEX, $testMail)
             ->add(Crud::PAGE_DETAIL, $preview)
+            ->add(Crud::PAGE_DETAIL, $testMail)
             ->add(Crud::PAGE_EDIT, $preview)
+            ->add(Crud::PAGE_EDIT, $testMail)
             ->add(Crud::PAGE_EDIT, Action::DETAIL)
             ->disable(Action::DELETE);
     }
