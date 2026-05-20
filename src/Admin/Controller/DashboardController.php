@@ -14,6 +14,7 @@ use App\Catalog\Entity\Supplier;
 use App\Catalog\Entity\VariantSupply;
 use App\Loyalty\Entity\TravelMilesMember;
 use App\Loyalty\Entity\TravelMilesVoucher;
+use App\Marketing\Entity\NewsletterCampaign;
 use App\Marketing\Entity\NewsletterSubscription;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
@@ -53,26 +54,33 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
 
         /*
-         * Winkelmedewerker + volledige admin
+         * Winkelmedewerker + volledige admin.
          *
          * Door role_hierarchy geldt:
          * ROLE_ADMIN heeft ook ROLE_STORE.
          */
         if ($this->isGranted('ROLE_STORE')) {
             yield MenuItem::section('Shop');
+
             yield MenuItem::linkToCrud('Orders', 'fa fa-receipt', Order::class)
                 ->setController(OrderCrudController::class);
 
             yield MenuItem::section('Loyalty');
+
             yield MenuItem::linkToCrud('Travelmiles leden', 'fa fa-stamp', TravelMilesMember::class)
                 ->setController(TravelMilesMemberCrudController::class);
 
             yield MenuItem::linkToCrud('Travelmiles vouchers', 'fa fa-gift', TravelMilesVoucher::class)
                 ->setController(TravelMilesVoucherCrudController::class);
+
+            yield MenuItem::section('Marketing');
+
+            yield MenuItem::linkToCrud('Nieuwsbriefinschrijvingen', 'fa fa-envelope', NewsletterSubscription::class)
+                ->setController(NewsletterSubscriptionCrudController::class);
         }
 
         /*
-         * Alleen volledige admin
+         * Alleen volledige admin.
          */
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::section('Catalogus');
@@ -98,10 +106,12 @@ final class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Categorieën / menu', 'fa fa-folder-tree', Category::class)
                 ->setController(CategoryCrudController::class);
 
-            yield MenuItem::section('Marketing');
+            yield MenuItem::section('Nieuwsbrieven');
 
-            yield MenuItem::linkToCrud('Nieuwsbriefinschrijvingen', 'fa fa-envelope', NewsletterSubscription::class)
-                ->setController(NewsletterSubscriptionCrudController::class);
+            yield MenuItem::linkToCrud('Nieuwsbrieven maken', 'fa fa-envelope-open-text', NewsletterCampaign::class)
+                ->setController(NewsletterCampaignCrudController::class);
+
+            yield MenuItem::section('Marketing beheer');
 
             yield MenuItem::linkToCrud('Coupons', 'fa fa-percent', Coupon::class)
                 ->setController(CouponCrudController::class);

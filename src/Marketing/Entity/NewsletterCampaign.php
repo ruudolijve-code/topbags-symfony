@@ -101,6 +101,11 @@ class NewsletterCampaign
         return $this->htmlBody;
     }
 
+    public function getEmailPreview(): string
+    {
+        return '';
+    }
+
     public function setHtmlBody(string $htmlBody): self
     {
         $this->htmlBody = $htmlBody;
