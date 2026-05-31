@@ -73,14 +73,28 @@ class OrderService
         $subtotal = 0.0;
 
         foreach ($cartItems as $item) {
-            $lineTotal = (float) $item['price'] * (int) $item['qty'];
+            $sku = (string) $item['sku'];
+            $price = (float) $item['price'];
+            $qty = (int) $item['qty'];
+            $lineTotal = $price * $qty;
+
             $subtotal += $lineTotal;
 
+            $variant = $this->variantRepository->findOneBy([
+                'variantSku' => $sku,
+            ]);
+
+            $product = $variant?->getProduct();
+            $brandName = $product?->getBrand()?->getName();
+            $supplierColorName = $variant?->getSupplierColorName();
+
             $orderItem = (new OrderItem())
-                ->setProductName($item['name'])
-                ->setVariantSku($item['sku'])
-                ->setPrice($item['price'])
-                ->setQty($item['qty'])
+                ->setProductName((string) $item['name'])
+                ->setBrandName($brandName)
+                ->setSupplierColorName($supplierColorName)
+                ->setVariantSku($sku)
+                ->setPrice($price)
+                ->setQty($qty)
                 ->setLineTotal($lineTotal);
 
             $order->addItem($orderItem);
