@@ -1,5 +1,4 @@
 {# ========= Kleur ========= #}
-
 {% if colors is defined and colors is not empty %}
     <div>
         <h2 class="font-semibold mb-3">Kleur</h2>
@@ -8,8 +7,10 @@
             {% for color in colors %}
                 {% set isActive = color.slug in activeColors %}
 
-                <label class="relative cursor-pointer group">
-
+                <label
+                    class="relative inline-flex cursor-pointer items-center justify-center group"
+                    title="{{ color.name }}"
+                >
                     <input
                         type="checkbox"
                         name="color[]"
@@ -21,33 +22,34 @@
                     {# kleurbol #}
                     <span
                         class="
-                            block w-7 h-7 rounded-full border
+                            block h-7 w-7 rounded-full border border-gray-300 shadow-sm
                             transition-all duration-200
-                            shadow-sm
-                            {% if isActive %}
-                                ring-2 ring-amber-500 border-amber-500
-                            {% else %}
-                                border-gray-300 group-hover:ring-2 group-hover:ring-gray-400
-                            {% endif %}
+
+                            group-hover:ring-1 group-hover:ring-gray-400 group-hover:ring-offset-2
+
+                            peer-checked:ring-2
+                            peer-checked:ring-black
+                            peer-checked:ring-offset-2
+                            peer-checked:border-black
                         "
-                        style="background-color: {{ color.hex }};"
-                        title="{{ color.name }}"
+                        style="background-color: {{ color.hex ?: '#d1d5db' }};"
                     ></span>
 
-                    {# checkmark bij actief #}
-                    {% if isActive %}
-                        <span class="
+                    {# subtiele checkmark bij actief #}
+                    <span
+                        class="
                             absolute inset-0 flex items-center justify-center
-                            text-white text-xs font-bold
+                            text-xs font-bold text-white
+                            opacity-0 transition-opacity
                             pointer-events-none
-                        ">
-                            ✓
-                        </span>
-                    {% endif %}
 
+                            peer-checked:opacity-100
+                        "
+                    >
+                        ✓
+                    </span>
                 </label>
             {% endfor %}
         </div>
     </div>
 {% endif %}
-
