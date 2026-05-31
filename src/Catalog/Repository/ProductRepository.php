@@ -28,7 +28,8 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        string $sort = 'recommended',
     ): array {
         $ids = $this->findIdsForContextGridWithFilters(
             context: $context,
@@ -41,6 +42,7 @@ final class ProductRepository extends ServiceEntityRepository
             airlineRules: $airlineRules,
             volumeRanges: $volumeRanges,
             colorSlugs: $colorSlugs,
+            sort: $sort,
         );
 
         if ($ids === []) {
@@ -71,11 +73,13 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
 
         $byId = [];
+
         foreach ($products as $product) {
             $byId[$product->getId()] = $product;
         }
 
         $ordered = [];
+
         foreach ($ids as $id) {
             if (isset($byId[$id])) {
                 $ordered[] = $byId[$id];
@@ -95,7 +99,8 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        string $sort = 'recommended',
     ): array {
         $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id AS id')
@@ -111,7 +116,6 @@ final class ProductRepository extends ServiceEntityRepository
             ->where('p.isActive = 1')
             ->andWhere('p.productContext = :context')
             ->setParameter('context', $context)
-            ->orderBy('p.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit);
 
@@ -147,12 +151,50 @@ final class ProductRepository extends ServiceEntityRepository
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
+        $this->applyContextGridSorting($qb, $sort);
+
         $rows = $qb->getQuery()->getScalarResult();
 
         return array_map(
-            static fn(array $row): int => (int) $row['id'],
+            static fn (array $row): int => (int) $row['id'],
             $rows
         );
+    }
+
+    private function applyContextGridSorting(\Doctrine\ORM\QueryBuilder $qb, string $sort): void
+    {
+        match ($sort) {
+            'price_asc' => $qb
+                ->addSelect('MIN(variants.price) AS HIDDEN sortPrice')
+                ->groupBy('p.id')
+                ->orderBy('sortPrice', 'ASC')
+                ->addOrderBy('p.id', 'DESC'),
+
+            'price_desc' => $qb
+                ->addSelect('MIN(variants.price) AS HIDDEN sortPrice')
+                ->groupBy('p.id')
+                ->orderBy('sortPrice', 'DESC')
+                ->addOrderBy('p.id', 'DESC'),
+
+            'name_asc' => $qb
+                ->addSelect('p.name AS HIDDEN sortName')
+                ->orderBy('sortName', 'ASC')
+                ->addOrderBy('p.id', 'DESC'),
+
+            'name_desc' => $qb
+                ->addSelect('p.name AS HIDDEN sortName')
+                ->orderBy('sortName', 'DESC')
+                ->addOrderBy('p.id', 'DESC'),
+
+            'newest' => $qb
+                ->orderBy('p.id', 'DESC'),
+
+            'bestseller' => $qb
+                ->orderBy('p.id', 'DESC'),
+
+            default => $qb
+                ->orderBy('p.id', 'DESC'),
+        };
     }
 
     public function countForContextGridWithFilters(
@@ -1521,5 +1563,36 @@ final class ProductRepository extends ServiceEntityRepository
             ->orderBy('p.id', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    private function applySorting(QueryBuilder $qb, string $sort): void
+    {
+        match ($sort) {
+            'newest' => $qb
+                ->addOrderBy('p.createdAt', 'DESC')
+                ->addOrderBy('p.id', 'DESC'),
+
+            'price_asc' => $qb
+                ->addOrderBy('MIN(v.price)', 'ASC')
+                ->addOrderBy('p.name', 'ASC'),
+
+            'price_desc' => $qb
+                ->addOrderBy('MIN(v.price)', 'DESC')
+                ->addOrderBy('p.name', 'ASC'),
+
+            'name_asc' => $qb
+                ->addOrderBy('p.name', 'ASC'),
+
+            'name_desc' => $qb
+                ->addOrderBy('p.name', 'DESC'),
+
+            'bestseller' => $qb
+                ->addOrderBy('p.position', 'ASC')
+                ->addOrderBy('p.name', 'ASC'),
+
+            default => $qb
+                ->addOrderBy('p.position', 'ASC')
+                ->addOrderBy('p.name', 'ASC'),
+        };
     }
 }

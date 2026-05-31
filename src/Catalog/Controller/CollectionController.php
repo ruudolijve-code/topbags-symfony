@@ -169,6 +169,10 @@ final class CollectionController extends AbstractController
         $volumeRanges = $this->getStringArrayQuery($request, 'volume');
         $colorSlugs = $this->getStringArrayQuery($request, 'color');
 
+        $sort = $this->normalizeSort(
+            (string) $request->query->get('sort', 'recommended')
+        );
+
         $airlineSlugs = $context === Product::CONTEXT_SHOP
             ? $this->getStringArrayQuery($request, 'airline')
             : [];
@@ -221,6 +225,7 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            sort: $sort,
         );
 
         $matchingVariants = $colorSlugs !== []
@@ -333,6 +338,7 @@ final class CollectionController extends AbstractController
             'activeColors' => $colorSlugs,
             'currentAirline' => $airlineSlugs[0] ?? null,
             'currentScope' => $selectedScope !== '' ? $selectedScope : 'all',
+            'currentSort' => $sort,
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
@@ -389,6 +395,21 @@ final class CollectionController extends AbstractController
             (array) $request->query->all($key),
             static fn (mixed $value): bool => is_string($value) && $value !== ''
         ));
+    }
+
+    private function normalizeSort(string $sort): string
+    {
+        $allowedSorts = [
+            'recommended',
+            'newest',
+            'bestseller',
+            'price_desc',
+            'price_asc',
+            'name_asc',
+            'name_desc',
+        ];
+
+        return in_array($sort, $allowedSorts, true) ? $sort : 'recommended';
     }
 
     /**
