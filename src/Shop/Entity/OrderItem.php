@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Shop\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -16,10 +18,16 @@ class OrderItem
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Order $order;
 
-    #[ORM\Column]
+    #[ORM\Column(length: 255)]
     private string $productName;
 
-    #[ORM\Column]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $brandName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $supplierColorName = null;
+
+    #[ORM\Column(length: 100)]
     private string $variantSku;
 
     #[ORM\Column]
@@ -36,6 +44,18 @@ class OrderItem
         return $this->id;
     }
 
+    public function getOrder(): ?Order
+    {
+        return $this->order;
+    }
+
+    public function setOrder(?Order $order): static
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
     public function getProductName(): ?string
     {
         return $this->productName;
@@ -44,6 +64,30 @@ class OrderItem
     public function setProductName(string $productName): static
     {
         $this->productName = $productName;
+
+        return $this;
+    }
+
+    public function getBrandName(): ?string
+    {
+        return $this->brandName;
+    }
+
+    public function setBrandName(?string $brandName): static
+    {
+        $this->brandName = $brandName;
+
+        return $this;
+    }
+
+    public function getSupplierColorName(): ?string
+    {
+        return $this->supplierColorName;
+    }
+
+    public function setSupplierColorName(?string $supplierColorName): static
+    {
+        $this->supplierColorName = $supplierColorName;
 
         return $this;
     }
@@ -96,16 +140,23 @@ class OrderItem
         return $this;
     }
 
-    public function getOrder(): ?Order
+    public function getDisplayName(): string
     {
-        return $this->order;
+        $parts = [];
+
+        if ($this->brandName) {
+            $parts[] = $this->brandName;
+        }
+
+        $parts[] = $this->productName;
+
+        if ($this->supplierColorName && !str_contains(
+            mb_strtolower($this->productName),
+            mb_strtolower($this->supplierColorName)
+        )) {
+            $parts[] = $this->supplierColorName;
+        }
+
+        return implode(' ', $parts);
     }
-
-    public function setOrder(?Order $order): static
-    {
-        $this->order = $order;
-
-        return $this;
-    }
-
 }
