@@ -61,9 +61,9 @@ final class ColorCrudController extends AbstractCrudController
             ->setRequired(false)
             ->setHelp('Mag leeg blijven. Wordt automatisch gevuld op basis van de naam.');
 
-        yield ColorField::new('hex', 'Hex-kleur')
+        yield TextField::new('hex', 'Hex-code')
             ->setRequired(false)
-            ->setHelp('Bijvoorbeeld: #1F4080.');
+            ->setHelp('Bijvoorbeeld: #1F4080 of 1F4080. De # wordt automatisch toegevoegd als je die vergeet.');
 
         yield ChoiceField::new('swatchType', 'Swatch type')
             ->setChoices([
