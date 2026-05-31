@@ -1503,4 +1503,23 @@ final class ProductRepository extends ServiceEntityRepository
 
         return $this->orderVariantsByIds($variants, $ids);
     }
+
+        /**
+     * @return Product[]
+     */
+    public function findActiveForSitemap(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.brand', 'b')
+            ->addSelect('b')
+            ->leftJoin('p.variants', 'v')
+            ->addSelect('v')
+            ->andWhere('p.isActive = true')
+            ->andWhere('p.slug IS NOT NULL')
+            ->andWhere('p.slug != :empty')
+            ->setParameter('empty', '')
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
