@@ -61,9 +61,17 @@ final class ColorCrudController extends AbstractCrudController
             ->setRequired(false)
             ->setHelp('Mag leeg blijven. Wordt automatisch gevuld op basis van de naam.');
 
-        yield TextField::new('hex', 'Hex-code')
-            ->setRequired(false)
-            ->setHelp('Bijvoorbeeld: #1F4080 of 1F4080. De # wordt automatisch toegevoegd als je die vergeet.');
+        if (Crud::PAGE_INDEX === $pageName || Crud::PAGE_DETAIL === $pageName) {
+            yield ColorField::new('hex', 'Kleur')
+                ->setRequired(false);
+
+            yield TextField::new('hex', 'Hex-code')
+                ->onlyOnIndex();
+        } else {
+            yield TextField::new('hex', 'Hex-code')
+                ->setRequired(false)
+                ->setHelp('Bijvoorbeeld: #1F4080 of 1F4080. De # wordt automatisch toegevoegd als je die vergeet.');
+        }
 
         yield ChoiceField::new('swatchType', 'Swatch type')
             ->setChoices([
@@ -142,30 +150,37 @@ final class ColorCrudController extends AbstractCrudController
     private function normalizeColor(Color $color): void
     {
         $name = trim($color->getName());
-
         $color->setName($name);
 
-        if (trim($color->getSlug()) === '') {
-            $color->setSlug(
-                strtolower($this->slugger->slug($name)->toString())
-            );
-        } else {
-            $color->setSlug(
-                strtolower($this->slugger->slug($color->getSlug())->toString())
-            );
+        $slug = trim($color->getSlug());
+
+        if ($slug === '') {
+            $slug = $name;
         }
 
-        if ($color->getHex()) {
-            $hex = strtoupper(trim($color->getHex()));
+        $color->setSlug(
+            strtolower($this->slugger->slug($slug)->toString())
+        );
+
+        $hex = $color->getHex();
+
+        if ($hex !== null && trim($hex) !== '') {
+            $hex = strtoupper(trim($hex));
 
             if (!str_starts_with($hex, '#')) {
                 $hex = '#' . $hex;
             }
 
+            if (!preg_match('/^#[0-9A-F]{6}$/', $hex)) {
+                throw new \InvalidArgumentException('Ongeldige hex-code. Gebruik bijvoorbeeld #1F4080.');
+            }
+
             $color->setHex($hex);
+        } else {
+            $color->setHex(null);
         }
 
-        if ($color->getSwatchType() === '') {
+        if (trim($color->getSwatchType()) === '') {
             $color->setSwatchType('solid');
         }
 
