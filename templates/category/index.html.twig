@@ -5,6 +5,21 @@
 {% endblock %}
 
 {% block body %}
+{% set currentSort = currentSort|default(app.request.query.get('sort', 'recommended')) %}
+{% set routeName = app.request.attributes.get('_route') %}
+{% set routeParams = app.request.attributes.get('_route_params') %}
+{% set queryParams = app.request.query.all %}
+
+{% set sortOptions = {
+    recommended: 'Aanbevolen',
+    newest: 'Nieuwste eerst',
+    bestseller: 'Meest verkocht',
+    price_desc: 'Prijs aflopend',
+    price_asc: 'Prijs oplopend',
+    name_asc: 'Alfabetisch A - Z',
+    name_desc: 'Alfabetisch Z - A'
+} %}
+
 <div
     class="w-full border-b border-gray-200 bg-grey-50"
     x-data="{ mobileFiltersOpen: false }"
@@ -16,7 +31,6 @@
                 {{ category.menuLabel ?: category.name }}
             </h1>
 
-            {# Intro tekst boven productgrid #}
             {% if category.introDescription %}
                 <div class="rich-text-content max-w-3xl text-lg text-gray-600 leading-relaxed">
                     {{ category.introDescription|raw }}
@@ -28,20 +42,53 @@
             {% endif %}
         </header>
 
-        {# Mobiele toolbar #}
-        <div class="flex items-center justify-between gap-4 mb-6 lg:hidden">
-            <button
-                type="button"
-                @click="mobileFiltersOpen = true"
-                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M6 12h12M10 18h4" />
-                </svg>
-                Filter kiezen
-            </button>
+        {# Mobiele toolbar: filter + sorteren #}
+        <div class="mb-6 lg:hidden">
+            <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    @click="mobileFiltersOpen = true"
+                    class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 shadow-sm"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M6 12h12M10 18h4" />
+                    </svg>
+                    Filter
+                </button>
 
-            <div class="text-sm text-gray-500 text-right">
+                <form method="get" class="min-w-0 flex-1">
+                    {% for key, value in queryParams %}
+                        {% if key != 'sort' and key != 'page' %}
+                            {% if value is iterable %}
+                                {% for subValue in value %}
+                                    <input type="hidden" name="{{ key }}[]" value="{{ subValue }}">
+                                {% endfor %}
+                            {% else %}
+                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <label for="sort-mobile" class="sr-only">
+                        Sorteren
+                    </label>
+
+                    <select
+                        id="sort-mobile"
+                        name="sort"
+                        onchange="this.form.submit()"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-sm font-medium text-gray-900 shadow-sm"
+                    >
+                        {% for value, label in sortOptions %}
+                            <option value="{{ value }}" {{ currentSort == value ? 'selected' : '' }}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="mt-3 text-sm text-gray-500">
                 {{ pagination.totalItems }} modellen gevonden
 
                 {% if totalColors is defined and totalColors > 0 %}
@@ -59,6 +106,10 @@
             {# Desktop filters #}
             <aside class="hidden lg:block rounded-xl bg-white p-6 shadow-sm lg:col-span-1">
                 <form method="get" class="space-y-6">
+                    {% if currentSort != 'recommended' %}
+                        <input type="hidden" name="sort" value="{{ currentSort }}">
+                    {% endif %}
+
                     {% if 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
@@ -88,16 +139,50 @@
             {# Product grid #}
             <section class="lg:col-span-3">
 
-                <div class="hidden lg:block mb-4 text-sm text-gray-500">
-                    {{ pagination.totalItems }} modellen gevonden
+                {# Desktop toolbar: telling + sorteren #}
+                <div class="hidden lg:flex mb-4 items-center justify-between gap-4">
+                    <div class="text-sm text-gray-500">
+                        {{ pagination.totalItems }} modellen gevonden
 
-                    {% if totalColors is defined and totalColors > 0 %}
-                        <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
-                    {% endif %}
+                        {% if totalColors is defined and totalColors > 0 %}
+                            <span class="text-gray-400">– in {{ totalColors }} kleuren</span>
+                        {% endif %}
 
-                    {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
-                        <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
-                    {% endif %}
+                        {% if totalAvailableVariants is defined and totalAvailableVariants > 0 %}
+                            <span class="text-gray-400">– {{ totalAvailableVariants }} leverbare producten</span>
+                        {% endif %}
+                    </div>
+
+                    <form method="get" class="flex items-center gap-2">
+                        {% for key, value in queryParams %}
+                            {% if key != 'sort' and key != 'page' %}
+                                {% if value is iterable %}
+                                    {% for subValue in value %}
+                                        <input type="hidden" name="{{ key }}[]" value="{{ subValue }}">
+                                    {% endfor %}
+                                {% else %}
+                                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <label for="sort-desktop" class="text-sm text-gray-500">
+                            Sorteer op
+                        </label>
+
+                        <select
+                            id="sort-desktop"
+                            name="sort"
+                            onchange="this.form.submit()"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm"
+                        >
+                            {% for value, label in sortOptions %}
+                                <option value="{{ value }}" {{ currentSort == value ? 'selected' : '' }}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
                 </div>
 
                 {% if items is not empty %}
@@ -121,12 +206,11 @@
 
                 {% if pagination.totalPages > 1 %}
                     <nav class="mt-10 flex flex-wrap items-center justify-center gap-2">
-                        {% set routeName = app.request.attributes.get('_route') %}
                         {% set query = app.request.query.all %}
 
                         {% if pagination.hasPreviousPage %}
                             <a
-                                href="{{ path(routeName, { slug: category.slug }|merge(query)|merge({ page: pagination.previousPage })) }}"
+                                href="{{ path(routeName, routeParams|merge(query)|merge({ page: pagination.previousPage })) }}"
                                 class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
                             >
                                 Vorige
@@ -135,7 +219,7 @@
 
                         {% for p in pagination.pages %}
                             <a
-                                href="{{ path(routeName, { slug: category.slug }|merge(query)|merge({ page: p })) }}"
+                                href="{{ path(routeName, routeParams|merge(query)|merge({ page: p })) }}"
                                 class="rounded-full border px-4 py-2 text-sm {{ p == pagination.page ? 'border-black bg-black text-white' : 'border-gray-300 hover:bg-gray-50' }}"
                             >
                                 {{ p }}
@@ -144,7 +228,7 @@
 
                         {% if pagination.hasNextPage %}
                             <a
-                                href="{{ path(routeName, { slug: category.slug }|merge(query)|merge({ page: pagination.nextPage })) }}"
+                                href="{{ path(routeName, routeParams|merge(query)|merge({ page: pagination.nextPage })) }}"
                                 class="rounded-full border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
                             >
                                 Volgende
@@ -155,7 +239,6 @@
             </section>
         </div>
 
-        {# SEO tekst onder productgrid #}
         {% if category.seoDescription %}
             <section class="mt-14 border-t border-gray-200 pt-10">
                 <div class="rich-text-content max-w-4xl text-lg text-gray-700 leading-relaxed">
@@ -213,6 +296,10 @@
                 </div>
 
                 <form method="get" class="flex-1 overflow-y-auto px-5 py-5 space-y-6 bg-white">
+                    {% if currentSort != 'recommended' %}
+                        <input type="hidden" name="sort" value="{{ currentSort }}">
+                    {% endif %}
+
                     {% if 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
@@ -239,7 +326,7 @@
 
                     <div class="sticky bottom-0 bg-white pt-4 pb-2 border-t border-gray-200 flex gap-3">
                         <a
-                            href="{{ path(app.request.attributes.get('_route'), { slug: category.slug }) }}"
+                            href="{{ path(routeName, routeParams) }}"
                             class="flex-1 inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700"
                         >
                             Wis filters

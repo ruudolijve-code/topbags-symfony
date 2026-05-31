@@ -25,6 +25,7 @@ final class CategoryController extends AbstractController
 {
     private const PER_PAGE = 15;
     private const CANONICAL_HOST = 'https://topbags.nl';
+    private const ALL_SCOPES = ['personal', 'cabin', 'hold'];
 
     public function __construct(
         private readonly VariantImagePathResolver $variantImagePathResolver,
@@ -62,15 +63,20 @@ final class CategoryController extends AbstractController
         $volumeRanges = $this->getQueryArray($request, 'volume');
         $colorSlugs = $this->getQueryArray($request, 'color');
 
+        $sort = $this->normalizeSort(
+            (string) $request->query->get('sort', 'recommended')
+        );
+
         $airlineSlugs = $activeContext === Product::CONTEXT_SHOP
             ? $this->getQueryArray($request, 'airline')
             : [];
 
-        $scope = $activeContext === Product::CONTEXT_SHOP
+        $rawScope = $activeContext === Product::CONTEXT_SHOP
             ? trim((string) $request->query->get('scope', ''))
             : '';
 
-        $scopeSlugs = $scope !== '' ? [$scope] : [];
+        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true) ? $rawScope : '';
+        $scopeSlugs = $selectedScope !== '' ? [$selectedScope] : [];
 
         $page = max(1, $request->query->getInt('page', 1));
 
@@ -109,6 +115,7 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            sort: $sort,
         );
 
         $matchingVariants = $colorSlugs !== []
@@ -201,23 +208,29 @@ final class CategoryController extends AbstractController
             'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('category_show', [
                 'slug' => $category->getSlug(),
             ]),
+
             'activeContext' => $activeContext,
             'context' => $activeContext,
             'currentContext' => $activeContext,
+
             'allowedFilters' => $allowedFilters,
             'items' => $items,
             'brands' => $availableBrands,
             'categories' => $categoryRepository->findForContext($activeContext),
             'airlines' => $availableAirlines,
             'colors' => $availableColors,
+
             'activeBrands' => $brandSlugs,
             'activeCategories' => $fixedCategorySlugs,
             'activeAirlines' => $airlineSlugs,
             'activeScopes' => $scopeSlugs,
             'activeVolumes' => $volumeRanges,
             'activeColors' => $colorSlugs,
+
             'currentAirline' => $airlineSlugs[0] ?? null,
             'currentScope' => $scopeSlugs[0] ?? null,
+            'currentSort' => $sort,
+
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
@@ -233,6 +246,21 @@ final class CategoryController extends AbstractController
             (array) $request->query->all($key),
             static fn (mixed $value): bool => is_string($value) && $value !== ''
         ));
+    }
+
+    private function normalizeSort(string $sort): string
+    {
+        $allowedSorts = [
+            'recommended',
+            'newest',
+            'bestseller',
+            'price_desc',
+            'price_asc',
+            'name_asc',
+            'name_desc',
+        ];
+
+        return in_array($sort, $allowedSorts, true) ? $sort : 'recommended';
     }
 
     private function resolveSelectedAirlineRules(
