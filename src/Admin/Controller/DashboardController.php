@@ -19,6 +19,9 @@ use App\Marketing\Entity\NewsletterSubscription;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
+use App\Catalog\Entity\Color;
+use App\Admin\Controller\ColorCrudController;
+
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -105,6 +108,9 @@ final class DashboardController extends AbstractDashboardController
 
             yield MenuItem::linkToCrud('Categorieën / menu', 'fa fa-folder-tree', Category::class)
                 ->setController(CategoryCrudController::class);
+
+            yield MenuItem::linkToCrud('Kleuren', 'fa fa-palette', Color::class)
+                ->setController(ColorCrudController::class);
 
             yield MenuItem::section('Nieuwsbrieven');
 
