@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Guide\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -12,10 +14,6 @@ class AirlineTicketType
     #[ORM\Column]
     private ?int $id = null;
 
-    /* =========================
-     * Relations
-     * ========================= */
-
     #[ORM\ManyToOne(
         targetEntity: Airline::class,
         inversedBy: 'ticketTypes'
@@ -23,12 +21,8 @@ class AirlineTicketType
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Airline $airline;
 
-    /* =========================
-     * Fields
-     * ========================= */
-
     #[ORM\Column(length: 100)]
-    private string $name; // bv. "Priority Boarding"
+    private string $name;
 
     #[ORM\Column(length: 100)]
     private string $slug;
@@ -41,10 +35,6 @@ class AirlineTicketType
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
-
-    /* =========================
-     * Getters / setters
-     * ========================= */
 
     public function getId(): ?int
     {
@@ -59,6 +49,7 @@ class AirlineTicketType
     public function setAirline(Airline $airline): self
     {
         $this->airline = $airline;
+
         return $this;
     }
 
@@ -69,7 +60,8 @@ class AirlineTicketType
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = trim($name);
+
         return $this;
     }
 
@@ -80,7 +72,8 @@ class AirlineTicketType
 
     public function setSlug(string $slug): self
     {
-        $this->slug = $slug;
+        $this->slug = trim($slug);
+
         return $this;
     }
 
@@ -92,6 +85,7 @@ class AirlineTicketType
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -103,6 +97,7 @@ class AirlineTicketType
     public function setPriorityLevel(int $priorityLevel): self
     {
         $this->priorityLevel = $priorityLevel;
+
         return $this;
     }
 
@@ -114,6 +109,12 @@ class AirlineTicketType
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf('%s – %s', $this->airline->getName(), $this->name);
     }
 }

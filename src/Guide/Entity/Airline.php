@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Guide\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -32,8 +34,9 @@ class Airline
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
-    // relations with tickets
-
+    /**
+     * @var Collection<int, AirlineTicketType>
+     */
     #[ORM\OneToMany(
         mappedBy: 'airline',
         targetEntity: AirlineTicketType::class,
@@ -42,30 +45,98 @@ class Airline
     #[ORM\OrderBy(['priorityLevel' => 'ASC'])]
     private Collection $ticketTypes;
 
-    // getters & setters
+    public function __construct()
+    {
+        $this->ticketTypes = new ArrayCollection();
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): self { $this->name = $name; return $this; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-    public function getLogo(): string { return $this->logo; }
-    public function setLogo(string $logo): self { $this->logo = $logo; return $this; }
+    public function setName(string $name): self
+    {
+        $this->name = trim($name);
 
-    public function getHint(): ?string { return $this->hint; }
-    public function setHint(?string $hint): self { $this->hint = $hint; return $this; }
+        return $this;
+    }
 
-    public function getIataCode(): string { return $this->iataCode; }
-    public function setIataCode(string $iataCode): self { $this->iataCode = $iataCode; return $this; }
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
 
-    public function getSlug(): string { return $this->slug; }
-    public function setSlug(string $slug): self { $this->slug = $slug; return $this; }
+    public function setLogo(?string $logo): self
+    {
+        $this->logo = $logo !== null ? trim($logo) : null;
 
-    public function isActive(): bool { return $this->isActive; }
-    public function setIsActive(bool $isActive): self { $this->isActive = $isActive; return $this; }
+        return $this;
+    }
+
+    public function getIataCode(): string
+    {
+        return $this->iataCode;
+    }
+
+    public function setIataCode(string $iataCode): self
+    {
+        $this->iataCode = strtoupper(trim($iataCode));
+
+        return $this;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = trim($slug);
+
+        return $this;
+    }
+
+    public function getHint(): ?string
+    {
+        return $this->hint;
+    }
+
+    public function setHint(?string $hint): self
+    {
+        $this->hint = $hint !== null ? trim($hint) : null;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
 
     /**
      * @return Collection<int, AirlineTicketType>
      */
-    public function getTicketTypes(): Collection { return $this->ticketTypes; }
+    public function getTicketTypes(): Collection
+    {
+        return $this->ticketTypes;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
+    }
 }

@@ -23,6 +23,12 @@ use App\Catalog\Entity\Color;
 use App\Admin\Controller\ColorCrudController;
 use App\Admin\Controller\TravelAgencyLandingPageCrudController;
 use App\Guide\Entity\TravelAgencyLandingPage;
+use App\Admin\Controller\AirlineBaggageRuleCrudController;
+use App\Admin\Controller\AirlineCrudController;
+use App\Admin\Controller\AirlineTicketTypeCrudController;
+use App\Guide\Entity\Airline;
+use App\Guide\Entity\AirlineBaggageRule;
+use App\Guide\Entity\AirlineTicketType;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -129,6 +135,20 @@ final class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class)
                 ->setController(RedirectCrudController::class);
             
+            yield MenuItem::linkToCrud('Reisbureau pagina’s', 'fa fa-map-location-dot', TravelAgencyLandingPage::class)
+                ->setController(TravelAgencyLandingPageCrudController::class);
+
+                yield MenuItem::section('Bagagegids');
+
+            yield MenuItem::linkToCrud('Vliegmaatschappijen', 'fa fa-plane', Airline::class)
+                ->setController(AirlineCrudController::class);
+
+            yield MenuItem::linkToCrud('Tickettypes', 'fa fa-ticket', AirlineTicketType::class)
+                ->setController(AirlineTicketTypeCrudController::class);
+
+            yield MenuItem::linkToCrud('Bagageregels', 'fa fa-suitcase-rolling', AirlineBaggageRule::class)
+                ->setController(AirlineBaggageRuleCrudController::class);
+
             yield MenuItem::linkToCrud('Reisbureau pagina’s', 'fa fa-map-location-dot', TravelAgencyLandingPage::class)
                 ->setController(TravelAgencyLandingPageCrudController::class);
 
