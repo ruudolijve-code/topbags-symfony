@@ -47,23 +47,40 @@
             {% if summary %}
                 <div class="mt-4 rounded-lg bg-gray-50 p-4 text-sm space-y-2">
 
-                    {# ========== PERSONAL ITEM ========== #}
-                    <div class="flex items-center gap-2">
-                        <span>{{ summary.personal.allowed ? '✔️' : '✖️' }}</span>
-                        <span>Personal item (onder stoel)</span>
-                    </div>
-
                     {# ========== HANDBAGAGE ========== #}
-                    <div class="flex items-center gap-2">
-                        <span>{{ summary.cabin.allowed ? '✔️' : '✖️' }}</span>
-                        <span>{{ summary.cabin.quantityCabin }} stuks Handbagage</span>
-                    </div>
+                    {% if summary.cabin.allowed %}
+                        <div class="flex items-start gap-2 text-green-700 font-medium">
+                            <span>✔️</span>
+                            <span>
+                                {{ summary.cabin.quantityCabin }} stuks handbagage inbegrepen
+                                {% if summary.cabin.dimensionType == 'linear_sum' %}
+                                    (max. {{ summary.cabin.maxLinearCm }} cm totaal
+                                    {% if summary.cabin.maxWeightKg %}
+                                        · {{ summary.cabin.maxWeightKg }} kg
+                                    {% endif %})
+                                {% elseif summary.cabin.dimensionType == 'box' %}
+                                    (max. {{ summary.cabin.maxHeightCm }} ×
+                                    {{ summary.cabin.maxWidthCm }} ×
+                                    {{ summary.cabin.maxDepthCm }} cm
+                                    {% if summary.cabin.maxWeightKg %}
+                                        · {{ summary.cabin.maxWeightKg }} kg
+                                    {% endif %})
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span>✖️</span>
+                            <span>Geen handbagage inbegrepen</span>
+                        </div>
+                    {% endif %}
 
                     {# ========== RUIMBAGAGE ========== #}
                     {% if summary.hold.allowed %}
                         <div class="flex items-start gap-2 text-green-700 font-medium">
                             <span>✔️</span>
-                            <span>{{ summary.hold.quantityCabin }} stuks ruimbagage inbegrepen
+                            <span>
+                                {{ summary.hold.quantityCabin }} stuks ruimbagage inbegrepen
                                 {% if summary.hold.dimensionType == 'linear_sum' %}
                                     (max. {{ summary.hold.maxLinearCm }} cm totaal
                                     {% if summary.hold.maxWeightKg %}
@@ -71,8 +88,8 @@
                                     {% endif %})
                                 {% elseif summary.hold.dimensionType == 'box' %}
                                     (max. {{ summary.hold.maxHeightCm }} ×
-                                     {{ summary.hold.maxWidthCm }} ×
-                                     {{ summary.hold.maxDepthCm }} cm
+                                    {{ summary.hold.maxWidthCm }} ×
+                                    {{ summary.hold.maxDepthCm }} cm
                                     {% if summary.hold.maxWeightKg %}
                                         · {{ summary.hold.maxWeightKg }} kg
                                     {% endif %})
@@ -85,8 +102,6 @@
                             <span>Geen ruimbagage inbegrepen</span>
                         </div>
                     {% endif %}
-                </div>
-            {% endif %}
 
             <div class="mt-4 text-xs text-gray-500">
                 Klik om door te gaan
