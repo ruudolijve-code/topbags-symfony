@@ -260,7 +260,7 @@
                             {% if summary %}
                                 <div class="mt-5 rounded-lg bg-gray-50 p-4 text-sm space-y-3">
 
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 text-green-700 font-medium">
                                         <span>{{ summary.personal.allowed ? '✔️' : '✖️' }}</span>
                                         <span>
                                             Personal item
@@ -272,21 +272,37 @@
                                         </span>
                                     </div>
 
-                                    <div class="flex items-center gap-2">
-                                        <span>{{ summary.cabin.allowed ? '✔️' : '✖️' }}</span>
-                                        <span>
-                                            Handbagage
-                                            {% if summary.cabin.allowed and summary.cabin.quantityCabin %}
-                                                · {{ summary.cabin.quantityCabin }} stuk(s)
-                                            {% endif %}
-                                            {% if summary.cabin.allowed and summary.cabin.dimensionType == 'box' %}
-                                                · {{ summary.cabin.maxHeightCm }}
-                                                × {{ summary.cabin.maxWidthCm }}
-                                                × {{ summary.cabin.maxDepthCm }} cm
-                                            {% endif %}
-                                        </span>
-                                    </div>
+                                   {# HANDBAGAGE #}
+                                    {% if summary.cabin.allowed %}
+                                        <div class="flex items-start gap-2 text-green-700 font-medium">
+                                            <span>✔️</span>
+                                            <span>
+                                                Handbagage toegestaan
+                                                {% if summary.cabin.quantityCabin %}
+                                                    · {{ summary.cabin.quantityCabin }} stuk(s)
+                                                {% endif %}
 
+                                                {% if summary.cabin.dimensionType == 'linear_sum' %}
+                                                    · max. {{ summary.cabin.maxLinearCm }} cm
+                                                {% elseif summary.cabin.dimensionType == 'box' %}
+                                                    · {{ summary.cabin.maxHeightCm }}
+                                                    × {{ summary.cabin.maxWidthCm }}
+                                                    × {{ summary.cabin.maxDepthCm }} cm
+                                                {% endif %}
+
+                                                {% if summary.cabin.maxWeightKg %}
+                                                    · {{ summary.cabin.maxWeightKg }} kg
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center gap-2 text-gray-400">
+                                            <span>✖️</span>
+                                            <span>Geen handbagage inbegrepen</span>
+                                        </div>
+                                    {% endif %}
+
+                                    {# RUIMBAGAGE #}
                                     {% if summary.hold.allowed %}
                                         <div class="flex items-start gap-2 text-green-700 font-medium">
                                             <span>✔️</span>
@@ -294,7 +310,10 @@
                                                 Ruimbagage toegestaan
                                                 {% if summary.hold.quantityHold is defined and summary.hold.quantityHold %}
                                                     · {{ summary.hold.quantityHold }} stuk(s)
+                                                {% elseif summary.hold.quantityCabin is defined and summary.hold.quantityCabin %}
+                                                    · {{ summary.hold.quantityCabin }} stuk(s)
                                                 {% endif %}
+
                                                 {% if summary.hold.dimensionType == 'linear_sum' %}
                                                     · max. {{ summary.hold.maxLinearCm }} cm
                                                 {% elseif summary.hold.dimensionType == 'box' %}
@@ -302,6 +321,7 @@
                                                     × {{ summary.hold.maxWidthCm }}
                                                     × {{ summary.hold.maxDepthCm }} cm
                                                 {% endif %}
+
                                                 {% if summary.hold.maxWeightKg %}
                                                     · {{ summary.hold.maxWeightKg }} kg
                                                 {% endif %}
