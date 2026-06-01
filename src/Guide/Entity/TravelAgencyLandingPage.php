@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Guide\Entity;
 
 use App\Guide\Repository\TravelAgencyLandingPageRepository;
+use App\Shop\Entity\Coupon;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TravelAgencyLandingPageRepository::class)]
@@ -51,6 +52,13 @@ class TravelAgencyLandingPage
 
     #[ORM\Column(options: ['default' => 0])]
     private int $position = 0;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $showCouponBlock = true;
+
+    #[ORM\ManyToOne(targetEntity: Coupon::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Coupon $coupon = null;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
@@ -219,10 +227,45 @@ class TravelAgencyLandingPage
 
     public function setPosition(int $position): static
     {
-        $this->position = $position;
+        $this->position = max(0, $position);
         $this->touch();
 
         return $this;
+    }
+
+    public function isShowCouponBlock(): bool
+    {
+        return $this->showCouponBlock;
+    }
+
+    public function setShowCouponBlock(bool $showCouponBlock): static
+    {
+        $this->showCouponBlock = $showCouponBlock;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getCoupon(): ?Coupon
+    {
+        return $this->coupon;
+    }
+
+    public function setCoupon(?Coupon $coupon): static
+    {
+        $this->coupon = $coupon;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function hasVisibleCouponBlock(): bool
+    {
+        return $this->showCouponBlock
+            && $this->coupon !== null
+            && $this->coupon->isActive()
+            && $this->coupon->isWithinDateWindow()
+            && $this->coupon->hasRemainingRedemptions();
     }
 
     public function getCreatedAt(): \DateTimeImmutable
