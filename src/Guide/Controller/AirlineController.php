@@ -147,12 +147,14 @@ final class AirlineController extends AbstractController
             return [];
         }
 
+        $categorySlugs = $this->categorySlugsForAirlineScope($scope);
+
         $products = $this->productRepository->findForContextGridWithFilters(
             context: Product::CONTEXT_SHOP,
             limit: self::PRODUCT_RAIL_LIMIT,
             offset: 0,
             brandSlugs: null,
-            categorySlugs: null,
+            categorySlugs: $categorySlugs,
             sizeSlugs: null,
             scopeSlugs: [$scope],
             airlineRules: $airlineRules,
@@ -192,5 +194,27 @@ final class AirlineController extends AbstractController
         }
 
         return $items;
+    }
+
+    private function categorySlugsForAirlineScope(string $scope): array
+    {
+        return match ($scope) {
+            'personal' => [
+                'rugzakken',
+                'underseater',
+                'underseaters',
+                'reistassen',
+            ],
+            'cabin' => [
+                'handbagage',
+                'koffers',
+            ],
+            'hold' => [
+                'koffers',
+            ],
+            default => [
+                'koffers',
+            ],
+        };
     }
 }
