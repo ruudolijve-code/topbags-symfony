@@ -21,6 +21,8 @@ use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
 use App\Catalog\Entity\Color;
 use App\Admin\Controller\ColorCrudController;
+use App\Admin\Controller\TravelAgencyLandingPageCrudController;
+use App\Guide\Entity\TravelAgencyLandingPage;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -126,6 +128,9 @@ final class DashboardController extends AbstractDashboardController
 
             yield MenuItem::linkToCrud('Redirects', 'fa fa-random', Redirect::class)
                 ->setController(RedirectCrudController::class);
+            
+            yield MenuItem::linkToCrud('Reisbureau pagina’s', 'fa fa-map-location-dot', TravelAgencyLandingPage::class)
+                ->setController(TravelAgencyLandingPageCrudController::class);
 
             yield MenuItem::section('Beheer');
 
