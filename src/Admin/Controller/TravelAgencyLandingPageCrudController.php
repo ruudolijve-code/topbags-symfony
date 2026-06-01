@@ -10,14 +10,17 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
+#[IsGranted('ROLE_ADMIN')]
 final class TravelAgencyLandingPageCrudController extends AbstractCrudController
 {
     public function __construct(
@@ -37,22 +40,50 @@ final class TravelAgencyLandingPageCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Reisbureau landingspagina’s')
             ->setPageTitle(Crud::PAGE_INDEX, 'Reisbureau landingspagina’s')
             ->setPageTitle(Crud::PAGE_NEW, 'Nieuwe reisbureaupagina')
-            ->setPageTitle(Crud::PAGE_EDIT, fn (TravelAgencyLandingPage $page) => sprintf('Aanpassen: %s', $page->getName()))
-            ->setDefaultSort(['position' => 'ASC', 'city' => 'ASC', 'name' => 'ASC'])
-            ->setSearchFields(['name', 'slug', 'city', 'agencyType', 'seoTitle']);
+            ->setPageTitle(
+                Crud::PAGE_EDIT,
+                fn (TravelAgencyLandingPage $page) => sprintf('Aanpassen: %s', $page->getName())
+            )
+            ->setDefaultSort([
+                'position' => 'ASC',
+                'city' => 'ASC',
+                'name' => 'ASC',
+            ])
+            ->setSearchFields([
+                'name',
+                'slug',
+                'city',
+                'agencyType',
+                'seoTitle',
+                'coupon.code',
+                'coupon.name',
+            ]);
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->update(Crud::PAGE_INDEX, Action::NEW, fn (Action $action) => $action->setLabel('Pagina toevoegen'))
-            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => $action->setLabel('Aanpassen'))
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => $action->setLabel('Verwijderen'));
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::NEW,
+                fn (Action $action) => $action->setLabel('Pagina toevoegen')
+            )
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::EDIT,
+                fn (Action $action) => $action->setLabel('Aanpassen')
+            )
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::DELETE,
+                fn (Action $action) => $action->setLabel('Verwijderen')
+            );
     }
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->hideOnForm();
+        yield IdField::new('id')
+            ->hideOnForm();
 
         yield BooleanField::new('isActive', 'Actief');
 
@@ -67,16 +98,26 @@ final class TravelAgencyLandingPageCrudController extends AbstractCrudController
             ->setHelp('Mag leeg blijven. Wordt automatisch gemaakt, bijvoorbeeld tui-hengelo.');
 
         yield TextField::new('city', 'Plaats')
-            ->setHelp('Bijvoorbeeld: Hengelo, Enschede of Almelo.');
+            ->setHelp('Bijvoorbeeld: Hengelo, Enschede, Almelo, Borne of Oldenzaal.');
 
         yield ChoiceField::new('agencyType', 'Type reisbureau')
             ->setChoices([
                 'TUI' => 'tui',
                 'D-reizen' => 'd-reizen',
+                'The Travel Club' => 'the-travel-club',
+                'VakantieXperts' => 'vakantiexperts',
+                'Toerkoop' => 'toerkoop',
                 'Onafhankelijk' => 'onafhankelijk',
                 'Anders' => 'anders',
             ])
             ->setRequired(false);
+
+        yield BooleanField::new('showCouponBlock', 'Kortingsblok tonen')
+            ->setHelp('Toon een exclusief kortingsblok op deze reisbureaupagina.');
+
+        yield AssociationField::new('coupon', 'Coupon / kortingscode')
+            ->setRequired(false)
+            ->setHelp('Koppel hier een bestaande coupon, bijvoorbeeld TUIHENGELO10. Maak deze eerst aan bij Coupons/Vouchers.');
 
         yield TextField::new('seoTitle', 'SEO title')
             ->setRequired(false)
