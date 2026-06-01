@@ -5,6 +5,7 @@ namespace App\Seo\Controller;
 use App\Catalog\Repository\BrandRepository;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
+use App\Guide\Repository\TravelAgencyLandingPageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -30,6 +31,11 @@ final class SitemapController extends AbstractController
         ],
         [
             'route' => 'brand_index',
+            'priority' => '0.7',
+            'changefreq' => 'weekly',
+        ],
+        [
+            'route' => 'travel_agency_hub',
             'priority' => '0.7',
             'changefreq' => 'weekly',
         ],
@@ -166,6 +172,7 @@ final class SitemapController extends AbstractController
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
         BrandRepository $brandRepository,
+        TravelAgencyLandingPageRepository $travelAgencyLandingPageRepository,
         UrlGeneratorInterface $urlGenerator,
     ): Response {
         $urls = [];
@@ -180,6 +187,18 @@ final class SitemapController extends AbstractController
                 'priority' => $staticRoute['priority'],
                 'changefreq' => $staticRoute['changefreq'],
                 'lastmod' => $today,
+            ];
+        }
+
+        // Reisbureau landingspagina’s
+        foreach ($travelAgencyLandingPageRepository->findActiveOrdered() as $page) {
+            $urls[] = [
+                'loc' => $this->absoluteUrl($urlGenerator, 'travel_agency_show', [
+                    'slug' => $page->getSlug(),
+                ], $baseUrl),
+                'priority' => '0.6',
+                'changefreq' => 'monthly',
+                'lastmod' => $page->getUpdatedAt()->format('Y-m-d'),
             ];
         }
 
