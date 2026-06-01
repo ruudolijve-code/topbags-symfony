@@ -10,42 +10,62 @@
 
 {% block body %}
 <div class="bg-[#f7f4ee]">
-    <section class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
-        <div class="max-w-3xl">
-            <div class="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
-                Bagagegids voor reizigers uit {{ page.city }}
+    <section class="mx-auto max-w-7xl px-6 py-12 lg:py-16">
+        <div class="grid items-center gap-10 lg:grid-cols-2">
+
+            <div>
+                <div class="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
+                    Bagagegids voor reizigers uit {{ page.city }}
+                </div>
+
+                <h1 class="mt-4 text-4xl font-semibold tracking-tight text-gray-900 lg:text-5xl">
+                    {{ page.h1 ?: ('Reis geboekt bij ' ~ page.name ~ '? Check je koffer en handbagage') }}
+                </h1>
+
+                <div class="mt-5 max-w-2xl text-lg leading-8 text-gray-700">
+                    {% if page.introText %}
+                        {{ page.introText|nl2br }}
+                    {% else %}
+                        Ga je binnenkort op reis en heb je geboekt of georiënteerd bij {{ page.name }}?
+                        Dan is dit een goed moment om te controleren of je koffer, handbagage of reistas past
+                        bij je bestemming, reisduur en luchtvaartmaatschappij.
+                    {% endif %}
+                </div>
+
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="{{ path('guide_index') }}"
+                       class="inline-flex rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800">
+                        Start de Bagagegids
+                    </a>
+
+                    <a href="{{ path('category_show', { slug: 'koffers' }) }}"
+                       class="inline-flex rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                        Bekijk koffers
+                    </a>
+
+                    <a href="{{ path('travel_agency_hub') }}"
+                       class="inline-flex rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                        Alle reisbureaus in Twente
+                    </a>
+                </div>
             </div>
 
-            <h1 class="mt-4 text-4xl font-semibold tracking-tight text-gray-900 lg:text-5xl">
-                {{ page.h1 ?: ('Reis geboekt bij ' ~ page.name ~ '? Check je koffer en handbagage') }}
-            </h1>
-
-            <div class="mt-5 text-lg leading-8 text-gray-700">
-                {% if page.introText %}
-                    {{ page.introText|nl2br }}
-                {% else %}
-                    Ga je binnenkort op reis en heb je geboekt of georiënteerd bij {{ page.name }}?
-                    Dan is dit een goed moment om te controleren of je koffer, handbagage of reistas past
-                    bij je bestemming, reisduur en luchtvaartmaatschappij.
-                {% endif %}
+            <div class="relative">
+                <div class="overflow-hidden rounded-[2rem] bg-white shadow-sm">
+                    <img
+                        src="{{ asset('images/guide/reisbagage-hero.jpg') }}"
+                        alt="Koffers en reisbagage voor je vakantie"
+                        class="h-[320px] w-full object-cover lg:h-[440px]"
+                        loading="eager"
+                    >
+                </div>
             </div>
 
-            <div class="mt-8 flex flex-wrap gap-3">
-                <a href="{{ path('shop_all') }}"
-                   class="inline-flex rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-800">
-                    Start met reisbagage
-                </a>
-
-                <a href="{{ path('travel_agency_hub') }}"
-                   class="inline-flex rounded-full border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50">
-                    Alle reisbureaus in Twente
-                </a>
-            </div>
         </div>
     </section>
 </div>
 
-<section class="mx-auto max-w-7xl px-6 py-12">
+<section class="mx-auto max-w-7xl px-6 py-14">
     <div class="grid gap-8 lg:grid-cols-3">
         <div class="rounded-2xl bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-gray-900">
@@ -87,6 +107,40 @@
         </div>
     </div>
 </section>
+
+{% if featuredItems is defined and featuredItems is not empty %}
+    <section class="mx-auto max-w-7xl px-6 pb-14">
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-900">
+                    Populaire reisbagage voor je vakantie
+                </h2>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+                    Een selectie koffers en reisbagage die goed past bij reizigers die hun vakantie voorbereiden.
+                </p>
+            </div>
+
+            <a href="{{ path('category_show', { slug: 'koffers' }) }}"
+               class="text-sm font-semibold text-amber-700 hover:text-amber-800">
+                Alle koffers bekijken →
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {% for item in featuredItems|slice(0, 4) %}
+                {% include 'shop/component/card/_card.html.twig' with {
+                    context: 'shop',
+                    product: item.product,
+                    variant: item.variant,
+                    master: item.master,
+                    mediaPath: item.mediaPath,
+                    availability: item.availability
+                } only %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
 
 <section class="mx-auto max-w-4xl px-6 py-12">
     <h2 class="text-2xl font-semibold text-gray-900">
