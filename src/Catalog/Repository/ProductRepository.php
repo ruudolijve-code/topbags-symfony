@@ -164,6 +164,13 @@ final class ProductRepository extends ServiceEntityRepository
     private function applyContextGridSorting(\Doctrine\ORM\QueryBuilder $qb, string $sort): void
     {
         match ($sort) {
+             'featured' => $qb
+            ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
+            ->addSelect('p.id AS HIDDEN idSort')
+            ->andWhere('p.featuredPosition > 0')
+            ->orderBy('featuredPositionSort', 'ASC')
+            ->addOrderBy('idSort', 'DESC'),
+
             'price_asc' => $qb
                 ->addSelect('MIN(variants.price) AS HIDDEN sortPrice')
                 ->groupBy('p.id')
