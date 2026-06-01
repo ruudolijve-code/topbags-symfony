@@ -164,43 +164,42 @@ final class ProductRepository extends ServiceEntityRepository
     private function applyContextGridSorting(\Doctrine\ORM\QueryBuilder $qb, string $sort): void
     {
         match ($sort) {
-             'featured' => $qb
-            ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
-            ->addSelect('p.id AS HIDDEN idSort')
-            ->andWhere('p.featuredPosition > 0')
-            ->orderBy('featuredPositionSort', 'ASC')
-            ->addOrderBy('idSort', 'DESC'),
-
-            'price_asc' => $qb
-                ->addSelect('MIN(variants.price) AS HIDDEN sortPrice')
-                ->groupBy('p.id')
-                ->orderBy('sortPrice', 'ASC')
-                ->addOrderBy('p.id', 'DESC'),
-
-            'price_desc' => $qb
-                ->addSelect('MIN(variants.price) AS HIDDEN sortPrice')
-                ->groupBy('p.id')
-                ->orderBy('sortPrice', 'DESC')
-                ->addOrderBy('p.id', 'DESC'),
-
-            'name_asc' => $qb
-                ->addSelect('p.name AS HIDDEN sortName')
-                ->orderBy('sortName', 'ASC')
-                ->addOrderBy('p.id', 'DESC'),
-
-            'name_desc' => $qb
-                ->addSelect('p.name AS HIDDEN sortName')
-                ->orderBy('sortName', 'DESC')
-                ->addOrderBy('p.id', 'DESC'),
+            'featured' => $qb
+                ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
+                ->addSelect('p.id AS HIDDEN idSort')
+                ->andWhere('p.featuredPosition > 0')
+                ->orderBy('featuredPositionSort', 'ASC')
+                ->addOrderBy('idSort', 'DESC'),
 
             'newest' => $qb
-                ->orderBy('p.id', 'DESC'),
+                ->addSelect('p.id AS HIDDEN idSort')
+                ->orderBy('idSort', 'DESC'),
 
-            'bestseller' => $qb
-                ->orderBy('p.id', 'DESC'),
+            'price_asc' => $qb
+                ->addSelect('MIN(variants.price) AS HIDDEN minPriceSort')
+                ->addGroupBy('p.id')
+                ->orderBy('minPriceSort', 'ASC'),
+
+            'price_desc' => $qb
+                ->addSelect('MIN(variants.price) AS HIDDEN minPriceSort')
+                ->addGroupBy('p.id')
+                ->orderBy('minPriceSort', 'DESC'),
+
+            'name_asc' => $qb
+                ->addSelect('p.name AS HIDDEN nameSort')
+                ->orderBy('nameSort', 'ASC'),
+
+            'name_desc' => $qb
+                ->addSelect('p.name AS HIDDEN nameSort')
+                ->orderBy('nameSort', 'DESC'),
 
             default => $qb
-                ->orderBy('p.id', 'DESC'),
+                ->addSelect('CASE WHEN p.featuredPosition > 0 THEN 0 ELSE 1 END AS HIDDEN featuredFirstSort')
+                ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
+                ->addSelect('p.id AS HIDDEN idSort')
+                ->orderBy('featuredFirstSort', 'ASC')
+                ->addOrderBy('featuredPositionSort', 'ASC')
+                ->addOrderBy('idSort', 'DESC'),
         };
     }
 
