@@ -1,6 +1,26 @@
 {% set context = activeContext ?? currentContext ?? 'shop' %}
 {% set app_url = app_url|default('https://topbags.nl')|trim('/') %}
 
+{% set defaultMetaDescription %}
+    {% if page is defined and page.seoDescription %}
+        {{ page.seoDescription|striptags }}
+    {% elseif product is defined and variant is defined %}
+        {{ variant.metaDescription ?? (product.name ~ ' in ' ~ variant.supplierColorName ~ ' van ' ~ product.brand.name ~ '. Bekijk nu bij Topbags.') }}
+    {% elseif category is defined and category.description %}
+        {{ category.description|striptags|length > 160
+            ? category.description|striptags|slice(0, 157) ~ '...'
+            : category.description|striptags }}
+    {% elseif brand is defined and brand.description %}
+        {{ brand.description|striptags|length > 160
+            ? brand.description|striptags|slice(0, 157) ~ '...'
+            : brand.description|striptags }}
+    {% elseif brand is defined %}
+        Ontdek {{ brand.name }} bij Topbags.nl. Online en in de winkel van Holtkamp tassen & koffers in Hengelo.
+    {% else %}
+        Topbags – Jouw reis begint hier. Ontdek koffers, reistassen en rugzakken van topmerken.
+    {% endif %}
+{% endset %}
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -13,38 +33,7 @@
         <meta name="robots" content="index, follow">
     {% endblock %}
 
-    {% block meta_description %}
-        {% if product is defined and variant is defined %}
-            <meta
-                name="description"
-                content="{{ variant.metaDescription ?? (product.name ~ ' in ' ~ variant.supplierColorName ~ ' van ' ~ product.brand.name ~ '. Bekijk nu bij Topbags.') }}"
-            >
-        {% elseif category is defined and category.description %}
-            <meta
-                name="description"
-                content="{{ category.description|striptags|length > 160
-                    ? category.description|striptags|slice(0, 157) ~ '...'
-                    : category.description|striptags }}"
-            >
-        {% elseif brand is defined and brand.description %}
-            <meta
-                name="description"
-                content="{{ brand.description|striptags|length > 160
-                    ? brand.description|striptags|slice(0, 157) ~ '...'
-                    : brand.description|striptags }}"
-            >
-        {% elseif brand is defined %}
-            <meta
-                name="description"
-                content="Ontdek {{ brand.name }} bij Topbags.nl. Online en in de winkel van Holtkamp tassen &amp; koffers in Hengelo."
-            >
-        {% else %}
-            <meta
-                name="description"
-                content="Topbags – Jouw reis begint hier. Ontdek koffers, reistassen en rugzakken van topmerken."
-            >
-        {% endif %}
-    {% endblock %}
+    <meta name="description" content="{% block meta_description %}{{ defaultMetaDescription|trim }}{% endblock %}">
 
     {% block canonical %}
         {% if canonical_url is defined and canonical_url %}
