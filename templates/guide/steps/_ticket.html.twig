@@ -102,11 +102,30 @@
                                 </span>
                             </div>
                         {% else %}
-                            <div class="flex items-center gap-2 text-gray-400">
+                            <div class="flex items-start gap-2 text-gray-500">
                                 <span>✖️</span>
-                                <span>Geen handbagage inbegrepen</span>
+                                <span>
+                                    Geen handbagage inbegrepen
+
+                                    {% if summary.cabin.dimensionType == 'linear_sum' and summary.cabin.maxLinearCm %}
+                                        · bij te boeken tot max. {{ summary.cabin.maxLinearCm }} cm totaal
+                                    {% elseif summary.cabin.dimensionType == 'box'
+                                        and summary.cabin.maxHeightCm
+                                        and summary.cabin.maxWidthCm
+                                        and summary.cabin.maxDepthCm
+                                    %}
+                                        · bij te boeken tot max. {{ summary.cabin.maxHeightCm }}
+                                        × {{ summary.cabin.maxWidthCm }}
+                                        × {{ summary.cabin.maxDepthCm }} cm
+                                    {% endif %}
+
+                                    {% if summary.cabin.maxWeightKg %}
+                                        · {{ summary.cabin.maxWeightKg }} kg
+                                    {% endif %}
+                                </span>
                             </div>
                         {% endif %}
+                        
 
                         {# ========== RUIMBAGAGE ========== #}
                         {% if summary.hold.allowed %}
