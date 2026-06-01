@@ -201,12 +201,8 @@ final class AirlineController extends AbstractController
         return match ($scope) {
             'personal' => [
                 'rugzakken',
-                'underseater',
-                'underseaters',
-                'reistassen',
             ],
             'cabin' => [
-                'handbagage',
                 'koffers',
             ],
             'hold' => [
