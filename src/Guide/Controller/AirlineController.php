@@ -160,7 +160,7 @@ final class AirlineController extends AbstractController
             airlineRules: $airlineRules,
             volumeRanges: null,
             colorSlugs: null,
-            sort: 'recommended',
+            sort: 'featured',
         );
 
         $items = [];
