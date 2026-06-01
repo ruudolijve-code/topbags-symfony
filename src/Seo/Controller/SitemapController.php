@@ -5,6 +5,7 @@ namespace App\Seo\Controller;
 use App\Catalog\Repository\BrandRepository;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
+use App\Guide\Repository\AirlineRepository;
 use App\Guide\Repository\TravelAgencyLandingPageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,11 @@ final class SitemapController extends AbstractController
         [
             'route' => 'brand_index',
             'priority' => '0.7',
+            'changefreq' => 'weekly',
+        ],
+        [
+            'route' => 'airline_index',
+            'priority' => '0.8',
             'changefreq' => 'weekly',
         ],
         [
@@ -172,6 +178,7 @@ final class SitemapController extends AbstractController
         ProductRepository $productRepository,
         CategoryRepository $categoryRepository,
         BrandRepository $brandRepository,
+        AirlineRepository $airlineRepository,
         TravelAgencyLandingPageRepository $travelAgencyLandingPageRepository,
         UrlGeneratorInterface $urlGenerator,
     ): Response {
@@ -186,6 +193,18 @@ final class SitemapController extends AbstractController
                 'loc' => $this->absoluteUrl($urlGenerator, $staticRoute['route'], [], $baseUrl),
                 'priority' => $staticRoute['priority'],
                 'changefreq' => $staticRoute['changefreq'],
+                'lastmod' => $today,
+            ];
+        }
+
+        // Vliegmaatschappij landingspagina’s
+        foreach ($airlineRepository->findActiveOrdered() as $airline) {
+            $urls[] = [
+                'loc' => $this->absoluteUrl($urlGenerator, 'airline_show', [
+                    'slug' => $airline->getSlug(),
+                ], $baseUrl),
+                'priority' => '0.8',
+                'changefreq' => 'weekly',
                 'lastmod' => $today,
             ];
         }

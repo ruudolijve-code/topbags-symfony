@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ airline.name }} bagage | Handbagage & ruimbagage regels | Topbags{% endblock %}
+{% block title %}
+    {{ airline.name }} bagage | Handbagage & ruimbagage regels | Topbags
+{% endblock %}
+
+{% block meta_description %}
+    Vlieg je met {{ airline.name }}? Bekijk handbagage, personal item en ruimbagage regels en vind passende koffers en reistassen bij Topbags.
+{% endblock %}
 
 {% block body %}
 
@@ -20,9 +26,10 @@
                 Bagage meenemen bij {{ airline.name }}
             </h1>
 
-            <p class="text-gray-700 max-w-xl">
-                Duidelijke handbagage- en ruimbagage-info voor {{ airline.name }}.
-                Daarna kun je met onze gids bepalen wat voor jouw reis het meest logisch is — zonder verrassingen bij de gate.
+            <p class="text-gray-700 max-w-xl leading-7">
+                Vlieg je met {{ airline.name }}? Bekijk welke afmetingen gelden voor personal item,
+                handbagage en ruimbagage. Daarna kun je direct passende koffers en reistassen bekijken
+                of de Bagagegids gebruiken voor persoonlijk advies.
             </p>
 
             <div class="mt-6 flex flex-col sm:flex-row gap-3">
@@ -38,21 +45,34 @@
             </div>
 
             <p class="text-xs text-gray-500 mt-3">
-                Tip: je hebt meestal <strong>één hoofdkeuze</strong> nodig (handbagage óf ruimbagage). De gids helpt je kiezen.
+                Tip: je hebt meestal <strong>één hoofdkeuze</strong> nodig: alleen personal item,
+                handbagage of ruimbagage. De gids helpt je kiezen.
             </p>
         </div>
 
         <div class="flex md:justify-end">
-            <div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-sm">
-                <img src="{{ asset('images/airline/' ~ airline.logo) }}" alt="{{ airline.name }} logo" class="h-14 w-auto">
+            <div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-sm w-full max-w-md">
+                {% if airline.logo %}
+                    <img
+                        src="{{ asset('images/airline/' ~ airline.logo) }}"
+                        alt="{{ airline.name }} logo"
+                        class="h-14 w-auto"
+                    >
+                {% endif %}
+
                 <div class="mt-4 text-sm text-gray-700">
                     Snelle check:
                     <ul class="mt-2 space-y-1 text-gray-600">
-                        <li>• Personal item: vaak gratis</li>
-                        <li>• Handbagagekoffer: meestal alleen met Priority</li>
-                        <li>• Ruimbagage: afhankelijk van ticket / bijboeken</li>
+                        <li>• Personal item: kleine tas of rugzak onder de stoel</li>
+                        <li>• Handbagage: koffer voor in het bagagevak</li>
+                        <li>• Ruimbagage: in te checken koffer voor langere reizen</li>
                     </ul>
                 </div>
+
+                <a href="#passende-producten"
+                   class="mt-5 inline-flex text-sm font-semibold text-amber-700 hover:text-amber-800">
+                    Bekijk passende producten →
+                </a>
             </div>
         </div>
 
@@ -65,32 +85,28 @@
 <section class="max-w-7xl mx-auto px-6 py-12">
     <div class="grid md:grid-cols-3 gap-6 items-stretch">
 
-        {# =====================
-           PERSONAL ITEM
-        ===================== #}
-        <div class="bg-white border border-gray-200 rounded-xl p-6
-                    flex flex-col h-full">
+        {# PERSONAL ITEM #}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 flex flex-col h-full">
             <div>
                 <h2 class="font-semibold text-gray-900 mb-2">
                     Personal item
                 </h2>
 
                 <div class="text-sm text-gray-700">
-                    Kleine tas of rugzak die onder de stoel past.
+                    Kleine tas, rugzak of underseater die onder de stoel past.
                 </div>
             </div>
 
             {% if fallbackSummary.personal.allowed %}
                 <div class="mt-auto pt-4">
-                    <div class="inline-flex items-center gap-2 text-sm
-                                bg-amber-50 border border-amber-200
-                                rounded-lg px-3 py-2">
+                    <div class="inline-flex flex-wrap items-center gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         <span class="text-amber-700 font-semibold">
                             {{ fallbackSummary.personal.maxHeightCm }}
                             × {{ fallbackSummary.personal.maxWidthCm }}
                             × {{ fallbackSummary.personal.maxDepthCm }} cm
                         </span>
-                       {% if fallbackSummary.personal.maxWeightKg %}
+
+                        {% if fallbackSummary.personal.maxWeightKg %}
                             <span class="text-gray-500">
                                 · {{ fallbackSummary.personal.maxWeightKg }} kg
                             </span>
@@ -100,27 +116,21 @@
             {% endif %}
         </div>
 
-        {# =====================
-           HANDBAGAGE
-        ===================== #}
-        <div class="bg-white border border-gray-200 rounded-xl p-6
-                    flex flex-col h-full">
+        {# HANDBAGAGE #}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 flex flex-col h-full">
             <div>
                 <h2 class="font-semibold text-gray-900 mb-2">
                     Handbagage
                 </h2>
 
                 <div class="text-sm text-gray-700">
-                    Handbagagekoffer voor in het bagagevak.
-                    Meestal alleen toegestaan bij bepaalde tickets.
+                    Handbagagekoffer voor in het bagagevak. Dit hangt vaak af van je ticket of extra optie.
                 </div>
             </div>
 
             {% if fallbackSummary.cabin.allowed %}
                 <div class="mt-auto pt-4">
-                    <div class="inline-flex items-center gap-2 text-sm
-                                bg-amber-50 border border-amber-200
-                                rounded-lg px-3 py-2">
+                    <div class="inline-flex flex-wrap items-center gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         <span class="text-amber-700 font-semibold">
                             {{ fallbackSummary.cabin.maxHeightCm }}
                             × {{ fallbackSummary.cabin.maxWidthCm }}
@@ -137,27 +147,21 @@
             {% endif %}
         </div>
 
-        {# =====================
-           RUIMBAGAGE
-        ===================== #}
-        <div class="bg-white border border-gray-200 rounded-xl p-6
-                    flex flex-col h-full">
+        {# RUIMBAGAGE #}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 flex flex-col h-full">
             <div>
                 <h2 class="font-semibold text-gray-900 mb-2">
                     Ruimbagage
                 </h2>
 
                 <div class="text-sm text-gray-700">
-                    In te checken bagage.
-                    Afmetingen en gewicht hangen af van je ticket.
+                    In te checken bagage. Gewicht en afmetingen hangen af van je ticket of bijgeboekte bagage.
                 </div>
             </div>
 
             {% if fallbackSummary.hold.allowed %}
                 <div class="mt-auto pt-4">
-                    <div class="inline-flex items-center gap-2 text-sm
-                                bg-amber-50 border border-amber-200
-                                rounded-lg px-3 py-2">
+                    <div class="inline-flex flex-wrap items-center gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         {% if fallbackSummary.hold.dimensionType == 'linear_sum' %}
                             <span class="text-amber-700 font-semibold">
                                 {{ fallbackSummary.hold.maxLinearCm }} cm totaal
@@ -180,25 +184,23 @@
             {% endif %}
         </div>
 
-    </div> 
+    </div>
 
-    {# =====================
-       UITLEG BLOK
-    ===================== #}
     <div class="mt-8 rounded-xl bg-amber-50 border border-amber-200 p-6">
         <h3 class="font-semibold text-gray-900 mb-2">
-            Belangrijk: je hebt meestal maar één hoofdkeuze nodig
+            Belangrijk: afmetingen zijn niet het enige
         </h3>
-        <p class="text-sm text-gray-700 max-w-3xl">
-            De meeste reizigers kiezen óf voor handbagage (snel & compact),
-            óf voor ruimbagage (meer ruimte & comfort).
-            In de bagage-gids helpen we je bepalen wat past bij jouw reisduur en type trip.
+
+        <p class="text-sm text-gray-700 max-w-3xl leading-6">
+            De airline-regels helpen om te bepalen welke tas of koffer mee mag. Wil je ook weten
+            hoeveel liter je nodig hebt voor je reisduur, of hoeveel stuks bagage logisch zijn?
+            Gebruik dan de Topbags Bagagegids.
         </p>
     </div>
 </section>
 
 {# =========================
-   TICKETTYPES (DB-gedreven)
+   TICKETTYPES
 ========================= #}
 <section id="tickets" class="max-w-7xl mx-auto px-6 pb-14">
 
@@ -209,22 +211,20 @@
             <h2 class="text-2xl font-semibold text-gray-900">
                 {{ airline.name }} tickets en bagage
             </h2>
+
             <p class="text-gray-600 text-sm max-w-2xl mt-2">
-                Je ticket bepaalt wat je mee mag nemen.
-                Hieronder zie je per ticket exact wat is toegestaan.
+                Je ticket bepaalt wat je mee mag nemen. Hieronder zie je per ticket welke bagage is toegestaan.
             </p>
         </div>
 
-      <a href="{{ path('guide_index', {
-            transport: 'plane',
-            airline: airline.slug
-        }) }}"
-        class="hidden md:inline-flex items-center justify-center px-5 py-2.5
-            rounded-lg bg-black text-white text-sm font-medium
-            hover:bg-gray-900 transition">
+        <a href="{{ path('guide_index', {
+                transport: 'plane',
+                airline: airline.slug
+            }) }}"
+           class="hidden md:inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-900 transition">
             Start de gids →
         </a>
-            </div>
+    </div>
 
     {% if ticketTypes|length == 0 %}
         <p class="text-sm text-gray-500">
@@ -232,18 +232,12 @@
         </p>
     {% else %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
             {% for t in ticketTypes %}
                 {% if t.isActive %}
                     {% set summary = ticketSummaries[t.slug] ?? null %}
 
-                    <div class="bg-white border border-gray-200 rounded-xl p-6
-                                hover:shadow-sm transition
-                                flex flex-col h-full">
+                    <div class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-sm transition flex flex-col h-full">
 
-                        {# =====================
-                           Header
-                        ===================== #}
                         <div>
                             <div class="flex items-start justify-between gap-4">
                                 <div>
@@ -258,25 +252,19 @@
                                     {% endif %}
                                 </div>
 
-                                <span class="text-xs px-2 py-1 rounded-full
-                                             bg-amber-100 text-amber-800 font-semibold">
+                                <span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">
                                     Ticket
                                 </span>
                             </div>
 
-                            {# =====================
-                               BAGAGE SUMMARY
-                               (zelfde structuur als Guide)
-                            ===================== #}
                             {% if summary %}
                                 <div class="mt-5 rounded-lg bg-gray-50 p-4 text-sm space-y-3">
 
-                                    {# PERSONAL ITEM #}
                                     <div class="flex items-center gap-2">
                                         <span>{{ summary.personal.allowed ? '✔️' : '✖️' }}</span>
                                         <span>
-                                            Personal item (onder stoel)
-                                            {% if summary.personal.dimensionType == 'box' %}
+                                            Personal item
+                                            {% if summary.personal.allowed and summary.personal.dimensionType == 'box' %}
                                                 · {{ summary.personal.maxHeightCm }}
                                                 × {{ summary.personal.maxWidthCm }}
                                                 × {{ summary.personal.maxDepthCm }} cm
@@ -284,12 +272,14 @@
                                         </span>
                                     </div>
 
-                                    {# HANDBAGAGE #}
                                     <div class="flex items-center gap-2">
                                         <span>{{ summary.cabin.allowed ? '✔️' : '✖️' }}</span>
-                                        <span>{{ summary.cabin.quantityCabin }} stuks
+                                        <span>
                                             Handbagage
-                                             {% if summary.cabin.dimensionType == 'box' %}
+                                            {% if summary.cabin.allowed and summary.cabin.quantityCabin %}
+                                                · {{ summary.cabin.quantityCabin }} stuk(s)
+                                            {% endif %}
+                                            {% if summary.cabin.allowed and summary.cabin.dimensionType == 'box' %}
                                                 · {{ summary.cabin.maxHeightCm }}
                                                 × {{ summary.cabin.maxWidthCm }}
                                                 × {{ summary.cabin.maxDepthCm }} cm
@@ -297,11 +287,14 @@
                                         </span>
                                     </div>
 
-                                    {# RUIMBAGAGE #}
                                     {% if summary.hold.allowed %}
                                         <div class="flex items-start gap-2 text-green-700 font-medium">
                                             <span>✔️</span>
-                                            <span>{{ summary.hold.quantityCabin }} stuks ruimbagage inbegrepen
+                                            <span>
+                                                Ruimbagage toegestaan
+                                                {% if summary.hold.quantityHold is defined and summary.hold.quantityHold %}
+                                                    · {{ summary.hold.quantityHold }} stuk(s)
+                                                {% endif %}
                                                 {% if summary.hold.dimensionType == 'linear_sum' %}
                                                     · max. {{ summary.hold.maxLinearCm }} cm
                                                 {% elseif summary.hold.dimensionType == 'box' %}
@@ -324,9 +317,6 @@
                             {% endif %}
                         </div>
 
-                        {# =====================
-                           CTA — altijd onderaan
-                        ===================== #}
                         <div class="mt-auto pt-6">
                             <a href="{{ path('guide_index', {
                                     transport: 'plane',
@@ -334,9 +324,7 @@
                                     step: 'ticket',
                                     ticket: t.slug
                                 }) }}"
-                               class="inline-flex items-center justify-center w-full
-                                      px-4 py-3 rounded-lg bg-black text-white
-                                      text-sm font-medium hover:bg-gray-900 transition">
+                               class="inline-flex items-center justify-center w-full px-4 py-3 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-900 transition">
                                 Check dit ticket in de gids →
                             </a>
 
@@ -353,17 +341,18 @@
 </section>
 
 {# =========================
-   CTA (laatste)
+   CTA GIDS
 ========================= #}
-<section class="bg-amber-50 border-t border-amber-200">
+<section class="bg-amber-50 border-y border-amber-200">
     <div class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
             <h3 class="text-xl font-semibold text-gray-900 mb-1">
                 Wil je zeker weten wat bij jouw reis past?
             </h3>
-            <p class="text-sm text-gray-700 max-w-2xl">
+
+            <p class="text-sm text-gray-700 max-w-2xl leading-6">
                 De duur, bestemming en soort trip bepalen hoeveel ruimte je écht nodig hebt.
-                Met de gids krijg je één duidelijke keuze — compact of comfortabel.
+                Met de gids krijg je één duidelijke keuze: compact of comfortabel.
             </p>
         </div>
 
@@ -374,35 +363,60 @@
     </div>
 </section>
 
-{# ==========================================================
-   FAQ – Airline bagage (SEO + UX, DB-gedreven)
-========================================================== #}
-{% if faqs is defined and faqs|length > 0 %}
-<section class="max-w-5xl mx-auto px-6 py-16">
+{# =========================
+   PASSENDE PRODUCTEN
+   Bewust boven FAQ geplaatst
+========================= #}
+<section id="passende-producten" class="bg-white">
+    {% include 'airline/_product_rail.html.twig' with {
+        title: 'Personal item voor ' ~ airline.name,
+        description: 'Kleine tassen, rugzakken en underseaters die geschikt zijn voor reizen met alleen een persoonlijk item.',
+        items: personalItems,
+        ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=personal',
+        ctaLabel: 'Alle personal items bekijken →'
+    } only %}
 
-    <h2 class="text-2xl font-semibold mb-8">
-        Veelgestelde vragen over {{ airline.name }} bagage
-    </h2>
+    {% include 'airline/_product_rail.html.twig' with {
+        title: 'Handbagage voor ' ~ airline.name,
+        description: 'Handbagagekoffers en cabintrolleys die passen binnen de bagageregels van deze luchtvaartmaatschappij.',
+        items: cabinItems,
+        ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=cabin',
+        ctaLabel: 'Alle handbagage bekijken →'
+    } only %}
 
-    <div class="space-y-4">
-
-        {% for faq in faqs %}
-            <details class="group rounded-xl border border-gray-200 bg-white p-6">
-                <summary
-                    class="flex cursor-pointer list-none items-center justify-between
-                           font-medium text-gray-900">
-                    <span>{{ faq.question }}</span>
-                    <span class="transition-transform group-open:rotate-180">⌄</span>
-                </summary>
-
-                <div class="mt-4 text-sm text-gray-700 leading-relaxed">
-                    {{ faq.answer|raw }}
-                </div>
-            </details>
-        {% endfor %}
-
-    </div>
+    {% include 'airline/_product_rail.html.twig' with {
+        title: 'Ruimbagage voor ' ~ airline.name,
+        description: 'Ruime koffers voor zonvakanties, verre reizen en langere verblijven.',
+        items: holdItems,
+        ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=hold',
+        ctaLabel: 'Alle ruimbagage bekijken →'
+    } only %}
 </section>
+
+{# =========================
+   FAQ
+========================= #}
+{% if faqs is defined and faqs|length > 0 %}
+    <section class="max-w-5xl mx-auto px-6 py-16">
+        <h2 class="text-2xl font-semibold mb-8">
+            Veelgestelde vragen over {{ airline.name }} bagage
+        </h2>
+
+        <div class="space-y-4">
+            {% for faq in faqs %}
+                <details class="group rounded-xl border border-gray-200 bg-white p-6">
+                    <summary class="flex cursor-pointer list-none items-center justify-between font-medium text-gray-900">
+                        <span>{{ faq.question }}</span>
+                        <span class="transition-transform group-open:rotate-180">⌄</span>
+                    </summary>
+
+                    <div class="mt-4 text-sm text-gray-700 leading-relaxed">
+                        {{ faq.answer|raw }}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    </section>
 {% endif %}
 
 {% endblock %}
