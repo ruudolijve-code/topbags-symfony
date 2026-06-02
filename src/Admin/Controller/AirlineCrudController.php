@@ -11,7 +11,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -36,22 +38,49 @@ final class AirlineCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Vliegmaatschappijen')
             ->setPageTitle(Crud::PAGE_INDEX, 'Vliegmaatschappijen')
             ->setPageTitle(Crud::PAGE_NEW, 'Nieuwe vliegmaatschappij')
-            ->setPageTitle(Crud::PAGE_EDIT, fn (Airline $airline) => sprintf('Aanpassen: %s', $airline->getName()))
+            ->setPageTitle(
+                Crud::PAGE_EDIT,
+                static fn (Airline $airline): string => sprintf('Aanpassen: %s', $airline->getName())
+            )
             ->setDefaultSort(['name' => 'ASC'])
-            ->setSearchFields(['name', 'slug', 'iataCode', 'hint']);
+            ->setSearchFields([
+                'name',
+                'slug',
+                'iataCode',
+                'hint',
+                'seoTitle',
+                'seoDescription',
+                'seoH1',
+                'seoIntro',
+            ]);
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->update(Crud::PAGE_INDEX, Action::NEW, fn (Action $action) => $action->setLabel('Vliegmaatschappij toevoegen'))
-            ->update(Crud::PAGE_INDEX, Action::EDIT, fn (Action $action) => $action->setLabel('Aanpassen'))
-            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => $action->setLabel('Verwijderen'));
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::NEW,
+                static fn (Action $action): Action => $action->setLabel('Vliegmaatschappij toevoegen')
+            )
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::EDIT,
+                static fn (Action $action): Action => $action->setLabel('Aanpassen')
+            )
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::DELETE,
+                static fn (Action $action): Action => $action->setLabel('Verwijderen')
+            );
     }
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->hideOnForm();
+        yield FormField::addPanel('Algemeen');
+
+        yield IdField::new('id')
+            ->hideOnForm();
 
         yield BooleanField::new('isActive', 'Actief');
 
@@ -72,6 +101,33 @@ final class AirlineCrudController extends AbstractCrudController
         yield TextField::new('hint', 'Korte hint')
             ->setRequired(false)
             ->setHelp('Korte toelichting voor de bagagegids of airline-pagina.');
+
+        yield FormField::addPanel('SEO');
+
+        yield TextField::new('seoTitle', 'SEO titel')
+            ->setRequired(false)
+            ->setHelp('Bijvoorbeeld: Ryanair bagageregels 2026 | Handbagage, koffer & personal item');
+
+        yield TextareaField::new('seoDescription', 'Meta description')
+            ->setRequired(false)
+            ->setNumOfRows(3)
+            ->setHelp('Korte omschrijving voor Google. Richtlijn: ongeveer 140-160 tekens.');
+
+        yield TextField::new('seoH1', 'H1 titel')
+            ->setRequired(false)
+            ->setHelp('Bijvoorbeeld: Ryanair bagageregels: welke koffer mag mee?');
+
+        yield TextareaField::new('seoIntro', 'Intro tekst')
+            ->setRequired(false)
+            ->setNumOfRows(5)
+            ->setHelp('Korte introductie bovenaan de airline-pagina.');
+
+        yield TextField::new('canonicalUrl', 'Canonical URL')
+            ->setRequired(false)
+            ->setHelp('Alleen invullen als je wilt afwijken van de standaard URL.');
+
+        yield BooleanField::new('isIndexable', 'Indexeerbaar')
+            ->setHelp('Uit = noindex. Aan = index, follow.');
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -98,14 +154,14 @@ final class AirlineCrudController extends AbstractCrudController
 
     private function normalize(Airline $airline): void
     {
-        if (trim($airline->getSlug()) === '') {
-            $airline->setSlug(
-                strtolower($this->slugger->slug($airline->getName())->toString())
-            );
-        } else {
-            $airline->setSlug(
-                strtolower($this->slugger->slug($airline->getSlug())->toString())
-            );
+        $slug = trim($airline->getSlug());
+
+        if ($slug === '') {
+            $slug = $airline->getName();
         }
+
+        $airline->setSlug(
+            strtolower($this->slugger->slug($slug)->toString())
+        );
     }
 }
