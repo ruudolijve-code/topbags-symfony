@@ -451,26 +451,26 @@
 <section id="passende-producten" class="bg-white">
     {% include 'airline/_product_rail.html.twig' with {
         title: 'Personal item voor ' ~ airline.name,
-        description: 'Kleine tassen, rugzakken en underseaters die geschikt zijn voor reizen met alleen een persoonlijk item.',
+        description: 'Kleine tassen, rugzakken en underseaters die passen bij de personal-item regels van ' ~ airline.name ~ '. Ideaal als je alleen een tas onder de stoel wilt meenemen.',
         items: personalItems,
         ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=personal',
-        ctaLabel: 'Alle personal items bekijken →'
+        ctaLabel: 'Alle personal items voor ' ~ airline.name ~ ' bekijken →'
     } only %}
 
     {% include 'airline/_product_rail.html.twig' with {
-        title: 'Handbagage voor ' ~ airline.name,
-        description: 'Handbagagekoffers en cabintrolleys die passen binnen de bagageregels van deze luchtvaartmaatschappij.',
+        title: 'Handbagagekoffers voor ' ~ airline.name,
+        description: 'Cabinkoffers en trolleys die passen bij de handbagageregels van ' ~ airline.name ~ '. Controleer altijd je ticket voordat je vertrekt.',
         items: cabinItems,
         ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=cabin',
-        ctaLabel: 'Alle handbagage bekijken →'
+        ctaLabel: 'Alle handbagage voor ' ~ airline.name ~ ' bekijken →'
     } only %}
 
     {% include 'airline/_product_rail.html.twig' with {
-        title: 'Ruimbagage voor ' ~ airline.name,
-        description: 'Ruime koffers voor zonvakanties, verre reizen en langere verblijven.',
+        title: 'Ruimbagage koffers voor ' ~ airline.name,
+        description: 'Middelgrote en grote koffers voor ingecheckte bagage bij ' ~ airline.name ~ '. Geschikt voor vakanties, langere reizen en extra bagage.',
         items: holdItems,
         ctaUrl: path('shop_all') ~ '?airline[]=' ~ airline.slug ~ '&scope=hold',
-        ctaLabel: 'Alle ruimbagage bekijken →'
+        ctaLabel: 'Alle ruimbagage voor ' ~ airline.name ~ ' bekijken →'
     } only %}
 </section>
 
