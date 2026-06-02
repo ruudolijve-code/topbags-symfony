@@ -500,4 +500,128 @@
     </section>
 {% endif %}
 
+    {# =========================
+    STRUCTURED DATA
+    ========================= #}
+
+    {# BreadcrumbList #}
+    <script type="application/ld+json">
+    {{ {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Home',
+                'item': 'https://topbags.nl/'
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Vliegmaatschappijen',
+                'item': 'https://topbags.nl' ~ path('airline_index')
+            },
+            {
+                '@type': 'ListItem',
+                'position': 3,
+                'name': airline.name ~ ' bagageregels',
+                'item': 'https://topbags.nl' ~ path('airline_show', { slug: airline.slug })
+            }
+        ]
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}
+    </script>
+
+    {# FAQPage #}
+    {% if faqs is defined and faqs|length > 0 %}
+        {% set faqItems = [] %}
+
+        {% for faq in faqs %}
+            {% set faqItems = faqItems|merge([
+                {
+                    '@type': 'Question',
+                    'name': faq.question,
+                    'acceptedAnswer': {
+                        '@type': 'Answer',
+                        'text': faq.answer|striptags
+                    }
+                }
+            ]) %}
+        {% endfor %}
+
+        <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            'mainEntity': faqItems
+        }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}
+        </script>
+    {% endif %}
+
+    {# ItemList voor productrails #}
+    {% set listItems = [] %}
+
+    {% for item in personalItems|default([]) %}
+        {% if item.product is defined and item.variant is defined and item.product and item.variant %}
+            {% set listItems = listItems|merge([
+                {
+                    '@type': 'ListItem',
+                    'position': listItems|length + 1,
+                    'name': item.product.name,
+                    'url': 'https://topbags.nl' ~ path('product_show', {
+                        slug: item.product.slug,
+                        colorSlug: item.variant.supplierColorSlug ?: 'default',
+                        variantSku: item.variant.variantSku
+                    }) ~ '#product-focus'
+                }
+            ]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% for item in cabinItems|default([]) %}
+        {% if item.product is defined and item.variant is defined and item.product and item.variant %}
+            {% set listItems = listItems|merge([
+                {
+                    '@type': 'ListItem',
+                    'position': listItems|length + 1,
+                    'name': item.product.name,
+                    'url': 'https://topbags.nl' ~ path('product_show', {
+                        slug: item.product.slug,
+                        colorSlug: item.variant.supplierColorSlug ?: 'default',
+                        variantSku: item.variant.variantSku
+                    }) ~ '#product-focus'
+                }
+            ]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% for item in holdItems|default([]) %}
+        {% if item.product is defined and item.variant is defined and item.product and item.variant %}
+            {% set listItems = listItems|merge([
+                {
+                    '@type': 'ListItem',
+                    'position': listItems|length + 1,
+                    'name': item.product.name,
+                    'url': 'https://topbags.nl' ~ path('product_show', {
+                        slug: item.product.slug,
+                        colorSlug: item.variant.supplierColorSlug ?: 'default',
+                        variantSku: item.variant.variantSku
+                    }) ~ '#product-focus'
+                }
+            ]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% if listItems|length > 0 %}
+        <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            'name': 'Passende bagage voor ' ~ airline.name,
+            'description': 'Koffers, rugzakken en reistassen die passen bij de bagageregels van ' ~ airline.name ~ '.',
+            'itemListElement': listItems
+        }|json_encode|raw }}
+        </script>
+    {% endif %}
+
 {% endblock %}
