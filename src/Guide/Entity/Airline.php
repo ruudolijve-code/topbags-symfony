@@ -32,6 +32,24 @@ class Airline
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $hint = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $seoDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoH1 = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $seoIntro = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $canonicalUrl = null;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $isIndexable = true;
+
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
@@ -80,7 +98,7 @@ class Airline
 
     public function setLogo(?string $logo): self
     {
-        $this->logo = $logo !== null && trim($logo) !== '' ? trim($logo) : null;
+        $this->logo = $this->cleanNullableString($logo);
 
         return $this;
     }
@@ -116,7 +134,79 @@ class Airline
 
     public function setHint(?string $hint): self
     {
-        $this->hint = $hint !== null && trim($hint) !== '' ? trim($hint) : null;
+        $this->hint = $this->cleanNullableString($hint);
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): self
+    {
+        $this->seoTitle = $this->cleanNullableString($seoTitle);
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    public function setSeoDescription(?string $seoDescription): self
+    {
+        $this->seoDescription = $this->cleanNullableString($seoDescription);
+
+        return $this;
+    }
+
+    public function getSeoH1(): ?string
+    {
+        return $this->seoH1;
+    }
+
+    public function setSeoH1(?string $seoH1): self
+    {
+        $this->seoH1 = $this->cleanNullableString($seoH1);
+
+        return $this;
+    }
+
+    public function getSeoIntro(): ?string
+    {
+        return $this->seoIntro;
+    }
+
+    public function setSeoIntro(?string $seoIntro): self
+    {
+        $this->seoIntro = $this->cleanNullableString($seoIntro);
+
+        return $this;
+    }
+
+    public function getCanonicalUrl(): ?string
+    {
+        return $this->canonicalUrl;
+    }
+
+    public function setCanonicalUrl(?string $canonicalUrl): self
+    {
+        $this->canonicalUrl = $this->cleanNullableString($canonicalUrl);
+
+        return $this;
+    }
+
+    public function isIndexable(): bool
+    {
+        return $this->isIndexable;
+    }
+
+    public function setIsIndexable(bool $isIndexable): self
+    {
+        $this->isIndexable = $isIndexable;
 
         return $this;
     }
@@ -160,5 +250,16 @@ class Airline
         }
 
         return $this;
+    }
+
+    private function cleanNullableString(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim($value);
+
+        return $value !== '' ? $value : null;
     }
 }
