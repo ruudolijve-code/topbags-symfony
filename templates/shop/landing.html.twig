@@ -507,6 +507,76 @@
 
         </div>
     </section>
+
+    {# Airline bagageregels interne links #}
+    <section class="max-w-7xl mx-auto px-6 py-10">
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 md:p-8">
+            <div class="md:flex md:items-start md:justify-between gap-8">
+                <div class="max-w-2xl">
+                    <div class="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                        Handbagage regels
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Welke koffer mag mee in het vliegtuig?
+                    </h2>
+
+                    <p class="mt-3 text-sm text-gray-700 leading-6">
+                        De regels voor handbagage verschillen per vliegmaatschappij. Controleer vooraf
+                        welke afmetingen gelden voor je personal item, handbagagekoffer of ruimbagage.
+                        Zo voorkom je extra kosten bij de gate.
+                    </p>
+                </div>
+
+                <a href="{{ path('airline_index') }}"
+                class="mt-5 md:mt-0 inline-flex items-center justify-center px-5 py-3 rounded-lg bg-black text-white text-sm font-medium hover:bg-gray-900 transition">
+                    Alle vliegmaatschappijen bekijken →
+                </a>
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-2">
+                <a href="{{ path('airline_show', { slug: 'ryanair' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    Ryanair handbagage koffer
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'transavia' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    Transavia handbagage regels
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'easyjet' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    easyJet kleine tas
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'klm' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    KLM handbagage koffer
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'tuifly' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    TUIfly handbagage
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'wizzair' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    Wizz Air handbagage
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'vueling' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    Vueling handbagage
+                </a>
+
+                <a href="{{ path('airline_show', { slug: 'lufthansa' }) }}"
+                class="inline-flex rounded-full border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-800 transition hover:border-amber-500">
+                    Lufthansa handbagage
+                </a>
+            </div>
+        </div>
+    </section>
     
     {# Populaire rugzakken #}
     {% if popularBackpackItems is defined and popularBackpackItems is not empty %}
