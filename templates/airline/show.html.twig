@@ -3,7 +3,7 @@
 {% set pageTitle = airline.seoTitle ?: airline.name ~ ' bagageregels | Handbagage en koffers | Topbags' %}
 {% set metaDescription = airline.seoDescription ?: 'Bekijk de bagageregels van ' ~ airline.name ~ ' voor personal item, handbagage en ruimbagage. Ontdek welke koffer, rugzak of tas geschikt is.' %}
 {% set pageH1 = airline.seoH1 ?: airline.name ~ ' bagageregels: welke tas of koffer mag mee?' %}
-{% set canonicalUrl = airline.canonicalUrl ?: absolute_url(path('airline_show', { slug: airline.slug })) %}
+{% set canonicalUrl = airline.canonicalUrl ?: 'https://topbags.nl' ~ path('airline_show', { slug: airline.slug }) %}
 
 {% block title %}
     {{ pageTitle }}
@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block canonical %}
-    <link rel="canonical" href="{{ canonicalUrl }}">
+    <link rel="canonical" href="{{ canonicalUrl|trim }}">
 {% endblock %}
 
 {% block robots %}
