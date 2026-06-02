@@ -1,11 +1,28 @@
 {% extends 'base.html.twig' %}
 
+{% set pageTitle = airline.seoTitle ?: airline.name ~ ' bagageregels | Handbagage en koffers | Topbags' %}
+{% set metaDescription = airline.seoDescription ?: 'Bekijk de bagageregels van ' ~ airline.name ~ ' voor personal item, handbagage en ruimbagage. Ontdek welke koffer, rugzak of tas geschikt is.' %}
+{% set pageH1 = airline.seoH1 ?: airline.name ~ ' bagageregels: welke tas of koffer mag mee?' %}
+{% set canonicalUrl = airline.canonicalUrl ?: absolute_url(path('airline_show', { slug: airline.slug })) %}
+
 {% block title %}
-    {{ airline.name }} bagage | Handbagage & ruimbagage regels | Topbags
+    {{ pageTitle }}
 {% endblock %}
 
 {% block meta_description %}
-    Vlieg je met {{ airline.name }}? Bekijk handbagage, personal item en ruimbagage regels en vind passende koffers en reistassen bij Topbags.
+    {{ metaDescription }}
+{% endblock %}
+
+{% block canonical %}
+    <link rel="canonical" href="{{ canonicalUrl }}">
+{% endblock %}
+
+{% block robots %}
+    {% if airline.isIndexable %}
+        <meta name="robots" content="index, follow">
+    {% else %}
+        <meta name="robots" content="noindex, follow">
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -23,14 +40,20 @@
             </div>
 
             <h1 class="text-3xl md:text-4xl font-semibold text-gray-900 mt-3 mb-4">
-                Bagage meenemen bij {{ airline.name }}
+                {{ pageH1 }}
             </h1>
 
-            <p class="text-gray-700 max-w-xl leading-7">
-                Vlieg je met {{ airline.name }}? Bekijk welke afmetingen gelden voor personal item,
-                handbagage en ruimbagage. Daarna kun je direct passende koffers en reistassen bekijken
-                of de Bagagegids gebruiken voor persoonlijk advies.
-            </p>
+            {% if airline.seoIntro %}
+                <div class="text-gray-700 max-w-xl leading-7">
+                    {{ airline.seoIntro|nl2br }}
+                </div>
+            {% else %}
+                <p class="text-gray-700 max-w-xl leading-7">
+                    Vlieg je met {{ airline.name }}? Bekijk welke afmetingen gelden voor personal item,
+                    handbagage en ruimbagage. Daarna kun je direct passende koffers en reistassen bekijken
+                    of de Bagagegids gebruiken voor persoonlijk advies.
+                </p>
+            {% endif %}
 
             <div class="mt-6 flex flex-col sm:flex-row gap-3">
                 <a href="{{ path('guide_index', { transport: 'plane', airline: airline.slug }) }}"
@@ -102,8 +125,8 @@
                     <div class="inline-flex flex-wrap items-center gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         <span class="text-amber-700 font-semibold">
                             {{ fallbackSummary.personal.maxHeightCm }}
-                            × {{ fallbackSummary.personal.maxWidthCm }}
-                            × {{ fallbackSummary.personal.maxDepthCm }} cm
+                            x {{ fallbackSummary.personal.maxWidthCm }}
+                            x {{ fallbackSummary.personal.maxDepthCm }} cm
                         </span>
 
                         {% if fallbackSummary.personal.maxWeightKg %}
@@ -133,8 +156,8 @@
                     <div class="inline-flex flex-wrap items-center gap-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                         <span class="text-amber-700 font-semibold">
                             {{ fallbackSummary.cabin.maxHeightCm }}
-                            × {{ fallbackSummary.cabin.maxWidthCm }}
-                            × {{ fallbackSummary.cabin.maxDepthCm }} cm
+                            x {{ fallbackSummary.cabin.maxWidthCm }}
+                            x {{ fallbackSummary.cabin.maxDepthCm }} cm
                         </span>
 
                         {% if fallbackSummary.cabin.maxWeightKg %}
@@ -169,8 +192,8 @@
                         {% else %}
                             <span class="text-amber-700 font-semibold">
                                 {{ fallbackSummary.hold.maxHeightCm }}
-                                × {{ fallbackSummary.hold.maxWidthCm }}
-                                × {{ fallbackSummary.hold.maxDepthCm }} cm
+                                x {{ fallbackSummary.hold.maxWidthCm }}
+                                x {{ fallbackSummary.hold.maxDepthCm }} cm
                             </span>
                         {% endif %}
 
@@ -266,13 +289,13 @@
                                             Personal item
                                             {% if summary.personal.allowed and summary.personal.dimensionType == 'box' %}
                                                 · {{ summary.personal.maxHeightCm }}
-                                                × {{ summary.personal.maxWidthCm }}
-                                                × {{ summary.personal.maxDepthCm }} cm
+                                                x {{ summary.personal.maxWidthCm }}
+                                                x {{ summary.personal.maxDepthCm }} cm
                                             {% endif %}
                                         </span>
                                     </div>
 
-                                   {# HANDBAGAGE #}
+                                    {# HANDBAGAGE #}
                                     {% if summary.cabin.allowed %}
                                         <div class="flex items-start gap-2 text-green-700 font-medium">
                                             <span>✔️</span>
@@ -287,8 +310,8 @@
                                                     · max. {{ summary.cabin.maxLinearCm }} cm
                                                 {% elseif summary.cabin.dimensionType == 'box' %}
                                                     · {{ summary.cabin.maxHeightCm }}
-                                                    × {{ summary.cabin.maxWidthCm }}
-                                                    × {{ summary.cabin.maxDepthCm }} cm
+                                                    x {{ summary.cabin.maxWidthCm }}
+                                                    x {{ summary.cabin.maxDepthCm }} cm
                                                 {% endif %}
 
                                                 {% if summary.cabin.maxWeightKg %}
@@ -310,8 +333,8 @@
                                                     and summary.cabin.maxDepthCm
                                                 %}
                                                      bij te boeken tot max. {{ summary.cabin.maxHeightCm }}
-                                                    × {{ summary.cabin.maxWidthCm }}
-                                                    × {{ summary.cabin.maxDepthCm }} cm
+                                                    x {{ summary.cabin.maxWidthCm }}
+                                                    x {{ summary.cabin.maxDepthCm }} cm
                                                 {% endif %}
 
                                                 {% if summary.cabin.maxWeightKg %}
@@ -337,8 +360,8 @@
                                                     · max. {{ summary.hold.maxLinearCm }} cm
                                                 {% elseif summary.hold.dimensionType == 'box' %}
                                                     · {{ summary.hold.maxHeightCm }}
-                                                    × {{ summary.hold.maxWidthCm }}
-                                                    × {{ summary.hold.maxDepthCm }} cm
+                                                    x {{ summary.hold.maxWidthCm }}
+                                                    x {{ summary.hold.maxDepthCm }} cm
                                                 {% endif %}
 
                                                 {% if summary.hold.maxWeightKg %}
@@ -390,7 +413,7 @@
             </h3>
 
             <p class="text-sm text-gray-700 max-w-2xl leading-6">
-                De duur, bestemming en soort trip bepalen hoeveel ruimte je écht nodig hebt.
+                De duur, bestemming en soort trip bepalen hoeveel ruimte je echt nodig hebt.
                 Met de gids krijg je één duidelijke keuze: compact of comfortabel.
             </p>
         </div>
@@ -404,7 +427,6 @@
 
 {# =========================
    PASSENDE PRODUCTEN
-   Bewust boven FAQ geplaatst
 ========================= #}
 <section id="passende-producten" class="bg-white">
     {% include 'airline/_product_rail.html.twig' with {
@@ -450,7 +472,7 @@
                     </summary>
 
                     <div class="mt-4 text-sm text-gray-700 leading-relaxed">
-                        {{ faq.answer|raw }}
+                        {{ faq.answer|nl2br }}
                     </div>
                 </details>
             {% endfor %}
