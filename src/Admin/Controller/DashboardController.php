@@ -29,6 +29,8 @@ use App\Admin\Controller\AirlineTicketTypeCrudController;
 use App\Guide\Entity\Airline;
 use App\Guide\Entity\AirlineBaggageRule;
 use App\Guide\Entity\AirlineTicketType;
+use App\Guide\Entity\Faq;
+use App\Admin\Controller\FaqCrudController;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -148,6 +150,9 @@ final class DashboardController extends AbstractDashboardController
 
             yield MenuItem::linkToCrud('Bagageregels', 'fa fa-suitcase-rolling', AirlineBaggageRule::class)
                 ->setController(AirlineBaggageRuleCrudController::class);
+
+            yield MenuItem::linkToCrud('FAQ’s', 'fa fa-question-circle', Faq::class)
+                ->setController(FaqCrudController::class);
 
             yield MenuItem::linkToCrud('Reisbureau pagina’s', 'fa fa-map-location-dot', TravelAgencyLandingPage::class)
                 ->setController(TravelAgencyLandingPageCrudController::class);

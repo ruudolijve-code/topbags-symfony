@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Guide\Entity;
 
+use App\Guide\Repository\AirlineRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AirlineRepository::class)]
 class Airline
 {
     #[ORM\Id]
@@ -17,16 +18,16 @@ class Airline
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
-    private string $name;
+    private string $name = '';
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
 
     #[ORM\Column(length: 100)]
-    private string $iataCode;
+    private string $iataCode = '';
 
     #[ORM\Column(length: 100, unique: true)]
-    private string $slug;
+    private string $slug = '';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $hint = null;
@@ -48,6 +49,11 @@ class Airline
     public function __construct()
     {
         $this->ticketTypes = new ArrayCollection();
+    }
+
+    public function __toString(): string
+    {
+        return $this->name !== '' ? $this->name : 'Vliegmaatschappij';
     }
 
     public function getId(): ?int
@@ -74,7 +80,7 @@ class Airline
 
     public function setLogo(?string $logo): self
     {
-        $this->logo = $logo !== null ? trim($logo) : null;
+        $this->logo = $logo !== null && trim($logo) !== '' ? trim($logo) : null;
 
         return $this;
     }
@@ -110,7 +116,7 @@ class Airline
 
     public function setHint(?string $hint): self
     {
-        $this->hint = $hint !== null ? trim($hint) : null;
+        $this->hint = $hint !== null && trim($hint) !== '' ? trim($hint) : null;
 
         return $this;
     }
@@ -135,8 +141,24 @@ class Airline
         return $this->ticketTypes;
     }
 
-    public function __toString(): string
+    public function addTicketType(AirlineTicketType $ticketType): self
     {
-        return $this->name;
+        if (!$this->ticketTypes->contains($ticketType)) {
+            $this->ticketTypes->add($ticketType);
+            $ticketType->setAirline($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicketType(AirlineTicketType $ticketType): self
+    {
+        if ($this->ticketTypes->removeElement($ticketType)) {
+            if ($ticketType->getAirline() === $this) {
+                $ticketType->setAirline(null);
+            }
+        }
+
+        return $this;
     }
 }
