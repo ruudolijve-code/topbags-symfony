@@ -19,10 +19,10 @@
     <article class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
         <a href="{{ productUrl }}" class="block">
 
-            <div class="relative aspect-square bg-white flex items-center justify-center p-4">
-               {% if saleActive and saleBadge %}
+            <div class="relative aspect-square bg-white flex items-center justify-center p-4 overflow-hidden">
+                {% if saleActive and saleBadge %}
                     <span class="badge-sale absolute left-3 top-3 z-50">
-                       SALE {{ saleBadge }}
+                        SALE {{ saleBadge }}
                     </span>
                 {% endif %}
 
@@ -31,13 +31,12 @@
                         src="{{ asset(mediaPath) }}"
                         alt="{{ product.name }}"
                         loading="lazy"
-                        class="relative z-10 h-full w-full object-contain p-6 transition-transform duration-300 group-hover:scale-[1.03]"
+                        class="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                     >
                 {% else %}
                     <div class="text-xs text-gray-400">Geen afbeelding</div>
                 {% endif %}
             </div>
-
             <div class="p-5">
                <div class="text-xs uppercase tracking-wide text-gray-500">
                     {{ product.brand.name }}
