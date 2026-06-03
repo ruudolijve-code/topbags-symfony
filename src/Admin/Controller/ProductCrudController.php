@@ -86,6 +86,7 @@ class ProductCrudController extends AbstractCrudController
                 'Softcase' => 'softcase',
                 'Duffle' => 'duffle',
                 'Backpack' => 'backpack',
+                'Travel kit' => 'travel-kit',
             ])
             ->setRequired(false)
             ->setHelp('Alleen invullen voor reisartikelen. Voor damestassen leeg laten.');
