@@ -24,7 +24,7 @@ class NewsletterSubscription
     private bool $isActive = true;
 
     #[ORM\Column(length: 50, nullable: true)]
-    private ?string $source = 'footer';
+    private ?string $source = 'topbags_webshop';
 
     #[ORM\Column(length: 64, unique: true, nullable: true)]
     private ?string $unsubscribeToken = null;
