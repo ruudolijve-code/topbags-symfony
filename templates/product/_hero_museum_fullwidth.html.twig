@@ -119,7 +119,14 @@
                             Tijdelijk uitverkocht
                         </button>
                     {% else %}
-                        <form method="post" action="{{ path('cart_add') }}" class="inline-flex">
+                        <form
+                            method="post"
+                            action="{{ path('cart_add') }}"
+                            class="inline-flex js-meta-add-to-cart"
+                            data-meta-content-id="{{ variant.variantSku|e('html_attr') }}"
+                            data-meta-value="{{ variant.displayPrice|default(variant.price)|default(0)|number_format(2, '.', '') }}"
+                            data-meta-currency="EUR"
+                        >
                             <input type="hidden" name="variantSku" value="{{ variant.variantSku }}">
                             <input type="hidden" name="qty" value="1">
 
@@ -175,3 +182,30 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('.js-meta-add-to-cart');
+
+        forms.forEach(function (form) {
+            form.addEventListener('submit', function () {
+                if (typeof fbq !== 'function') {
+                    return;
+                }
+
+                const contentId = form.dataset.metaContentId || '';
+
+                if (!contentId) {
+                    return;
+                }
+
+                fbq('track', 'AddToCart', {
+                    content_ids: [contentId],
+                    content_type: 'product',
+                    value: parseFloat(form.dataset.metaValue || '0'),
+                    currency: form.dataset.metaCurrency || 'EUR'
+                });
+            });
+        });
+    });
+</script>
