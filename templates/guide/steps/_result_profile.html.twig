@@ -518,56 +518,64 @@
         {# ================= SCHIPHOL-ADVIES (STATIC MVP) ================= #}
         {% if transport == 'plane' %}
 
-        <div class="mt-10 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+          <div class="mt-10 rounded-3xl border border-amber-200 bg-amber-50 p-5 lg:p-6 shadow-sm overflow-hidden">
 
-          <h3 class="text-sm font-semibold text-gray-900">
-            Vertrekadvies Schiphol
-          </h3>
+            <h3 class="text-sm font-semibold text-gray-900">
+              Vertrekadvies Schiphol
+            </h3>
 
-          <p class="mt-1 text-xs text-gray-600">
-            Slim voorbereid vertrekken vanaf Amsterdam Airport Schiphol.
-          </p>
-
-        <div class="mt-5 space-y-3 text-sm text-gray-800">
-
-          <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
-              <span>Gemiddelde security wachttijd</span>
-              <span class="font-semibold text-right">15–30 minuten</span>
-            </div>
-
-            <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
-              <span>Aanbevolen aankomsttijd (Europese vlucht)</span>
-              <span class="font-semibold text-right">
-                2 uur voor vertrek
-              </span>
-            </div>
-
-            <div class="grid grid-cols-[1fr_180px] gap-x-6 items-start">
-              <span>Aanbevolen aankomsttijd (Intercontinentaal)</span>
-              <span class="font-semibold text-right">
-                3 uur voor vertrek
-              </span>
-            </div>
-
-          </div>
-
-          <div class="mt-6 rounded-2xl bg-white border border-amber-200 p-4">
-            <p class="text-xs font-semibold text-amber-900">
-              Topbags tip voor Schiphol
+            <p class="mt-1 text-xs text-gray-600 leading-relaxed">
+              Slim voorbereid vertrekken vanaf Amsterdam Airport Schiphol.
             </p>
 
-            <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
-              Reis je alleen met cabinebagage? Dan kun je sneller door security en hoef je niet te wachten bij de bagageband. 
-              Combineer je cabine koffer met een compact personal item voor maximale flexibiliteit bij gate-wijzigingen.
+            <div class="mt-5 space-y-4 text-sm text-gray-800">
+
+              <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,150px)] gap-y-1 xl:gap-x-4 items-start">
+                <span class="min-w-0 leading-snug">
+                  Gemiddelde security wachttijd
+                </span>
+                <span class="min-w-0 font-semibold xl:text-right leading-snug">
+                  15–30 minuten
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,150px)] gap-y-1 xl:gap-x-4 items-start">
+                <span class="min-w-0 leading-snug">
+                  Aanbevolen aankomsttijd (Europese vlucht)
+                </span>
+                <span class="min-w-0 font-semibold xl:text-right leading-snug">
+                  2 uur voor vertrek
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,150px)] gap-y-1 xl:gap-x-4 items-start">
+                <span class="min-w-0 leading-snug">
+                  Aanbevolen aankomsttijd (Intercontinentaal)
+                </span>
+                <span class="min-w-0 font-semibold xl:text-right leading-snug">
+                  3 uur voor vertrek
+                </span>
+              </div>
+
+            </div>
+
+            <div class="mt-6 rounded-2xl bg-white border border-amber-200 p-4">
+              <p class="text-xs font-semibold text-amber-900">
+                Topbags tip voor Schiphol
+              </p>
+
+              <p class="mt-1 text-xs text-amber-900/80 leading-relaxed">
+                Reis je alleen met cabinebagage? Dan kun je sneller door security en hoef je niet te wachten bij de bagageband.
+                Combineer je cabinekoffer met een compact personal item voor maximale flexibiliteit bij gate-wijzigingen.
+              </p>
+            </div>
+
+            <p class="mt-4 text-[11px] text-gray-500 leading-relaxed">
+              Let op: wachttijden op Schiphol kunnen variëren afhankelijk van dag, tijdstip en vakantiedrukte.
+              Controleer altijd kort voor vertrek de actuele informatie via Schiphol zelf.
             </p>
+
           </div>
-
-          <p class="mt-4 text-[11px] text-gray-500 leading-relaxed">
-            Let op: wachttijden op Schiphol kunnen variëren afhankelijk van dag, tijdstip en vakantiedrukte. 
-            Controleer altijd kort voor vertrek de actuele informatie via Schiphol zelf.
-          </p>
-
-        </div>
 
         {% endif %}
       </aside>
