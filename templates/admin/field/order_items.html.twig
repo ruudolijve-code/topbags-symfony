@@ -6,7 +6,18 @@
     <div class="space-y-3">
         {% for item in order.items %}
             <div class="border rounded-lg p-3">
-                <div><strong>{{ item.productName }}</strong></div>
+                <div>
+                    <strong>{{ item.displayName }}</strong>
+                </div>
+
+                {% if item.brandName %}
+                    <div>Merk: {{ item.brandName }}</div>
+                {% endif %}
+
+                {% if item.supplierColorName %}
+                    <div>Kleur: {{ item.supplierColorName }}</div>
+                {% endif %}
+
                 <div>SKU: {{ item.variantSku }}</div>
                 <div>Aantal: {{ item.qty }}</div>
                 <div>Prijs: € {{ item.price|number_format(2, ',', '.') }}</div>

@@ -44,26 +44,26 @@ class OrderItem
         return $this->id;
     }
 
-    public function getOrder(): ?Order
+    public function getOrder(): Order
     {
         return $this->order;
     }
 
-    public function setOrder(?Order $order): static
+    public function setOrder(Order $order): static
     {
         $this->order = $order;
 
         return $this;
     }
 
-    public function getProductName(): ?string
+    public function getProductName(): string
     {
         return $this->productName;
     }
 
     public function setProductName(string $productName): static
     {
-        $this->productName = $productName;
+        $this->productName = trim($productName);
 
         return $this;
     }
@@ -75,7 +75,7 @@ class OrderItem
 
     public function setBrandName(?string $brandName): static
     {
-        $this->brandName = $brandName;
+        $this->brandName = $brandName !== null ? trim($brandName) : null;
 
         return $this;
     }
@@ -87,24 +87,24 @@ class OrderItem
 
     public function setSupplierColorName(?string $supplierColorName): static
     {
-        $this->supplierColorName = $supplierColorName;
+        $this->supplierColorName = $supplierColorName !== null ? trim($supplierColorName) : null;
 
         return $this;
     }
 
-    public function getVariantSku(): ?string
+    public function getVariantSku(): string
     {
         return $this->variantSku;
     }
 
     public function setVariantSku(string $variantSku): static
     {
-        $this->variantSku = $variantSku;
+        $this->variantSku = trim($variantSku);
 
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): float
     {
         return $this->price;
     }
@@ -116,7 +116,7 @@ class OrderItem
         return $this;
     }
 
-    public function getQty(): ?int
+    public function getQty(): int
     {
         return $this->qty;
     }
@@ -128,7 +128,7 @@ class OrderItem
         return $this;
     }
 
-    public function getLineTotal(): ?float
+    public function getLineTotal(): float
     {
         return $this->lineTotal;
     }
@@ -144,16 +144,20 @@ class OrderItem
     {
         $parts = [];
 
-        if ($this->brandName) {
+        if ($this->brandName !== null && $this->brandName !== '') {
             $parts[] = $this->brandName;
         }
 
         $parts[] = $this->productName;
 
-        if ($this->supplierColorName && !str_contains(
-            mb_strtolower($this->productName),
-            mb_strtolower($this->supplierColorName)
-        )) {
+        if (
+            $this->supplierColorName !== null
+            && $this->supplierColorName !== ''
+            && !str_contains(
+                mb_strtolower($this->productName),
+                mb_strtolower($this->supplierColorName)
+            )
+        ) {
             $parts[] = $this->supplierColorName;
         }
 
