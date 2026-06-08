@@ -19,11 +19,33 @@
 
         {# Leather badge #}
         {% set materialName = product.material is defined and product.material ? product.material.name|lower|trim : '' %}
-        {% set isLeather = materialName in ['leer', 'leather', 'suede'] %}
+
+        {# Normaliseer accenten, zodat "Suède" ook als "suede" wordt herkend #}
+        {% set materialKey = materialName
+            |replace({
+                'è': 'e',
+                'é': 'e',
+                'ë': 'e',
+                'ê': 'e',
+                'á': 'a',
+                'à': 'a',
+                'ä': 'a',
+                'â': 'a'
+            })
+        %}
+
+        {% set isLeather =
+            materialKey == 'leer'
+            or materialKey == 'leather'
+            or materialKey == 'suede'
+            or 'leer' in materialKey
+            or 'leather' in materialKey
+            or 'suede' in materialKey
+        %}
 
         {% if isLeather %}
-            <span class="absolute top-3 right-3 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/95">
-                <span class="block h-12 w-12 text-stone-700">
+            <span class="absolute top-3 right-3 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 shadow-sm">
+                <span class="block h-7 w-7 text-stone-700">
                     {% include 'partials/icons/leather.svg.twig' %}
                 </span>
             </span>
