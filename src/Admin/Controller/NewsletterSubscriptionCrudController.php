@@ -3,6 +3,8 @@
 namespace App\Admin\Controller;
 
 use App\Marketing\Entity\NewsletterSubscription;
+use App\Marketing\Repository\NewsletterSubscriptionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -35,6 +37,11 @@ class NewsletterSubscriptionCrudController extends AbstractCrudController
         NewsletterSubscription::SOURCE_TRAVELMILES_MEMBER => 'primary',
         NewsletterSubscription::SOURCE_CUSTOMER_ORDER => 'secondary',
     ];
+
+    public function __construct(
+        private readonly NewsletterSubscriptionRepository $newsletterSubscriptionRepository,
+    ) {
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -76,7 +83,8 @@ class NewsletterSubscriptionCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield EmailField::new('email', 'E-mailadres')
-            ->setRequired(true);
+            ->setRequired(true)
+            ->setHelp('Een e-mailadres kan maar één keer in de nieuwsbrieflijst staan.');
 
         yield BooleanField::new('isActive', 'Actief');
 
@@ -91,5 +99,83 @@ class NewsletterSubscriptionCrudController extends AbstractCrudController
 
         yield DateTimeField::new('unsubscribedAt', 'Uitgeschreven op')
             ->hideOnForm();
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof NewsletterSubscription) {
+            parent::persistEntity($entityManager, $entityInstance);
+
+            return;
+        }
+
+        $email = mb_strtolower(trim($entityInstance->getEmail()));
+
+        $existing = $this->newsletterSubscriptionRepository->findOneBy([
+            'email' => $email,
+        ]);
+
+        if ($existing instanceof NewsletterSubscription) {
+            $this->addDuplicateEmailFlash($existing);
+
+            return;
+        }
+
+        $entityInstance->setEmail($email);
+        $entityInstance->ensureUnsubscribeToken();
+
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof NewsletterSubscription) {
+            parent::updateEntity($entityManager, $entityInstance);
+
+            return;
+        }
+
+        $email = mb_strtolower(trim($entityInstance->getEmail()));
+
+        $existing = $this->newsletterSubscriptionRepository->findOneBy([
+            'email' => $email,
+        ]);
+
+        if (
+            $existing instanceof NewsletterSubscription
+            && $existing->getId() !== $entityInstance->getId()
+        ) {
+            $this->addDuplicateEmailFlash($existing);
+
+            return;
+        }
+
+        $entityInstance->setEmail($email);
+        $entityInstance->ensureUnsubscribeToken();
+
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    private function addDuplicateEmailFlash(NewsletterSubscription $existing): void
+    {
+        if (!$existing->isActive() || $existing->getUnsubscribedAt() !== null) {
+            $this->addFlash(
+                'warning',
+                sprintf(
+                    'Dit e-mailadres bestaat al, maar is eerder uitgeschreven: %s. Activeer dit adres alleen opnieuw bij expliciete toestemming.',
+                    $existing->getEmail()
+                )
+            );
+
+            return;
+        }
+
+        $this->addFlash(
+            'warning',
+            sprintf(
+                'Dit e-mailadres bestaat al in de nieuwsbrieflijst: %s. Zoek het bestaande adres op en bewerk die inschrijving.',
+                $existing->getEmail()
+            )
+        );
     }
 }
