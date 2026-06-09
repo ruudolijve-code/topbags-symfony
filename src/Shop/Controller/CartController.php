@@ -63,6 +63,7 @@ final class CartController extends AbstractController
                 'compareAtPrice' => $variant->getCompareAtPrice() !== null ? (float) $variant->getCompareAtPrice() : null,
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
+                'productContext' => $product->getContext(),
                 'lineTotal' => $lineTotal,
             ];
         }
@@ -72,7 +73,7 @@ final class CartController extends AbstractController
         $discountAmount = 0.0;
 
         if ($couponCode !== null) {
-            $couponResult = $couponService->validate($couponCode, $subtotal);
+            $couponResult = $couponService->validateForCartItems($couponCode, $cartItems);
 
             if (!$couponResult->isValid()) {
                 $cart->clearCouponCode();
@@ -242,7 +243,7 @@ final class CartController extends AbstractController
         $code = trim((string) $request->request->get('couponCode', ''));
 
         $rawItems = $cart->all();
-        $subtotal = 0.0;
+        $cartItems = [];
 
         foreach ($rawItems as $row) {
             if (!isset($row['sku'], $row['qty'])) {
@@ -258,10 +259,22 @@ final class CartController extends AbstractController
                 continue;
             }
 
-            $subtotal += (float) $variant->getDisplayPrice() * max(1, (int) $row['qty']);
+            $product = $variant->getProduct();
+            $qty = max(1, (int) $row['qty']);
+            $price = (float) $variant->getDisplayPrice();
+            $lineTotal = $price * $qty;
+
+            $cartItems[] = [
+                'sku' => $variant->getVariantSku(),
+                'qty' => $qty,
+                'price' => $price,
+                'saleActive' => $variant->isSaleActive(),
+                'productContext' => $product->getContext(),
+                'lineTotal' => $lineTotal,
+            ];
         }
 
-        $result = $couponService->validate($code, $subtotal);
+        $result = $couponService->validateForCartItems($code, $cartItems);
 
         if (!$result->isValid()) {
             $cart->clearCouponCode();

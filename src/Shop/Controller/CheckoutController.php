@@ -158,7 +158,7 @@ class CheckoutController extends AbstractController
         $discountAmount = 0.0;
 
         if ($couponCode !== null) {
-            $couponResult = $couponService->validate($couponCode, $cartData['subtotal']);
+            $couponResult = $couponService->validateForCartItems($couponCode, $cartData['items'] ?? []);
 
             if (!$couponResult->isValid()) {
                 $cart->clearCouponCode();
@@ -280,6 +280,7 @@ class CheckoutController extends AbstractController
                     : null,
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
+                'productContext' => $product->getContext(),
             ];
         }
 
@@ -763,7 +764,7 @@ class CheckoutController extends AbstractController
         $discountAmount = 0.0;
 
         if ($couponCode !== null) {
-            $couponResult = $couponService->validate($couponCode, $subtotal);
+            $couponResult = $couponService->validateForCartItems($couponCode, $cartData['items'] ?? []);
 
             if (!$couponResult->isValid()) {
                 $cart->clearCouponCode();

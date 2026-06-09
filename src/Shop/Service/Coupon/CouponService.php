@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Shop\Service\Coupon;
 
-use App\Catalog\Entity\Product;
-use App\Catalog\Entity\ProductVariant;
 use App\Shop\Entity\Coupon;
 use App\Shop\Repository\CouponRepository;
 
@@ -16,18 +14,11 @@ final class CouponService
     ) {
     }
 
-    /**
-     * Oude methode: blijft bestaan voor coupons die over de hele order mogen gelden.
-     *
-     * Let op:
-     * Deze methode kent geen cartregels en kan dus geen onderscheid maken tussen
-     * tassen, koffers, travel of sale-artikelen.
-     */
     public function validate(string $code, float $subtotal): CouponValidationResult
     {
         $couponResult = $this->findAndValidateCoupon($code);
 
-        if (!$couponResult instanceof CouponValidationResult || !$couponResult->isValid()) {
+        if (!$couponResult->isValid()) {
             return $couponResult;
         }
 
@@ -55,21 +46,11 @@ final class CouponService
         return CouponValidationResult::valid($coupon, $discountAmount);
     }
 
-    /**
-     * Nieuwe methode: gebruik deze voor de winkelwagen.
-     *
-     * Deze berekent eerst welk deel van de cart korting mag krijgen:
-     * - TASSEN20 / appliesToContext=bags: alleen producten met context bags
-     * - shop-coupon: alleen producten met context shop
-     * - all: hele cart
-     *
-     * Reeds afgeprijsde artikelen worden uitgesloten als de variant sale actief is.
-     */
     public function validateForCartItems(string $code, iterable $cartItems): CouponValidationResult
     {
         $couponResult = $this->findAndValidateCoupon($code);
 
-        if (!$couponResult instanceof CouponValidationResult || !$couponResult->isValid()) {
+        if (!$couponResult->isValid()) {
             return $couponResult;
         }
 
@@ -97,7 +78,7 @@ final class CouponService
             }
 
             if ($coupon->appliesToShop()) {
-                return CouponValidationResult::invalid('Deze couponcode is alleen geldig op travel, koffers en reisbagage.');
+                return CouponValidationResult::invalid('Deze couponcode is alleen geldig op koffers, reistassen en reisbagage.');
             }
 
             return CouponValidationResult::invalid('Deze coupon levert geen korting op.');
@@ -126,31 +107,21 @@ final class CouponService
         $subtotal = 0.0;
 
         foreach ($cartItems as $item) {
-            $variant = $this->getVariantFromCartItem($item);
-
-            if (!$variant instanceof ProductVariant) {
+            if (!is_array($item)) {
                 continue;
             }
 
-            $product = $variant->getProduct();
+            $productContext = $item['productContext'] ?? null;
 
-            if (!$product instanceof Product) {
+            if (!$coupon->appliesToProductContext($productContext)) {
                 continue;
             }
 
-            if (!$coupon->appliesToProductContext($product->getContext())) {
+            if (($item['saleActive'] ?? false) === true) {
                 continue;
             }
 
-            /*
-             * Voorwaarde uit nieuwsbrief:
-             * Niet geldig op reeds afgeprijsde artikelen en lopende acties.
-             */
-            if (method_exists($variant, 'isSaleActive') && $variant->isSaleActive()) {
-                continue;
-            }
-
-            $subtotal += $this->getCartItemLineTotal($item);
+            $subtotal += (float) ($item['lineTotal'] ?? 0.0);
         }
 
         return round($subtotal, 2);
@@ -190,47 +161,13 @@ final class CouponService
         $subtotal = 0.0;
 
         foreach ($cartItems as $item) {
-            $subtotal += $this->getCartItemLineTotal($item);
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $subtotal += (float) ($item['lineTotal'] ?? 0.0);
         }
 
         return round($subtotal, 2);
-    }
-
-    private function getVariantFromCartItem(object $item): ?ProductVariant
-    {
-        if (method_exists($item, 'getProductVariant')) {
-            $variant = $item->getProductVariant();
-
-            return $variant instanceof ProductVariant ? $variant : null;
-        }
-
-        if (method_exists($item, 'getVariant')) {
-            $variant = $item->getVariant();
-
-            return $variant instanceof ProductVariant ? $variant : null;
-        }
-
-        return null;
-    }
-
-    private function getCartItemLineTotal(object $item): float
-    {
-        if (method_exists($item, 'getLineTotal')) {
-            return (float) $item->getLineTotal();
-        }
-
-        if (method_exists($item, 'getTotal')) {
-            return (float) $item->getTotal();
-        }
-
-        if (method_exists($item, 'getUnitPrice') && method_exists($item, 'getQuantity')) {
-            return (float) $item->getUnitPrice() * (int) $item->getQuantity();
-        }
-
-        if (method_exists($item, 'getPrice') && method_exists($item, 'getQuantity')) {
-            return (float) $item->getPrice() * (int) $item->getQuantity();
-        }
-
-        return 0.0;
     }
 }
