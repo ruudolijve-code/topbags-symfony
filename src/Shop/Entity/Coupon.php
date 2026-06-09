@@ -13,6 +13,10 @@ class Coupon
     public const TYPE_PERCENTAGE = 'percentage';
     public const TYPE_FIXED_AMOUNT = 'fixed_amount';
 
+    public const APPLIES_TO_ALL = 'all';
+    public const APPLIES_TO_BAGS = 'bags';
+    public const APPLIES_TO_SHOP = 'shop';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -32,6 +36,9 @@ class Coupon
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $discountAmount = null;
+
+    #[ORM\Column(length: 30, options: ['default' => self::APPLIES_TO_ALL])]
+    private string $appliesToContext = self::APPLIES_TO_ALL;
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
@@ -60,6 +67,7 @@ class Coupon
         $this->timesRedeemed = 0;
         $this->isActive = true;
         $this->discountType = self::TYPE_PERCENTAGE;
+        $this->appliesToContext = self::APPLIES_TO_ALL;
     }
 
     public function __toString(): string
@@ -203,6 +211,60 @@ class Coupon
         }
 
         return number_format($this->getDiscountPercentAsFloat(), 2, ',', '.') . '%';
+    }
+
+    /* ======================
+       APPLIES TO CONTEXT
+    ====================== */
+
+    public function getAppliesToContext(): string
+    {
+        return $this->appliesToContext;
+    }
+
+    public function setAppliesToContext(?string $appliesToContext): self
+    {
+        $appliesToContext ??= self::APPLIES_TO_ALL;
+
+        if (!in_array($appliesToContext, [
+            self::APPLIES_TO_ALL,
+            self::APPLIES_TO_BAGS,
+            self::APPLIES_TO_SHOP,
+        ], true)) {
+            throw new \InvalidArgumentException('Invalid coupon context.');
+        }
+
+        $this->appliesToContext = $appliesToContext;
+
+        return $this;
+    }
+
+    public function appliesToAll(): bool
+    {
+        return $this->appliesToContext === self::APPLIES_TO_ALL;
+    }
+
+    public function appliesToBags(): bool
+    {
+        return $this->appliesToContext === self::APPLIES_TO_BAGS;
+    }
+
+    public function appliesToShop(): bool
+    {
+        return $this->appliesToContext === self::APPLIES_TO_SHOP;
+    }
+
+    public function appliesToProductContext(?string $productContext): bool
+    {
+        if ($this->appliesToAll()) {
+            return true;
+        }
+
+        if ($productContext === null || $productContext === '') {
+            return false;
+        }
+
+        return $this->appliesToContext === $productContext;
     }
 
     /* ======================

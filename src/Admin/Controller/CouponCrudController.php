@@ -22,7 +22,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
-
 class CouponCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -56,6 +55,11 @@ class CouponCrudController extends AbstractCrudController
                 'Percentage' => Coupon::TYPE_PERCENTAGE,
                 'Vast bedrag' => Coupon::TYPE_FIXED_AMOUNT,
             ]))
+            ->add(ChoiceFilter::new('appliesToContext', 'Geldig voor')->setChoices([
+                'Hele webshop' => Coupon::APPLIES_TO_ALL,
+                'Alleen tassencollectie' => Coupon::APPLIES_TO_BAGS,
+                'Alleen travel / koffers' => Coupon::APPLIES_TO_SHOP,
+            ]))
             ->add(DateTimeFilter::new('startsAt', 'Startdatum'))
             ->add(DateTimeFilter::new('endsAt', 'Einddatum'));
     }
@@ -65,7 +69,7 @@ class CouponCrudController extends AbstractCrudController
         yield FormField::addPanel('Coupon');
 
         yield TextField::new('code', 'Code')
-            ->setHelp('Bijvoorbeeld SPORTCLUB10, VVHENGELO15 of TM-WELKOM10.');
+            ->setHelp('Bijvoorbeeld TASSEN20, SPORTCLUB10, VVHENGELO15 of TM-WELKOM10.');
 
         yield TextField::new('name', 'Naam / interne omschrijving');
 
@@ -75,6 +79,14 @@ class CouponCrudController extends AbstractCrudController
                 'Vast bedrag' => Coupon::TYPE_FIXED_AMOUNT,
             ])
             ->setHelp('Gebruik “Vast bedrag” voor Travelmiles-vouchers zoals €10 tegoed.');
+
+        yield ChoiceField::new('appliesToContext', 'Geldig voor')
+            ->setChoices([
+                'Hele webshop' => Coupon::APPLIES_TO_ALL,
+                'Alleen tassencollectie' => Coupon::APPLIES_TO_BAGS,
+                'Alleen travel / koffers' => Coupon::APPLIES_TO_SHOP,
+            ])
+            ->setHelp('Gebruik “Alleen tassencollectie” voor acties zoals TASSEN20.');
 
         yield NumberField::new('discountPercent', 'Korting (%)')
             ->setNumDecimals(2)
