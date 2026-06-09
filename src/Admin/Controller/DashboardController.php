@@ -64,11 +64,26 @@ final class DashboardController extends AbstractDashboardController
          *
          * Door role_hierarchy geldt:
          * ROLE_ADMIN heeft ook ROLE_STORE.
+         *
+         * Winkelmedewerkers mogen:
+         * - orders zien/beheren volgens OrderCrudController
+         * - producten bekijken
+         * - varianten bekijken en voorraad/backorder aanpassen
+         * - Travelmiles beheren
+         * - nieuwsbriefinschrijvingen beheren
          */
         if ($this->isGranted('ROLE_STORE')) {
             yield MenuItem::subMenu('Shop', 'fa fa-store')->setSubItems([
                 MenuItem::linkToCrud('Orders', 'fa fa-receipt', Order::class)
                     ->setController(OrderCrudController::class),
+            ]);
+
+            yield MenuItem::subMenu('Catalogus', 'fa fa-boxes-stacked')->setSubItems([
+                MenuItem::linkToCrud('Producten bekijken', 'fa fa-box', Product::class)
+                    ->setController(ProductCrudController::class),
+
+                MenuItem::linkToCrud('Voorraad / varianten', 'fa fa-tags', ProductVariant::class)
+                    ->setController(ProductVariantCrudController::class),
             ]);
 
             yield MenuItem::subMenu('Loyalty', 'fa fa-stamp')->setSubItems([
@@ -87,15 +102,12 @@ final class DashboardController extends AbstractDashboardController
 
         /*
          * Alleen volledige admin.
+         *
+         * Producten en varianten staan hierboven al onder ROLE_STORE,
+         * dus hier alleen de aanvullende catalogusbeheer-onderdelen.
          */
         if ($this->isGranted('ROLE_ADMIN')) {
-            yield MenuItem::subMenu('Catalogus', 'fa fa-boxes-stacked')->setSubItems([
-                MenuItem::linkToCrud('Producten', 'fa fa-box', Product::class)
-                    ->setController(ProductCrudController::class),
-
-                MenuItem::linkToCrud('Varianten', 'fa fa-tags', ProductVariant::class)
-                    ->setController(ProductVariantCrudController::class),
-
+            yield MenuItem::subMenu('Catalogus beheer', 'fa fa-screwdriver-wrench')->setSubItems([
                 MenuItem::linkToCrud('Merken', 'fa fa-tag', Brand::class)
                     ->setController(BrandCrudController::class),
 
