@@ -280,7 +280,7 @@ class CheckoutController extends AbstractController
                     : null,
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
-                'productContext' => $product->getContext(),
+                'productContext' => $product->getProductContext(),
             ];
         }
 

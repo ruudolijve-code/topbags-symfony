@@ -63,7 +63,7 @@ final class CartController extends AbstractController
                 'compareAtPrice' => $variant->getCompareAtPrice() !== null ? (float) $variant->getCompareAtPrice() : null,
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
-                'productContext' => $product->getContext(),
+                'productContext' => $product->getProductContext(),
                 'lineTotal' => $lineTotal,
             ];
         }
@@ -269,7 +269,7 @@ final class CartController extends AbstractController
                 'qty' => $qty,
                 'price' => $price,
                 'saleActive' => $variant->isSaleActive(),
-                'productContext' => $product->getContext(),
+                'productContext' => $product->getProductContext(),
                 'lineTotal' => $lineTotal,
             ];
         }
