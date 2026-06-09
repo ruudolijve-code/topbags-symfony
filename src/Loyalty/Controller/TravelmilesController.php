@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Loyalty\Controller;
 
 use App\Loyalty\Entity\TravelMilesMember;
+use App\Marketing\Entity\NewsletterSubscription;
+use App\Marketing\Service\NewsletterSubscriptionSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +19,7 @@ final class TravelmilesController extends AbstractController
     public function index(
         Request $request,
         EntityManagerInterface $entityManager,
+        NewsletterSubscriptionSyncService $newsletterSubscriptionSyncService,
     ): Response {
         $success = false;
         $error = null;
@@ -49,7 +52,6 @@ final class TravelmilesController extends AbstractController
             ];
 
             $consent = (bool) $request->request->get('consent');
-
             $dateOfBirth = $this->createDateOfBirth($formData['dateOfBirth']);
 
             if ($formData['firstName'] === '') {
@@ -85,8 +87,6 @@ final class TravelmilesController extends AbstractController
                         ->setIsActive(true)
                         ->setConsentGivenAt(new \DateTimeImmutable())
                         ->setSource('topbags_webshop');
-
-                    $success = true;
                 } else {
                     $member = new TravelMilesMember();
 
@@ -107,26 +107,33 @@ final class TravelmilesController extends AbstractController
                         ->setConsentGivenAt(new \DateTimeImmutable());
 
                     $entityManager->persist($member);
-
-                    $success = true;
                 }
+
+                /*
+                 * Voeg Travelmiles-aanmelding ook toe aan de centrale nieuwsbrieflijst.
+                 * Belangrijk: de sync-service mag eerder uitgeschreven adressen niet opnieuw activeren.
+                 */
+                $newsletterSubscriptionSyncService->syncEmail(
+                    $formData['email'],
+                    NewsletterSubscription::SOURCE_TRAVELMILES_MEMBER
+                );
 
                 $entityManager->flush();
 
-                if ($success) {
-                    $formData = [
-                        'firstName' => '',
-                        'lastName' => '',
-                        'email' => '',
-                        'dateOfBirth' => '',
-                        'street' => '',
-                        'houseNumber' => '',
-                        'postalCode' => '',
-                        'city' => '',
-                        'country' => 'NL',
-                        'postalConsent' => false,
-                    ];
-                }
+                $success = true;
+
+                $formData = [
+                    'firstName' => '',
+                    'lastName' => '',
+                    'email' => '',
+                    'dateOfBirth' => '',
+                    'street' => '',
+                    'houseNumber' => '',
+                    'postalCode' => '',
+                    'city' => '',
+                    'country' => 'NL',
+                    'postalConsent' => false,
+                ];
             }
         }
 
