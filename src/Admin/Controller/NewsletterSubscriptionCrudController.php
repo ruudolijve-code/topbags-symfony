@@ -21,9 +21,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class NewsletterSubscriptionCrudController extends AbstractCrudController
 {
     private const SOURCE_CHOICES = [
-        'Topbags webshop' => 'topbags_webshop',
-        'Holtkamp winkel' => 'holtkamp_store',
-        'Handmatig admin' => 'admin_manual',
+        'Topbags webshop' => NewsletterSubscription::SOURCE_TOPBAGS_WEBSHOP,
+        'Holtkamp winkel' => NewsletterSubscription::SOURCE_HOLTKAMP_STORE,
+        'Handmatig admin' => NewsletterSubscription::SOURCE_ADMIN_MANUAL,
+        'Travelmiles member' => NewsletterSubscription::SOURCE_TRAVELMILES_MEMBER,
+        'Eerdere bestelling' => NewsletterSubscription::SOURCE_CUSTOMER_ORDER,
+    ];
+
+    private const SOURCE_BADGES = [
+        NewsletterSubscription::SOURCE_TOPBAGS_WEBSHOP => 'info',
+        NewsletterSubscription::SOURCE_HOLTKAMP_STORE => 'success',
+        NewsletterSubscription::SOURCE_ADMIN_MANUAL => 'warning',
+        NewsletterSubscription::SOURCE_TRAVELMILES_MEMBER => 'primary',
+        NewsletterSubscription::SOURCE_CUSTOMER_ORDER => 'secondary',
     ];
 
     public static function getEntityFqcn(): string
@@ -72,14 +82,14 @@ class NewsletterSubscriptionCrudController extends AbstractCrudController
 
         yield ChoiceField::new('source', 'Ingeschreven via')
             ->setChoices(self::SOURCE_CHOICES)
-            ->setHelp('Gebruik “Holtkamp winkel” voor inschrijvingen die in de winkel zijn gedaan.')
-            ->renderAsBadges([
-                'topbags_webshop' => 'info',
-                'holtkamp_store' => 'success',
-                'admin_manual' => 'warning',
-            ]);
+            ->setRequired(false)
+            ->setHelp('Geeft aan via welke bron het e-mailadres aan de verzendlijst is toegevoegd.')
+            ->renderAsBadges(self::SOURCE_BADGES);
 
         yield DateTimeField::new('createdAt', 'Ingeschreven op')
+            ->hideOnForm();
+
+        yield DateTimeField::new('unsubscribedAt', 'Uitgeschreven op')
             ->hideOnForm();
     }
 }
