@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Marketing\Service;
+namespace App\Loyalty\Service;
 
 use App\Marketing\Entity\NewsletterSubscription;
 use App\Marketing\Repository\NewsletterSubscriptionRepository;
