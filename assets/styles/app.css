@@ -40,3 +40,26 @@
   }
 }
 
+ /* zorgt bij de faq's voor bullets */
+@layer components {
+  .faq-content ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    padding-left: 1.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .faq-content ol > li {
+    padding-left: 0.25rem;
+  }
+
+  .faq-content ol > li + li {
+    margin-top: 1rem;
+  }
+
+  .faq-content ol > li::marker {
+    color: var(--color-amber-600);
+    font-weight: 600;
+  }
+}
+
