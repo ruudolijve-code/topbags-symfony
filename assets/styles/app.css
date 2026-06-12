@@ -40,16 +40,17 @@
   }
 }
 
- /* zorgt bij de faq's voor bullets */
+/* FAQ-lijsten herstellen na Tailwind reset */
 @layer components {
   .faq-content ol {
-    list-style-type: decimal;
-    list-style-position: outside;
+    list-style-type: decimal !important;
+    list-style-position: outside !important;
     padding-left: 1.75rem;
     margin-top: 1.5rem;
   }
 
   .faq-content ol > li {
+    display: list-item !important;
     padding-left: 0.25rem;
   }
 
