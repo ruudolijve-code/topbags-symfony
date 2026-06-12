@@ -11,13 +11,13 @@ class CategoryContext
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'contexts')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Category $category;
+    private ?Category $category = null;
 
     #[ORM\Id]
     #[ORM\Column(length: 20)]
-    private string $context;
+    private string $context = '';
 
-    #[ORM\Column]
+    #[ORM\Column(options: ['default' => 0])]
     private int $position = 0;
 
     public function __toString(): string
@@ -25,12 +25,12 @@ class CategoryContext
         return $this->context . ' #' . $this->position;
     }
 
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): self
+    public function setCategory(?Category $category): self
     {
         $this->category = $category;
 

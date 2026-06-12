@@ -381,6 +381,12 @@ class Category
 
     public function addContext(CategoryContext $context): self
     {
+        $contextValue = $context->getContext();
+
+        if ($contextValue !== '' && $this->findContext($contextValue) !== null) {
+            return $this;
+        }
+
         if (!$this->contexts->contains($context)) {
             $this->contexts->add($context);
             $context->setCategory($this);
@@ -391,7 +397,11 @@ class Category
 
     public function removeContext(CategoryContext $context): self
     {
-        $this->contexts->removeElement($context);
+        if ($this->contexts->removeElement($context)) {
+            if ($context->getCategory() === $this) {
+                $context->setCategory(null);
+            }
+        }
 
         return $this;
     }
@@ -481,14 +491,20 @@ class Category
     {
         $existingContext = $this->findContext($context);
 
-        if ($enabled && $existingContext === null) {
+        if ($enabled) {
+            if ($existingContext !== null) {
+                return $this;
+            }
+
             $categoryContext = new CategoryContext();
             $categoryContext->setContext($context);
             $categoryContext->setPosition($this->position);
             $this->addContext($categoryContext);
+
+            return $this;
         }
 
-        if (!$enabled && $existingContext !== null) {
+        if ($existingContext !== null) {
             $this->removeContext($existingContext);
         }
 
@@ -504,10 +520,18 @@ class Category
     {
         $categoryContext = $this->findContext($context);
 
+        /*
+        * Belangrijk:
+        * Maak hier géén nieuwe CategoryContext aan.
+        *
+        * EasyAdmin kan eerst setShopContext(false) aanroepen
+        * en daarna alsnog setShopMenuPosition(0).
+        * Als we hier opnieuw een CategoryContext aanmaken,
+        * ontstaat een Doctrine EntityIdentityCollision:
+        * dezelfde category_id + context wordt dan tegelijk verwijderd én opnieuw aangemaakt.
+        */
         if ($categoryContext === null) {
-            $categoryContext = new CategoryContext();
-            $categoryContext->setContext($context);
-            $this->addContext($categoryContext);
+            return $this;
         }
 
         $categoryContext->setPosition((int) ($position ?? 0));
