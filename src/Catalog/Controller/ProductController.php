@@ -2,10 +2,12 @@
 
 namespace App\Catalog\Controller;
 
+use App\Catalog\Entity\Product;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -27,6 +29,7 @@ final class ProductController extends AbstractController
         methods: ['GET']
     )]
     public function show(
+        Request $request,
         string $slug,
         string $colorSlug,
         string $variantSku,
@@ -41,15 +44,27 @@ final class ProductController extends AbstractController
 
         $product = $variant->getProduct();
 
+        $requestedContext = $request->query->get('context');
+
+        if (!in_array($requestedContext, [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS], true)) {
+            $requestedContext = $product->getProductContext() ?: Product::CONTEXT_SHOP;
+        }
+
         if (
             $slug !== $product->getSlug()
             || $colorSlug !== $variant->getSupplierColorSlug()
         ) {
-            return $this->redirectToRoute('product_show', [
+            $routeParams = [
                 'slug' => $product->getSlug(),
                 'colorSlug' => $variant->getSupplierColorSlug(),
                 'variantSku' => $variant->getVariantSku(),
-            ], 301);
+            ];
+
+            if ($requestedContext === Product::CONTEXT_BAGS) {
+                $routeParams['context'] = Product::CONTEXT_BAGS;
+            }
+
+            return $this->redirectToRoute('product_show', $routeParams, 301);
         }
 
         $availability = $availabilityService->get($variant);
@@ -63,6 +78,10 @@ final class ProductController extends AbstractController
             'mediaPath' => $mediaPath,
             'imageBasePath' => $imageBasePath,
             'availability' => $availability,
+
+            // Belangrijk voor header/menu/context switcher
+            'currentContext' => $requestedContext,
+            'activeContext' => $requestedContext,
         ]);
     }
 }
