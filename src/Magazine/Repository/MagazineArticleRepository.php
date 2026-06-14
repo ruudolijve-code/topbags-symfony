@@ -14,4 +14,20 @@ final class MagazineArticleRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, MagazineArticle::class);
     }
+
+    public function findPublishedBySlugWithRelations(string $slug): ?MagazineArticle
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.faqs', 'f')
+            ->addSelect('f')
+            ->leftJoin('a.relatedProducts', 'p')
+            ->addSelect('p')
+            ->andWhere('a.slug = :slug')
+            ->andWhere('a.isPublished = true')
+            ->setParameter('slug', $slug)
+            ->orderBy('f.position', 'ASC')
+            ->addOrderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
