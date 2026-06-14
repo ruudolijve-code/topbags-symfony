@@ -11,47 +11,6 @@
 {% endblock %}
 
 {% block body %}
-<style>
-    article .magazine-content ol {
-        counter-reset: item;
-        list-style: none !important;
-        padding-left: 0 !important;
-        margin: 1.5rem 0 !important;
-    }
-
-    article .magazine-content ol > li {
-        counter-increment: item;
-        display: flex !important;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-    }
-
-    article .magazine-content ol > li::before {
-        content: counter(item) ".";
-        min-width: 1.5rem;
-        font-weight: 700;
-        color: #d97706;
-    }
-
-    article .magazine-content ul {
-        list-style: none !important;
-        padding-left: 0 !important;
-        margin: 1.5rem 0 !important;
-    }
-
-    article .magazine-content ul > li {
-        display: flex !important;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-    }
-
-    article .magazine-content ul > li::before {
-        content: "•";
-        min-width: 1.5rem;
-        font-weight: 700;
-        color: #d97706;
-    }
-</style>
 <article>
 
     {# Hero #}
