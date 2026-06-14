@@ -63,75 +63,72 @@
     font-weight: 600;
   }
 
-  .magazine-content {
-    color: var(--color-gray-700);
-    font-size: 1rem;
-    line-height: 1.8;
-  }
-
-  .magazine-content p {
-    margin-top: 1.25rem;
-  }
-
-  .magazine-content h2 {
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    font-size: 1.75rem;
-    line-height: 1.25;
-    font-weight: 700;
-    color: var(--color-gray-900);
-  }
-
-  .magazine-content h3 {
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    font-size: 1.25rem;
-    line-height: 1.35;
-    font-weight: 700;
-    color: var(--color-gray-900);
-  }
-
-  .magazine-content ul,
   .magazine-content ol {
-    list-style-position: outside !important;
-    padding-left: 1.75rem !important;
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
+
+    counter-reset: magazine-counter;
+
+    padding-left: 0 !important;
+
+    margin: 1.25rem 0;
+
+    list-style: none !important;
+
+  }
+
+  .magazine-content ol > li {
+
+    counter-increment: magazine-counter;
+
+    display: flex !important;
+
+    gap: 0.75rem;
+
+    margin-top: 0.5rem;
+
+  }
+
+  .magazine-content ol > li::before {
+
+    content: counter(magazine-counter) ".";
+
+    min-width: 1.5rem;
+
+    font-weight: 700;
+
+    color: var(--color-amber-600);
+
   }
 
   .magazine-content ul {
-    list-style-type: disc !important;
+
+    padding-left: 0 !important;
+
+    margin: 1.25rem 0;
+
+    list-style: none !important;
+
   }
 
-  .magazine-content ol {
-    list-style-type: decimal !important;
+  .magazine-content ul > li {
+
+    display: flex !important;
+
+    gap: 0.75rem;
+
+    margin-top: 0.5rem;
+
   }
 
-  .magazine-content ul > li,
-  .magazine-content ol > li {
-    display: list-item !important;
-    padding-left: 0.25rem;
-  }
+  .magazine-content ul > li::before {
 
-  .magazine-content li + li {
-    margin-top: 0.75rem;
-  }
+    content: "•";
 
-  .magazine-content li::marker {
-    color: var(--color-amber-600);
-    font-weight: 600;
-  }
+    min-width: 1.5rem;
 
-  .magazine-content a {
-    color: var(--color-gray-900);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    font-weight: 600;
-  }
-
-  .magazine-content strong {
-    color: var(--color-gray-900);
     font-weight: 700;
+
+    color: var(--color-amber-600);
+
   }
 }
 
