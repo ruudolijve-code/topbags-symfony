@@ -8,6 +8,7 @@ use App\Magazine\Repository\MagazineArticleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Catalog\Service\VariantImagePathResolver;
 
 final class MagazineController extends AbstractController
 {
@@ -26,6 +27,7 @@ final class MagazineController extends AbstractController
     public function show(
         string $slug,
         MagazineArticleRepository $articles,
+        VariantImagePathResolver $imagePathResolver,
     ): Response {
         $article = $articles->findPublishedBySlugWithRelations($slug);
 
@@ -33,10 +35,34 @@ final class MagazineController extends AbstractController
             throw $this->createNotFoundException('Magazineartikel niet gevonden.');
         }
 
+        $relatedProductItems = [];
+
+        foreach ($article->getRelatedProducts() as $product) {
+            $variant = $product->getMasterVariant();
+
+            if (!$variant) {
+                foreach ($product->getVariants() as $candidate) {
+                    if ($candidate->isActive()) {
+                        $variant = $candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (!$variant) {
+                continue;
+            }
+
+            $relatedProductItems[] = [
+                'product' => $product,
+                'variant' => $variant,
+                'mediaPath' => $imagePathResolver->fromVariant($variant),
+            ];
+        }
+
         return $this->render('magazine/show.html.twig', [
             'article' => $article,
-            'mediaPath' => '/media',
-            'imageBasePath' => '/media/variants',
+            'relatedProductItems' => $relatedProductItems,
         ]);
     }
 }

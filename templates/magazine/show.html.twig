@@ -48,11 +48,9 @@
     {# Artikel #}
     <section class="py-12">
         <div class="container max-w-4xl">
-
             <div class="magazine-content max-w-none">
                 {{ article.content|raw }}
             </div>
-
         </div>
     </section>
 
@@ -110,13 +108,8 @@
         </script>
     {% endif %}
 
-    {{ product.name }} 
-    {{ variant.variantSku }} 
- {{ mediaPath }} 
- {{ imageBasePath }} 
-
     {# Gerelateerde producten #}
-    {% if article.relatedProducts|length > 0 %}
+    {% if relatedProductItems is defined and relatedProductItems|length > 0 %}
         <section class="pb-16">
             <div class="container">
 
@@ -138,17 +131,12 @@
                 </div>
 
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {% for product in article.relatedProducts %}
-                        {% set variant = product.masterVariant ?? product.variants|filter(v => v.isActive)|first %}
-
-                        {% if variant %}
-                            {% include 'shop/component/card/_card_functional.html.twig' with {
-                                product: product,
-                                variant: variant,
-                                mediaPath: mediaPath,
-                                imageBasePath: imageBasePath
-                            } only %}
-                        {% endif %}
+                    {% for item in relatedProductItems %}
+                        {% include 'shop/component/card/_card_functional.html.twig' with {
+                            product: item.product,
+                            variant: item.variant,
+                            mediaPath: item.mediaPath
+                        } only %}
                     {% endfor %}
                 </div>
 
