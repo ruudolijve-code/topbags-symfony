@@ -1,0 +1,58 @@
+{# templates/magazine/show.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ article.seoTitle ?: article.title }}
+{% endblock %}
+
+{% block meta_description %}
+    {{ article.seoDescription ?: article.excerpt }}
+{% endblock %}
+
+{% block body %}
+<article>
+    <section class="bg-[#f4f1ea] py-16">
+        <div class="container max-w-4xl">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                {{ article.category ?: 'Topbags gids' }}
+            </p>
+
+            <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-900">
+                {{ article.title }}
+            </h1>
+
+            {% if article.excerpt %}
+                <p class="mt-5 text-lg leading-8 text-gray-700">
+                    {{ article.excerpt }}
+                </p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="py-12">
+        <div class="container max-w-3xl">
+            <div class="prose prose-gray max-w-none">
+                {{ article.content|raw }}
+            </div>
+        </div>
+    </section>
+
+    <section class="pb-16">
+        <div class="container max-w-5xl rounded-3xl bg-gray-50 p-8">
+            <h2 class="text-2xl font-semibold text-gray-900">
+                Advies nodig?
+            </h2>
+
+            <p class="mt-3 text-gray-600">
+                Kom langs bij Holtkamp Tassen & Koffers in Hengelo of bekijk direct onze collectie online.
+            </p>
+
+            <a href="{{ path('shop_index') }}"
+               class="mt-6 inline-flex rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white">
+                Bekijk koffers en reistassen
+            </a>
+        </div>
+    </section>
+</article>
+{% endblock %}

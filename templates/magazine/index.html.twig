@@ -1,0 +1,48 @@
+{# templates/magazine/index.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Topbags Gids | Kofferadvies & reistips{% endblock %}
+
+{% block body %}
+<section class="bg-[#f4f1ea] py-16">
+    <div class="container">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+            Topbags gids
+        </p>
+
+        <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-900">
+            Kofferadvies, handbagage regels en reistips
+        </h1>
+
+        <p class="mt-4 max-w-2xl text-gray-600">
+            Praktische uitleg van de kofferspecialist van Twente.
+        </p>
+    </div>
+</section>
+
+<section class="py-12">
+    <div class="container grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for article in articles %}
+            <a href="{{ path('guide_show', { slug: article.slug }) }}"
+               class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                    {{ article.category ?: 'Gids' }}
+                </p>
+
+                <h2 class="mt-3 text-xl font-semibold text-gray-900">
+                    {{ article.title }}
+                </h2>
+
+                {% if article.excerpt %}
+                    <p class="mt-3 text-sm leading-6 text-gray-600">
+                        {{ article.excerpt }}
+                    </p>
+                {% endif %}
+            </a>
+        {% else %}
+            <p class="text-gray-600">Er zijn nog geen gidsartikelen gepubliceerd.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

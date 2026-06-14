@@ -35,6 +35,10 @@ loyalty_controllers:
     resource: ../src/Loyalty/Controller/
     type: attribute
 
+magazine_controllers:
+    resource: ../src/Magazine/Controller/
+    type: attribute
+
 marketing_controllers:
     resource: ../src/Marketing/Controller/
     type: attribute

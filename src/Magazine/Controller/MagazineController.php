@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Magazine\Controller;
+
+use App\Magazine\Repository\MagazineArticleRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+final class MagazineController extends AbstractController
+{
+    #[Route('/magazine', name: 'magazine_index', methods: ['GET'])]
+    public function index(MagazineArticleRepository $articles): Response
+    {
+        return $this->render('magazine/index.html.twig', [
+            'articles' => $articles->findBy(
+                ['isPublished' => true],
+                ['publishedAt' => 'DESC', 'id' => 'DESC']
+            ),
+        ]);
+    }
+
+    #[Route('/magazine/{slug}', name: 'magazine_show', methods: ['GET'])]
+    public function show(
+        string $slug,
+        MagazineArticleRepository $articles,
+    ): Response {
+        $article = $articles->findOneBy([
+            'slug' => $slug,
+            'isPublished' => true,
+        ]);
+
+        if (!$article) {
+            throw $this->createNotFoundException('Magazineartikel niet gevonden.');
+        }
+
+        return $this->render('magazine/show.html.twig', [
+            'article' => $article,
+        ]);
+    }
+}

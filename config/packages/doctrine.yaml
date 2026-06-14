@@ -63,6 +63,13 @@ doctrine:
                 prefix: 'App\Admin\Entity'
                 alias: Admin
 
+            Magazine:
+                type: attribute
+                dir: '%kernel.project_dir%/src/Magazine/Entity'
+                prefix: 'App\Magazine\Entity'
+                is_bundle: false
+                alias: Magazine    
+
             Marketing:
                 type: attribute
                 dir: '%kernel.project_dir%/src/Marketing/Entity'

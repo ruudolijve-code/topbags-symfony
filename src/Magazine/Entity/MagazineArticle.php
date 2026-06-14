@@ -1,0 +1,263 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Magazine\Entity;
+
+use App\Magazine\Repository\MagazineArticleRepository;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: MagazineArticleRepository::class)]
+#[ORM\Table(name: 'magazine_article')]
+#[ORM\UniqueConstraint(name: 'uniq_magazine_article_slug', columns: ['slug'])]
+#[ORM\HasLifecycleCallbacks]
+class MagazineArticle
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private string $title = '';
+
+    #[ORM\Column(length: 255, unique: true)]
+    private string $slug = '';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $seoDescription = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $excerpt = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    private string $content = '';
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $category = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $heroImage = null;
+
+    #[ORM\Column]
+    private bool $isPublished = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $publishedAt = null;
+
+    #[ORM\Column]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column]
+    private \DateTimeImmutable $updatedAt;
+
+    /**
+     * Optioneel: automatisch producten tonen.
+     * Voorbeeld:
+     * samsonite
+     * american-tourister
+     */
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $relatedBrandSlug = null;
+
+    /**
+     * Optioneel: automatisch categorie tonen.
+     * Voorbeeld:
+     * handbagage
+     * koffers
+     * rugzakken
+     */
+    #[ORM\Column(length: 120, nullable: true)]
+    private ?string $relatedCategorySlug = null;
+
+    public function __construct()
+    {
+        $now = new \DateTimeImmutable();
+
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
+    }
+
+    public function __toString(): string
+    {
+        return $this->title ?: 'Nieuw magazineartikel';
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = trim($title);
+
+        return $this;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = trim($slug);
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): self
+    {
+        $this->seoTitle = $seoTitle;
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    public function setSeoDescription(?string $seoDescription): self
+    {
+        $this->seoDescription = $seoDescription;
+
+        return $this;
+    }
+
+    public function getExcerpt(): ?string
+    {
+        return $this->excerpt;
+    }
+
+    public function setExcerpt(?string $excerpt): self
+    {
+        $this->excerpt = $excerpt;
+
+        return $this;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    public function setContent(string $content): self
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?string $category): self
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getHeroImage(): ?string
+    {
+        return $this->heroImage;
+    }
+
+    public function setHeroImage(?string $heroImage): self
+    {
+        $this->heroImage = $heroImage;
+
+        return $this;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->isPublished;
+    }
+
+    public function setIsPublished(bool $isPublished): self
+    {
+        $this->isPublished = $isPublished;
+
+        if ($isPublished && $this->publishedAt === null) {
+            $this->publishedAt = new \DateTimeImmutable();
+        }
+
+        return $this;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
+
+    public function setPublishedAt(?\DateTimeImmutable $publishedAt): self
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getRelatedBrandSlug(): ?string
+    {
+        return $this->relatedBrandSlug;
+    }
+
+    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
+    {
+        $this->relatedBrandSlug = $relatedBrandSlug;
+
+        return $this;
+    }
+
+    public function getRelatedCategorySlug(): ?string
+    {
+        return $this->relatedCategorySlug;
+    }
+
+    public function setRelatedCategorySlug(?string $relatedCategorySlug): self
+    {
+        $this->relatedCategorySlug = $relatedCategorySlug;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateTimestamps(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+
+        if ($this->isPublished && $this->publishedAt === null) {
+            $this->publishedAt = new \DateTimeImmutable();
+        }
+    }
+}
