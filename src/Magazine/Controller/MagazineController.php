@@ -27,10 +27,7 @@ final class MagazineController extends AbstractController
         string $slug,
         MagazineArticleRepository $articles,
     ): Response {
-        $article = $articles->findOneBy([
-            'slug' => $slug,
-            'isPublished' => true,
-        ]);
+        $article = $articles->findPublishedBySlugWithRelations($slug);
 
         if (!$article) {
             throw $this->createNotFoundException('Magazineartikel niet gevonden.');
@@ -38,6 +35,8 @@ final class MagazineController extends AbstractController
 
         return $this->render('magazine/show.html.twig', [
             'article' => $article,
+            'mediaPath' => '/media',
+            'imageBasePath' => '/media/variants',
         ]);
     }
 }

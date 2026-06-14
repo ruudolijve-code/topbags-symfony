@@ -137,9 +137,11 @@
                         {% set variant = product.masterVariant ?? product.variants|filter(v => v.isActive)|first %}
 
                         {% if variant %}
-                            {% include 'shop/component/card/_card_functional.html.twig' with {
+                            {% include 'shop/component/card/_card_shop.html.twig' with {
                                 product: product,
-                                variant: variant
+                                variant: variant,
+                                mediaPath: mediaPath,
+                                imageBasePath: imageBasePath
                             } only %}
                         {% endif %}
                     {% endfor %}
