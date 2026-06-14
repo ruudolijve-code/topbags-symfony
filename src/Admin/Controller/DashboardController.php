@@ -25,6 +25,7 @@ use App\Marketing\Entity\NewsletterSubscription;
 use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
+use App\Magazine\Entity\MagazineArticle;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -137,6 +138,11 @@ final class DashboardController extends AbstractDashboardController
             yield MenuItem::subMenu('Marketing beheer', 'fa fa-bullhorn')->setSubItems([
                 MenuItem::linkToCrud('Coupons', 'fa fa-percent', Coupon::class)
                     ->setController(CouponCrudController::class),
+            ]);
+
+            yield MenuItem::subMenu('Magazine', 'fa fa-newspaper')->setSubItems([
+                MenuItem::linkToCrud('Artikelen', 'fa fa-newspaper', MagazineArticle::class)
+                    ->setController(MagazineArticleCrudController::class),
             ]);
 
             yield MenuItem::subMenu('SEO', 'fa fa-magnifying-glass-chart')->setSubItems([
