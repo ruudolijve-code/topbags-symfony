@@ -110,6 +110,11 @@
         </script>
     {% endif %}
 
+    {{ dump(product.name) }}
+{{ dump(variant.variantSku) }}
+{{ dump(mediaPath) }}
+{{ dump(imageBasePath) }}
+
     {# Gerelateerde producten #}
     {% if article.relatedProducts|length > 0 %}
         <section class="pb-16">
