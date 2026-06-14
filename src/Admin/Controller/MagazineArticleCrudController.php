@@ -16,6 +16,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 
 final class MagazineArticleCrudController extends AbstractCrudController
 {
@@ -122,6 +124,17 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->setHelp('Optioneel. Bijvoorbeeld: koffers, handbagage, rugzakken.')
             ->hideOnIndex()
             ->setColumns(6);
+
+        yield AssociationField::new('relatedProducts', 'Gerelateerde producten')
+            ->setHelp('Selecteer producten die onder het artikel getoond mogen worden.')
+            ->hideOnIndex()
+            ->setColumns(12);
+
+        yield CollectionField::new('faqs', 'Veelgestelde vragen')
+            ->useEntryCrudForm(MagazineFaqCrudController::class)
+            ->setHelp('FAQ’s worden onder het artikel getoond en later als FAQ schema gebruikt.')
+            ->hideOnIndex()
+            ->setColumns(12);
 
         yield DateTimeField::new('publishedAt', 'Publicatiedatum')
             ->setHelp('Wordt automatisch gevuld zodra “Gepubliceerd” aan staat.')

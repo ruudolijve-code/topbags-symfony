@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Magazine\Entity;
 
+use App\Catalog\Entity\Product;
 use App\Magazine\Repository\MagazineArticleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -55,24 +58,32 @@ class MagazineArticle
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
-    /**
-     * Optioneel: automatisch producten tonen.
-     * Voorbeeld:
-     * samsonite
-     * american-tourister
-     */
     #[ORM\Column(length: 120, nullable: true)]
     private ?string $relatedBrandSlug = null;
 
-    /**
-     * Optioneel: automatisch categorie tonen.
-     * Voorbeeld:
-     * handbagage
-     * koffers
-     * rugzakken
-     */
     #[ORM\Column(length: 120, nullable: true)]
     private ?string $relatedCategorySlug = null;
+
+    /**
+     * @var Collection<int, MagazineFaq>
+     */
+    #[ORM\OneToMany(
+        mappedBy: 'article',
+        targetEntity: MagazineFaq::class,
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
+    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    private Collection $faqs;
+
+    /**
+     * @var Collection<int, Product>
+     */
+    #[ORM\ManyToMany(targetEntity: Product::class)]
+    #[ORM\JoinTable(name: 'magazine_article_product')]
+    #[ORM\JoinColumn(name: 'magazine_article_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private Collection $relatedProducts;
 
     public function __construct()
     {
@@ -80,6 +91,8 @@ class MagazineArticle
 
         $this->createdAt = $now;
         $this->updatedAt = $now;
+        $this->faqs = new ArrayCollection();
+        $this->relatedProducts = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -123,7 +136,7 @@ class MagazineArticle
 
     public function setSeoTitle(?string $seoTitle): self
     {
-        $this->seoTitle = $seoTitle;
+        $this->seoTitle = $seoTitle ? trim($seoTitle) : null;
 
         return $this;
     }
@@ -135,7 +148,7 @@ class MagazineArticle
 
     public function setSeoDescription(?string $seoDescription): self
     {
-        $this->seoDescription = $seoDescription;
+        $this->seoDescription = $seoDescription ? trim($seoDescription) : null;
 
         return $this;
     }
@@ -147,7 +160,7 @@ class MagazineArticle
 
     public function setExcerpt(?string $excerpt): self
     {
-        $this->excerpt = $excerpt;
+        $this->excerpt = $excerpt ? trim($excerpt) : null;
 
         return $this;
     }
@@ -159,7 +172,7 @@ class MagazineArticle
 
     public function setContent(string $content): self
     {
-        $this->content = $content;
+        $this->content = trim($content);
 
         return $this;
     }
@@ -171,7 +184,7 @@ class MagazineArticle
 
     public function setCategory(?string $category): self
     {
-        $this->category = $category;
+        $this->category = $category ? trim($category) : null;
 
         return $this;
     }
@@ -183,7 +196,7 @@ class MagazineArticle
 
     public function setHeroImage(?string $heroImage): self
     {
-        $this->heroImage = $heroImage;
+        $this->heroImage = $heroImage ? trim($heroImage) : null;
 
         return $this;
     }
@@ -233,7 +246,7 @@ class MagazineArticle
 
     public function setRelatedBrandSlug(?string $relatedBrandSlug): self
     {
-        $this->relatedBrandSlug = $relatedBrandSlug;
+        $this->relatedBrandSlug = $relatedBrandSlug ? trim($relatedBrandSlug) : null;
 
         return $this;
     }
@@ -245,7 +258,60 @@ class MagazineArticle
 
     public function setRelatedCategorySlug(?string $relatedCategorySlug): self
     {
-        $this->relatedCategorySlug = $relatedCategorySlug;
+        $this->relatedCategorySlug = $relatedCategorySlug ? trim($relatedCategorySlug) : null;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MagazineFaq>
+     */
+    public function getFaqs(): Collection
+    {
+        return $this->faqs;
+    }
+
+    public function addFaq(MagazineFaq $faq): self
+    {
+        if (!$this->faqs->contains($faq)) {
+            $this->faqs->add($faq);
+            $faq->setArticle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFaq(MagazineFaq $faq): self
+    {
+        if ($this->faqs->removeElement($faq)) {
+            if ($faq->getArticle() === $this) {
+                $faq->setArticle(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getRelatedProducts(): Collection
+    {
+        return $this->relatedProducts;
+    }
+
+    public function addRelatedProduct(Product $product): self
+    {
+        if (!$this->relatedProducts->contains($product)) {
+            $this->relatedProducts->add($product);
+        }
+
+        return $this;
+    }
+
+    public function removeRelatedProduct(Product $product): self
+    {
+        $this->relatedProducts->removeElement($product);
 
         return $this;
     }
