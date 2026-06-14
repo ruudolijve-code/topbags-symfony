@@ -49,12 +49,130 @@
     <section class="py-12">
         <div class="container max-w-4xl">
 
-            <div class="magazine-content prose prose-gray max-w-none prose-headings:font-semibold prose-img:rounded-2xl">
+            <div class="magazine-content max-w-none">
                 {{ article.content|raw }}
             </div>
 
         </div>
     </section>
+
+    {# FAQ #}
+    {% set activeFaqs = article.faqs|filter(faq => faq.isActive) %}
+
+    {% if activeFaqs|length > 0 %}
+        <section class="pb-12">
+            <div class="container max-w-4xl">
+
+                <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+                    <h2 class="text-2xl font-semibold tracking-tight text-gray-900">
+                        Veelgestelde vragen
+                    </h2>
+
+                    <div class="mt-6 divide-y divide-gray-200">
+                        {% for faq in activeFaqs %}
+                            <details class="group py-5">
+                                <summary class="flex cursor-pointer list-none items-start justify-between gap-4 text-left">
+                                    <span class="text-base font-semibold text-gray-900">
+                                        {{ faq.question }}
+                                    </span>
+
+                                    <span class="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition group-open:rotate-45">
+                                        +
+                                    </span>
+                                </summary>
+
+                                <div class="magazine-content mt-4 text-sm leading-7 text-gray-600">
+                                    {{ faq.answer|raw }}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        {# FAQ structured data #}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {% for faq in activeFaqs %}
+                {
+                    "@type": "Question",
+                    "name": {{ faq.question|json_encode|raw }},
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": {{ faq.answer|striptags|json_encode|raw }}
+                    }
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }
+        </script>
+    {% endif %}
+
+    {# Gerelateerde producten #}
+    {% if article.relatedProducts|length > 0 %}
+        <section class="pb-16">
+            <div class="container">
+
+                <div class="mb-6 flex items-end justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                            Aanbevolen door Topbags
+                        </p>
+
+                        <h2 class="mt-2 text-2xl font-semibold tracking-tight text-gray-900">
+                            Populaire koffers met TSA-slot
+                        </h2>
+                    </div>
+
+                    <a href="{{ path('shop_index') }}"
+                       class="hidden text-sm font-semibold text-gray-900 underline underline-offset-4 md:inline">
+                        Bekijk alle koffers
+                    </a>
+                </div>
+
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for product in article.relatedProducts %}
+                        {% set variant = product.masterVariant ?? product.variants|filter(v => v.isActive)|first %}
+
+                        {% if variant %}
+                            {% include 'shop/component/card/_card_functional.html.twig' with {
+                                product: product,
+                                variant: variant
+                            } only %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+    {% endif %}
+
+    {# Gerelateerde categorie fallback #}
+    {% if article.relatedCategorySlug %}
+        <section class="pb-16">
+            <div class="container max-w-5xl">
+                <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+                    <h2 class="text-2xl font-semibold text-gray-900">
+                        Bekijk ook onze collectie
+                    </h2>
+
+                    <p class="mt-3 text-gray-600">
+                        Wil je direct een passende koffer of reistas kiezen? Bekijk dan onze collectie die aansluit bij dit artikel.
+                    </p>
+
+                    <a href="{{ path('category_show', { slug: article.relatedCategorySlug }) }}"
+                       class="mt-6 inline-flex rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white">
+                        Bekijk {{ article.relatedCategorySlug|replace({'-': ' '}) }}
+                    </a>
+                </div>
+            </div>
+        </section>
+    {% endif %}
 
     {# CTA #}
     <section class="pb-16">
