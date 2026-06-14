@@ -6,7 +6,7 @@ namespace App\Loyalty\Controller;
 
 use App\Loyalty\Entity\TravelMilesMember;
 use App\Marketing\Entity\NewsletterSubscription;
-use App\Marketing\Service\NewsletterSubscriptionSyncService;
+use App\Loyalty\Service\NewsletterSubscriptionSyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
