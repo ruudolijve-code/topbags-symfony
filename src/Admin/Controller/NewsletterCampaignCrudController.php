@@ -112,6 +112,25 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             )
             ->addCssClass('btn btn-warning');
 
+        $sendNewsletter = Action::new(
+            'sendNewsletter',
+            'Nieuwsbrief versturen',
+            'fa fa-paper-plane'
+        )
+            ->linkToUrl(function (NewsletterCampaign $campaign): string {
+                return $this->adminUrlGenerator
+                    ->unsetAll()
+                    ->setRoute('admin_newsletter_campaign_send', [
+                        'id' => $campaign->getId(),
+                    ])
+                    ->generateUrl();
+            })
+            ->displayIf(
+                static fn (NewsletterCampaign $campaign): bool =>
+                    $campaign->isDraft()
+            )
+            ->addCssClass('btn btn-danger');
+
         return $actions
             /*
              * Overzichtspagina
@@ -120,6 +139,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $preview)
             ->add(Crud::PAGE_INDEX, $testMail)
             ->add(Crud::PAGE_INDEX, $bulkTest)
+            ->add(Crud::PAGE_INDEX, $sendNewsletter)
 
             /*
              * Detailpagina
@@ -127,13 +147,14 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $preview)
             ->add(Crud::PAGE_DETAIL, $testMail)
             ->add(Crud::PAGE_DETAIL, $bulkTest)
+            ->add(Crud::PAGE_DETAIL, $sendNewsletter)
 
             /*
              * Bewerkpagina
              *
-             * Preview en testmail blijven beschikbaar. De bulktest staat
-             * hier bewust niet, zodat eerst alle wijzigingen worden
-             * opgeslagen voordat meerdere testmails worden ingepland.
+             * De bulk- en definitieve verzendknoppen staan hier bewust
+             * niet. Zo moet de nieuwsbrief eerst worden opgeslagen voordat
+             * meerdere of definitieve e-mails worden ingepland.
              */
             ->add(Crud::PAGE_EDIT, $preview)
             ->add(Crud::PAGE_EDIT, $testMail)
@@ -202,7 +223,9 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
 
         yield TextField::new('emailPreview', 'E-mailpreview')
             ->onlyOnDetail()
-            ->setTemplatePath('admin/field/newsletter_preview.html.twig');
+            ->setTemplatePath(
+                'admin/field/newsletter_preview.html.twig'
+            );
 
         yield FormField::addTab('Status & statistieken');
 
@@ -238,3 +261,4 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->hideOnForm();
     }
 }
+
