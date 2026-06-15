@@ -1,0 +1,65 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+    Bulktest nieuwsbrief
+{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h4 mb-3">
+                {{ campaign.title }}
+            </h2>
+
+            <p>
+                Verstuur deze nieuwsbrief via de wachtrij naar maximaal
+                {{ maximumRecipients }} testadressen.
+            </p>
+
+            <div class="alert alert-warning">
+                Dit is alleen een test. De adressen uit de echte
+                nieuwsbrieflijst worden niet gebruikt en de
+                campagnestatistieken worden niet gewijzigd.
+            </div>
+
+            <form method="post">
+                <input
+                    type="hidden"
+                    name="_token"
+                    value="{{ csrf_token('newsletter_bulk_test_' ~ campaign.id) }}"
+                >
+
+                <div class="mb-3">
+                    <label for="emails" class="form-label">
+                        Testadressen
+                    </label>
+
+                    <textarea
+                        id="emails"
+                        name="emails"
+                        class="form-control"
+                        rows="8"
+                        required
+                        placeholder="ruud@voorbeeld.nl&#10;test@gmail.com&#10;test@outlook.com"
+                    ></textarea>
+
+                    <div class="form-text">
+                        Gebruik één adres per regel, of scheid adressen met
+                        komma’s of puntkomma’s. Dubbele adressen worden verwijderd.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-paper-plane me-1"></i>
+                        Bulktest in wachtrij zetten
+                    </button>
+
+                    <a href="{{ detailUrl }}" class="btn btn-secondary">
+                        Annuleren
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

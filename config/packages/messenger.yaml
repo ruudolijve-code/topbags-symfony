@@ -21,6 +21,7 @@ framework:
 
         routing:
             App\Marketing\Message\SendNewsletterMessage: async
+            App\Marketing\Message\SendNewsletterTestMessage: async
 
 when@test:
     framework:

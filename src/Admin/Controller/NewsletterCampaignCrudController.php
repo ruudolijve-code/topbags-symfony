@@ -93,24 +93,24 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                     ->generateUrl();
             });
 
-        $sendNewsletter = Action::new(
-            'sendNewsletter',
-            'Nieuwsbrief versturen',
-            'fa fa-paper-plane'
+        $bulkTest = Action::new(
+            'bulkTestNewsletter',
+            'Bulktest',
+            'fa fa-users'
         )
             ->linkToUrl(function (NewsletterCampaign $campaign): string {
                 return $this->adminUrlGenerator
                     ->unsetAll()
-                    ->setRoute('admin_newsletter_campaign_send', [
+                    ->setRoute('admin_newsletter_campaign_bulk_test', [
                         'id' => $campaign->getId(),
                     ])
                     ->generateUrl();
             })
             ->displayIf(
                 static fn (NewsletterCampaign $campaign): bool =>
-                    $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+                    $campaign->isDraft()
             )
-            ->addCssClass('btn btn-danger');
+            ->addCssClass('btn btn-warning');
 
         return $actions
             /*
@@ -119,36 +119,35 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $preview)
             ->add(Crud::PAGE_INDEX, $testMail)
-            ->add(Crud::PAGE_INDEX, $sendNewsletter)
+            ->add(Crud::PAGE_INDEX, $bulkTest)
 
             /*
              * Detailpagina
              */
             ->add(Crud::PAGE_DETAIL, $preview)
             ->add(Crud::PAGE_DETAIL, $testMail)
-            ->add(Crud::PAGE_DETAIL, $sendNewsletter)
+            ->add(Crud::PAGE_DETAIL, $bulkTest)
 
             /*
              * Bewerkpagina
              *
-             * De verzendknop staat hier bewust niet. Anders kunnen
-             * onopgeslagen wijzigingen verloren gaan of kan de oude
-             * opgeslagen versie worden verstuurd.
+             * Preview en testmail blijven beschikbaar. De bulktest staat
+             * hier bewust niet, zodat eerst alle wijzigingen worden
+             * opgeslagen voordat meerdere testmails worden ingepland.
              */
             ->add(Crud::PAGE_EDIT, $preview)
             ->add(Crud::PAGE_EDIT, $testMail)
             ->add(Crud::PAGE_EDIT, Action::DETAIL)
 
             /*
-             * Een nieuwsbrief mag alleen worden bewerkt zolang
-             * deze nog de status concept heeft.
+             * Alleen conceptnieuwsbrieven mogen worden bewerkt.
              */
             ->update(
                 Crud::PAGE_INDEX,
                 Action::EDIT,
                 static fn (Action $action): Action => $action->displayIf(
                     static fn (NewsletterCampaign $campaign): bool =>
-                        $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+                        $campaign->isDraft()
                 )
             )
             ->update(
@@ -156,12 +155,12 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                 Action::EDIT,
                 static fn (Action $action): Action => $action->displayIf(
                     static fn (NewsletterCampaign $campaign): bool =>
-                        $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+                        $campaign->isDraft()
                 )
             )
 
             /*
-             * Campagnes bewaren voor historie en statistieken.
+             * Campagnes worden bewaard voor historie en statistieken.
              */
             ->disable(Action::DELETE);
     }
@@ -184,7 +183,9 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             );
 
         yield TextField::new('subject', 'Onderwerpregel')
-            ->setHelp('Dit wordt de onderwerpregel van de e-mail.');
+            ->setHelp(
+                'Dit wordt de onderwerpregel van de e-mail.'
+            );
 
         yield TextField::new('preheader', 'Preheader')
             ->setRequired(false)
@@ -206,13 +207,16 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                     mixed $value,
                     NewsletterCampaign $campaign
                 ): string {
-                    if ($campaign->getId() === null) {
+                    $campaignId = $campaign->getId();
+
+                    if ($campaignId === null) {
                         return '';
                     }
 
                     return sprintf(
                         '<iframe
                             src="/admin_dedtwaw/newsletter-campaign/%d/preview-frame"
+                            title="Preview nieuwsbrief"
                             style="
                                 width:100%%;
                                 height:1000px;
@@ -222,7 +226,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                                 display:block;
                             "
                         ></iframe>',
-                        $campaign->getId()
+                        $campaignId
                     );
                 }
             )
