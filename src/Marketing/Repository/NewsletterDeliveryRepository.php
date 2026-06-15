@@ -21,10 +21,69 @@ final class NewsletterDeliveryRepository extends ServiceEntityRepository
     public function findOneByDeliveryToken(
         string $deliveryToken
     ): ?NewsletterDelivery {
+        $deliveryToken = trim($deliveryToken);
+
+        if ($deliveryToken === '') {
+            return null;
+        }
+
         /** @var NewsletterDelivery|null $delivery */
         $delivery = $this->findOneBy([
-            'deliveryToken' => trim($deliveryToken),
+            'deliveryToken' => $deliveryToken,
         ]);
+
+        return $delivery;
+    }
+
+    public function findOneByMessageId(
+        string $messageId
+    ): ?NewsletterDelivery {
+        $messageId = trim($messageId, " \t\n\r\0\x0B<>");
+
+        if ($messageId === '') {
+            return null;
+        }
+
+        /** @var NewsletterDelivery|null $delivery */
+        $delivery = $this->findOneBy([
+            'messageId' => $messageId,
+        ]);
+
+        return $delivery;
+    }
+
+    public function findLatestAcceptedForRecipient(
+        string $recipientEmail,
+        ?\DateTimeImmutable $before = null,
+    ): ?NewsletterDelivery {
+        $recipientEmail = mb_strtolower(trim($recipientEmail));
+
+        if ($recipientEmail === '') {
+            return null;
+        }
+
+        $queryBuilder = $this->createQueryBuilder('delivery')
+            ->andWhere('delivery.recipientEmail = :recipientEmail')
+            ->andWhere('delivery.status = :status')
+            ->setParameter('recipientEmail', $recipientEmail)
+            ->setParameter(
+                'status',
+                NewsletterDelivery::STATUS_SMTP_ACCEPTED
+            )
+            ->orderBy('delivery.smtpAcceptedAt', 'DESC')
+            ->addOrderBy('delivery.id', 'DESC')
+            ->setMaxResults(1);
+
+        if ($before !== null) {
+            $queryBuilder
+                ->andWhere('delivery.smtpAcceptedAt <= :before')
+                ->setParameter('before', $before);
+        }
+
+        /** @var NewsletterDelivery|null $delivery */
+        $delivery = $queryBuilder
+            ->getQuery()
+            ->getOneOrNullResult();
 
         return $delivery;
     }
