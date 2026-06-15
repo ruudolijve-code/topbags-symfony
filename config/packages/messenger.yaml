@@ -8,6 +8,7 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     queue_name: newsletter
+                rate_limiter: newsletter_sending
                 retry_strategy:
                     max_retries: 3
                     delay: 60000
