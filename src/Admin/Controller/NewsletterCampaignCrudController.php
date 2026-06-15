@@ -42,18 +42,30 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_NEW, 'Nieuwe nieuwsbrief')
             ->setPageTitle(
                 Crud::PAGE_EDIT,
-                fn (NewsletterCampaign $campaign) => sprintf('Nieuwsbrief bewerken: %s', $campaign->getTitle())
+                static fn (NewsletterCampaign $campaign): string => sprintf(
+                    'Nieuwsbrief bewerken: %s',
+                    $campaign->getTitle()
+                )
             )
             ->setPageTitle(
                 Crud::PAGE_DETAIL,
-                fn (NewsletterCampaign $campaign) => sprintf('Nieuwsbrief: %s', $campaign->getTitle())
+                static fn (NewsletterCampaign $campaign): string => sprintf(
+                    'Nieuwsbrief: %s',
+                    $campaign->getTitle()
+                )
             )
-            ->setDefaultSort(['createdAt' => 'DESC']);
+            ->setDefaultSort([
+                'createdAt' => 'DESC',
+            ]);
     }
 
-   public function configureActions(Actions $actions): Actions
+    public function configureActions(Actions $actions): Actions
     {
-        $preview = Action::new('previewNewsletter', 'Preview', 'fa fa-eye')
+        $preview = Action::new(
+            'previewNewsletter',
+            'Preview',
+            'fa fa-eye'
+        )
             ->linkToUrl(function (NewsletterCampaign $campaign): string {
                 return $this->adminUrlGenerator
                     ->unsetAll()
@@ -67,7 +79,11 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                 'rel' => 'noopener noreferrer',
             ]);
 
-        $testMail = Action::new('testNewsletter', 'Testmail', 'fa fa-paper-plane')
+        $testMail = Action::new(
+            'testNewsletter',
+            'Testmail',
+            'fa fa-envelope'
+        )
             ->linkToUrl(function (NewsletterCampaign $campaign): string {
                 return $this->adminUrlGenerator
                     ->unsetAll()
@@ -77,15 +93,76 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
                     ->generateUrl();
             });
 
+        $sendNewsletter = Action::new(
+            'sendNewsletter',
+            'Nieuwsbrief versturen',
+            'fa fa-paper-plane'
+        )
+            ->linkToUrl(function (NewsletterCampaign $campaign): string {
+                return $this->adminUrlGenerator
+                    ->unsetAll()
+                    ->setRoute('admin_newsletter_campaign_send', [
+                        'id' => $campaign->getId(),
+                    ])
+                    ->generateUrl();
+            })
+            ->displayIf(
+                static fn (NewsletterCampaign $campaign): bool =>
+                    $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+            )
+            ->addCssClass('btn btn-danger');
+
         return $actions
+            /*
+             * Overzichtspagina
+             */
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $preview)
             ->add(Crud::PAGE_INDEX, $testMail)
+            ->add(Crud::PAGE_INDEX, $sendNewsletter)
+
+            /*
+             * Detailpagina
+             */
             ->add(Crud::PAGE_DETAIL, $preview)
             ->add(Crud::PAGE_DETAIL, $testMail)
+            ->add(Crud::PAGE_DETAIL, $sendNewsletter)
+
+            /*
+             * Bewerkpagina
+             *
+             * De verzendknop staat hier bewust niet. Anders kunnen
+             * onopgeslagen wijzigingen verloren gaan of kan de oude
+             * opgeslagen versie worden verstuurd.
+             */
             ->add(Crud::PAGE_EDIT, $preview)
             ->add(Crud::PAGE_EDIT, $testMail)
             ->add(Crud::PAGE_EDIT, Action::DETAIL)
+
+            /*
+             * Een nieuwsbrief mag alleen worden bewerkt zolang
+             * deze nog de status concept heeft.
+             */
+            ->update(
+                Crud::PAGE_INDEX,
+                Action::EDIT,
+                static fn (Action $action): Action => $action->displayIf(
+                    static fn (NewsletterCampaign $campaign): bool =>
+                        $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+                )
+            )
+            ->update(
+                Crud::PAGE_DETAIL,
+                Action::EDIT,
+                static fn (Action $action): Action => $action->displayIf(
+                    static fn (NewsletterCampaign $campaign): bool =>
+                        $campaign->getStatus() === NewsletterCampaign::STATUS_DRAFT
+                )
+            )
+
+            /*
+             * Campagnes bewaren voor historie en statistieken.
+             */
             ->disable(Action::DELETE);
     }
 
@@ -102,32 +179,53 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
         yield FormField::addTab('Inhoud');
 
         yield TextField::new('title', 'Interne titel')
-            ->setHelp('Alleen zichtbaar in admin, bijvoorbeeld: Voorjaarsactie koffers mei 2026.');
+            ->setHelp(
+                'Alleen zichtbaar in admin, bijvoorbeeld: Voorjaarsactie koffers mei 2026.'
+            );
 
         yield TextField::new('subject', 'Onderwerpregel')
             ->setHelp('Dit wordt de onderwerpregel van de e-mail.');
 
         yield TextField::new('preheader', 'Preheader')
             ->setRequired(false)
-            ->setHelp('Korte previewtekst die sommige e-mailclients naast of onder het onderwerp tonen.');
+            ->setHelp(
+                'Korte previewtekst die sommige e-mailclients naast of onder het onderwerp tonen.'
+            );
 
         yield TextareaField::new('htmlBody', 'HTML inhoud')
             ->onlyOnForms()
             ->setNumOfRows(24)
-            ->setHelp('Gebruik eenvoudige HTML met inline styles. Geen Twig-code gebruiken.');
+            ->setHelp(
+                'Gebruik eenvoudige HTML met inline styles. Geen Twig-code gebruiken.'
+            );
 
         yield TextField::new('emailPreview', 'E-mailpreview')
             ->onlyOnDetail()
-            ->formatValue(function ($value, NewsletterCampaign $campaign): string {
-                if ($campaign->getId() === null) {
-                    return '';
-                }
+            ->formatValue(
+                static function (
+                    mixed $value,
+                    NewsletterCampaign $campaign
+                ): string {
+                    if ($campaign->getId() === null) {
+                        return '';
+                    }
 
-                return sprintf(
-                    '<iframe src="/admin_dedtwaw/newsletter-campaign/%d/preview-frame" style="width:100%%; height:1000px; border:1px solid #d1d5db; border-radius:12px; background:#ffffff; display:block;"></iframe>',
-                    $campaign->getId()
-                );
-            })
+                    return sprintf(
+                        '<iframe
+                            src="/admin_dedtwaw/newsletter-campaign/%d/preview-frame"
+                            style="
+                                width:100%%;
+                                height:1000px;
+                                border:1px solid #d1d5db;
+                                border-radius:12px;
+                                background:#ffffff;
+                                display:block;
+                            "
+                        ></iframe>',
+                        $campaign->getId()
+                    );
+                }
+            )
             ->renderAsHtml();
 
         yield FormField::addTab('Status & statistieken');
