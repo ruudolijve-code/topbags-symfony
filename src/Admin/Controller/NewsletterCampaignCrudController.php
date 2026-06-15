@@ -6,6 +6,8 @@ namespace App\Admin\Controller;
 
 use App\Marketing\Entity\NewsletterCampaign;
 use App\Marketing\Repository\NewsletterDeliveryRepository;
+use App\Marketing\Repository\NewsletterSubscriptionRepository;
+
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -28,6 +30,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly NewsletterDeliveryRepository $deliveryRepository,
+        private readonly NewsletterSubscriptionRepository $subscriptionRepository,
     ) {
     }
 
@@ -76,7 +79,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             );
     }
 
-    public function configureResponseParameters(
+   public function configureResponseParameters(
         KeyValueStore $responseParameters
     ): KeyValueStore {
         if (
@@ -88,7 +91,10 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
 
         $entityDto = $responseParameters->get('entity');
 
-        if ($entityDto === null) {
+        if (
+            !is_object($entityDto)
+            || !method_exists($entityDto, 'getInstance')
+        ) {
             return $responseParameters;
         }
 
@@ -98,11 +104,24 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
             return $responseParameters;
         }
 
+        $deliveryStatistics = $this->deliveryRepository
+            ->getStatisticsForCampaign($campaign);
+
         $responseParameters->set(
             'deliveryStatistics',
-            $this->deliveryRepository
-                ->getStatisticsForCampaign($campaign)
+            $deliveryStatistics
         );
+
+        if (
+            $deliveryStatistics['total'] === 0
+            && $campaign->isSent()
+        ) {
+            $responseParameters->set(
+                'legacyBounceStatistics',
+                $this->subscriptionRepository
+                    ->getLegacyBounceStatisticsForCampaign($campaign)
+            );
+        }
 
         return $responseParameters;
     }
