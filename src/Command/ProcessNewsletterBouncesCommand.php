@@ -248,14 +248,20 @@ final class ProcessNewsletterBouncesCommand extends Command
     private function extractDiagnostic(string $content): ?string
     {
         if (preg_match(
-            '/^Diagnostic-Code:\s*(.+)$/mi',
+            '/^Diagnostic-Code:\s*(.*(?:\R[ \t]+.*)*)/mi',
             $content,
             $match
         ) !== 1) {
             return null;
         }
 
-        return trim($match[1]);
+        $diagnostic = preg_replace(
+            '/\R[ \t]+/',
+            ' ',
+            $match[1]
+        ) ?? $match[1];
+
+        return trim($diagnostic);
     }
 
     private function classifyBounce(
@@ -265,6 +271,10 @@ final class ProcessNewsletterBouncesCommand extends Command
         $status = strtolower(trim($status ?? ''));
         $diagnostic = strtolower(trim($diagnostic ?? ''));
 
+        /*
+        * Technische verzendproblemen.
+        * Deze zeggen niets over de geldigheid van de ontvanger.
+        */
         $technicalPatterns = [
             'smtp authentication is required',
             'authentication required',
@@ -283,11 +293,16 @@ final class ProcessNewsletterBouncesCommand extends Command
             }
         }
 
+        /*
+        * Tijdelijke afleverproblemen.
+        */
         $softPatterns = [
             'mailbox is full',
             'mailbox full',
             'quota exceeded',
             'over quota',
+            'blocks limit exceeded',
+            'inode limit exceeded',
             'temporarily unavailable',
             'temporary failure',
             'try again later',
@@ -301,17 +316,27 @@ final class ProcessNewsletterBouncesCommand extends Command
             }
         }
 
+        if (preg_match('/mailbox .* (?:is )?full/i', $diagnostic) === 1) {
+            return 'soft';
+        }
+
+        /*
+        * Permanente ontvangerfouten.
+        */
         $hardPatterns = [
             'does not exist',
+            'user does not exist',
             'user unknown',
             'unknown user',
-            'mailbox unknown',
             'no such user',
+            'no such recipient',
             'invalid recipient',
-            'recipient address rejected',
+            'invalid mailbox',
             'mailbox unavailable',
+            'mailbox not found',
             'address not found',
             'recipient not found',
+            'recipient is not known',
         ];
 
         foreach ($hardPatterns as $pattern) {
@@ -320,17 +345,40 @@ final class ProcessNewsletterBouncesCommand extends Command
             }
         }
 
-        if (str_starts_with($status, '4.')) {
-            return 'soft';
+        /*
+        * Providerteksten waarbij het adres tussen woorden staat.
+        */
+        $hardRegexPatterns = [
+            '/mailbox .* unknown/i',
+            '/recipient .* not known/i',
+            '/recipient .* unknown/i',
+            '/account .* does not exist/i',
+        ];
+
+        foreach ($hardRegexPatterns as $pattern) {
+            if (preg_match($pattern, $diagnostic) === 1) {
+                return 'hard';
+            }
         }
 
+        /*
+        * Specifieke DSN-codes voor een onbekende ontvanger.
+        */
         if (
-            str_starts_with($status, '5.1.1')
-            || str_starts_with($status, '5.1.0')
+            str_starts_with($status, '5.1.0')
+            || str_starts_with($status, '5.1.1')
         ) {
             return 'hard';
         }
 
+        if (str_starts_with($status, '4.')) {
+            return 'soft';
+        }
+
+        /*
+        * Meldingen als 5.4.1 "Access denied" blijven bewust review.
+        * Dat kan een blokkade zijn in plaats van een ongeldig adres.
+        */
         return 'review';
     }
 
