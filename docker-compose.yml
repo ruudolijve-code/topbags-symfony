@@ -89,6 +89,32 @@ services:
     volumes:
       - opensearchdata:/usr/share/opensearch/data
     restart: unless-stopped
+  
+  newsletter-worker:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: topbags-newsletter-worker
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      APP_ENV: prod
+    command:
+      - php
+      - bin/console
+      - messenger:consume
+      - async
+      - --env=prod
+      - --time-limit=3600
+      - --memory-limit=256M
+      - --sleep=2
+      - --no-interaction
+    volumes:
+      - ./:/var/www/html
+      - ./public/media:/var/www/html/public/media
+    depends_on:
+      db:
+        condition: service_started
 
 volumes:
   dbdata:
