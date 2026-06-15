@@ -1,0 +1,22 @@
+{% set campaign = entity.instance %}
+
+{% if campaign.id %}
+    <iframe
+        src="{{ path('admin_newsletter_campaign_preview_frame', {
+            id: campaign.id
+        }) }}"
+        title="Preview nieuwsbrief"
+        style="
+            display:block;
+            width:100%;
+            height:1000px;
+            border:1px solid #d1d5db;
+            border-radius:12px;
+            background:#ffffff;
+        "
+    ></iframe>
+{% else %}
+    <p class="text-muted">
+        Sla de nieuwsbrief eerst op om de preview te bekijken.
+    </p>
+{% endif %}

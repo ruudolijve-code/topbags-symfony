@@ -202,35 +202,7 @@ final class NewsletterCampaignCrudController extends AbstractCrudController
 
         yield TextField::new('emailPreview', 'E-mailpreview')
             ->onlyOnDetail()
-            ->formatValue(
-                static function (
-                    mixed $value,
-                    NewsletterCampaign $campaign
-                ): string {
-                    $campaignId = $campaign->getId();
-
-                    if ($campaignId === null) {
-                        return '';
-                    }
-
-                    return sprintf(
-                        '<iframe
-                            src="/admin_dedtwaw/newsletter-campaign/%d/preview-frame"
-                            title="Preview nieuwsbrief"
-                            style="
-                                width:100%%;
-                                height:1000px;
-                                border:1px solid #d1d5db;
-                                border-radius:12px;
-                                background:#ffffff;
-                                display:block;
-                            "
-                        ></iframe>',
-                        $campaignId
-                    );
-                }
-            )
-            ->renderAsHtml();
+            ->setTemplatePath('admin/field/newsletter_preview.html.twig');
 
         yield FormField::addTab('Status & statistieken');
 
