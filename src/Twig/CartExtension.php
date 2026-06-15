@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Twig;
 
 use App\Shop\Service\CartService;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
-class CartExtension extends AbstractExtension implements GlobalsInterface
+final class CartExtension extends AbstractExtension implements GlobalsInterface
 {
     public function __construct(
-        private CartService $cartService
+        private readonly CartService $cartService,
     ) {
     }
 
