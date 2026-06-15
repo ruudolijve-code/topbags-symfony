@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Controller;
 
 use App\Marketing\Entity\NewsletterCampaign;
+use App\Marketing\Entity\NewsletterDelivery;
 use App\Marketing\Message\SendNewsletterMessage;
 use App\Marketing\Repository\NewsletterSubscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -79,8 +80,12 @@ final class NewsletterCampaignSendController extends AbstractController
         }
 
         $token = (string) $request->request->get('_token', '');
+
         $confirmation = mb_strtoupper(
-            trim((string) $request->request->get('confirmation', ''))
+            trim((string) $request->request->get(
+                'confirmation',
+                ''
+            ))
         );
 
         if (!$this->isCsrfTokenValid(
@@ -111,11 +116,13 @@ final class NewsletterCampaignSendController extends AbstractController
         }
 
         /*
-         * Haal de ontvangers opnieuw op tijdens de POST.
+         * Haal de actieve ontvangers opnieuw op tijdens de POST.
          * De telling op de bevestigingspagina kan intussen gewijzigd zijn.
          */
-        $subscriptionIds = $this->subscriptionRepository->findActiveIds();
-        $recipientCount = count($subscriptionIds);
+        $subscriptions = $this->subscriptionRepository
+            ->findActiveForSending();
+
+        $recipientCount = count($subscriptions);
 
         if ($recipientCount === 0) {
             $this->addFlash(
@@ -128,17 +135,13 @@ final class NewsletterCampaignSendController extends AbstractController
 
         try {
             /*
-             * De campagnestatus en de Messenger-berichten worden binnen
-             * één databasetransactie opgeslagen.
-             *
-             * Als het inplannen mislukt, worden zowel de statuswijziging
-             * als de reeds ingeplande queueberichten teruggedraaid.
+             * De campagne, delivery-records en Messenger-berichten worden
+             * binnen één databasetransactie ingepland.
              */
             $this->entityManager->wrapInTransaction(
                 function () use (
                     $campaign,
-                    $campaignId,
-                    $subscriptionIds,
+                    $subscriptions,
                     $recipientCount
                 ): void {
                     if (!$campaign->isDraft()) {
@@ -148,13 +151,40 @@ final class NewsletterCampaignSendController extends AbstractController
                     }
 
                     $campaign->markSending($recipientCount);
+
+                    /** @var list<NewsletterDelivery> $deliveries */
+                    $deliveries = [];
+
+                    foreach ($subscriptions as $subscription) {
+                        $delivery = (new NewsletterDelivery())
+                            ->setCampaign($campaign)
+                            ->setSubscription($subscription)
+                            ->setRecipientEmail(
+                                $subscription->getEmail()
+                            );
+
+                        $this->entityManager->persist($delivery);
+
+                        $deliveries[] = $delivery;
+                    }
+
+                    /*
+                     * Eerst flushen zodat iedere delivery een ID krijgt.
+                     */
                     $this->entityManager->flush();
 
-                    foreach ($subscriptionIds as $subscriptionId) {
+                    foreach ($deliveries as $delivery) {
+                        $deliveryId = $delivery->getId();
+
+                        if ($deliveryId === null) {
+                            throw new \LogicException(
+                                'De nieuwsbriefbezorging heeft geen ID gekregen.'
+                            );
+                        }
+
                         $this->messageBus->dispatch(
                             new SendNewsletterMessage(
-                                campaignId: $campaignId,
-                                subscriptionId: $subscriptionId,
+                                deliveryId: $deliveryId,
                             )
                         );
                     }
