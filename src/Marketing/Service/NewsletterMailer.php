@@ -11,12 +11,15 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class NewsletterMailer
 {
     public function __construct(
         private MailerInterface $mailer,
         private UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%kernel.project_dir%')]
+        private string $projectDir,
     ) {
     }
 
@@ -79,7 +82,7 @@ final readonly class NewsletterMailer
         $subject = trim((string) $campaign->getSubject());
 
         if ($subject === '') {
-            throw new LogicException('De nieuwsbrief heeft geen onderwerpregel.');
+            throw new \LogicException('De nieuwsbrief heeft geen onderwerpregel.');
         }
 
         $email = (new TemplatedEmail())
@@ -93,6 +96,24 @@ final readonly class NewsletterMailer
                 'unsubscribeUrl' => $unsubscribeUrl,
                 'isTest' => $isTest,
             ]);
+
+        $email->embedFromPath(
+            $this->projectDir . '/public/images/social/facebook.png',
+            'newsletter-facebook',
+            'image/png'
+        );
+
+        $email->embedFromPath(
+            $this->projectDir . '/public/images/social/instagram.png',
+            'newsletter-instagram',
+            'image/png'
+        );
+
+        $email->embedFromPath(
+            $this->projectDir . '/public/images/social/youtube.png',
+            'newsletter-youtube',
+            'image/png'
+        );
 
         if (!$isTest) {
             $email->getHeaders()->addTextHeader(
