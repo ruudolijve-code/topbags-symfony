@@ -88,23 +88,27 @@
             </div>
         </section>
 
-        <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-                {% for faq in activeFaqs %}
+        {% set faqEntities = [] %}
+
+        {% for faq in activeFaqs %}
+            {% set faqEntities = faqEntities|merge([
                 {
-                    "@type": "Question",
-                    "name": {{ faq.question|striptags|json_encode|raw }},
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": {{ faq.answer|striptags|json_encode|raw }}
+                    '@type': 'Question',
+                    'name': faq.question|striptags,
+                    'acceptedAnswer': {
+                        '@type': 'Answer',
+                        'text': faq.answer|striptags
                     }
-                }{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ]
-        }
+                }
+            ]) %}
+        {% endfor %}
+
+        <script type="application/ld+json">
+    {{ {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': faqEntities
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
         </script>
     {% endif %}
 
