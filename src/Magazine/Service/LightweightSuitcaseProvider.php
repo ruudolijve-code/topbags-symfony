@@ -18,7 +18,7 @@ final class LightweightSuitcaseProvider
 
     public function getItems(int $limit = 8): array
     {
-        $products = $this->productRepository->findLightestByGramPerLiter($limit);
+        $products = $this->productRepository->findLightestSuitcasesByGramPerLiter($limit);
 
         $items = [];
 

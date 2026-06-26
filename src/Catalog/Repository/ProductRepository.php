@@ -1602,14 +1602,24 @@ final class ProductRepository extends ServiceEntityRepository
         };
     }
 
-    public function findLightestByGramPerLiter(int $limit = 8): array
+    public function findLightestSuitcasesByGramPerLiter(int $limit = 8): array
     {
         return $this->createQueryBuilder('p')
+            ->innerJoin('p.categories', 'c')
+            ->andWhere('p.isActive = true')
             ->andWhere('p.weightKg IS NOT NULL')
             ->andWhere('p.volumeL IS NOT NULL')
             ->andWhere('p.weightKg > 0')
             ->andWhere('p.volumeL > 0')
-            ->andWhere('p.isActive = true')
+            ->andWhere('c.slug IN (:categorySlugs)')
+            ->setParameter('categorySlugs', [
+                'koffers',
+                'harde-koffers',
+                'zachte-koffers',
+                'handbagage-koffers',
+                'middelgrote-koffers',
+                'grote-koffers',
+            ])
             ->addSelect('((p.weightKg * 1000) / p.volumeL) AS HIDDEN gramPerLiter')
             ->orderBy('gramPerLiter', 'ASC')
             ->setMaxResults($limit)
