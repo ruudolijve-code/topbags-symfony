@@ -30,4 +30,28 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findFeatured(): ?MagazineArticle
+    {
+        return $this->findOneBy(
+            ['isPublished' => true, 'isFeatured' => true],
+            ['publishedAt' => 'DESC', 'id' => 'DESC']
+        );
+    }
+
+    public function findPublishedExceptFeatured(?MagazineArticle $featured = null): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.isPublished = true')
+            ->orderBy('a.publishedAt', 'DESC')
+            ->addOrderBy('a.id', 'DESC');
+
+        if ($featured && $featured->getId()) {
+            $qb
+                ->andWhere('a.id != :featuredId')
+                ->setParameter('featuredId', $featured->getId());
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

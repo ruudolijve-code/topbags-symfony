@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Magazine\Controller;
 
+use App\Catalog\Service\VariantImagePathResolver;
 use App\Magazine\Repository\MagazineArticleRepository;
+use App\Magazine\Service\LightweightSuitcaseProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Catalog\Service\VariantImagePathResolver;
-use App\Magazine\Service\LightweightSuitcaseProvider;
 
 final class MagazineController extends AbstractController
 {
     #[Route('/magazine', name: 'magazine_index', methods: ['GET'])]
-    public function index(MagazineArticleRepository $articles): Response
-    {
+    public function index(
+        MagazineArticleRepository $articles
+    ): Response {
+        $featured = $articles->findFeatured();
+
         return $this->render('magazine/index.html.twig', [
-            'articles' => $articles->findBy(
-                ['isPublished' => true],
-                ['publishedAt' => 'DESC', 'id' => 'DESC']
-            ),
+            'featured' => $featured,
+            'articles' => $articles->findPublishedExceptFeatured($featured),
         ]);
     }
 

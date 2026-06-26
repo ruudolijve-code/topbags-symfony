@@ -47,6 +47,9 @@ class MagazineArticle
     private ?string $heroImage = null;
 
     #[ORM\Column]
+    private bool $isFeatured = false;
+
+    #[ORM\Column]
     private bool $isPublished = false;
 
     #[ORM\Column(nullable: true)]
@@ -197,6 +200,18 @@ class MagazineArticle
     public function setHeroImage(?string $heroImage): self
     {
         $this->heroImage = $heroImage ? trim($heroImage) : null;
+
+        return $this;
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(bool $isFeatured): self
+    {
+        $this->isFeatured = $isFeatured;
 
         return $this;
     }

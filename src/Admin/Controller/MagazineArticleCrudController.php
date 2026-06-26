@@ -64,6 +64,9 @@ final class MagazineArticleCrudController extends AbstractCrudController
 
         yield BooleanField::new('isPublished', 'Gepubliceerd');
 
+        yield BooleanField::new('isFeatured', 'Uitgelicht')
+            ->setHelp('Toon dit artikel als groot uitgelicht artikel op de magazine-overzichtspagina.');
+
         yield TextField::new('title', 'Titel')
             ->setColumns(8);
 
