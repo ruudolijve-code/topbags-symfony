@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\Magazine\Repository\MagazineArticleRepository;
 
 final class SitemapController extends AbstractController
 {
@@ -194,6 +195,7 @@ final class SitemapController extends AbstractController
         BrandRepository $brandRepository,
         AirlineRepository $airlineRepository,
         TravelAgencyLandingPageRepository $travelAgencyLandingPageRepository,
+        MagazineArticleRepository $magazineArticleRepository,
         UrlGeneratorInterface $urlGenerator,
     ): Response {
         $urls = [];
@@ -208,6 +210,27 @@ final class SitemapController extends AbstractController
                 'priority' => $staticRoute['priority'],
                 'changefreq' => $staticRoute['changefreq'],
                 'lastmod' => $today,
+            ];
+        }
+
+        // Magazine index
+        $urls[] = [
+            'loc' => $this->absoluteUrl($urlGenerator, 'magazine_index', [], $baseUrl),
+            'priority' => '0.8',
+            'changefreq' => 'weekly',
+            'lastmod' => $today,
+        ];
+
+        // Magazine artikelen
+        foreach ($magazineArticleRepository->findPublishedForSitemap() as $article) {
+            $lastmod = $article->getUpdatedAt() ?: $article->getPublishedAt();
+            $urls[] = [
+                'loc' => $this->absoluteUrl($urlGenerator, 'magazine_show', [
+                    'slug' => $article->getSlug(),
+                ], $baseUrl),
+                'priority' => '0.7',
+                'changefreq' => 'monthly',
+                'lastmod' => $lastmod ? $lastmod->format('Y-m-d') : $today,
             ];
         }
 

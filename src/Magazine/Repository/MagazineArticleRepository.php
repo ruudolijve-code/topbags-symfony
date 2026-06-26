@@ -54,4 +54,13 @@ final class MagazineArticleRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findPublishedForSitemap(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.isPublished = true')
+            ->orderBy('a.publishedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
