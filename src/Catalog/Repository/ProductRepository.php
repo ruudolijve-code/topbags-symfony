@@ -1613,12 +1613,9 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('p.volumeL > 0')
             ->andWhere('c.slug IN (:categorySlugs)')
             ->setParameter('categorySlugs', [
-                'koffers',
                 'harde-koffers',
                 'zachte-koffers',
                 'handbagage-koffers',
-                'middelgrote-koffers',
-                'grote-koffers',
             ])
             ->addSelect('((p.weightKg * 1000) / p.volumeL) AS HIDDEN gramPerLiter')
             ->orderBy('gramPerLiter', 'ASC')
