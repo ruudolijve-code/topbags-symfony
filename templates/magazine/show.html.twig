@@ -96,7 +96,7 @@
                 {% for faq in activeFaqs %}
                 {
                     "@type": "Question",
-                    "name": {{ faq.question|json_encode|raw }},
+                    "name": {{ faq.question|striptags|json_encode|raw }},
                     "acceptedAnswer": {
                         "@type": "Answer",
                         "text": {{ faq.answer|striptags|json_encode|raw }}
