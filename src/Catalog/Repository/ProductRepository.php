@@ -1601,4 +1601,19 @@ final class ProductRepository extends ServiceEntityRepository
                 ->addOrderBy('p.name', 'ASC'),
         };
     }
+
+    public function findLightestByGramPerLiter(int $limit = 8): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.weightKg IS NOT NULL')
+            ->andWhere('p.volumeL IS NOT NULL')
+            ->andWhere('p.weightKg > 0')
+            ->andWhere('p.volumeL > 0')
+            ->andWhere('p.isActive = true')
+            ->addSelect('((p.weightKg * 1000) / p.volumeL) AS HIDDEN gramPerLiter')
+            ->orderBy('gramPerLiter', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

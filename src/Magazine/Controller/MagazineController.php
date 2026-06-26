@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Catalog\Service\VariantImagePathResolver;
+use App\Magazine\Service\LightweightSuitcaseProvider;
 
 final class MagazineController extends AbstractController
 {
@@ -28,6 +29,7 @@ final class MagazineController extends AbstractController
         string $slug,
         MagazineArticleRepository $articles,
         VariantImagePathResolver $imagePathResolver,
+        LightweightSuitcaseProvider $lightweightSuitcaseProvider,
     ): Response {
         $article = $articles->findPublishedBySlugWithRelations($slug);
 
@@ -63,6 +65,7 @@ final class MagazineController extends AbstractController
         return $this->render('magazine/show.html.twig', [
             'article' => $article,
             'relatedProductItems' => $relatedProductItems,
+            'lightweightSuitcaseItems' => $lightweightSuitcaseProvider->getItems(8),
         ]);
     }
 }
