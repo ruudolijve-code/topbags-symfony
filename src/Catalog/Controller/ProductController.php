@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Catalog\Controller;
 
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
+use App\Seo\Service\ProductVariantSeoResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProductController extends AbstractController
 {
     public function __construct(
-        private VariantImagePathResolver $variantImagePathResolver
+        private readonly VariantImagePathResolver $variantImagePathResolver,
     ) {
     }
 
@@ -34,11 +37,12 @@ final class ProductController extends AbstractController
         string $colorSlug,
         string $variantSku,
         ProductVariantRepository $variantRepository,
-        AvailabilityService $availabilityService
+        AvailabilityService $availabilityService,
+        ProductVariantSeoResolver $seoResolver,
     ): Response {
         $variant = $variantRepository->findOneForGridBySku($variantSku);
 
-        if ($variant === null || !$variant->isActive() || $variant->getProduct() === null) {
+        if ($variant === null || !$variant->isActive()) {
             throw $this->createNotFoundException();
         }
 
@@ -64,20 +68,22 @@ final class ProductController extends AbstractController
                 $routeParams['context'] = Product::CONTEXT_BAGS;
             }
 
-            return $this->redirectToRoute('product_show', $routeParams, 301);
+            return $this->redirectToRoute('product_show', $routeParams, Response::HTTP_MOVED_PERMANENTLY);
         }
 
         $availability = $availabilityService->get($variant);
-        $mediaPath = $this->variantImagePathResolver->fromVariant($variant);
-        $imageBasePath = $this->variantImagePathResolver->fromSku($variant->getVariantSku());
 
         return $this->render('product/show.html.twig', [
             'product' => $product,
             'variant' => $variant,
             'master' => $product->getMasterVariant(),
-            'mediaPath' => $mediaPath,
-            'imageBasePath' => $imageBasePath,
+            'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
+            'imageBasePath' => $this->variantImagePathResolver->fromSku($variant->getVariantSku()),
             'availability' => $availability,
+
+            // SEO
+            'seoTitle' => $seoResolver->resolveTitle($variant),
+            'seoDescription' => $seoResolver->resolveDescription($variant),
 
             // Belangrijk voor header/menu/context switcher
             'currentContext' => $requestedContext,

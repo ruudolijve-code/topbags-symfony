@@ -34,6 +34,16 @@
                     {% endif %}
                 </h1>
 
+                {% set productDisplayName = (
+                    (product.brand ? product.brand.name ~ ' ' : '')
+                    ~ product.name
+                )|trim %}
+
+                <p class="mt-4 text-sm leading-6 text-gray-700">
+                    Ontdek de {{ productDisplayName }}{% if variant.supplierColorName %} in de kleur {{ variant.supplierColorName }}{% endif %}.
+                    Bestel eenvoudig online bij Topbags of bekijk het model in onze winkel in Hengelo.
+                </p>
+
                 {% if product.material %}
                     <div class="mt-2 text-sm text-gray-600">
                         Materiaal: {{ product.material.name }}

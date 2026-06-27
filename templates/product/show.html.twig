@@ -1,7 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-    {{ product.name }} – {{ variant.supplierColorName }} | {{ product.brand.name }}
+{% block title %}{{ seoTitle|default(product.name ~ ' | Topbags') }}{% endblock %}
+
+{% block meta_description %}
+    {{ seoDescription|default('Bekijk dit product bij Topbags. Bestel online of kom langs in onze winkel in Hengelo.')|trim }}
 {% endblock %}
 
 {% block body %}
@@ -37,6 +39,7 @@
             variant: variant,
             master: master,
             mediaPath: mediaPath,
+            imageBasePath: imageBasePath,
             availability: availability
         } %}
     </section>
