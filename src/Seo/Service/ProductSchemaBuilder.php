@@ -85,6 +85,8 @@ final class ProductSchemaBuilder
                         UrlGeneratorInterface::ABSOLUTE_URL
                     )),
                 ],
+                'shippingDetails' => $this->buildShippingDetails($variant),
+                'hasMerchantReturnPolicy' => $this->buildReturnPolicy(),
             ],
         ];
 
@@ -133,6 +135,51 @@ final class ProductSchemaBuilder
 
             default => 'https://schema.org/OutOfStock',
         };
+    }
+
+    private function buildShippingDetails(ProductVariant $variant): array
+    {
+        $price = (float) $variant->getDisplayPrice();
+
+        return [
+            '@type' => 'OfferShippingDetails',
+            'shippingDestination' => [
+                '@type' => 'DefinedRegion',
+                'addressCountry' => 'NL',
+            ],
+            'shippingRate' => [
+                '@type' => 'MonetaryAmount',
+                'value' => $price >= 49.0 ? '0.00' : '6.95',
+                'currency' => 'EUR',
+            ],
+            'deliveryTime' => [
+                '@type' => 'ShippingDeliveryTime',
+                'handlingTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => 0,
+                    'maxValue' => 1,
+                    'unitCode' => 'DAY',
+                ],
+                'transitTime' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => 1,
+                    'maxValue' => 2,
+                    'unitCode' => 'DAY',
+                ],
+            ],
+        ];
+    }
+
+    private function buildReturnPolicy(): array
+    {
+        return [
+            '@type' => 'MerchantReturnPolicy',
+            'applicableCountry' => 'NL',
+            'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            'merchantReturnDays' => 30,
+            'returnMethod' => 'https://schema.org/ReturnByMail',
+            'returnFees' => 'https://schema.org/ReturnFeesCustomerResponsibility',
+        ];
     }
 
     private function removeNullValues(array $data): array
