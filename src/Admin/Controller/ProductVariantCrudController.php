@@ -24,6 +24,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\CacheInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 #[IsGranted('ROLE_STORE')]
 class ProductVariantCrudController extends AbstractCrudController
@@ -160,6 +161,27 @@ class ProductVariantCrudController extends AbstractCrudController
 
         yield BooleanField::new('allowBackorder', 'Backorder toegestaan')
             ->renderAsSwitch(false);
+
+        yield FormField::addPanel('SEO')
+            ->setHelp(
+                'Laat deze velden leeg om automatisch een SEO-titel en meta-omschrijving te gebruiken.'
+            );
+
+        yield TextField::new('seoTitle', 'SEO-titel')
+            ->hideOnIndex()
+            ->setMaxLength(255)
+            ->setHelp(
+                'Optionele override. Automatisch voorbeeld: Merk + productnaam + kleur | Topbags'
+            )
+            ->setFormTypeOption('disabled', $storeOnly);
+
+        yield TextareaField::new('seoDescription', 'Meta-omschrijving')
+            ->hideOnIndex()
+            ->setNumOfRows(4)
+            ->setHelp(
+                'Optionele override. Laat leeg om automatisch een omschrijving samen te stellen uit product- en variantgegevens.'
+            )
+            ->setFormTypeOption('disabled', $storeOnly);
 
         if ($this->isGranted('ROLE_ADMIN')) {
             yield FormField::addPanel('Afbeeldingen');
