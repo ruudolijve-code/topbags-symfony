@@ -39,10 +39,16 @@
                     ~ product.name
                 )|trim %}
 
-                <p class="mt-4 text-sm leading-6 text-gray-700">
-                    Ontdek de {{ productDisplayName }}{% if variant.supplierColorName %} in de kleur {{ variant.supplierColorName }}{% endif %}.
-                    Bestel eenvoudig online bij Topbags of bekijk het model in onze winkel in Hengelo.
-                </p>
+                {% if variant.seoDescription %}
+                    <p class="mt-4 text-sm leading-6 text-gray-700">
+                        {{ variant.seoDescription }}
+                    </p>
+                {% else %}
+                    <p class="mt-4 text-sm leading-6 text-gray-700">
+                        Ontdek de {{ productDisplayName }}{% if variant.supplierColorName %} in de kleur {{ variant.supplierColorName }}{% endif %}.
+                        Bestel eenvoudig online bij Topbags of bekijk het model in onze winkel in Hengelo.
+                    </p>
+                {% endif %}
 
                 {% if product.material %}
                     <div class="mt-2 text-sm text-gray-600">
