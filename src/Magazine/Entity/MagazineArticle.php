@@ -341,4 +341,19 @@ class MagazineArticle
             $this->publishedAt = new \DateTimeImmutable();
         }
     }
+
+    public function getReadingTime(): int
+    {
+        $text = trim(strip_tags($this->content ?? ''));
+
+        if ($text === '') {
+            return 1;
+        }
+
+        $wordCount = str_word_count(
+            html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8')
+        );
+
+        return max(1, (int) ceil($wordCount / 200));
+    }
 }
