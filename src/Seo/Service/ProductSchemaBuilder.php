@@ -88,8 +88,10 @@ final class ProductSchemaBuilder
             ],
         ];
 
-        if ($variant->getEan() !== '') {
-            $schema['gtin13'] = $variant->getEan();
+        $ean = trim($variant->getEan());
+
+        if ($ean !== '') {
+            $schema['gtin13'] = $ean;
         }
 
         return $this->removeNullValues($schema);
@@ -100,6 +102,12 @@ final class ProductSchemaBuilder
         $images = [];
         $basePath = $this->variantImagePathResolver->fromSku($variant->getVariantSku());
 
+        $homeUrl = rtrim($this->forceHttps($this->router->generate(
+            'home',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        )), '/');
+
         foreach ($variant->getImages() as $image) {
             $filename = $image->getFilename();
 
@@ -107,11 +115,7 @@ final class ProductSchemaBuilder
                 continue;
             }
 
-            $images[] = $this->router->generate(
-                'home',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            ) . ltrim($basePath . '/' . $filename, '/');
+            $images[] = $homeUrl . '/' . ltrim($basePath . '/' . $filename, '/');
         }
 
         return array_values(array_unique($images));
@@ -122,7 +126,8 @@ final class ProductSchemaBuilder
         return match ($status) {
             'in_stock' => 'https://schema.org/InStock',
 
-            // Bewuste Topbags-keuze: op de site amber "Op voorraad",
+            // Bewuste Topbags-keuze:
+            // op de site amber "Op voorraad",
             // technisch voor Google: bestelbaar met levertijd.
             'backorder' => 'https://schema.org/BackOrder',
 
