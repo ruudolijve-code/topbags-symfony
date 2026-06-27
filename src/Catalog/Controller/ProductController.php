@@ -9,6 +9,8 @@ use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
 use App\Seo\Service\ProductVariantSeoResolver;
+use App\Seo\Service\ProductSchemaBuilder;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,6 +41,7 @@ final class ProductController extends AbstractController
         ProductVariantRepository $variantRepository,
         AvailabilityService $availabilityService,
         ProductVariantSeoResolver $seoResolver,
+        ProductSchemaBuilder $productSchemaBuilder,
     ): Response {
         $variant = $variantRepository->findOneForGridBySku($variantSku);
 
@@ -73,6 +76,10 @@ final class ProductController extends AbstractController
 
         $availability = $availabilityService->get($variant);
 
+        $seoTitle = $seoResolver->resolveTitle($variant);
+        $seoDescription = $seoResolver->resolveDescription($variant);
+        $productSchema = $productSchemaBuilder->build($variant, $seoDescription);
+
         return $this->render('product/show.html.twig', [
             'product' => $product,
             'variant' => $variant,
@@ -84,6 +91,7 @@ final class ProductController extends AbstractController
             // SEO
             'seoTitle' => $seoResolver->resolveTitle($variant),
             'seoDescription' => $seoResolver->resolveDescription($variant),
+            'productSchema' => $productSchema,
 
             // Belangrijk voor header/menu/context switcher
             'currentContext' => $requestedContext,

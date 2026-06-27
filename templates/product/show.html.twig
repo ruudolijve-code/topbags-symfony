@@ -2,8 +2,14 @@
 
 {% block title %}{{ seoTitle|default(product.name ~ ' | Topbags') }}{% endblock %}
 
-{% block meta_description %}
-    {{ seoDescription|default('Bekijk dit product bij Topbags. Bestel online of kom langs in onze winkel in Hengelo.')|trim }}
+{% block meta_description %}{{ seoDescription|default('Bekijk dit product bij Topbags. Bestel online of kom langs in onze winkel in Hengelo.')|trim }}{% endblock %}
+
+{% block structured_data %}
+    {% if productSchema is defined and productSchema %}
+        <script type="application/ld+json">
+            {{ productSchema|json_encode|raw }}
+        </script>
+    {% endif %}
 {% endblock %}
 
 {% block body %}

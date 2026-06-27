@@ -22,7 +22,7 @@ final class ProductVariantSeoResolver
             $variant->getSupplierColorName(),
         ]);
 
-        return trim(implode(' ', $parts)) . ' | Topbags';
+        return trim(implode(' ', $parts)) . ' kopen | Topbags';
     }
 
     public function resolveDescription(ProductVariant $variant): string
@@ -46,9 +46,9 @@ final class ProductVariantSeoResolver
             $colorName ? ' in ' . $colorName : ''
         );
 
-        $description .= ' Op voorraad, snel leverbaar en gratis verzending vanaf € 39.';
+        $description .= ' Op voorraad, snel leverbaar en gratis verzending vanaf € 49.';
 
-        $description .= ' Online bestellen of bekijken in onze winkel in Hengelo.';
+        $description .= ' Bestel online of bekijk het model in Hengelo.';
 
         return $this->limitLength($description, 160);
     }
