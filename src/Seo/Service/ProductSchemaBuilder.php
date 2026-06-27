@@ -25,7 +25,7 @@ final class ProductSchemaBuilder
         $brand = $product->getBrand();
         $availability = $this->availabilityService->get($variant);
 
-        $canonicalUrl = $this->router->generate(
+        $canonicalUrl = $this->forceHttps($this->router->generate(
             'product_show',
             [
                 'slug' => $product->getSlug(),
@@ -33,7 +33,7 @@ final class ProductSchemaBuilder
                 'variantSku' => $variant->getVariantSku(),
             ],
             UrlGeneratorInterface::ABSOLUTE_URL
-        );
+        ));
 
         $productName = trim(implode(' ', array_filter([
             $brand?->getName(),
@@ -79,11 +79,11 @@ final class ProductSchemaBuilder
                 'seller' => [
                     '@type' => 'Organization',
                     'name' => 'Topbags',
-                    'url' => $this->router->generate(
+                    'url' => $this->forceHttps($this->router->generate(
                         'home',
                         [],
                         UrlGeneratorInterface::ABSOLUTE_URL
-                    ),
+                    )),
                 ],
             ],
         ];
@@ -151,5 +151,10 @@ final class ProductSchemaBuilder
         }
 
         return $data;
+    }
+
+    private function forceHttps(string $url): string
+    {
+        return preg_replace('#^http://topbags\.nl#', 'https://topbags.nl', $url) ?? $url;
     }
 }
