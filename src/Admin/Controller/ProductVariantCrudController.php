@@ -183,6 +183,14 @@ class ProductVariantCrudController extends AbstractCrudController
             )
             ->setFormTypeOption('disabled', $storeOnly);
 
+        yield TextareaField::new('heroIntro', 'Hero-intro')
+            ->hideOnIndex()
+            ->setNumOfRows(3)
+            ->setHelp(
+                'Zichtbare korte tekst onder de producttitel. Laat leeg voor automatische tekst.'
+            )
+            ->setFormTypeOption('disabled', $storeOnly);
+
         if ($this->isGranted('ROLE_ADMIN')) {
             yield FormField::addPanel('Afbeeldingen');
 

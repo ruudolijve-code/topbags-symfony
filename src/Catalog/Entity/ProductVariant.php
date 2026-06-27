@@ -97,6 +97,9 @@ class ProductVariant
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $seoDescription = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $heroIntro = null;
+
     /**
      * Alleen voor EasyAdmin upload, niet opslaan in database.
      *
@@ -391,6 +394,24 @@ class ProductVariant
     public function setNormalizedColor(?Color $normalizedColor): self
     {
         $this->normalizedColor = $normalizedColor;
+
+        return $this;
+    }
+
+    public function getHeroIntro(): ?string
+    {
+        return $this->heroIntro;
+    }
+
+    public function setHeroIntro(?string $heroIntro): self
+    {
+        $heroIntro = $heroIntro !== null
+            ? trim($heroIntro)
+            : null;
+
+        $this->heroIntro = $heroIntro !== ''
+            ? $heroIntro
+            : null;
 
         return $this;
     }
