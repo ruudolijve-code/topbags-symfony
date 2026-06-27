@@ -21,6 +21,22 @@
                 {{ article.category ?: 'Topbags Magazine' }}
             </p>
 
+            <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                {% if article.publishedAt %}
+                    <time datetime="{{ article.publishedAt|date('Y-m-d') }}">
+                        Gepubliceerd op {{ article.publishedAt|date('d-m-Y') }}
+                    </time>
+                {% endif %}
+
+                {% if article.updatedAt and article.publishedAt and article.updatedAt|date('Y-m-d') != article.publishedAt|date('Y-m-d') %}
+                    <span class="text-gray-300">•</span>
+
+                    <time datetime="{{ article.updatedAt|date('Y-m-d') }}">
+                        Laatst bijgewerkt op {{ article.updatedAt|date('d-m-Y') }}
+                    </time>
+                {% endif %}
+            </div>
+
             <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-900 lg:text-5xl">
                 {{ article.title }}
             </h1>
