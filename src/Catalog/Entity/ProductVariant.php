@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Catalog\Entity;
 
 use App\Catalog\Repository\ProductVariantRepository;
@@ -88,6 +90,12 @@ class ProductVariant
 
     #[ORM\OneToMany(mappedBy: 'variant', targetEntity: VariantSupply::class)]
     private Collection $supplies;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $seoDescription = null;
 
     /**
      * Alleen voor EasyAdmin upload, niet opslaan in database.
@@ -467,6 +475,38 @@ class ProductVariant
     public function hasImages(): bool
     {
         return !$this->images->isEmpty();
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): self
+    {
+        $seoTitle = $seoTitle !== null ? trim($seoTitle) : null;
+
+        $this->seoTitle = $seoTitle !== '' ? $seoTitle : null;
+
+        return $this;
+    }
+
+    public function getSeoDescription(): ?string
+    {
+        return $this->seoDescription;
+    }
+
+    public function setSeoDescription(?string $seoDescription): self
+    {
+        $seoDescription = $seoDescription !== null
+            ? trim($seoDescription)
+            : null;
+
+        $this->seoDescription = $seoDescription !== ''
+            ? $seoDescription
+            : null;
+
+        return $this;
     }
 
     public function getStock(): ?Stock
