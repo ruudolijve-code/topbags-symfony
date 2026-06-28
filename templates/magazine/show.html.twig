@@ -17,30 +17,34 @@
     <section class="bg-[#f4f1ea] py-16">
         <div class="container max-w-4xl">
 
+            <div class="mb-6">
+                <a href="{{ path('magazine_index') }}"
+                   class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900">
+                    <span aria-hidden="true">←</span>
+                    <span>Terug naar het Topbags Magazine</span>
+                </a>
+            </div>
+
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
                 {{ article.category ?: 'Topbags Magazine' }}
             </p>
 
             <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-500">
-
                 {% if article.publishedAt %}
                     <time datetime="{{ article.publishedAt|date('Y-m-d') }}">
                         Gepubliceerd op {{ article.publishedAt|date('d-m-Y') }}
                     </time>
                 {% endif %}
 
-                {% if article.updatedAt and article.updatedAt|date('Y-m-d') != article.publishedAt|date('Y-m-d') %}
-                    <span>•</span>
-
+                {% if article.updatedAt and article.publishedAt and article.updatedAt|date('Y-m-d') != article.publishedAt|date('Y-m-d') %}
+                    <span class="text-gray-300">•</span>
                     <time datetime="{{ article.updatedAt|date('Y-m-d') }}">
                         Bijgewerkt op {{ article.updatedAt|date('d-m-Y') }}
                     </time>
                 {% endif %}
 
-                <span>•</span>
-
+                <span class="text-gray-300">•</span>
                 <span>{{ article.readingTime }} min. leestijd</span>
-
             </div>
 
             <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-900 lg:text-5xl">
@@ -111,7 +115,6 @@
         </section>
 
         {% set faqEntities = [] %}
-
         {% for faq in activeFaqs %}
             {% set faqEntities = faqEntities|merge([
                 {
@@ -126,11 +129,11 @@
         {% endfor %}
 
         <script type="application/ld+json">
-    {{ {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        'mainEntity': faqEntities
-    }|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
+{{ {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': faqEntities
+}|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
         </script>
     {% endif %}
 
@@ -178,7 +181,7 @@
                         </p>
 
                         <h2 class="mt-2 text-2xl font-semibold tracking-tight text-gray-900">
-                            Populaire koffers met TSA-slot
+                            Aanbevolen producten bij dit artikel
                         </h2>
                     </div>
 
@@ -248,6 +251,11 @@
                     <a href="{{ path('service_store') }}"
                        class="inline-flex rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-900">
                         Bezoek onze winkel
+                    </a>
+
+                    <a href="{{ path('magazine_index') }}"
+                       class="inline-flex rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-900">
+                        Bekijk alle artikelen
                     </a>
 
                 </div>
