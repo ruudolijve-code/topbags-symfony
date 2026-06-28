@@ -64,6 +64,7 @@ final class ProductSchemaBuilder
                 '@type' => 'ProductGroup',
                 '@id' => $canonicalUrl . '#product-group',
                 'name' => $groupName,
+                'description' => $description,
                 'productGroupID' => $product->getModelSku(),
                 'variesBy' => [
                     'https://schema.org/color',
