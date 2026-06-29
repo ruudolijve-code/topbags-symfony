@@ -90,15 +90,39 @@
           {{ product.name }}
         </h3>
 
-        {% if master is defined and master and master.price %}
-          <div class="mt-1 text-xs tracking-wide text-gray-600">
-            € {{ master.price|number_format(2, ',', '.') }}
+       {% set priceVariant = master is defined and master ? master : variant %}
+
+      {% set displayPrice = priceVariant.displayPrice %}
+      {% set regularPrice = priceVariant.price %}
+      {% set compareAtPrice = priceVariant.compareAtPrice %}
+      {% set saleActive = priceVariant.saleActive %}
+      {% set saleBadge = priceVariant.discountBadge %}
+
+      {% if displayPrice %}
+          <div class="mt-1 flex items-baseline justify-center gap-2 text-xs tracking-wide">
+              <span class="{{ saleActive ? 'font-semibold text-red-600' : 'text-gray-600' }}">
+                  € {{ displayPrice|number_format(2, ',', '.') }}
+              </span>
+
+              {% if saleActive and regularPrice and regularPrice > displayPrice %}
+                  <span class="text-gray-400 line-through">
+                      € {{ regularPrice|number_format(2, ',', '.') }}
+                  </span>
+              {% elseif compareAtPrice and compareAtPrice > displayPrice %}
+                  <span class="text-gray-400 line-through">
+                      € {{ compareAtPrice|number_format(2, ',', '.') }}
+                  </span>
+              {% endif %}
           </div>
-        {% elseif variant.price %}
-          <div class="mt-1 text-xs tracking-wide text-gray-600">
-            € {{ variant.price|number_format(2, ',', '.') }}
-          </div>
-        {% endif %}
+
+          {% if saleActive and saleBadge %}
+              <div class="mt-1 flex justify-center">
+                  <span class="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600">
+                      {{ saleBadge }}
+                  </span>
+              </div>
+          {% endif %}
+      {% endif %}
 
         {# ===============================
           Color variants indicator
