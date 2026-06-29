@@ -1628,7 +1628,7 @@ final class ProductRepository extends ServiceEntityRepository
             return [];
         }
 
-        $typeCategory = $this->resolveSizeSiblingTypeCategory($product);
+        $name = mb_strtolower($product->getName() ?? '');
 
         $qb = $this->createQueryBuilder('p')
             ->distinct()
@@ -1644,15 +1644,33 @@ final class ProductRepository extends ServiceEntityRepository
             ->setParameter('series', $product->getSeries());
 
         /*
-        * Beperk de maatfamilie tot hetzelfde producttype.
-        * Voorbeeld:
-        * - Ecodiver reistas met wielen: 55 / 67 / 79
-        * - Ecodiver reistas zonder wielen: apart
+        * KOFFERS
+        * Niet op categorie filteren.
+        * 55cm zit vaak ook in Handbagage, terwijl 69/75/81 dat niet zijn.
+        * Daarom alleen grof bewaken op kofferbenaming: spinner of trolley.
         */
-        if ($typeCategory instanceof Category) {
+        if (str_contains($name, 'spinner') || str_contains($name, 'trolley')) {
             $qb
-                ->andWhere(':typeCategory MEMBER OF p.categories')
-                ->setParameter('typeCategory', $typeCategory);
+                ->andWhere('(LOWER(p.name) LIKE :spinner OR LOWER(p.name) LIKE :trolley)')
+                ->setParameter('spinner', '%spinner%')
+                ->setParameter('trolley', '%trolley%');
+        }
+
+        /*
+        * REISTASSEN
+        * Reistas met wielen hoort niet bij reistas zonder wielen.
+        * Daarom deze typen binnen dezelfde serie apart houden.
+        */
+        if (str_contains($name, 'met wielen')) {
+            $qb
+                ->andWhere('LOWER(p.name) LIKE :withWheels')
+                ->setParameter('withWheels', '%met wielen%');
+        }
+
+        if (str_contains($name, 'zonder wielen')) {
+            $qb
+                ->andWhere('LOWER(p.name) LIKE :withoutWheels')
+                ->setParameter('withoutWheels', '%zonder wielen%');
         }
 
         return $qb
