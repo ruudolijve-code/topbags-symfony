@@ -10,6 +10,7 @@ use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
 use App\Seo\Service\ProductVariantSeoResolver;
 use App\Seo\Service\ProductSchemaBuilder;
+use App\Catalog\Repository\ProductRepository;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +43,7 @@ final class ProductController extends AbstractController
         AvailabilityService $availabilityService,
         ProductVariantSeoResolver $seoResolver,
         ProductSchemaBuilder $productSchemaBuilder,
+        ProductRepository $productRepository,
     ): Response {
         $variant = $variantRepository->findOneForGridBySku($variantSku);
 
@@ -74,6 +76,11 @@ final class ProductController extends AbstractController
             return $this->redirectToRoute('product_show', $routeParams, Response::HTTP_MOVED_PERMANENTLY);
         }
 
+        $sizeSiblings = [];
+            if ($product->getProductContext() === 'shop') {
+                $sizeSiblings = $productRepository->findSizeSiblings($product);
+            }
+
         $availability = $availabilityService->get($variant);
 
         $seoTitle = $seoResolver->resolveTitle($variant);
@@ -87,6 +94,7 @@ final class ProductController extends AbstractController
             'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
             'imageBasePath' => $this->variantImagePathResolver->fromSku($variant->getVariantSku()),
             'availability' => $availability,
+            'sizeSiblings' => $sizeSiblings,
 
             // SEO
             'seoTitle' => $seoResolver->resolveTitle($variant),

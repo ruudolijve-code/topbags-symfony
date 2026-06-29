@@ -50,37 +50,125 @@
                     </p>
                 {% endif %}
 
-                {% if product.material %}
-                    <div class="mt-2 text-sm text-gray-600">
-                        Materiaal: {{ product.material.name }}
+        {# ===============================
+        Product eigenschappen: materiaal, formaat, kleur
+        ================================ #}
+
+        <div class="mt-8 space-y-6">
+
+            {# Materiaal #}
+            {% if product.material %}
+                <div>
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-slate-900">
+                            Materiaal: 
+                        </h3>
+
+                        <span class="text-sm text-slate-500">
+                            {{ product.material.name }}
+                        </span>
                     </div>
-                {% endif %}
+                </div>
+            {% endif %}
 
-                {% if colorVariants|length > 1 %}
-                    <div class="mt-6">
-                        <div class="text-xs tracking-[0.18em] uppercase text-gray-500">
-                            Kleur
-                        </div>
 
-                        <div class="mt-3 flex flex-wrap gap-3">
-                            {% for v in colorVariants %}
-                                <a href="{{ path('product_show', {
+            {# Formaat / maatfamilie #}
+            {% if product.productContext == 'shop' and sizeSiblings is defined and sizeSiblings|length > 1 %}
+                <div>
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-slate-900">
+                            Formaat: 
+                        </h3>
+
+                        {% if product.heightCm and product.widthCm is defined and product.widthCm and product.depthCm is defined and product.depthCm %}
+                            <span class="text-sm text-slate-500">
+                                {{ product.heightCm|round(0, 'floor') }} x {{ product.widthCm|round(0, 'floor') }} x {{ product.depthCm|round(0, 'floor') }} cm
+                            </span>
+                        {% elseif product.heightCm %}
+                            <span class="text-sm text-slate-500">
+                                {{ product.heightCm|round(0, 'floor') }}cm
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-3">
+                        {% for sibling in sizeSiblings %}
+                            {% set siblingVariant = sibling.masterVariant is defined and sibling.masterVariant
+                                ? sibling.masterVariant
+                                : sibling.variants|filter(v => v.isActive)|first
+                            %}
+
+                            {% if siblingVariant and sibling.heightCm %}
+                                {% set isCurrent = sibling.id == product.id %}
+
+                                <a
+                                    href="{{ path('product_show', {
+                                        slug: sibling.slug,
+                                        colorSlug: siblingVariant.supplierColorSlug ?: 'default',
+                                        variantSku: siblingVariant.variantSku
+                                    }) }}#product-focus"
+                                    class="
+                                        inline-flex min-h-10 min-w-[92px] items-center justify-center rounded-lg border px-5 text-sm font-semibold transition
+                                        {{ isCurrent
+                                            ? 'border-slate-950 bg-white text-slate-950 shadow-sm ring-1 ring-slate-950'
+                                            : '!border-slate-100 bg-white !text-slate-300 hover:!border-slate-300 hover:!text-slate-500'
+                                        }}
+                                    "
+                                    {% if isCurrent %}aria-current="page"{% endif %}
+                                >
+                                    {{ sibling.heightCm|round(0, 'floor') }}cm{% if sibling.expandable is defined and sibling.expandable %} expandable{% endif %}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+
+            {# Kleur #}
+            {% if colorVariants|length > 1 %}
+                <div>
+                    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-slate-900">
+                            Kleur: 
+                        </h3>
+
+                        {% if variant.supplierColorName %}
+                            <span class="text-sm text-slate-500">
+                                {{ variant.supplierColorName }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-3">
+                        {% for v in colorVariants %}
+                            <a
+                                href="{{ path('product_show', {
                                     slug: product.slug,
                                     colorSlug: v.supplierColorSlug,
                                     variantSku: v.variantSku
                                 }) }}#product-focus"
-                                   class="w-7 h-7 rounded-full border {{ v.variantSku == variant.variantSku ? 'ring-2 ring-black ring-offset-2' : '' }}"
-                                   style="background-color: {{ v.color.hex }}"
-                                   aria-label="{{ v.supplierColorName }}">
-                                </a>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mt-2 text-xs text-gray-600">
-                            Klik op een andere kleur om deze te bekijken.
-                        </div>
+                                class="
+                                    h-8 w-8 rounded-full border transition
+                                    {{ v.variantSku == variant.variantSku
+                                        ? 'border-slate-950 ring-2 ring-slate-950 ring-offset-2'
+                                        : 'border-slate-300 hover:border-slate-500'
+                                    }}
+                                "
+                                style="background-color: {{ v.color.hex }}"
+                                aria-label="{{ v.supplierColorName }}"
+                                {% if v.variantSku == variant.variantSku %}aria-current="page"{% endif %}
+                            ></a>
+                        {% endfor %}
                     </div>
-                {% endif %}
+
+                    <div class="mt-2 text-xs text-slate-500">
+                        Klik op een andere kleur om deze te bekijken.
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
 
                 {% if displayPrice %}
                     <div class="mt-6">

@@ -1621,4 +1621,28 @@ final class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findSizeSiblings(Product $product): array
+    {
+        if (!$product->getSeries() || !$product->getBrand()) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.variants', 'v')
+            ->addSelect('v')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('p.brand = :brand')
+            ->andWhere('p.series = :series')
+            ->andWhere('p.isActive = true')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', Product::CONTEXT_SHOP)
+            ->setParameter('brand', $product->getBrand())
+            ->setParameter('series', $product->getSeries())
+            ->orderBy('p.heightCm', 'ASC')
+            ->addOrderBy('p.expandable', 'ASC')
+            ->addOrderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
