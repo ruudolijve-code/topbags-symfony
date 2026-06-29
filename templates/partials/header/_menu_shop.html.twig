@@ -80,7 +80,7 @@
                  {# Vast sale-item in hoofdnav #}
             <li class="flex h-full items-center">
                 <a
-                    href="{{ path('sale_index') }}"
+                    href="{{ path('sale_index', { context: 'shop' }) }}"
                     class="flex h-full items-center text-[14px] font-bold uppercase tracking-wider text-red-600 transition-colors hover:text-red-700"
                 >
                     Sale
