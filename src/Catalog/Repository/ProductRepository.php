@@ -1462,23 +1462,25 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
     
-    public function countSaleVariantsForContext(string $context): int
+    public function countSaleVariantsForContext(?string $context): int
     {
         $now = new \DateTimeImmutable();
 
-        return (int) $this->getEntityManager()->createQueryBuilder()
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(DISTINCT v.id)')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
             ->andWhere('p.isActive = true')
-            ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = true')
             ->andWhere('v.salePercentage IS NOT NULL')
             ->andWhere('v.salePercentage > 0')
             ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
             ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
-            ->setParameter('context', $context)
-            ->setParameter('now', $now)
+            ->setParameter('now', $now);
+
+        $this->applySaleContextFilter($qb, $context);
+
+        return (int) $qb
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -1487,7 +1489,7 @@ final class ProductRepository extends ServiceEntityRepository
      * @return ProductVariant[]
      */
     public function findSaleVariantsForContext(
-        string $context,
+        ?string $context,
         int $limit,
         int $offset
     ): array {
@@ -1498,23 +1500,25 @@ final class ProductRepository extends ServiceEntityRepository
          * We selecteren salePercentage mee, omdat MySQL 8 dit vereist
          * wanneer DISTINCT gecombineerd wordt met ORDER BY op salePercentage.
          */
-        $rows = $this->getEntityManager()->createQueryBuilder()
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('DISTINCT v.id AS id, v.salePercentage AS salePercentage')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
             ->andWhere('p.isActive = true')
-            ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = true')
             ->andWhere('v.salePercentage IS NOT NULL')
             ->andWhere('v.salePercentage > 0')
             ->andWhere('(v.saleStartsAt IS NULL OR v.saleStartsAt <= :now)')
             ->andWhere('(v.saleEndsAt IS NULL OR v.saleEndsAt >= :now)')
-            ->setParameter('context', $context)
             ->setParameter('now', $now)
             ->orderBy('v.salePercentage', 'DESC')
             ->addOrderBy('v.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults($limit)
+            ->setMaxResults($limit);
+
+        $this->applySaleContextFilter($qb, $context);
+
+        $rows = $qb
             ->getQuery()
             ->getScalarResult();
 
@@ -1550,6 +1554,24 @@ final class ProductRepository extends ServiceEntityRepository
             ->getResult();
 
         return $this->orderVariantsByIds($variants, $ids);
+    }
+
+    private function applySaleContextFilter(QueryBuilder $qb, ?string $context): void
+    {
+        if ($context !== null) {
+            $qb
+                ->andWhere('p.productContext = :context')
+                ->setParameter('context', $context);
+
+            return;
+        }
+
+        $qb
+            ->andWhere('p.productContext IN (:contexts)')
+            ->setParameter('contexts', [
+                Product::CONTEXT_SHOP,
+                Product::CONTEXT_BAGS,
+            ]);
     }
 
         /**

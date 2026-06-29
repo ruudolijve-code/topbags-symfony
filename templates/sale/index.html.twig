@@ -5,20 +5,39 @@
 {% block body %}
 <div class="max-w-[1400px] mx-auto px-6 py-12 lg:py-16">
 
-    <div class="max-w-3xl">
-        <div class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-red-600">
-            Sale
-        </div>
+       <div class="max-w-3xl">
+    <div class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-red-600">
+        Sale
+    </div>
 
         <h1 class="mt-4 text-3xl font-semibold tracking-tight text-gray-900 lg:text-4xl">
-            Afgeprijsde koffers, reistassen en accessoires
+            {{ pageHeading }}
         </h1>
 
         <p class="mt-4 text-base leading-relaxed text-gray-600">
-            Ontdek onze sale met geselecteerde koffers, reistassen en reisaccessoires.
-            Op deze pagina vind je alleen producten met een actieve korting.
+            {{ pageIntro }}
         </p>
+
+        {% if saleContexts is defined %}
+            <div class="mt-8 flex flex-wrap gap-3">
+                {% for saleContext in saleContexts %}
+                    {% set isActive = saleContext.context == activeSaleContext %}
+
+                    <a
+                        href="{{ saleContext.url }}"
+                        class="rounded-full border px-5 py-2 text-sm font-semibold transition
+                            {{ isActive
+                                ? 'border-gray-950 bg-gray-950 text-white'
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-950 hover:text-gray-950'
+                            }}"
+                    >
+                        {{ saleContext.label }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
+   
 
     {% if items is empty %}
         <div class="mt-12 rounded-2xl border border-gray-200 bg-white px-8 py-12">
@@ -30,8 +49,13 @@
                 Bekijk intussen onze volledige collectie.
             </p>
 
-            <a href="{{ path('shop_index') }}"
-               class="mt-6 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900">
+            {% set collectionUrl = activeSaleContext == 'bags'
+                ? path('bags_index')
+                : path('shop_index')
+            %}
+
+            <a href="{{ collectionUrl }}"
+            class="mt-6 inline-flex items-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900">
                 Bekijk de collectie
             </a>
         </div>

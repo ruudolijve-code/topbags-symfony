@@ -17,6 +17,11 @@ final class SaleController extends AbstractController
 {
     private const PER_PAGE = 16;
 
+    private const ALLOWED_CONTEXTS = [
+        Product::CONTEXT_SHOP,
+        Product::CONTEXT_BAGS,
+    ];
+
     public function __construct(
         private VariantImagePathResolver $variantImagePathResolver
     ) {
@@ -30,7 +35,12 @@ final class SaleController extends AbstractController
         AvailabilityService $availabilityService,
         PaginationService $paginationService
     ): Response {
-        $context = Product::CONTEXT_SHOP;
+        $requestedContext = $request->query->get('context');
+
+        $context = \in_array($requestedContext, self::ALLOWED_CONTEXTS, true)
+            ? $requestedContext
+            : null;
+
         $page = max(1, $request->query->getInt('page', 1));
 
         $totalItems = $productRepository->countSaleVariantsForContext($context);
@@ -65,14 +75,54 @@ final class SaleController extends AbstractController
             ];
         }
 
+        [$pageHeading, $pageIntro] = $this->resolveSaleCopy($context);
+
         return $this->render('sale/index.html.twig', [
             'context' => $context,
             'currentContext' => $context,
+            'activeContext' => $context,
             'items' => $items,
-            'categories' => $categoryRepository->findForContext($context),
+            'categories' => $context ? $categoryRepository->findForContext($context) : [],
             'pagination' => $pagination,
             'pageTitle' => 'Sale',
-            'pageIntro' => 'Ontdek afgeprijsde koffers, reistassen en accessoires.',
+            'pageHeading' => $pageHeading,
+            'pageIntro' => $pageIntro,
+            'activeSaleContext' => $context,
+            'saleContexts' => [
+                [
+                    'label' => 'Alles',
+                    'context' => null,
+                    'url' => $this->generateUrl('sale_index'),
+                ],
+                [
+                    'label' => 'Koffers & reistassen',
+                    'context' => Product::CONTEXT_SHOP,
+                    'url' => $this->generateUrl('sale_index', ['context' => Product::CONTEXT_SHOP]),
+                ],
+                [
+                    'label' => 'Damestassen',
+                    'context' => Product::CONTEXT_BAGS,
+                    'url' => $this->generateUrl('sale_index', ['context' => Product::CONTEXT_BAGS]),
+                ],
+            ],
         ]);
+    }
+
+    private function resolveSaleCopy(?string $context): array
+    {
+        return match ($context) {
+            Product::CONTEXT_SHOP => [
+                'Afgeprijsde koffers, reistassen en reisaccessoires',
+                'Ontdek onze sale met geselecteerde koffers, reistassen, handbagage, rugzakken en reisaccessoires.',
+            ],
+            Product::CONTEXT_BAGS => [
+                'Afgeprijsde tassen, rugtassen, laptoptassen en accessoires',
+                'Ontdek onze sale met geselecteerde damestassen, shoppers, crossbody’s, rugtassen, laptoptassen en accessoires.',
+            ],
+            default => [
+                'Sale: afgeprijsde koffers, tassen en reisaccessoires',
+                'Ontdek alle geselecteerde sale-artikelen van Topbags: van koffers en reistassen tot damestassen, rugtassen, laptoptassen en accessoires.',
+            ],
+        };
     }
 }
