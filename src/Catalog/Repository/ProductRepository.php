@@ -1628,8 +1628,11 @@ final class ProductRepository extends ServiceEntityRepository
             return [];
         }
 
-        return $this->createQueryBuilder('p')
-            ->leftJoin('p.variants', 'v')
+        $typeCategory = $this->resolveSizeSiblingTypeCategory($product);
+
+        $qb = $this->createQueryBuilder('p')
+            ->distinct()
+            ->innerJoin('p.variants', 'v')
             ->addSelect('v')
             ->andWhere('p.productContext = :context')
             ->andWhere('p.brand = :brand')
@@ -1638,11 +1641,76 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('v.isActive = true')
             ->setParameter('context', Product::CONTEXT_SHOP)
             ->setParameter('brand', $product->getBrand())
-            ->setParameter('series', $product->getSeries())
+            ->setParameter('series', $product->getSeries());
+
+        /*
+        * Beperk de maatfamilie tot hetzelfde producttype.
+        * Voorbeeld:
+        * - Ecodiver reistas met wielen: 55 / 67 / 79
+        * - Ecodiver reistas zonder wielen: apart
+        */
+        if ($typeCategory instanceof Category) {
+            $qb
+                ->andWhere(':typeCategory MEMBER OF p.categories')
+                ->setParameter('typeCategory', $typeCategory);
+        }
+
+        return $qb
             ->orderBy('p.heightCm', 'ASC')
             ->addOrderBy('p.expandable', 'ASC')
             ->addOrderBy('p.name', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    private function resolveSizeSiblingTypeCategory(Product $product): ?Category
+    {
+        $categories = $product->getCategories()->toArray();
+
+        if ($categories === []) {
+            return null;
+        }
+
+        /*
+        * Eerst specifieke categorieën pakken die het producttype bepalen.
+        * Dit voorkomt dat "Reistassen" te breed wordt en alles uit Ecodiver toont.
+        */
+        $preferredSlugParts = [
+            'reistassen-met-wielen',
+            'reistas-met-wielen',
+            'met-wielen',
+            'reistassen-zonder-wielen',
+            'reistas-zonder-wielen',
+            'zonder-wielen',
+            'handbagage',
+            'koffers',
+            'rugzakken',
+        ];
+
+        foreach ($preferredSlugParts as $slugPart) {
+            foreach ($categories as $category) {
+                if (
+                    method_exists($category, 'getSlug')
+                    && $category->getSlug()
+                    && str_contains($category->getSlug(), $slugPart)
+                ) {
+                    return $category;
+                }
+            }
+        }
+
+        /*
+        * Fallback: kies niet de te brede hoofdcategorie als er meerdere categorieën zijn.
+        * Namen/slugs zoals "reistassen" zijn vaak te algemeen.
+        */
+        foreach ($categories as $category) {
+            $slug = method_exists($category, 'getSlug') ? (string) $category->getSlug() : '';
+
+            if (!in_array($slug, ['shop', 'bags', 'reistassen', 'koffers'], true)) {
+                return $category;
+            }
+        }
+
+        return $categories[0] ?? null;
     }
 }
