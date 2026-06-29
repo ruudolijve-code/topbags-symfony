@@ -13,18 +13,38 @@
     {% set productUrl = productUrl ~ '?context=bags' %}
   {% endif %}
 
+  {# Prijslogica: gebruik master als die beschikbaar is, anders de huidige variant #}
+  {% set priceVariant = master is defined and master ? master : variant %}
+
+  {% set displayPrice = priceVariant.displayPrice %}
+  {% set regularPrice = priceVariant.price %}
+  {% set compareAtPrice = priceVariant.compareAtPrice %}
+  {% set saleActive = priceVariant.saleActive %}
+  {% set saleBadge = priceVariant.discountBadge %}
+
   <article class="break-inside-avoid group">
 
     <a href="{{ productUrl }}" class="block">
 
       {# ===============================
-        Editorial image (4:5 ratio)
+        Editorial image
       =============================== #}
       <div class="overflow-hidden rounded-2xl bg-white border border-gray-100">
 
         <div class="relative aspect-[3/4]">
 
-          {# Leather badge #}
+          {# ===============================
+            Sale badge linksboven
+          =============================== #}
+          {% if saleActive and saleBadge %}
+            <span class="absolute top-3 left-3 z-50 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 shadow-sm">
+              {{ saleBadge }}
+            </span>
+          {% endif %}
+
+          {# ===============================
+            Leather badge rechtsboven
+          =============================== #}
           {% set materialName = product.material is defined and product.material ? product.material.name|lower|trim : '' %}
 
           {# Normaliseer accenten, zodat "Suède" ook als "suede" wordt herkend #}
@@ -58,6 +78,9 @@
             </span>
           {% endif %}
 
+          {# ===============================
+            Product image
+          =============================== #}
           {% if mediaPath is defined and mediaPath %}
             <img
               src="{{ asset(mediaPath) }}"
@@ -90,39 +113,28 @@
           {{ product.name }}
         </h3>
 
-       {% set priceVariant = master is defined and master ? master : variant %}
-
-      {% set displayPrice = priceVariant.displayPrice %}
-      {% set regularPrice = priceVariant.price %}
-      {% set compareAtPrice = priceVariant.compareAtPrice %}
-      {% set saleActive = priceVariant.saleActive %}
-      {% set saleBadge = priceVariant.discountBadge %}
-
-      {% if displayPrice %}
+        {# ===============================
+          Price
+        =============================== #}
+        {% if displayPrice %}
           <div class="mt-1 flex items-baseline justify-center gap-2 text-xs tracking-wide">
-              <span class="{{ saleActive ? 'font-semibold text-red-600' : 'text-gray-600' }}">
-                  € {{ displayPrice|number_format(2, ',', '.') }}
+
+            <span class="{{ saleActive ? 'font-semibold text-red-600' : 'text-gray-600' }}">
+              € {{ displayPrice|number_format(2, ',', '.') }}
+            </span>
+
+            {% if saleActive and regularPrice and regularPrice > displayPrice %}
+              <span class="text-gray-400 line-through">
+                € {{ regularPrice|number_format(2, ',', '.') }}
               </span>
+            {% elseif compareAtPrice and compareAtPrice > displayPrice %}
+              <span class="text-gray-400 line-through">
+                € {{ compareAtPrice|number_format(2, ',', '.') }}
+              </span>
+            {% endif %}
 
-              {% if saleActive and regularPrice and regularPrice > displayPrice %}
-                  <span class="text-gray-400 line-through">
-                      € {{ regularPrice|number_format(2, ',', '.') }}
-                  </span>
-              {% elseif compareAtPrice and compareAtPrice > displayPrice %}
-                  <span class="text-gray-400 line-through">
-                      € {{ compareAtPrice|number_format(2, ',', '.') }}
-                  </span>
-              {% endif %}
           </div>
-
-          {% if saleActive and saleBadge %}
-              <div class="mt-1 flex justify-center">
-                  <span class="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600">
-                      {{ saleBadge }}
-                  </span>
-              </div>
-          {% endif %}
-      {% endif %}
+        {% endif %}
 
         {# ===============================
           Color variants indicator
@@ -152,6 +164,10 @@
       </div>
 
     </a>
+
+  </article>
+
+{% endif %}
 
   </article>
 
