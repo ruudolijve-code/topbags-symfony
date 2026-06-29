@@ -104,21 +104,17 @@ class ProductVariantCrudController extends AbstractCrudController
             ->setFormTypeOption('disabled', $storeOnly);
 
         yield IntegerField::new('salePercentage', 'Sale %')
-            ->hideOnIndex()
-            ->setFormTypeOption('disabled', $storeOnly);
-
+            ->hideOnIndex();
+        
         yield DateTimeField::new('saleStartsAt', 'Sale start')
-            ->hideOnIndex()
-            ->setFormTypeOption('disabled', $storeOnly);
-
+            ->hideOnIndex();
+            
         yield DateTimeField::new('saleEndsAt', 'Sale einde')
-            ->hideOnIndex()
-            ->setFormTypeOption('disabled', $storeOnly);
-
+            ->hideOnIndex();
+           
         yield TextField::new('saleLabel', 'Sale label')
-            ->hideOnIndex()
-            ->setFormTypeOption('disabled', $storeOnly);
-
+            ->hideOnIndex();
+            
         yield BooleanField::new('isMaster', 'Master')
             ->setFormTypeOption('disabled', $storeOnly);
 
