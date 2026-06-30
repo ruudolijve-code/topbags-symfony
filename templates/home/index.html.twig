@@ -155,8 +155,58 @@
 
             {# Rechter beeldcards #}
             <div class="grid gap-6 lg:col-span-4">
+                {# =========================================================
+                TIJDELIJKE HOMEPAGE CAMPAGNE · SALE
+
+                Deze card vervangt tijdelijk de Damestassen-spotlight.
+                Na afloop van de Sale-campagne kan het oude blok hieronder
+                weer worden teruggezet.
+
+                Afbeelding:
+                public/images/home/sale.jpg
+
+                Link:
+                /sale = algemene Sale-index met alle actieve sale-artikelen.
+                ========================================================= #}
+
+                <a href="{{ path('sale_index') }}"
+                class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
+                    <img
+                        src="{{ asset('images/home/sale.jpg') }}"
+                        alt="Sale bij Topbags: tot 50% korting op geselecteerde items"
+                        class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    >
+
+                    {# Donkere overlay voor betere leesbaarheid van tekst en knop #}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                    <div class="absolute inset-x-0 bottom-0 z-10 p-7 text-white">
+                        <div class="mb-2 text-xs font-bold uppercase tracking-widest text-red-200">
+                            Tijdelijke actie
+                        </div>
+
+                        <h2 class="text-2xl font-bold">
+                            Sale tot 50%
+                        </h2>
+
+                        <p class="mt-2 text-sm text-white/90">
+                            Afgeprijsde koffers, tassen en reisaccessoires.
+                        </p>
+
+                        <div class="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-red-600 transition group-hover:bg-red-50">
+                            Shop de sale
+                        </div>
+                    </div>
+                </a>
+
+                {#
+                =========================================================
+                OUDE HOMEPAGE CARD · DAMESTASSEN
+
+                Terugzetten na afloop van de Sale-campagne indien gewenst.
+
                 <a href="{{ path('bags_index') }}"
-                   class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
+                class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
                     <img
                         src="{{ asset('images/home/spotlight-damestassen.jpg') }}"
                         alt="Damestassen"
@@ -179,6 +229,8 @@
                         </div>
                     </div>
                 </a>
+                =========================================================
+                #}
 
                 <a href="{{ path('service_store') }}"
                    class="group relative min-h-[255px] overflow-hidden rounded-3xl shadow-sm">
