@@ -7,11 +7,16 @@
         <ul class="flex items-center gap-10 h-full">
 
             {% for category in menuBagsCategories %}
+                {% set categoryUrl = category.slug == 'tassen'
+                    ? path('bags_index')
+                    : path('category_show', { slug: category.slug, context: 'bags' })
+                %}
+
                 <li class="group h-full flex items-center">
 
                     {# Hoofditem #}
                     <a
-                        href="{{ path('category_show', { slug: category.slug }) }}"
+                        href="{{ categoryUrl }}"
                         class="flex items-center gap-1.5 h-full
                                text-[14px] font-bold uppercase tracking-wider
                                text-gray-800 hover:text-amber-800
@@ -54,7 +59,7 @@
                                        grid grid-cols-4 gap-8"
                             >
                                 <a
-                                    href="{{ path('category_show', { slug: category.slug }) }}"
+                                    href="{{ categoryUrl }}"
                                     class="group/item"
                                 >
                                     <p
@@ -72,7 +77,7 @@
                                 {% for child in category.children %}
                                     {% if child.isActive and child.showInMenu %}
                                         <a
-                                            href="{{ path('category_show', { slug: child.slug }) }}"
+                                            href="{{ path('category_show', { slug: child.slug, context: 'bags' }) }}"
                                             class="group/item"
                                         >
                                             <p
