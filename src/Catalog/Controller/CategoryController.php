@@ -55,7 +55,7 @@ final class CategoryController extends AbstractController
             throw $this->createNotFoundException('Categorie niet gevonden');
         }
 
-        $activeContext = $this->resolveActiveContext($category);
+       $activeContext = $this->resolveActiveContext($category, $request);
         $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($activeContext);
         $fixedCategorySlugs = [$category->getSlug()];
 
@@ -288,7 +288,20 @@ final class CategoryController extends AbstractController
         return $airlineRules;
     }
 
-    private function resolveActiveContext(Category $category): string
+    private function resolveActiveContext(Category $category, Request $request): string
+    {
+        $requestedContext = $request->query->get('context');
+
+        if (in_array($requestedContext, [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS], true)) {
+            return $requestedContext;
+        }
+
+        $resolvedContext = $this->resolveContextFromCategoryTree($category);
+
+        return $resolvedContext ?? Product::CONTEXT_SHOP;
+    }
+
+    private function resolveContextFromCategoryTree(Category $category): ?string
     {
         foreach ($category->getContexts() as $contextRelation) {
             $context = $contextRelation->getContext();
@@ -298,6 +311,12 @@ final class CategoryController extends AbstractController
             }
         }
 
-        return Product::CONTEXT_SHOP;
+        $parent = $category->getParent();
+
+        if ($parent instanceof Category) {
+            return $this->resolveContextFromCategoryTree($parent);
+        }
+
+        return null;
     }
 }
