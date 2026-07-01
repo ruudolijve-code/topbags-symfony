@@ -100,7 +100,7 @@ final class SaleController extends AbstractController
                     'url' => $this->generateUrl('sale_index', ['context' => Product::CONTEXT_SHOP]),
                 ],
                 [
-                    'label' => 'Damestassen',
+                    'label' => 'Tassen & accessoires',
                     'context' => Product::CONTEXT_BAGS,
                     'url' => $this->generateUrl('sale_index', ['context' => Product::CONTEXT_BAGS]),
                 ],
