@@ -19,16 +19,16 @@
         </p>
 
         {% if saleContexts is defined %}
-            <div class="mt-8 flex flex-wrap gap-3">
+            <div class="mt-8 flex flex-col items-stretch gap-3 md:flex-row md:flex-wrap md:items-center">
                 {% for saleContext in saleContexts %}
                     {% set isActive = saleContext.context == activeSaleContext %}
 
                     <a
                         href="{{ saleContext.url }}"
-                        class="rounded-full border px-5 py-2 text-sm font-semibold transition
+                        class="inline-flex w-full items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition md:w-auto md:px-6 md:py-2.5
                             {{ isActive
-                                ? 'border-gray-950 bg-gray-950 text-white'
-                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-950 hover:text-gray-950'
+                                ? 'border-amber-600 bg-amber-600 text-white shadow-sm'
+                                : 'border-gray-200 bg-white text-gray-700 hover:border-amber-500 hover:text-amber-700'
                             }}"
                     >
                         {{ saleContext.label }}
