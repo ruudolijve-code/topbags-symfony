@@ -240,7 +240,7 @@ class CheckoutController extends AbstractController
      *   subtotal: float
      * }
      */
-    private function buildCartView(
+   private function buildCartView(
         CartService $cart,
         ProductVariantRepository $variantRepository
     ): array {
@@ -262,6 +262,12 @@ class CheckoutController extends AbstractController
                 continue;
             }
 
+            $product = $variant->getProduct();
+
+            if ($product === null) {
+                continue;
+            }
+
             $price = (float) $variant->getDisplayPrice();
             $qty = max(1, (int) $row['qty']);
             $lineTotal = $price * $qty;
@@ -269,7 +275,7 @@ class CheckoutController extends AbstractController
 
             $items[] = [
                 'sku' => $variant->getVariantSku(),
-                'name' => $variant->getProduct()->getName(),
+                'name' => $product->getName(),
                 'price' => $price,
                 'qty' => $qty,
                 'lineTotal' => $lineTotal,
