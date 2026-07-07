@@ -253,44 +253,54 @@
                         Veilig en flexibel betalen
                     </div>
 
-                    <div
-                        class="mt-4 flex flex-wrap items-center gap-2"
-                        aria-label="Beschikbare betaalmethoden"
-                    >
+                  <div
+                    class="mt-4 flex flex-wrap items-center gap-2"
+                    aria-label="Beschikbare betaalmethoden"
+                >
 
-                        <span class="inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white px-2 py-1
-                                    [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-auto">
-                            <span class="sr-only">Apple Pay</span>
-                            {% include 'partials/icons/payment/applepay.svg.twig' %}
+                    {# Apple Pay #}
+                    <span class="inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2
+                                [&_svg]:block [&_svg]:max-h-6 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-full">
+                        <span class="sr-only">Apple Pay</span>
+                        {% include 'partials/icons/payment/applepay.svg.twig' %}
+                    </span>
+
+                    {# iDEAL | Wero #}
+                    <span class="inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2
+                                [&_svg]:block [&_svg]:max-h-6 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-full">
+                        <span class="sr-only">iDEAL en Wero</span>
+                        {% include 'partials/icons/payment/wero.svg.twig' %}
+                    </span>
+
+                    {# Visa #}
+                    <span class="inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2
+                                [&_svg]:block [&_svg]:max-h-6 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-full">
+                        <span class="sr-only">Visa</span>
+                        {% include 'partials/icons/payment/visa.svg.twig' %}
+                    </span>
+
+                    {# Mastercard #}
+                    <span class="inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2
+                                [&_svg]:block [&_svg]:max-h-7 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-full">
+                        <span class="sr-only">Mastercard</span>
+                        {% include 'partials/icons/payment/mastercard.svg.twig' %}
+                    </span>
+
+                    {# Klarna #}
+                    <span class="inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-pink-200 bg-pink-50 px-3 py-2
+                                [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-full">
+                        <span class="sr-only">
+                            Klarna - betaal later of in 3 termijnen indien beschikbaar
                         </span>
+                        {% include 'partials/icons/payment/klarna.svg.twig' %}
+                    </span>
 
-                        <span class="inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white px-2 py-1
-                                    [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-auto">
-                            <span class="sr-only">Ideal | Wero</span>
-                            {% include 'partials/icons/payment/wero.svg.twig' %}
-                        </span>
+                </div>
 
-                        <span class="inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white px-2 py-1
-                                    [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-auto">
-                            <span class="sr-only">Visa</span>
-                            {% include 'partials/icons/payment/visa.svg.twig' %}
-                        </span>
-
-                        <span class="inline-flex h-9 w-16 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white px-2 py-1
-                                    [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-auto">
-                            <span class="sr-only">Mastercard</span>
-                            {% include 'partials/icons/payment/mastercard.svg.twig' %}
-                        </span>
-
-                        <span class="inline-flex h-9 w-20 items-center justify-center overflow-hidden rounded-lg border border-pink-200 bg-pink-50 px-2 py-1
-                                    [&_svg]:block [&_svg]:max-h-5 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:w-auto">
-                            <span class="sr-only">
-                                Klarna - betaal later of in 3 termijnen indien beschikbaar
-                            </span>
-                            {% include 'partials/icons/payment/klarna.svg.twig' %}
-                        </span>
-
-                    </div>
+                <p class="sr-only">
+                    Beschikbare betaalmethoden bij Topbags: Apple Pay, iDEAL, Wero, Visa, Mastercard en Klarna.
+                    Met Klarna kun je, indien beschikbaar en na goedkeuring door Klarna, later of in 3 termijnen betalen.
+                </p>
 
                     <p class="sr-only">
                         Beschikbare betaalmethoden bij Topbags: Apple Pay, Wero, Visa, Mastercard en Klarna.
