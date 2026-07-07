@@ -210,12 +210,19 @@ class CheckoutController extends AbstractController
         $redirectUrl = $appUrl . '/order/' . $order->getOrderNumber();
         $webhookUrl = $appUrl . '/payment/webhook';
 
+        $molliePaymentData = $this->buildMolliePaymentData(
+            order: $order,
+            cartItems: $cartData['items'],
+            customerData: $customerData
+        );
+
         $payment = $mollie->createPayment(
             total: (float) $order->getTotal(),
             orderNumber: $order->getOrderNumber(),
             metadata: ['order_id' => $order->getId()],
             redirectUrl: $redirectUrl,
-            webhookUrl: $webhookUrl
+            webhookUrl: $webhookUrl,
+            paymentData: $molliePaymentData
         );
 
         $orderService->attachMolliePaymentId($order, $payment->id);
@@ -294,6 +301,145 @@ class CheckoutController extends AbstractController
             'items' => $items,
             'subtotal' => $subtotal,
         ];
+    }
+
+    /**
+     * Extra Mollie-data voor betaalmethodes zoals Klarna.
+     *
+     * @param array<int, array{
+     *   sku: string,
+     *   name: string,
+     *   price: float,
+     *   qty: int,
+     *   lineTotal: float,
+     *   color?: ?string
+     * }> $cartItems
+     */
+    private function buildMolliePaymentData(Order $order, array $cartItems, array $customerData): array
+    {
+        $address = $customerData['address'] ?? [];
+
+        $firstName = trim((string) ($address['firstName'] ?? ''));
+        $lastName = trim((string) ($address['lastName'] ?? ''));
+        $street = trim((string) ($address['street'] ?? ''));
+        $postalCode = strtoupper(trim((string) ($address['postalCode'] ?? '')));
+        $city = trim((string) ($address['city'] ?? ''));
+        $country = strtoupper(trim((string) ($address['country'] ?? 'NL'))) ?: 'NL';
+
+        $billingAddress = [
+            'givenName' => $firstName,
+            'familyName' => $lastName,
+            'streetAndNumber' => $street,
+            'postalCode' => $postalCode,
+            'city' => $city,
+            'country' => $country,
+        ];
+
+        $lines = [];
+
+        foreach ($cartItems as $item) {
+            $quantity = max(1, (int) ($item['qty'] ?? 1));
+            $unitPrice = (float) ($item['price'] ?? 0.0);
+            $totalAmount = $unitPrice * $quantity;
+
+            if ($unitPrice <= 0 || $totalAmount <= 0) {
+                continue;
+            }
+
+            $description = trim((string) ($item['name'] ?? 'Topbags product'));
+
+            if (!empty($item['color'])) {
+                $description .= ' - ' . trim((string) $item['color']);
+            }
+
+            $lines[] = [
+                'type' => 'physical',
+                'description' => mb_substr($description, 0, 255),
+                'quantity' => $quantity,
+                'unitPrice' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($unitPrice),
+                ],
+                'totalAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($totalAmount),
+                ],
+                'vatRate' => '21.00',
+                'vatAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieVatFromGross($totalAmount),
+                ],
+                'sku' => (string) ($item['sku'] ?? ''),
+            ];
+        }
+
+        $shippingCost = (float) $order->getShippingCost();
+
+        if ($shippingCost > 0) {
+            $lines[] = [
+                'type' => 'shipping_fee',
+                'description' => 'Verzendkosten',
+                'quantity' => 1,
+                'unitPrice' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($shippingCost),
+                ],
+                'totalAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($shippingCost),
+                ],
+                'vatRate' => '21.00',
+                'vatAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieVatFromGross($shippingCost),
+                ],
+            ];
+        }
+
+        $discountAmount = (float) $order->getDiscountAmount();
+
+        if ($discountAmount > 0) {
+            $negativeDiscount = -1 * $discountAmount;
+
+            $lines[] = [
+                'type' => 'discount',
+                'description' => 'Korting',
+                'quantity' => 1,
+                'unitPrice' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($negativeDiscount),
+                ],
+                'totalAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieMoney($negativeDiscount),
+                ],
+                'vatRate' => '21.00',
+                'vatAmount' => [
+                    'currency' => 'EUR',
+                    'value' => $this->mollieVatFromGross($negativeDiscount),
+                ],
+            ];
+        }
+
+        return [
+            'billingEmail' => (string) ($customerData['email'] ?? $order->getCustomerEmail()),
+            'billingAddress' => $billingAddress,
+
+            // Voor nu gelijk aan factuuradres. Dat is het veiligst om Klarna eerst werkend te krijgen.
+            'shippingAddress' => $billingAddress,
+
+            'lines' => $lines,
+        ];
+    }
+
+    private function mollieMoney(float $amount): string
+    {
+        return number_format($amount, 2, '.', '');
+    }
+
+    private function mollieVatFromGross(float $grossAmount): string
+    {
+        return number_format($grossAmount * 21 / 121, 2, '.', '');
     }
 
     /**

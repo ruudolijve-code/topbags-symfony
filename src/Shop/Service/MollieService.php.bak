@@ -19,10 +19,9 @@ class MollieService
         string $orderNumber,
         array $metadata,
         string $redirectUrl,
-        string $webhookUrl,
-        array $paymentData = []
+        string $webhookUrl
     ) {
-        $payload = [
+        return $this->mollie->payments->create([
             'amount' => [
                 'currency' => 'EUR',
                 'value'    => number_format($total, 2, '.', ''),
@@ -31,9 +30,7 @@ class MollieService
             'redirectUrl' => $redirectUrl,
             'webhookUrl'  => $webhookUrl,
             'metadata'    => $metadata,
-        ];
-
-        return $this->mollie->payments->create(array_merge($payload, $paymentData));
+        ]);
     }
 
     public function getPayment(string $paymentId)
