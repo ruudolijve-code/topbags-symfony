@@ -14,7 +14,7 @@
 
         <header class="mb-12 max-w-3xl">
             <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-orange-600">
-                Veilig betalen
+                Veilig en flexibel betalen
             </p>
 
             <h1 class="mb-5 text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
@@ -29,31 +29,62 @@
         </header>
 
         <div class="grid gap-8 lg:grid-cols-3">
-            <div class="lg:col-span-2">
+
+            <div class="lg:col-span-2 space-y-8">
+
                 <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
                     <h2 class="mb-6 text-2xl font-bold text-gray-900">
                         Online betalen
                     </h2>
 
-                    <div class="space-y-6 text-gray-700">
+                    <div class="space-y-7 text-gray-700">
+
                         <div>
                             <h3 class="mb-2 font-semibold text-gray-900">
-                                iDEAL/WERO
+                                iDEAL / Wero
                             </h3>
                             <p class="leading-7">
-                                Je kunt bij Topbags.nl betalen met iDEAL/WERO. Hiermee betaal je veilig
-                                via je eigen bankomgeving.
+                                Je kunt bij Topbags.nl veilig betalen via iDEAL/Wero. Hiermee betaal je
+                                eenvoudig via je eigen bankomgeving.
                             </p>
                         </div>
 
                         <div>
                             <h3 class="mb-2 font-semibold text-gray-900">
-                                Andere beschikbare betaalmethoden
+                                Apple Pay
                             </h3>
                             <p class="leading-7">
-                                Afhankelijk van je bestelling, land en de instellingen van onze betaalprovider
-                                kunnen er tijdens het afrekenen aanvullende betaalmethoden beschikbaar zijn.
-                                De betaalmogelijkheden die je in de checkout ziet, zijn altijd leidend.
+                                Op geschikte apparaten kun je snel en veilig afrekenen met Apple Pay.
+                                Als Apple Pay beschikbaar is voor jouw apparaat en browser, verschijnt deze
+                                betaaloptie automatisch tijdens het afrekenen.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Creditcard
+                            </h3>
+                            <p class="leading-7">
+                                Je kunt ook betalen met creditcard, waaronder Visa en Mastercard.
+                                De betaling wordt beveiligd verwerkt via Mollie. Topbags.nl bewaart zelf geen
+                                creditcardgegevens.
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl border border-pink-200 bg-pink-50 p-6">
+                            <h3 class="mb-2 font-semibold text-gray-900">
+                                Klarna: later betalen of in 3 termijnen
+                            </h3>
+                            <p class="leading-7">
+                                Met Klarna kun je, indien beschikbaar, achteraf betalen of je betaling
+                                verspreiden over 3 termijnen. Klarna beoordeelt zelf of deze betaaloptie
+                                beschikbaar is voor jouw bestelling.
+                            </p>
+
+                            <p class="mt-3 text-sm leading-6 text-gray-600">
+                                Zie je Klarna niet in de checkout? Dan is Klarna op dat moment mogelijk niet
+                                beschikbaar voor jouw bestelling, adresgegevens, orderbedrag of betaalprofiel.
+                                De betaalmethoden die je tijdens het afrekenen ziet, zijn altijd leidend.
                             </p>
                         </div>
 
@@ -62,8 +93,8 @@
                                 Veilig verwerkt via Mollie
                             </h3>
                             <p class="leading-7">
-                                Betalingen worden beveiligd verwerkt via Mollie. Topbags.nl bewaart zelf geen
-                                betaalkaartgegevens of bankgegevens.
+                                Alle online betalingen worden beveiligd verwerkt via Mollie. Topbags.nl bewaart
+                                zelf geen bankgegevens, creditcardgegevens of andere gevoelige betaalgegevens.
                             </p>
                         </div>
 
@@ -89,9 +120,85 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-8">
+                    <h2 class="mb-4 text-xl font-bold text-gray-900">
+                        Beschikbare betaalmethoden
+                    </h2>
+
+                    <style>
+                        .payment-page-logo svg {
+                            display: block !important;
+                            width: auto !important;
+                            height: 28px !important;
+                            max-width: 130px !important;
+                            max-height: 30px !important;
+                        }
+
+                        .payment-page-logo--apple svg {
+                            height: 30px !important;
+                            transform: scale(1.45);
+                            transform-origin: center;
+                        }
+
+                        .payment-page-logo--wero svg {
+                            height: 28px !important;
+                        }
+
+                        .payment-page-logo--visa svg {
+                            height: 28px !important;
+                        }
+
+                        .payment-page-logo--mastercard svg {
+                            height: 28px !important;
+                        }
+
+                        .payment-page-logo--klarna svg {
+                            height: 30px !important;
+                        }
+                    </style>
+
+                    <div
+                        class="flex flex-wrap items-center gap-6"
+                        aria-label="Beschikbare betaalmethoden"
+                    >
+                        <span class="payment-page-logo payment-page-logo--apple inline-flex h-10 w-28 items-center justify-center overflow-visible">
+                            <span class="sr-only">Apple Pay</span>
+                            {% include 'partials/icons/payment/applepay.svg.twig' %}
+                        </span>
+
+                        <span class="payment-page-logo payment-page-logo--wero inline-flex h-10 w-28 items-center justify-center">
+                            <span class="sr-only">iDEAL en Wero</span>
+                            {% include 'partials/icons/payment/wero.svg.twig' %}
+                        </span>
+
+                        <span class="payment-page-logo payment-page-logo--visa inline-flex h-10 w-24 items-center justify-center">
+                            <span class="sr-only">Visa</span>
+                            {% include 'partials/icons/payment/visa.svg.twig' %}
+                        </span>
+
+                        <span class="payment-page-logo payment-page-logo--mastercard inline-flex h-10 w-20 items-center justify-center">
+                            <span class="sr-only">Mastercard</span>
+                            {% include 'partials/icons/payment/mastercard.svg.twig' %}
+                        </span>
+
+                        <span class="payment-page-logo payment-page-logo--klarna inline-flex h-10 w-28 items-center justify-center">
+                            <span class="sr-only">Klarna</span>
+                            {% include 'partials/icons/payment/klarna.svg.twig' %}
+                        </span>
+                    </div>
+
+                    <p class="sr-only">
+                        Beschikbare betaalmethoden bij Topbags: Apple Pay, iDEAL, Wero, Visa,
+                        Mastercard en Klarna. Met Klarna kun je, indien beschikbaar en na goedkeuring
+                        door Klarna, later betalen of in 3 termijnen betalen.
+                    </p>
+                </div>
+
             </div>
 
             <aside class="space-y-6">
+
                 <div class="rounded-2xl border border-orange-200 bg-orange-50 p-6">
                     <h2 class="mb-3 text-lg font-bold text-gray-900">
                         Hulp nodig?
@@ -104,8 +211,8 @@
                     <div class="space-y-3 text-sm text-gray-700">
                         <p>
                             <strong>Telefoon:</strong><br>
-                            <a href="tel:+31742912251" class="underline hover:text-gray-900">
-                                074 291 22 51
+                            <a href="tel:+31742912205" class="underline hover:text-gray-900">
+                                074 291 22 05
                             </a>
                         </p>
 
@@ -146,6 +253,18 @@
                         </div>
                     </dl>
                 </div>
+
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="mb-3 text-lg font-bold text-gray-900">
+                        Let op bij achteraf betalen
+                    </h2>
+
+                    <p class="text-sm leading-6 text-gray-700">
+                        Achteraf betalen of betalen in termijnen kan afhankelijk zijn van goedkeuring
+                        door de betaalprovider. Topbags.nl heeft geen invloed op deze beoordeling.
+                    </p>
+                </div>
+
             </aside>
         </div>
 
