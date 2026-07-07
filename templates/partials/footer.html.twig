@@ -165,69 +165,68 @@
             </div>
 
             {# BETAALMETHODEN HORIZONTAAL #}
-            <div class="mt-8 border-t border-[#e3c965] pt-5">
+            <div class="mt-8 border-y border-[#e3c965] py-5">
 
                 <style>
                     .footer-payment-logo svg {
                         display: block !important;
-                        max-width: 100% !important;
-                        max-height: 100% !important;
-                        height: auto !important;
+                        width: auto !important;
+                        height: 24px !important;
+                        max-width: 120px !important;
+                        max-height: 24px !important;
                     }
 
                     .footer-payment-logo--apple svg {
-                        width: 98px !important;
-                        transform: scale(1.55);
-                        transform-origin: center;
+                        height: 22px !important;
                     }
 
                     .footer-payment-logo--wero svg {
-                        width: 92px !important;
+                        height: 24px !important;
                     }
 
                     .footer-payment-logo--visa svg {
-                        width: 72px !important;
+                        height: 24px !important;
                     }
 
                     .footer-payment-logo--mastercard svg {
-                        width: 56px !important;
+                        height: 24px !important;
                     }
 
                     .footer-payment-logo--klarna svg {
-                        width: 104px !important;
+                        height: 25px !important;
                     }
                 </style>
 
-                <div class="flex flex-col gap-3 md:flex-row md:items-center">
-                    <div class="shrink-0 text-sm font-semibold text-[#4c3228]">
+                <div class="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-6">
+                    <div class="text-sm font-semibold text-[#4c3228]">
                         Veilig en flexibel betalen:
                     </div>
 
                     <div
-                        class="flex flex-wrap items-center gap-2"
+                        class="flex flex-wrap items-center justify-center gap-5"
                         aria-label="Beschikbare betaalmethoden"
                     >
-                        <span class="footer-payment-logo footer-payment-logo--apple inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <span class="footer-payment-logo footer-payment-logo--apple inline-flex items-center justify-center">
                             <span class="sr-only">Apple Pay</span>
                             {% include 'partials/icons/payment/applepay.svg.twig' %}
                         </span>
 
-                        <span class="footer-payment-logo footer-payment-logo--wero inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <span class="footer-payment-logo footer-payment-logo--wero inline-flex items-center justify-center">
                             <span class="sr-only">iDEAL en Wero</span>
                             {% include 'partials/icons/payment/wero.svg.twig' %}
                         </span>
 
-                        <span class="footer-payment-logo footer-payment-logo--visa inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <span class="footer-payment-logo footer-payment-logo--visa inline-flex items-center justify-center">
                             <span class="sr-only">Visa</span>
                             {% include 'partials/icons/payment/visa.svg.twig' %}
                         </span>
 
-                        <span class="footer-payment-logo footer-payment-logo--mastercard inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <span class="footer-payment-logo footer-payment-logo--mastercard inline-flex items-center justify-center">
                             <span class="sr-only">Mastercard</span>
                             {% include 'partials/icons/payment/mastercard.svg.twig' %}
                         </span>
 
-                        <span class="footer-payment-logo footer-payment-logo--klarna inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                        <span class="footer-payment-logo footer-payment-logo--klarna inline-flex items-center justify-center">
                             <span class="sr-only">
                                 Klarna - betaal later of in 3 termijnen indien beschikbaar
                             </span>
