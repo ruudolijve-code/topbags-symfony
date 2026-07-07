@@ -327,7 +327,7 @@ class CheckoutController extends AbstractController
         $country = strtoupper(trim((string) ($address['country'] ?? 'NL'))) ?: 'NL';
 
         $email = mb_strtolower(trim((string) ($customerData['email'] ?? $order->getCustomerEmail())));
-        $phone = trim((string) ($customerData['phone'] ?? $order->getCustomerPhone() ?? ''));
+        $phone = $this->molliePhone((string) ($customerData['phone'] ?? $order->getCustomerPhone() ?? ''));
 
         $billingAddress = [
             'givenName' => $firstName,
@@ -980,6 +980,32 @@ class CheckoutController extends AbstractController
         $value = preg_replace('/\D/', '', $value) ?? '';
 
         return $value !== '' ? $value : null;
+    }
+
+    private function molliePhone(string $phone): string
+    {
+        $value = preg_replace('/\D/', '', $phone) ?? '';
+
+        if ($value === '') {
+            return '';
+        }
+
+        // 06xxxxxxxx -> +316xxxxxxxx
+        if (str_starts_with($value, '06') && strlen($value) === 10) {
+            return '+31' . substr($value, 1);
+        }
+
+        // 0xxxxxxxxx -> +31xxxxxxxxx
+        if (str_starts_with($value, '0') && strlen($value) >= 10) {
+            return '+31' . substr($value, 1);
+        }
+
+        // 316xxxxxxxx -> +316xxxxxxxx
+        if (str_starts_with($value, '31')) {
+            return '+' . $value;
+        }
+
+        return '+' . $value;
     }
 
     private function containsLetters(string $value): bool
