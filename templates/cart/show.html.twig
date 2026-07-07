@@ -286,10 +286,35 @@
                         </div>
                     </div>
 
-                    <div class="text-xs text-gray-500 leading-relaxed">
-                        Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}.<br>
-                        30 dagen retour.<br>
-                        Officieel dealer.
+                    <div class="space-y-2 text-xs text-gray-600 leading-relaxed">
+
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                {% include 'partials/icons/badge-check.svg.twig' %}
+                            </span>
+                            <span>
+                                Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                            </span>
+                        </div>
+
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                {% include 'partials/icons/badge-check.svg.twig' %}
+                            </span>
+                            <span>
+                                30 dagen retour
+                            </span>
+                        </div>
+
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                {% include 'partials/icons/badge-check.svg.twig' %}
+                            </span>
+                            <span>
+                                Officieel dealer
+                            </span>
+                        </div>
+
                     </div>
 
                 </div>
