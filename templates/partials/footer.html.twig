@@ -1,6 +1,6 @@
 <footer class="mt-24">
 
-    {# GELE BRAND FOOTER #}
+    {# BRAND FOOTER #}
     <div class="w-full bg-[#f4f1ea] text-[#4c3228]">
         <div class="max-w-7xl mx-auto px-6 py-14">
 
@@ -79,7 +79,11 @@
                 <div>
                     <h3 class="font-semibold mb-4">Onze winkel</h3>
                     <ul class="space-y-2">
-                        <li><a href="{{ path('service_store') }}" class="hover:underline">Topbags.nl - Holtkamp tassen & koffers</a></li>
+                        <li>
+                            <a href="{{ path('service_store') }}" class="hover:underline">
+                                Topbags.nl - Holtkamp tassen & koffers
+                            </a>
+                        </li>
                         <li>Wemenstraat 5–7</li>
                         <li>7551 ET Hengelo</li>
                         <li>KvK: 96254874</li>
@@ -90,8 +94,9 @@
                 {# NIEUWSBRIEF #}
                 <div>
                     <h3 class="font-semibold mb-4">Nieuwsbrief</h3>
+
                     <p class="mb-3 text-sm">
-                        Ontvang aanbiedingen & reistips
+                        Ontvang aanbiedingen &amp; reistips
                     </p>
 
                     {% for message in app.flashes('newsletter_success') %}
@@ -119,7 +124,7 @@
                             value="{{ 'now'|date('U') }}"
                         >
 
-                        {# Honeypot: niet zichtbaar voor echte bezoekers, wel aantrekkelijk voor bots #}
+                        {# Honeypot #}
                         <div class="hidden" aria-hidden="true">
                             <label for="newsletter_website">Website</label>
                             <input
@@ -139,28 +144,122 @@
                             required
                             autocomplete="email"
                             class="w-full px-4 py-3 rounded-md border border-gray-300 text-sm
-                                focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
+                                   focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
                         >
 
                         <button
                             type="submit"
                             class="w-full bg-[#4c3228] text-white font-semibold py-3 rounded-md
-                                hover:bg-[#3a261d] transition">
+                                   hover:bg-[#3a261d] transition">
                             Inschrijven
                         </button>
                     </form>
 
                     <p class="mt-3 text-xs">
-                        Door je in te schrijven accepteer je de <a href="{{ path('service_privacy') }}" class="hover:underline">privacyvoorwaarden</a>
+                        Door je in te schrijven accepteer je de
+                        <a href="{{ path('service_privacy') }}" class="hover:underline">
+                            privacyvoorwaarden
+                        </a>
                     </p>
                 </div>
             </div>
 
+            {# BETAALMETHODEN HORIZONTAAL #}
+            <div class="mt-12 rounded-2xl border border-[#e3c965]/60 bg-white/55 px-5 py-4">
+
+                <style>
+                    .footer-payment-logo svg {
+                        display: block !important;
+                        max-width: 100% !important;
+                        max-height: 100% !important;
+                        height: auto !important;
+                    }
+
+                    .footer-payment-logo--apple svg {
+                        width: 78px !important;
+                    }
+
+                    .footer-payment-logo--wero svg {
+                        width: 86px !important;
+                    }
+
+                    .footer-payment-logo--visa svg {
+                        width: 66px !important;
+                    }
+
+                    .footer-payment-logo--mastercard svg {
+                        width: 50px !important;
+                    }
+
+                    .footer-payment-logo--klarna svg {
+                        width: 92px !important;
+                    }
+                </style>
+
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+                    <div>
+                        <div class="text-sm font-semibold text-[#4c3228]">
+                            Veilig en flexibel betalen
+                        </div>
+                        <p class="mt-1 text-xs leading-relaxed text-[#4c3228]/75">
+                            Betaal veilig met Apple Pay, iDEAL/Wero, creditcard of Klarna.
+                            Klarna is beschikbaar voor later betalen of betalen in 3 termijnen, indien goedgekeurd.
+                        </p>
+                    </div>
+
+                    <div
+                        class="flex flex-wrap items-center gap-2"
+                        aria-label="Beschikbare betaalmethoden"
+                    >
+                        <span class="footer-payment-logo footer-payment-logo--apple inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                            <span class="sr-only">Apple Pay</span>
+                            {% include 'partials/icons/payment/applepay.svg.twig' %}
+                        </span>
+
+                        <span class="footer-payment-logo footer-payment-logo--wero inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                            <span class="sr-only">iDEAL en Wero</span>
+                            {% include 'partials/icons/payment/wero.svg.twig' %}
+                        </span>
+
+                        <span class="footer-payment-logo footer-payment-logo--visa inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                            <span class="sr-only">Visa</span>
+                            {% include 'partials/icons/payment/visa.svg.twig' %}
+                        </span>
+
+                        <span class="footer-payment-logo footer-payment-logo--mastercard inline-flex h-10 w-20 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-3 py-2">
+                            <span class="sr-only">Mastercard</span>
+                            {% include 'partials/icons/payment/mastercard.svg.twig' %}
+                        </span>
+
+                        <span class="footer-payment-logo footer-payment-logo--klarna inline-flex h-10 w-24 items-center justify-center overflow-hidden rounded-xl border border-pink-200 bg-pink-50 px-3 py-2">
+                            <span class="sr-only">
+                                Klarna - betaal later of in 3 termijnen indien beschikbaar
+                            </span>
+                            {% include 'partials/icons/payment/klarna.svg.twig' %}
+                        </span>
+                    </div>
+                </div>
+
+                <p class="sr-only">
+                    Beschikbare betaalmethoden bij Topbags: Apple Pay, iDEAL, Wero, Visa, Mastercard en Klarna.
+                    Met Klarna kun je, indien beschikbaar en na goedkeuring door Klarna, later of in 3 termijnen betalen.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
     {# ONDERSTE BALK #}
-    <div class="w-full bg-[#f4f1ea] mt-3 border-t border-[#e3c965]">
-        <div class="max-w-7xl mx-auto  px-6 py-4 text-xs flex flex-col md:flex-row
+    <div class="w-full bg-[#f4f1ea] border-t border-[#e3c965]">
+        <div class="max-w-7xl mx-auto px-6 py-4 text-xs flex flex-col md:flex-row
                     justify-between items-center gap-2 text-[#4c3228]">
-            <span>© {{ "now"|date("Y") }} <strong>Topbags Tassen & Koffers</strong> Topbags.nl is de webshop van Holtkamp tassen & koffers in Hengelo.</span>
+            <span>
+                © {{ "now"|date("Y") }}
+                <strong>Topbags Tassen & Koffers</strong>
+                Topbags.nl is de webshop van Holtkamp tassen & koffers in Hengelo.
+            </span>
+
             <span class="space-x-4">
                 <a href="{{ path('service_privacy') }}" class="hover:underline">Privacy</a>
                 <a href="{{ path('service_cookies') }}" class="hover:underline">Cookies</a>
