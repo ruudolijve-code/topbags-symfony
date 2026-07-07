@@ -247,7 +247,7 @@ class CheckoutController extends AbstractController
      *   subtotal: float
      * }
      */
-   private function buildCartView(
+    private function buildCartView(
         CartService $cart,
         ProductVariantRepository $variantRepository
     ): array {
@@ -326,14 +326,22 @@ class CheckoutController extends AbstractController
         $city = trim((string) ($address['city'] ?? ''));
         $country = strtoupper(trim((string) ($address['country'] ?? 'NL'))) ?: 'NL';
 
+        $email = mb_strtolower(trim((string) ($customerData['email'] ?? $order->getCustomerEmail())));
+        $phone = trim((string) ($customerData['phone'] ?? $order->getCustomerPhone() ?? ''));
+
         $billingAddress = [
             'givenName' => $firstName,
             'familyName' => $lastName,
+            'email' => $email,
             'streetAndNumber' => $street,
             'postalCode' => $postalCode,
             'city' => $city,
             'country' => $country,
         ];
+
+        if ($phone !== '') {
+            $billingAddress['phone'] = $phone;
+        }
 
         $lines = [];
 
@@ -422,10 +430,10 @@ class CheckoutController extends AbstractController
         }
 
         return [
-            'billingEmail' => (string) ($customerData['email'] ?? $order->getCustomerEmail()),
+            'billingEmail' => $email,
             'billingAddress' => $billingAddress,
 
-            // Voor nu gelijk aan factuuradres. Dat is het veiligst om Klarna eerst werkend te krijgen.
+            // Voor nu gelijk aan factuuradres. Dit is veilig om Klarna eerst werkend te krijgen.
             'shippingAddress' => $billingAddress,
 
             'lines' => $lines,
@@ -868,6 +876,7 @@ class CheckoutController extends AbstractController
      *   }>,
      *   subtotal: float
      * } $cartData
+     * 
      * @param array{
      *   email: string,
      *   rawPhone: string,
