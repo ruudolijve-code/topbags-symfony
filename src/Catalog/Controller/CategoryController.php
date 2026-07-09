@@ -203,6 +203,17 @@ final class CategoryController extends AbstractController
             colorSlugs: $colorSlugs ?: null,
         );
 
+        $totalVisibleVariants = $productRepository->countVisibleVariantsForContextGridWithFilters(
+            context: $activeContext,
+            brandSlugs: $brandSlugs ?: null,
+            categorySlugs: $fixedCategorySlugs,
+            sizeSlugs: null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
+        );
+
         return $this->render('category/index.html.twig', [
             'category' => $category,
             'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('category_show', [

@@ -1026,6 +1026,64 @@ final class ProductRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
+    public function countVisibleVariantsForContextGridWithFilters(
+        string $context,
+        ?array $brandSlugs = null,
+        ?array $categorySlugs = null,
+        ?array $sizeSlugs = null,
+        ?array $scopeSlugs = null,
+        ?array $airlineRules = null,
+        ?array $volumeRanges = null,
+        ?array $colorSlugs = null
+    ): int {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(DISTINCT v.id)')
+            ->from(ProductVariant::class, 'v')
+            ->innerJoin('v.product', 'p')
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('v.color', 'c')
+            ->where('p.isActive = true')
+            ->andWhere('p.productContext = :context')
+            ->andWhere('v.isActive = true')
+            ->setParameter('context', $context);
+
+        if (!empty($brandSlugs)) {
+            $qb->andWhere('b.slug IN (:brands)')
+                ->setParameter('brands', $brandSlugs);
+        }
+
+        if (!empty($categorySlugs)) {
+            $qb->innerJoin('p.categories', 'catFilter')
+                ->andWhere('catFilter.slug IN (:categories)')
+                ->setParameter('categories', $categorySlugs);
+        }
+
+        if (!empty($sizeSlugs)) {
+            $qb->innerJoin('p.categories', 'sizeFilter')
+                ->andWhere('sizeFilter.slug IN (:sizes)')
+                ->setParameter('sizes', $sizeSlugs);
+        }
+
+        if (!$airlineRules && !empty($scopeSlugs)) {
+            $this->applyPlainScopeFilter($qb, $scopeSlugs);
+        }
+
+        if (!empty($airlineRules)) {
+            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        }
+
+        if (!empty($volumeRanges)) {
+            $this->applyVolumeRanges($qb, $volumeRanges);
+        }
+
+        if (!empty($colorSlugs)) {
+            $qb->andWhere('c.slug IN (:colors)')
+                ->setParameter('colors', $colorSlugs);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
     public function countForBrandGrid(array $brandSlugs = []): int
     {
         $qb = $this->createQueryBuilder('p')
