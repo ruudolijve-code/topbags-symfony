@@ -313,6 +313,17 @@ final class CollectionController extends AbstractController
             colorSlugs: $colorSlugs ?: null,
         );
 
+         $totalVisibleVariants = $productRepository->countVisibleVariantsForContextGridWithFilters(
+            context: $context,
+            brandSlugs: $brandSlugs ?: null,
+            categorySlugs: $categorySlugs ?: null,
+            sizeSlugs: null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
+        );
+
         $canonicalRoute = $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all';
 
         return $this->render($template, [
@@ -342,6 +353,7 @@ final class CollectionController extends AbstractController
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
+            'totalVisibleVariants' => $totalVisibleVariants,
         ]);
     }
 

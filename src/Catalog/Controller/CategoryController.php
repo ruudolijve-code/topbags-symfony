@@ -245,6 +245,7 @@ final class CategoryController extends AbstractController
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
+            'totalVisibleVariants' => $totalVisibleVariants,
         ]);
     }
 
