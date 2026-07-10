@@ -37,7 +37,7 @@
                     </p>
 
                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                        <a href="{{ path('category_show', { slug: 'damestassen' }) }}"
+                        <a href="{{ path('bags_all', { category: ['damestassen'] }) }}"
                         class="inline-flex items-center justify-center rounded-full border border-white/45 bg-white/15 px-7 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25">
                             Shop tassen
                         </a>
@@ -122,12 +122,12 @@
                         </p>
 
                         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                            <a href="{{ path('category_show', { slug: 'accessoires' }) }}"
+                            <a href="{{ path('bags_all', { category: ['accessoires'] }) }}"
                             class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
                                 Ontdek accessoires
                             </a>
 
-                            <a href="{{ path('category_show', { slug: 'portemonnees' }) }}"
+                            <a href="{{ path('bags_all', { category: ['portemonnees'] }) }}"
                             class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
                                 Bekijk portemonnees
                             </a>
@@ -254,7 +254,7 @@
                             en ziet er representatief uit op kantoor, onderweg of tijdens een afspraak.
                         </p>
 
-                        <a href="{{ path('category_show', { slug: 'laptoptassen' }) }}"
+                        <a href="{{ path('bags_all', { category: ['laptoptassen'] }) }}"
                            class="mt-7 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800">
                             Bekijk laptoptassen
                         </a>
@@ -299,7 +299,7 @@
                         </p>
                     </div>
 
-                    <a href="{{ path('category_show', { slug: 'rugtassen' }) }}"
+                    <a href="{{ path('bags_all', { category: ['laptoptassen'] }) }}"
                     class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700">
                         Bekijk rugtassen
                     </a>
