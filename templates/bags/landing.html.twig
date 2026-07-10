@@ -1,0 +1,486 @@
+{# templates/bags/landing.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Tassen, portemonnees, accessoires, laptoptassen & rugtassen | Topbags
+{% endblock %}
+
+{% block body %}
+<div class="bg-white">
+
+    {# HERO - editorial, rustiger dan shop #}
+    <section class="mx-auto max-w-7xl px-6 py-8 lg:py-12">
+        <div class="relative min-h-[560px] overflow-hidden rounded-[2rem] bg-stone-100 shadow-sm lg:min-h-[680px]">
+            <img
+                src="{{ asset('images/bags/landing-hero.jpg') }}"
+                alt="Tassen, portemonnees en accessoires bij Topbags"
+                class="absolute inset-0 h-full w-full object-cover"
+            >
+
+            <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+
+            <div class="relative z-10 flex min-h-[560px] items-end px-7 py-10 text-white sm:px-10 lg:min-h-[680px] lg:px-14 lg:py-14">
+                <div class="max-w-2xl">
+                    <div class="mb-4 inline-flex rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-white/85 backdrop-blur">
+                        Topbags fashion collectie
+                    </div>
+
+                    <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+                        Tassen, portemonnees & accessoires
+                    </h1>
+
+                    <p class="mt-5 max-w-xl text-base leading-8 text-white/85 sm:text-lg">
+                        Ontdek stijlvolle tassen, portemonnees, accessoires, laptoptassen en rugtassen.
+                        Geselecteerd voor elke dag, werk, stad en onderweg.
+                    </p>
+
+                   <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <a href="{{ path('category_show', { slug: 'damestassen' }) }}"
+                        class="inline-flex items-center justify-center rounded-full border border-white/45 bg-white/15 px-7 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25">
+                            Shop tassen
+                        </a>
+
+                        <a href="{{ path('bags_all') }}"
+                        class="inline-flex items-center justify-center rounded-full border border-white/45 bg-white/15 px-7 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25">
+                            Bekijk alles
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    {# NEW ARRIVALS - 4 tassen #}
+    {% if featuredBagItems is defined and featuredBagItems is not empty %}
+        <section class="mx-auto max-w-7xl px-6 py-14 lg:py-18">
+            <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                        New arrivals
+                    </div>
+
+                    <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                        Nieuwe tassen in de collectie
+                    </h2>
+
+                    <p class="mt-3 max-w-2xl text-stone-600">
+                        Nieuwe modellen, kleuren en vormen voor dagelijks gebruik, werk en vrije tijd.
+                    </p>
+                </div>
+
+                <a href="{{ path('category_show', { slug: 'damestassen' }) }}"
+                   class="inline-flex rounded-full border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-stone-50">
+                    Bekijk alle tassen
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {% for item in featuredBagItems|slice(0, 4) %}
+                    {% include 'shop/component/card/_card_fashion.html.twig' with {
+                        product: item.product,
+                        variant: item.variant,
+                        master: item.master,
+                        mediaPath: item.mediaPath,
+                        availability: item.availability
+                    } only %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+
+   {# EDITORIAL CAMPAIGN ROW - sfeerbeeld + tekst naast beeld #}
+    <section class="px-6 py-10 lg:py-16">
+        <div class="mx-auto max-w-7xl">
+            <div class="grid overflow-hidden rounded-[2rem] bg-stone-50 shadow-sm ring-1 ring-stone-100 lg:grid-cols-2">
+
+                <a href="{{ path('category_show', { slug: 'accessoires' }) }}"
+                class="group relative min-h-[420px] overflow-hidden bg-stone-100 lg:min-h-[560px]">
+                    <img
+                        src="{{ asset('images/bags/campaign-wide.jpg') }}"
+                        alt="Fashion accessoires en tassen collectie"
+                        class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    >
+                </a>
+
+                <div class="flex items-center px-8 py-12 sm:px-10 lg:px-14">
+                    <div class="max-w-xl">
+                        <div class="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-stone-500">
+                            The finishing touch
+                        </div>
+
+                        <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:text-5xl">
+                            Details die je stijl compleet maken
+                        </h2>
+
+                        <p class="mt-5 text-base leading-8 text-stone-600">
+                            Van portemonnee tot sjaal, hoed of cap: accessoires geven jouw dagelijkse look karakter.
+                            Subtiel, stijlvol en gemakkelijk te combineren met je favoriete tas.
+                        </p>
+
+                        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                            <a href="{{ path('category_show', { slug: 'accessoires' }) }}"
+                            class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
+                                Ontdek accessoires
+                            </a>
+
+                            <a href="{{ path('category_show', { slug: 'portemonnees' }) }}"
+                            class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
+                                Bekijk portemonnees
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    {# NEW STYLE SPOTLIGHT - 4 accessoires #}
+    {% if latestAccessoryItems is defined and latestAccessoryItems is not empty %}
+        <section class="bg-stone-50">
+            <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+                <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                            New style spotlight
+                        </div>
+
+                        <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                            Accessoires met karakter
+                        </h2>
+
+                        <p class="mt-3 max-w-2xl text-stone-600">
+                            Kleine items met veel uitstraling: mooi als cadeau, handig voor dagelijks gebruik.
+                        </p>
+                    </div>
+
+                    <a href="{{ path('category_show', { slug: 'accessoires' }) }}"
+                       class="inline-flex rounded-full border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
+                        Bekijk accessoires
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for item in latestAccessoryItems|slice(0, 4) %}
+                        {% include 'shop/component/card/_card_fashion.html.twig' with {
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+
+   {# EDITORIAL STORY - Topbags fashion collectie #}
+    <section class="mx-auto max-w-7xl px-6 py-16 lg:py-24">
+        <div class="grid gap-8 lg:grid-cols-2 lg:items-stretch">
+
+            <div class="relative min-h-[460px] overflow-hidden rounded-[2rem] bg-stone-100 shadow-sm">
+                <img
+                    src="{{ asset('images/bags/editorial-tassen.jpg') }}"
+                    alt="Stijlvolle tassen collectie bij Topbags"
+                    class="absolute inset-0 h-full w-full object-cover"
+                >
+            </div>
+
+            <div class="flex items-center rounded-[2rem] bg-stone-50 p-8 shadow-sm ring-1 ring-stone-100 sm:p-10 lg:p-14">
+                <div>
+                    <div class="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-amber-700">
+                        Topbags selectie
+                    </div>
+
+                    <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                        Een collectie met gevoel voor stijl én dagelijks gebruik
+                    </h2>
+
+                    <div class="mt-6 space-y-5 text-base leading-8 text-stone-700">
+                        <p>
+                            De fashion collectie van Topbags is samengesteld voor wie een tas niet alleen praktisch,
+                            maar ook persoonlijk vindt. Een tas moet passen bij je dag, je werk, je outfit en je manier
+                            van bewegen.
+                        </p>
+
+                        <p>
+                            Daarom vind je hier tassen, portemonnees, accessoires, laptoptassen en rugtassen van merken
+                            met aandacht voor vorm, materiaal, kleur en afwerking.
+                        </p>
+                    </div>
+
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <a href="{{ path('bags_all') }}"
+                        class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700">
+                            Bekijk de collectie
+                        </a>
+
+                        <a href="{{ path('service_store') }}"
+                        class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-100">
+                            Bezoek Holtkamp Hengelo
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    {# LAPTOPTASSEN - laatste producten #}
+    {% if latestLaptopBagItems is defined and latestLaptopBagItems is not empty %}
+        <section class="bg-stone-50">
+            <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+                <div class="grid gap-8 lg:grid-cols-[0.9fr_1.4fr] lg:items-start">
+
+                    <div class="lg:sticky lg:top-24">
+                        <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                            Work essentials
+                        </div>
+
+                        <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                            Laptoptassen voor werk en onderweg
+                        </h2>
+
+                        <p class="mt-4 max-w-xl text-stone-600 leading-7">
+                            Een goede laptoptas beschermt je laptop, houdt je spullen overzichtelijk
+                            en ziet er representatief uit op kantoor, onderweg of tijdens een afspraak.
+                        </p>
+
+                        <a href="{{ path('category_show', { slug: 'laptoptassen' }) }}"
+                           class="mt-7 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800">
+                            Bekijk laptoptassen
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        {% for item in latestLaptopBagItems|slice(0, 4) %}
+                            {% include 'shop/component/card/_card_fashion.html.twig' with {
+                                product: item.product,
+                                variant: item.variant,
+                                master: item.master,
+                                mediaPath: item.mediaPath,
+                                availability: item.availability
+                            } only %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# RUGTASSEN - laatste producten #}
+    {% if latestBackpackItems is defined and latestBackpackItems is not empty %}
+        <section class="bg-white">
+            <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+                <div class="grid gap-8 lg:grid-cols-[1.4fr_0.9fr] lg:items-start">
+
+                    <div class="order-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:order-1">
+                        {% for item in latestBackpackItems|slice(0, 4) %}
+                            {% include 'shop/component/card/_card_fashion.html.twig' with {
+                                product: item.product,
+                                variant: item.variant,
+                                master: item.master,
+                                mediaPath: item.mediaPath,
+                                availability: item.availability
+                            } only %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="order-1 lg:sticky lg:top-24 lg:order-2">
+                        <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                            Everyday movement
+                        </div>
+
+                        <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                            Rugtassen voor elke dag
+                        </h2>
+
+                        <p class="mt-4 max-w-xl text-stone-600 leading-7">
+                            Voor werk, studie, stad of reis: een rugtas geeft bewegingsvrijheid
+                            en combineert comfort met een eigentijdse uitstraling.
+                        </p>
+
+                        <a href="{{ path('category_show', { slug: 'rugtassen' }) }}"
+                           class="mt-7 inline-flex rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800">
+                            Bekijk rugtassen
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+
+    {# QUICK CATEGORY CTA'S #}
+    <section class="bg-stone-50">
+        <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+            <div class="mb-8 text-center">
+                <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                    Shop per categorie
+                </div>
+
+                <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                    Ontdek jouw stijl
+                </h2>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <a href="{{ path('category_show', { slug: 'damestassen' }) }}"
+                   class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <h3 class="font-semibold text-stone-950">Tassen</h3>
+                    <p class="mt-2 text-sm leading-6 text-stone-600">Shoppers, crossbody’s en handtassen.</p>
+                </a>
+
+                <a href="{{ path('category_show', { slug: 'portemonnees' }) }}"
+                   class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <h3 class="font-semibold text-stone-950">Portemonnees</h3>
+                    <p class="mt-2 text-sm leading-6 text-stone-600">Compact, praktisch en mooi afgewerkt.</p>
+                </a>
+
+                <a href="{{ path('category_show', { slug: 'accessoires' }) }}"
+                   class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <h3 class="font-semibold text-stone-950">Accessoires</h3>
+                    <p class="mt-2 text-sm leading-6 text-stone-600">Sjaals, hoeden, caps en meer.</p>
+                </a>
+
+                <a href="{{ path('category_show', { slug: 'laptoptassen' }) }}"
+                   class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <h3 class="font-semibold text-stone-950">Laptoptassen</h3>
+                    <p class="mt-2 text-sm leading-6 text-stone-600">Stijlvol en functioneel voor werk.</p>
+                </a>
+
+                <a href="{{ path('category_show', { slug: 'rugtassen' }) }}"
+                   class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-0.5 hover:shadow-md">
+                    <h3 class="font-semibold text-stone-950">Rugtassen</h3>
+                    <p class="mt-2 text-sm leading-6 text-stone-600">Voor stad, studie, werk en reis.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    {# MERKEN #}
+    <section class="bg-white">
+        <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+            <div class="mb-9 text-center">
+                <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                    Merken
+                </div>
+
+                <h2 class="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
+                    Merken met stijl
+                </h2>
+            </div>
+
+            {% set fashionBrands = [
+                { name: 'Guess', slug: 'guess' },
+                { name: 'Valentino Bags', slug: 'valentino-bags' },
+                { name: 'Kipling', slug: 'kipling' },
+                { name: 'Berba', slug: 'berba' },
+                { name: 'Spikes & Sparrow', slug: 'spikes-sparrow' },
+                { name: 'Bear Design', slug: 'bear-design' },
+                { name: 'DSTRCT', slug: 'dstrct' },
+                { name: 'Chabo', slug: 'chabo' },
+                { name: 'Cowboysbag', slug: 'cowboysbag' },
+                { name: 'Piquadro', slug: 'piquadro' },
+                { name: 'Cabaia', slug: 'cabaia' }
+            ] %}
+
+            <div class="mx-auto flex max-w-5xl flex-wrap justify-center gap-3">
+                {% for brand in fashionBrands %}
+                    <a href="{{ path('brand_show', { slug: brand.slug }) }}"
+                       class="rounded-full border border-stone-200 bg-stone-50 px-5 py-3 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-100">
+                        {{ brand.name }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{{ path('brand_index') }}"
+                   class="inline-flex rounded-full border border-stone-300 px-6 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-50">
+                    Bekijk alle merken
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    {# WINKEL / SERVICE #}
+    <section class="bg-stone-50">
+        <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
+            <div class="grid gap-10 rounded-[2rem] bg-stone-950 p-8 text-white sm:p-10 lg:grid-cols-[1.2fr_0.8fr] lg:p-14">
+                <div>
+                    <div class="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-white/50">
+                        Online & in Hengelo
+                    </div>
+
+                    <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                        Bekijk online, ervaar in de winkel
+                    </h2>
+
+                    <p class="mt-5 max-w-2xl text-base leading-8 text-white/75">
+                        Wil je een tas, portemonnee, accessoire, laptoptas of rugtas liever eerst voelen,
+                        passen of vergelijken? Bij Holtkamp Tassen &amp; Koffers in Hengelo helpen we je graag.
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row lg:items-center lg:justify-end">
+                    <a href="{{ path('bags_all') }}"
+                       class="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                        Bekijk alles
+                    </a>
+
+                    <a href="{{ path('service_store') }}"
+                       class="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-stone-950 transition hover:bg-stone-200">
+                        Bezoek onze winkel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    {# SEO tekst uit categorie, net als shop landing #}
+    {% if landingCategory and landingCategory.seoDescription %}
+        <section class="mx-auto max-w-7xl px-6 py-14">
+            <div class="rich-text-content max-w-4xl text-stone-700">
+                {{ landingCategory.seoDescription|raw }}
+            </div>
+        </section>
+    {% else %}
+        <section class="mx-auto max-w-7xl px-6 py-14">
+            <div class="max-w-4xl text-stone-700">
+                <h2 class="mb-5 text-2xl font-semibold tracking-tight text-stone-950">
+                    Tassen, portemonnees en accessoires kopen bij Topbags
+                </h2>
+
+                <div class="space-y-5 text-base leading-8">
+                    <p>
+                        Bij Topbags vind je een zorgvuldig geselecteerde collectie tassen, portemonnees,
+                        accessoires, laptoptassen en rugtassen. Of je nu zoekt naar een stijlvolle tas voor
+                        elke dag, een praktische laptoptas voor werk, een compacte portemonnee of een accessoire
+                        als cadeau: onze collectie combineert uitstraling met dagelijks gebruiksgemak.
+                    </p>
+
+                    <p>
+                        Naast online bestellen kun je ook terecht bij Holtkamp Tassen &amp; Koffers in Hengelo.
+                        Daar kun je materialen vergelijken, modellen passen en persoonlijk advies krijgen.
+                    </p>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+{% endblock %}

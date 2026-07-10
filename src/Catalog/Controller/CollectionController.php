@@ -123,6 +123,84 @@ final class CollectionController extends AbstractController
 
     #[Route('/bags', name: 'bags_index', methods: ['GET'])]
     public function bags(
+        CategoryRepository $categoryRepository,
+        ProductRepository $productRepository,
+        ProductVariantRepository $productVariantRepository,
+        AvailabilityService $availabilityService,
+    ): Response {
+        $landingCategory = $categoryRepository->findOneBy(['slug' => 'bags']);
+
+        $featuredBagProducts = $productRepository->findFeaturedForCategorySlug(
+            context: Product::CONTEXT_BAGS,
+            categorySlug: 'tassen',
+            limit: 4,
+        );
+
+        $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_BAGS,
+            categorySlug: 'portemonnees',
+            limit: 4,
+        );
+
+        $latestAccessoryVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_BAGS,
+            categorySlug: 'accessoires',
+            limit: 4,
+        );
+
+        $latestLaptopBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_BAGS,
+            categorySlug: 'laptoptassen',
+            limit: 4,
+        );
+
+        $latestBackpackVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_BAGS,
+            categorySlug: 'rugtassen',
+            limit: 4,
+        );
+
+        return $this->render('bags/landing.html.twig', [
+            'activeContext' => Product::CONTEXT_BAGS,
+            'context' => Product::CONTEXT_BAGS,
+            'currentContext' => Product::CONTEXT_BAGS,
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('bags_index'),
+
+            'category' => $landingCategory,
+            'landingCategory' => $landingCategory,
+
+            'featuredBagItems' => $this->mapProductsToLandingItems(
+                $featuredBagProducts,
+                $productVariantRepository,
+                $availabilityService,
+            ),
+
+            'latestWalletItems' => $this->mapVariantsToLandingItems(
+                $latestWalletVariants,
+                $availabilityService,
+            ),
+
+            'latestAccessoryItems' => $this->mapVariantsToLandingItems(
+                $latestAccessoryVariants,
+                $availabilityService,
+            ),
+
+            'latestLaptopBagItems' => $this->mapVariantsToLandingItems(
+                $latestLaptopBagVariants,
+                $availabilityService,
+            ),
+
+            'latestBackpackItems' => $this->mapVariantsToLandingItems(
+                $latestBackpackVariants,
+                $availabilityService,
+            ),
+
+            'categories' => $categoryRepository->findForContext(Product::CONTEXT_BAGS),
+        ]);
+    }
+
+    #[Route('/bags/alles', name: 'bags_all', methods: ['GET'])]
+    public function bagsAll(
         Request $request,
         ProductRepository $productRepository,
         ProductVariantRepository $productVariantRepository,
@@ -456,6 +534,26 @@ final class CollectionController extends AbstractController
                 'mediaPath' => $this->variantImagePathResolver->fromVariant($freshMaster),
                 'availability' => $availabilityService->get($freshMaster),
             ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param ProductVariant[] $variants
+     */
+    private function mapVariantsToLandingItems(
+        array $variants,
+        AvailabilityService $availabilityService,
+    ): array {
+        $items = [];
+
+        foreach ($variants as $variant) {
+            $card = $this->createCardFromVariant($variant, $availabilityService);
+
+            if ($card !== null) {
+                $items[] = $card;
+            }
         }
 
         return $items;
