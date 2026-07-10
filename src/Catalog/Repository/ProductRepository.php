@@ -1345,7 +1345,7 @@ final class ProductRepository extends ServiceEntityRepository
         int $limit = 4
     ): array {
         $rows = $this->getEntityManager()->createQueryBuilder()
-            ->select('DISTINCT v.id AS id')
+            ->select('v.id AS id')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
             ->innerJoin('p.categories', 'c')
