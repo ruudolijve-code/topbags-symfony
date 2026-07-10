@@ -138,6 +138,12 @@ final class CollectionController extends AbstractController
 
         $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
+            categorySlug: 'tassen',
+            limit: 4,
+        );
+
+        $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_BAGS,
             categorySlug: 'portemonnees',
             limit: 4,
         );

@@ -78,7 +78,7 @@
             </div>
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {% for item in featuredBagItems|slice(0, 4) %}
+                {% for item in findLatestVariantsForContextAndCategory|slice(0, 4) %}
                     {% include 'shop/component/card/_card_fashion.html.twig' with {
                         product: item.product,
                         variant: item.variant,
