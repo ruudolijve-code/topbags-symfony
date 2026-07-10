@@ -136,7 +136,7 @@ final class CollectionController extends AbstractController
             limit: 4,
         );
 
-        $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
+        $latestBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
             categorySlug: 'tassen',
             limit: 4,
@@ -178,6 +178,11 @@ final class CollectionController extends AbstractController
             'featuredBagItems' => $this->mapProductsToLandingItems(
                 $featuredBagProducts,
                 $productVariantRepository,
+                $availabilityService,
+            ),
+
+            'latestBagItems' => $this->mapVariantsToLandingItems(
+                $latestBagVariants,
                 $availabilityService,
             ),
 
