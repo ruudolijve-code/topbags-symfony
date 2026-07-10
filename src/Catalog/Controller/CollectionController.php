@@ -136,10 +136,18 @@ final class CollectionController extends AbstractController
             limit: 4,
         );
 
-        $latestBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
+        $latestBagProducts = $productRepository->findForContextGridWithFilters(
             context: Product::CONTEXT_BAGS,
-            categorySlug: 'tassen',
             limit: 4,
+            offset: 0,
+            brandSlugs: null,
+            categorySlugs: ['damestassen'],
+            sizeSlugs: null,
+            scopeSlugs: null,
+            airlineRules: null,
+            volumeRanges: null,
+            colorSlugs: null,
+            sort: 'newest',
         );
 
         $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
@@ -181,8 +189,9 @@ final class CollectionController extends AbstractController
                 $availabilityService,
             ),
 
-            'latestBagItems' => $this->mapVariantsToLandingItems(
-                $latestBagVariants,
+            'latestBagItems' => $this->mapProductsToLandingItems(
+                $latestBagProducts,
+                $productVariantRepository,
                 $availabilityService,
             ),
 
