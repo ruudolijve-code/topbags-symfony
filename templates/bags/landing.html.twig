@@ -234,13 +234,13 @@
     </section>
 
 
-    {# LAPTOPTASSEN - laatste producten #}
+   {# LAPTOPTASSEN - laatste producten #}
     {% if latestLaptopBagItems is defined and latestLaptopBagItems is not empty %}
         <section class="bg-stone-50">
             <div class="mx-auto max-w-7xl px-6 py-14 lg:py-20">
-                <div class="grid gap-8 lg:grid-cols-[0.9fr_1.4fr] lg:items-start">
 
-                    <div class="lg:sticky lg:top-24">
+                <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
                         <div class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
                             Work essentials
                         </div>
@@ -249,30 +249,30 @@
                             Laptoptassen voor werk en onderweg
                         </h2>
 
-                        <p class="mt-4 max-w-xl text-stone-600 leading-7">
+                        <p class="mt-4 max-w-2xl text-stone-600 leading-7">
                             Een goede laptoptas beschermt je laptop, houdt je spullen overzichtelijk
                             en ziet er representatief uit op kantoor, onderweg of tijdens een afspraak.
                         </p>
-
-                        <a href="{{ path('bags_all', { category: ['laptoptassen'] }) }}"
-                           class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700">
-                            Bekijk laptoptassen
-                        </a>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        {% for item in latestLaptopBagItems|slice(0, 4) %}
-                            {% include 'shop/component/card/_card_fashion.html.twig' with {
-                                product: item.product,
-                                variant: item.variant,
-                                master: item.master,
-                                mediaPath: item.mediaPath,
-                                availability: item.availability
-                            } only %}
-                        {% endfor %}
-                    </div>
-
+                    <a href="{{ path('bags_all', { category: ['laptoptassen'] }) }}"
+                    class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700">
+                        Bekijk laptoptassen
+                    </a>
                 </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for item in latestLaptopBagItems|slice(0, 4) %}
+                        {% include 'shop/component/card/_card_fashion.html.twig' with {
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
+
             </div>
         </section>
     {% endif %}
