@@ -1355,7 +1355,8 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('v.isActive = true')
             ->setParameter('context', $context)
             ->setParameter('categorySlug', $categorySlug)
-            ->orderBy('v.id', 'DESC')
+            ->orderBy('p.id', 'DESC')
+            ->addOrderBy('v.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getScalarResult();
