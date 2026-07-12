@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Magazine\Controller;
 
 use App\Catalog\Service\VariantImagePathResolver;
+use App\Magazine\Entity\MagazineArticle;
 use App\Magazine\Repository\MagazineArticleRepository;
 use App\Magazine\Service\LightweightSuitcaseProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,13 +16,19 @@ final class MagazineController extends AbstractController
 {
     #[Route('/magazine', name: 'magazine_index', methods: ['GET'])]
     public function index(
-        MagazineArticleRepository $articles
+        MagazineArticleRepository $articles,
     ): Response {
-        $featured = $articles->findFeatured();
+        $context = MagazineArticle::CONTEXT_SHOP;
+
+        $featured = $articles->findFeaturedByContext($context);
 
         return $this->render('magazine/index.html.twig', [
             'featured' => $featured,
-            'articles' => $articles->findPublishedExceptFeatured($featured),
+            'articles' => $articles->findPublishedByContextExceptFeatured(
+                $context,
+                $featured
+            ),
+            'context' => $context,
         ]);
     }
 
@@ -32,10 +39,17 @@ final class MagazineController extends AbstractController
         VariantImagePathResolver $imagePathResolver,
         LightweightSuitcaseProvider $lightweightSuitcaseProvider,
     ): Response {
-        $article = $articles->findPublishedBySlugWithRelations($slug);
+        $context = MagazineArticle::CONTEXT_SHOP;
 
-        if (!$article) {
-            throw $this->createNotFoundException('Magazineartikel niet gevonden.');
+        $article = $articles->findPublishedBySlugWithRelations(
+            $slug,
+            $context
+        );
+
+        if ($article === null) {
+            throw $this->createNotFoundException(
+                'Magazineartikel niet gevonden.'
+            );
         }
 
         $relatedProductItems = [];
@@ -43,7 +57,7 @@ final class MagazineController extends AbstractController
         foreach ($article->getRelatedProducts() as $product) {
             $variant = $product->getMasterVariant();
 
-            if (!$variant) {
+            if ($variant === null) {
                 foreach ($product->getVariants() as $candidate) {
                     if ($candidate->isActive()) {
                         $variant = $candidate;
@@ -52,7 +66,7 @@ final class MagazineController extends AbstractController
                 }
             }
 
-            if (!$variant) {
+            if ($variant === null) {
                 continue;
             }
 
@@ -65,8 +79,10 @@ final class MagazineController extends AbstractController
 
         return $this->render('magazine/show.html.twig', [
             'article' => $article,
+            'context' => $context,
             'relatedProductItems' => $relatedProductItems,
-            'lightweightSuitcaseItems' => $lightweightSuitcaseProvider->getItems(8),
+            'lightweightSuitcaseItems' =>
+                $lightweightSuitcaseProvider->getItems(8),
         ]);
     }
 }
