@@ -13,19 +13,43 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MagazineArticleRepository::class)]
 #[ORM\Table(name: 'magazine_article')]
-#[ORM\UniqueConstraint(name: 'uniq_magazine_article_slug', columns: ['slug'])]
+#[ORM\UniqueConstraint(
+    name: 'uniq_magazine_article_context_slug',
+    columns: ['context', 'slug']
+)]
+#[ORM\Index(
+    name: 'idx_magazine_article_context_published',
+    columns: ['context', 'is_published', 'published_at']
+)]
 #[ORM\HasLifecycleCallbacks]
 class MagazineArticle
 {
+    public const CONTEXT_SHOP = 'shop';
+    public const CONTEXT_BAGS = 'bags';
+
+    public const CONTEXTS = [
+        self::CONTEXT_SHOP,
+        self::CONTEXT_BAGS,
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * Bepaalt in welk magazine het artikel verschijnt:
+     *
+     * - shop: koffers, reizen, bagage en vliegadvies
+     * - bags: tassen, rugzakken, accessoires en onderhoud
+     */
+    #[ORM\Column(length: 20, options: ['default' => self::CONTEXT_SHOP])]
+    private string $context = self::CONTEXT_SHOP;
+
     #[ORM\Column(length: 255)]
     private string $title = '';
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255)]
     private string $slug = '';
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -84,8 +108,16 @@ class MagazineArticle
      */
     #[ORM\ManyToMany(targetEntity: Product::class)]
     #[ORM\JoinTable(name: 'magazine_article_product')]
-    #[ORM\JoinColumn(name: 'magazine_article_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    #[ORM\InverseJoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(
+        name: 'magazine_article_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
+    #[ORM\InverseJoinColumn(
+        name: 'product_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
     private Collection $relatedProducts;
 
     public function __construct()
@@ -106,6 +138,38 @@ class MagazineArticle
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getContext(): string
+    {
+        return $this->context;
+    }
+
+    public function setContext(string $context): self
+    {
+        $context = strtolower(trim($context));
+
+        if (!in_array($context, self::CONTEXTS, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Ongeldige magazinecontext "%s". Toegestaan zijn: %s.',
+                $context,
+                implode(', ', self::CONTEXTS)
+            ));
+        }
+
+        $this->context = $context;
+
+        return $this;
+    }
+
+    public function isShopContext(): bool
+    {
+        return $this->context === self::CONTEXT_SHOP;
+    }
+
+    public function isBagsContext(): bool
+    {
+        return $this->context === self::CONTEXT_BAGS;
     }
 
     public function getTitle(): string
@@ -151,7 +215,9 @@ class MagazineArticle
 
     public function setSeoDescription(?string $seoDescription): self
     {
-        $this->seoDescription = $seoDescription ? trim($seoDescription) : null;
+        $this->seoDescription = $seoDescription
+            ? trim($seoDescription)
+            : null;
 
         return $this;
     }
@@ -261,7 +327,9 @@ class MagazineArticle
 
     public function setRelatedBrandSlug(?string $relatedBrandSlug): self
     {
-        $this->relatedBrandSlug = $relatedBrandSlug ? trim($relatedBrandSlug) : null;
+        $this->relatedBrandSlug = $relatedBrandSlug
+            ? trim($relatedBrandSlug)
+            : null;
 
         return $this;
     }
@@ -273,7 +341,9 @@ class MagazineArticle
 
     public function setRelatedCategorySlug(?string $relatedCategorySlug): self
     {
-        $this->relatedCategorySlug = $relatedCategorySlug ? trim($relatedCategorySlug) : null;
+        $this->relatedCategorySlug = $relatedCategorySlug
+            ? trim($relatedCategorySlug)
+            : null;
 
         return $this;
     }
@@ -331,6 +401,31 @@ class MagazineArticle
         return $this;
     }
 
+    public function getReadingTime(): int
+    {
+        $text = html_entity_decode(
+            strip_tags($this->content),
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+
+        $text = trim($text);
+
+        if ($text === '') {
+            return 1;
+        }
+
+        /*
+         * str_word_count() gaat beperkt om met accenten en Nederlandse
+         * woorden. Deze Unicode-regex telt woorden betrouwbaarder.
+         */
+        preg_match_all('/[\p{L}\p{N}\']+/u', $text, $matches);
+
+        $wordCount = count($matches[0]);
+
+        return max(1, (int) ceil($wordCount / 200));
+    }
+
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
@@ -340,20 +435,5 @@ class MagazineArticle
         if ($this->isPublished && $this->publishedAt === null) {
             $this->publishedAt = new \DateTimeImmutable();
         }
-    }
-
-    public function getReadingTime(): int
-    {
-        $text = trim(strip_tags($this->content ?? ''));
-
-        if ($text === '') {
-            return 1;
-        }
-
-        $wordCount = str_word_count(
-            html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8')
-        );
-
-        return max(1, (int) ceil($wordCount / 200));
     }
 }
