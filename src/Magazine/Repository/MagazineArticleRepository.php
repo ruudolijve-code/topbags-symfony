@@ -15,38 +15,57 @@ final class MagazineArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, MagazineArticle::class);
     }
 
-    public function findPublishedBySlugWithRelations(string $slug): ?MagazineArticle
-    {
+    public function findPublishedBySlugWithRelations(
+        string $slug,
+        string $context
+    ): ?MagazineArticle {
         return $this->createQueryBuilder('a')
             ->leftJoin('a.faqs', 'f')
             ->addSelect('f')
             ->leftJoin('a.relatedProducts', 'p')
             ->addSelect('p')
             ->andWhere('a.slug = :slug')
+            ->andWhere('a.context = :context')
             ->andWhere('a.isPublished = true')
             ->setParameter('slug', $slug)
+            ->setParameter('context', $context)
             ->orderBy('f.position', 'ASC')
             ->addOrderBy('f.id', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function findFeatured(): ?MagazineArticle
-    {
+    public function findFeaturedByContext(
+        string $context
+    ): ?MagazineArticle {
         return $this->findOneBy(
-            ['isPublished' => true, 'isFeatured' => true],
-            ['publishedAt' => 'DESC', 'id' => 'DESC']
+            [
+                'context' => $context,
+                'isPublished' => true,
+                'isFeatured' => true,
+            ],
+            [
+                'publishedAt' => 'DESC',
+                'id' => 'DESC',
+            ]
         );
     }
 
-    public function findPublishedExceptFeatured(?MagazineArticle $featured = null): array
-    {
+    /**
+     * @return list<MagazineArticle>
+     */
+    public function findPublishedByContextExceptFeatured(
+        string $context,
+        ?MagazineArticle $featured = null
+    ): array {
         $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.context = :context')
             ->andWhere('a.isPublished = true')
+            ->setParameter('context', $context)
             ->orderBy('a.publishedAt', 'DESC')
             ->addOrderBy('a.id', 'DESC');
 
-        if ($featured && $featured->getId()) {
+        if ($featured !== null && $featured->getId() !== null) {
             $qb
                 ->andWhere('a.id != :featuredId')
                 ->setParameter('featuredId', $featured->getId());
@@ -55,11 +74,32 @@ final class MagazineArticleRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return list<MagazineArticle>
+     */
     public function findPublishedForSitemap(): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.isPublished = true')
+            ->orderBy('a.context', 'ASC')
+            ->addOrderBy('a.publishedAt', 'DESC')
+            ->addOrderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<MagazineArticle>
+     */
+    public function findPublishedForSitemapByContext(
+        string $context
+    ): array {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.context = :context')
+            ->andWhere('a.isPublished = true')
+            ->setParameter('context', $context)
             ->orderBy('a.publishedAt', 'DESC')
+            ->addOrderBy('a.id', 'DESC')
             ->getQuery()
             ->getResult();
     }
