@@ -2,23 +2,25 @@
 
 {% extends 'base.html.twig' %}
 
-{% block title %}Topbags Magazine | Kofferadvies & reistips{% endblock %}
+{% block title %}{{ magazine.pageTitle }}{% endblock %}
 
 {% block body %}
 
 <section class="bg-[#f4f1ea] py-16">
     <div class="container max-w-6xl">
+
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-            Topbags Magazine
+            {{ magazine.label }}
         </p>
 
         <h1 class="mt-3 text-4xl font-semibold tracking-tight text-gray-900 lg:text-5xl">
-            Kofferadvies, handbagage regels en reistips
+            {{ magazine.heading }}
         </h1>
 
         <p class="mt-4 max-w-3xl text-lg text-gray-600">
-            Praktische uitleg van de kofferspecialist van Twente. Ontdek alles over koffers, handbagage, vliegmaatschappijen, rugzakken, reparaties, verhuur en slimme reistips.
+            {{ magazine.intro }}
         </p>
+
     </div>
 </section>
 
@@ -27,11 +29,12 @@
         <div class="container max-w-6xl">
 
             {% if featured %}
-                <a href="{{ path('magazine_show', { slug: featured.slug }) }}"
-                   class="grid overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md lg:grid-cols-2">
-
+                <a
+                    href="{{ path(magazine.showRoute, { slug: featured.slug }) }}"
+                    class="grid overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md lg:grid-cols-2"
+                >
                     {% if featured.heroImage %}
-                        <div class="aspect-[4/3] bg-gray-100 lg:aspect-auto">
+                        <div class="aspect-[4/3] overflow-hidden bg-gray-100 lg:aspect-auto">
                             <img
                                 src="{{ asset(featured.heroImage) }}"
                                 alt="{{ featured.title }}"
@@ -42,19 +45,35 @@
                     {% endif %}
 
                     <div class="p-8 lg:p-10">
+
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
                             Uitgelicht artikel
                         </p>
 
                         <div class="mt-4 flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-gray-500">
+
                             <span>{{ featured.category ?: 'Magazine' }}</span>
 
                             {% if featured.publishedAt %}
                                 <span class="text-gray-300">•</span>
+
                                 <time datetime="{{ featured.publishedAt|date('Y-m-d') }}">
-                                    {{ featured.publishedAt|date('d-m-Y') }}
+                                    {{ featured.publishedAt|date('d M Y') }}
                                 </time>
                             {% endif %}
+
+                            {% if
+                                featured.updatedAt
+                                and featured.publishedAt
+                                and featured.updatedAt|date('Y-m-d') != featured.publishedAt|date('Y-m-d')
+                            %}
+                                <span class="text-gray-300">•</span>
+                                <span>Bijgewerkt {{ featured.updatedAt|date('d M Y') }}</span>
+                            {% endif %}
+
+                            <span class="text-gray-300">•</span>
+                            <span>{{ featured.readingTime }} min. leestijd</span>
+
                         </div>
 
                         <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900">
@@ -70,15 +89,18 @@
                         <span class="mt-6 inline-flex rounded-full bg-gray-900 px-5 py-3 text-sm font-semibold text-white">
                             Lees artikel
                         </span>
+
                     </div>
                 </a>
             {% endif %}
 
             <div class="{{ featured ? 'mt-10' : '' }} grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {% for article in articles %}
-                    <a href="{{ path('magazine_show', { slug: article.slug }) }}"
-                       class="group overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
 
+                {% for article in articles %}
+                    <a
+                        href="{{ path(magazine.showRoute, { slug: article.slug }) }}"
+                        class="group overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+                    >
                         {% if article.heroImage %}
                             <div class="aspect-[4/3] overflow-hidden bg-gray-100">
                                 <img
@@ -91,6 +113,7 @@
                         {% endif %}
 
                         <div class="p-6">
+
                             <div class="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-gray-500">
 
                                 <span>{{ article.category ?: 'Magazine' }}</span>
@@ -103,14 +126,16 @@
                                     </time>
                                 {% endif %}
 
-                                {% if article.updatedAt and article.updatedAt|date('Y-m-d') != article.publishedAt|date('Y-m-d') %}
+                                {% if
+                                    article.updatedAt
+                                    and article.publishedAt
+                                    and article.updatedAt|date('Y-m-d') != article.publishedAt|date('Y-m-d')
+                                %}
                                     <span class="text-gray-300">•</span>
-
                                     <span>Bijgewerkt {{ article.updatedAt|date('d M Y') }}</span>
                                 {% endif %}
 
                                 <span class="text-gray-300">•</span>
-
                                 <span>{{ article.readingTime }} min. leestijd</span>
 
                             </div>
@@ -124,25 +149,31 @@
                                     {{ article.excerpt }}
                                 </p>
                             {% endif %}
+
                         </div>
                     </a>
                 {% else %}
                     {% if not featured %}
                         <div class="col-span-full rounded-3xl border border-gray-200 bg-white p-8">
                             <p class="text-gray-600">
-                                Er zijn nog geen artikelen gepubliceerd.
+                                {{ magazine.emptyMessage }}
                             </p>
                         </div>
                     {% endif %}
                 {% endfor %}
+
             </div>
 
         </div>
     </section>
 {% else %}
     <section class="py-12">
-        <div class="container">
-            <p class="text-gray-600">Er zijn nog geen artikelen gepubliceerd.</p>
+        <div class="container max-w-6xl">
+            <div class="rounded-3xl border border-gray-200 bg-white p-8">
+                <p class="text-gray-600">
+                    {{ magazine.emptyMessage }}
+                </p>
+            </div>
         </div>
     </section>
 {% endif %}
