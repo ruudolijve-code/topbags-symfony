@@ -1,50 +1,117 @@
-    {# --- LAAG 3: SERVICE BAR (Gecentreerd + Geen verticale lijn) --- #}
-    <div class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-center">
-            
-            <ul class="flex items-center gap-8 h-full">
-                <li>
-                    <a href="{{ path('guide_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        Bagage-gids
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('brand_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        Merken
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('airline_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        Vliegmaatschappijen
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('rental_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Huren
-                    </a>
-                </li>
+{% set currentRoute = app.current_route|default('') %}
 
-                <li>
-                    <a href="{{ path('travelmiles_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Travelmiles Sparen
-                    </a>
-                </li>
+{# --- LAAG 3: SERVICE BAR SHOP --- #}
+<div class="border-b border-gray-200 bg-white">
+    <div class="mx-auto flex h-10 max-w-7xl items-center justify-center px-6">
 
-                <li>
-                    <a href="{{ path('repair_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Reparatie & Servicepunt
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ path('magazine_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Reismagazine
-                    </a>
-                </li>
-            </ul>
+        <ul class="flex h-full items-center gap-8">
 
-        </div>
+            <li class="h-full">
+                <a
+                    href="{{ path('guide_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'guide_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'guide_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Bagage-gids
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('brand_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'brand_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'brand_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Merken
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('airline_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'airline_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'airline_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Vliegmaatschappijen
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('rental_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'rental_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'rental_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Huren
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('travelmiles_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'travelmiles_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'travelmiles_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Travelmiles sparen
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('repair_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'repair_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'repair_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Reparatie &amp; servicepunt
+                </a>
+            </li>
+
+            <li class="h-full">
+                <a
+                    href="{{ path('magazine_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ currentRoute starts with 'magazine_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if currentRoute starts with 'magazine_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Reismagazine
+                </a>
+            </li>
+
+        </ul>
+
     </div>
+</div>

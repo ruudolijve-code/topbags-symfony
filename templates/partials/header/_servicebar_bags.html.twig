@@ -1,30 +1,55 @@
-    {# --- LAAG 3: SERVICE BAR (Gecentreerd + Geen verticale lijn) --- #}
-    <div class="bg-white border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 h-10 flex items-center justify-center">
-            
-            <ul class="flex items-center gap-8 h-full">
+{# --- LAAG 3: SERVICE BAR --- #}
+<div class="border-b border-gray-200 bg-white">
+    <div class="mx-auto flex h-10 max-w-7xl items-center justify-center px-6">
 
-                <li>
-                    <a href="{{ path('brand_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        Merken
-                    </a>
-                </li>
+        <ul class="flex h-full items-center gap-8">
 
-                <li>
-                    <a href="{{ path('travelmiles_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Travelmiles Sparen
-                    </a>
-                </li>
+            <li class="h-full">
+                <a
+                    href="{{ path('brand_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ app.request.attributes.get('_route') starts with 'brand_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if app.request.attributes.get('_route') starts with 'brand_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Merken
+                </a>
+            </li>
 
-                                <li>
-                    <a href="{{ path('bags_magazine_index') }}" class="text-[11px] font-bold text-gray-500 hover:text-amber-600 transition-colors uppercase tracking-widest">
-                        
-                        Fashionmagazine
-                    </a>
-                </li>
+            <li class="h-full">
+                <a
+                    href="{{ path('travelmiles_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ app.request.attributes.get('_route') starts with 'travelmiles_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if app.request.attributes.get('_route') starts with 'travelmiles_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Travelmiles sparen
+                </a>
+            </li>
 
-            </ul>
+            <li class="h-full">
+                <a
+                    href="{{ path('bags_magazine_index') }}"
+                    class="relative inline-flex h-full items-center text-[11px] font-bold uppercase tracking-widest transition-colors
+                           {{ app.request.attributes.get('_route') starts with 'bags_magazine_'
+                               ? 'text-amber-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-amber-600'
+                               : 'text-gray-500 hover:text-amber-600' }}"
+                    {% if app.request.attributes.get('_route') starts with 'bags_magazine_' %}
+                        aria-current="page"
+                    {% endif %}
+                >
+                    Fashionmagazine
+                </a>
+            </li>
 
-        </div>
+        </ul>
+
     </div>
+</div>

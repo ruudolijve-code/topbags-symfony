@@ -82,6 +82,7 @@ final class MagazineController extends AbstractController
                 'label' => 'Topbags Fashionmagazine',
                 'heading' => 'Tassenadvies, trends en inspiratie',
                 'intro' => 'Ontdek alles over damestassen, rugzakken, laptoptassen, portemonnees, accessoires, materialen en onderhoud. Praktisch advies en inspiratie van de tassenspecialist.',
+                'indexRoute' => 'bags_magazine_index',
                 'showRoute' => 'bags_magazine_show',
                 'emptyMessage' => 'Er zijn nog geen artikelen over tassen en accessoires gepubliceerd.',
             ],
@@ -91,6 +92,7 @@ final class MagazineController extends AbstractController
                 'label' => 'Topbags Reismagazine',
                 'heading' => 'Kofferadvies, handbagageregels en reistips',
                 'intro' => 'Praktische uitleg van de kofferspecialist van Twente. Ontdek alles over koffers, handbagage, vliegmaatschappijen, reparaties, verhuur en slimme reistips.',
+                'indexRoute' => 'magazine_index',
                 'showRoute' => 'magazine_show',
                 'emptyMessage' => 'Er zijn nog geen reisartikelen gepubliceerd.',
             ],
@@ -98,6 +100,7 @@ final class MagazineController extends AbstractController
 
         return $this->render('magazine/index.html.twig', [
             'context' => $context,
+            'activeContext' => $context,
             'magazine' => $magazine,
             'featured' => $featured,
             'articles' => $articles->findPublishedByContextExceptFeatured(
