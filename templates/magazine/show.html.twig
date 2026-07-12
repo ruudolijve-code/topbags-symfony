@@ -169,7 +169,7 @@
         </section>
     {% endif %}
 
-    {# Gerelateerde producten #}
+   {# Gerelateerde producten #}
     {% if relatedProductItems is defined and relatedProductItems|length > 0 %}
         <section class="pb-16">
             <div class="container">
@@ -185,9 +185,9 @@
                         </h2>
                     </div>
 
-                    <a href="{{ path('shop_index') }}"
-                       class="hidden text-sm font-semibold text-gray-900 underline underline-offset-4 md:inline">
-                        Bekijk alle koffers
+                    <a href="{{ path(magazine.collectionRoute) }}"
+                    class="hidden text-sm font-semibold text-gray-900 underline underline-offset-4 md:inline">
+                        {{ magazine.collectionLabel }}
                     </a>
                 </div>
 
