@@ -66,6 +66,10 @@ class MagazineArticle
     #[ORM\Column(type: Types::TEXT)]
     private string $content = '';
 
+    /**
+     * Redactionele categorie, bijvoorbeeld:
+     * Koffers, Reistips, Damestassen of Leer & onderhoud.
+     */
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $category = null;
 
@@ -86,21 +90,6 @@ class MagazineArticle
 
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
-
-    /**
-     * Productcategorie die inhoudelijk aansluit bij het artikel.
-     */
-    #[ORM\ManyToOne(targetEntity: Category::class)]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?Category $relatedCategory = null;
-
-    /**
-     * Tijdelijk legacyveld voor de migratie naar relatedBrands.
-     *
-     * @deprecated Alleen behouden totdat bestaande merkgegevens zijn overgezet.
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $relatedBrandSlug = null;
 
     /**
      * @var Collection<int, MagazineFaq>
@@ -135,6 +124,28 @@ class MagazineArticle
     private Collection $relatedBrands;
 
     /**
+     * Productcategorieën die inhoudelijk aansluiten bij het artikel.
+     *
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\JoinTable(name: 'magazine_article_category')]
+    #[ORM\JoinColumn(
+        name: 'magazine_article_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
+    #[ORM\InverseJoinColumn(
+        name: 'category_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $relatedCategories;
+
+    /**
+     * Producten die onder het artikel worden getoond.
+     *
      * @var Collection<int, Product>
      */
     #[ORM\ManyToMany(targetEntity: Product::class)]
@@ -159,6 +170,7 @@ class MagazineArticle
         $this->updatedAt = $now;
         $this->faqs = new ArrayCollection();
         $this->relatedBrands = new ArrayCollection();
+        $this->relatedCategories = new ArrayCollection();
         $this->relatedProducts = new ArrayCollection();
     }
 
@@ -352,32 +364,6 @@ class MagazineArticle
         return $this->updatedAt;
     }
 
-    public function getRelatedCategory(): ?Category
-    {
-        return $this->relatedCategory;
-    }
-
-    public function setRelatedCategory(?Category $relatedCategory): self
-    {
-        $this->relatedCategory = $relatedCategory;
-
-        return $this;
-    }
-
-    public function getRelatedBrandSlug(): ?string
-    {
-        return $this->relatedBrandSlug;
-    }
-
-    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
-    {
-        $this->relatedBrandSlug = $relatedBrandSlug
-            ? trim($relatedBrandSlug)
-            : null;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, MagazineFaq>
      */
@@ -427,6 +413,30 @@ class MagazineArticle
     public function removeRelatedBrand(Brand $brand): self
     {
         $this->relatedBrands->removeElement($brand);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getRelatedCategories(): Collection
+    {
+        return $this->relatedCategories;
+    }
+
+    public function addRelatedCategory(Category $category): self
+    {
+        if (!$this->relatedCategories->contains($category)) {
+            $this->relatedCategories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeRelatedCategory(Category $category): self
+    {
+        $this->relatedCategories->removeElement($category);
 
         return $this;
     }

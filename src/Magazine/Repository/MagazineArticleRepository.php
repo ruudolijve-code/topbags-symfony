@@ -26,6 +26,8 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->addSelect('p')
             ->leftJoin('a.relatedBrands', 'b')
             ->addSelect('b')
+            ->leftJoin('a.relatedCategories', 'rc')
+            ->addSelect('rc')
             ->andWhere('a.slug = :slug')
             ->andWhere('a.context = :context')
             ->andWhere('a.isPublished = true')
@@ -36,6 +38,7 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->addOrderBy('b.name', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
+            
     }
 
     public function findFeaturedByContext(

@@ -51,8 +51,8 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'excerpt',
                 'category',
                 'relatedBrands.name',
-                'relatedCategory.name',
-                'relatedCategory.slug',
+                'relatedCategories.name',
+                'relatedCategories.slug',
             ]);
     }
 
@@ -65,7 +65,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->add('category')
             ->add('publishedAt')
             ->add('relatedBrands')
-            ->add('relatedCategory');
+            ->add('relatedCategories');
     }
 
     public function configureFields(string $pageName): iterable
@@ -208,12 +208,13 @@ final class MagazineArticleCrudController extends AbstractCrudController
          * van de gerelateerde merken.
          */
         yield AssociationField::new(
-            'relatedCategory',
-            'Gerelateerde productcategorie'
+            'relatedCategories',
+            'Gerelateerde productcategorieën'
         )
             ->setCrudController(CategoryCrudController::class)
+            ->setFormTypeOption('by_reference', false)
             ->setFormTypeOption('choice_label', 'name')
-            ->setFormTypeOption('placeholder', 'Geen gerelateerde categorie')
+            ->setFormTypeOption('multiple', true)
             ->setFormTypeOption(
                 'query_builder',
                 static fn (EntityRepository $repository) => $repository
@@ -222,10 +223,10 @@ final class MagazineArticleCrudController extends AbstractCrudController
                     ->orderBy('c.name', 'ASC')
             )
             ->setHelp(
-                'Kies één productcategorie die inhoudelijk aansluit bij het artikel.'
+                'Selecteer één of meerdere productcategorieën die inhoudelijk bij dit artikel horen.'
             )
             ->hideOnIndex()
-            ->setColumns(6);
+            ->setColumns(12);
 
         yield AssociationField::new(
             'relatedProducts',
