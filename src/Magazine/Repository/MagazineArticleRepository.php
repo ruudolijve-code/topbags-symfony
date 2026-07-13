@@ -24,6 +24,8 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->addSelect('f')
             ->leftJoin('a.relatedProducts', 'p')
             ->addSelect('p')
+            ->leftJoin('a.relatedBrands', 'b')
+            ->addSelect('b')
             ->andWhere('a.slug = :slug')
             ->andWhere('a.context = :context')
             ->andWhere('a.isPublished = true')
@@ -31,6 +33,7 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->setParameter('context', $context)
             ->orderBy('f.position', 'ASC')
             ->addOrderBy('f.id', 'ASC')
+            ->addOrderBy('b.name', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -103,4 +106,5 @@ final class MagazineArticleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
 }
