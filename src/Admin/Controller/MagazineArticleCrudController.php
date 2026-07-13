@@ -182,10 +182,11 @@ final class MagazineArticleCrudController extends AbstractCrudController
             'relatedBrands',
             'Gerelateerde merken'
         )
+            ->setCrudController(BrandCrudController::class)
             ->autocomplete()
             ->setFormTypeOption('by_reference', false)
             ->setHelp(
-                'Selecteer de merken die inhoudelijk bij dit artikel horen. De officiële merknaam en slug worden uit de database gebruikt.'
+                'Zoek en selecteer merken uit de database. De officiële merknaam en slug worden gebruikt voor de klikbare merklinks.'
             )
             ->hideOnIndex()
             ->setColumns(12);
