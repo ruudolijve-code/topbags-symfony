@@ -214,10 +214,31 @@ final class MagazineArticleCrudController extends AbstractCrudController
             'Gerelateerde producten'
         )
             ->setCrudController(ProductCrudController::class)
-            ->autocomplete()
             ->setFormTypeOption('by_reference', false)
+            ->setFormTypeOption('multiple', true)
+            ->setFormTypeOption(
+                'choice_label',
+                static function ($product): string {
+                    $brandName = $product->getBrand()?->getName();
+                    $productName = $product->getName();
+
+                    return $brandName
+                        ? sprintf('%s – %s', $brandName, $productName)
+                        : $productName;
+                }
+            )
+            ->setFormTypeOption(
+                'query_builder',
+                static fn (EntityRepository $repository) => $repository
+                    ->createQueryBuilder('p')
+                    ->leftJoin('p.brand', 'b')
+                    ->addSelect('b')
+                    ->andWhere('p.isActive = true')
+                    ->orderBy('b.name', 'ASC')
+                    ->addOrderBy('p.name', 'ASC')
+            )
             ->setHelp(
-                'Zoek op productnaam, model-SKU, serie of merknaam en selecteer de producten die onder het artikel worden getoond.'
+                'Selecteer één of meerdere actieve producten. De lijst is alfabetisch gesorteerd op merk en productnaam.'
             )
             ->hideOnIndex()
             ->setColumns(12);
