@@ -178,15 +178,16 @@ final class MagazineArticleCrudController extends AbstractCrudController
          * - brand.name voor het label
          * - brand.slug voor de merklink
          */
-        yield AssociationField::new(
+       yield AssociationField::new(
             'relatedBrands',
             'Gerelateerde merken'
         )
             ->setCrudController(BrandCrudController::class)
-            ->autocomplete()
             ->setFormTypeOption('by_reference', false)
+            ->setFormTypeOption('choice_label', 'name')
+            ->setFormTypeOption('multiple', true)
             ->setHelp(
-                'Zoek en selecteer merken uit de database. De officiële merknaam en slug worden gebruikt voor de klikbare merklinks.'
+                'Selecteer één of meerdere merken uit de database.'
             )
             ->hideOnIndex()
             ->setColumns(12);
