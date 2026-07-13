@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Magazine\Entity;
 
+use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Product;
 use App\Magazine\Repository\MagazineArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -86,9 +87,6 @@ class MagazineArticle
     private \DateTimeImmutable $updatedAt;
 
     #[ORM\Column(length: 120, nullable: true)]
-    private ?string $relatedBrandSlug = null;
-
-    #[ORM\Column(length: 120, nullable: true)]
     private ?string $relatedCategorySlug = null;
 
     /**
@@ -102,6 +100,26 @@ class MagazineArticle
     )]
     #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
     private Collection $faqs;
+
+    /**
+     * Merken die inhoudelijk aansluiten bij het artikel.
+     *
+     * @var Collection<int, Brand>
+     */
+    #[ORM\ManyToMany(targetEntity: Brand::class)]
+    #[ORM\JoinTable(name: 'magazine_article_brand')]
+    #[ORM\JoinColumn(
+        name: 'magazine_article_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
+    #[ORM\InverseJoinColumn(
+        name: 'brand_id',
+        referencedColumnName: 'id',
+        onDelete: 'CASCADE'
+    )]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $relatedBrands;
 
     /**
      * @var Collection<int, Product>
@@ -127,6 +145,7 @@ class MagazineArticle
         $this->createdAt = $now;
         $this->updatedAt = $now;
         $this->faqs = new ArrayCollection();
+        $this->relatedBrands = new ArrayCollection();
         $this->relatedProducts = new ArrayCollection();
     }
 
@@ -320,20 +339,6 @@ class MagazineArticle
         return $this->updatedAt;
     }
 
-    public function getRelatedBrandSlug(): ?string
-    {
-        return $this->relatedBrandSlug;
-    }
-
-    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
-    {
-        $this->relatedBrandSlug = $relatedBrandSlug
-            ? trim($relatedBrandSlug)
-            : null;
-
-        return $this;
-    }
-
     public function getRelatedCategorySlug(): ?string
     {
         return $this->relatedCategorySlug;
@@ -378,6 +383,30 @@ class MagazineArticle
     }
 
     /**
+     * @return Collection<int, Brand>
+     */
+    public function getRelatedBrands(): Collection
+    {
+        return $this->relatedBrands;
+    }
+
+    public function addRelatedBrand(Brand $brand): self
+    {
+        if (!$this->relatedBrands->contains($brand)) {
+            $this->relatedBrands->add($brand);
+        }
+
+        return $this;
+    }
+
+    public function removeRelatedBrand(Brand $brand): self
+    {
+        $this->relatedBrands->removeElement($brand);
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, Product>
      */
     public function getRelatedProducts(): Collection
@@ -415,10 +444,6 @@ class MagazineArticle
             return 1;
         }
 
-        /*
-         * str_word_count() gaat beperkt om met accenten en Nederlandse
-         * woorden. Deze Unicode-regex telt woorden betrouwbaarder.
-         */
         preg_match_all('/[\p{L}\p{N}\']+/u', $text, $matches);
 
         $wordCount = count($matches[0]);
@@ -435,5 +460,27 @@ class MagazineArticle
         if ($this->isPublished && $this->publishedAt === null) {
             $this->publishedAt = new \DateTimeImmutable();
         }
+    }
+
+    /**
+     * Tijdelijk legacyveld voor de migratie naar relatedBrands.
+     *
+     * @deprecated Alleen behouden totdat bestaande merkgegevens zijn overgezet.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $relatedBrandSlug = null;
+        
+    public function getRelatedBrandSlug(): ?string
+    {
+        return $this->relatedBrandSlug;
+    }
+
+    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
+    {
+        $this->relatedBrandSlug = $relatedBrandSlug
+            ? trim($relatedBrandSlug)
+            : null;
+
+        return $this;
     }
 }

@@ -175,12 +175,13 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(12);
 
-        yield TextField::new('relatedBrandSlug', 'Gerelateerd merk')
+       AssociationField::new('relatedBrands', 'Gerelateerde merken')
+            ->autocomplete()
             ->setHelp(
-                'Optioneel. Bijvoorbeeld samsonite, american-tourister, berba of bear-design.'
+                'Selecteer de merken die inhoudelijk bij dit artikel horen. Deze worden als klikbare merklinks onder het artikel getoond.'
             )
             ->hideOnIndex()
-            ->setColumns(6);
+            ->setColumns(12);
 
         yield TextField::new(
             'relatedCategorySlug',
