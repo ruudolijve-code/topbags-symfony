@@ -46,7 +46,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'seoDescription',
                 'excerpt',
                 'category',
-                'relatedBrandSlug',
+                'relatedBrands.name',
                 'relatedCategorySlug',
             ]);
     }
@@ -59,7 +59,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->add('isFeatured')
             ->add('category')
             ->add('publishedAt')
-            ->add('relatedBrandSlug')
+            ->add('relatedBrands')
             ->add('relatedCategorySlug');
     }
 
@@ -68,12 +68,6 @@ final class MagazineArticleCrudController extends AbstractCrudController
         yield IdField::new('id')
             ->onlyOnIndex();
 
-        /*
-         * Magazinecontext
-         *
-         * shop = koffers, reizen, bagage en luchtvaart
-         * bags = tassen, rugzakken, accessoires en lifestyle
-         */
         yield ChoiceField::new('context', 'Magazine')
             ->setChoices([
                 'Koffers & reizen' => MagazineArticle::CONTEXT_SHOP,
@@ -84,7 +78,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 MagazineArticle::CONTEXT_BAGS => 'warning',
             ])
             ->setHelp(
-                'Bepaalt op welke magazine-overzichtspagina het artikel wordt getoond.'
+                'Bepaalt in welk magazine het artikel wordt gepubliceerd.'
             )
             ->setColumns(4);
 
@@ -106,7 +100,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(8);
 
-        yield ChoiceField::new('category', 'Categorie')
+        yield ChoiceField::new('category', 'Redactionele categorie')
             ->setChoices([
                 /*
                  * Koffers & reizen
@@ -136,7 +130,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ])
             ->renderExpanded(false)
             ->setHelp(
-                'Kies een categorie die aansluit bij de geselecteerde magazinecontext.'
+                'Kies een redactionele categorie die aansluit bij het onderwerp van het artikel.'
             )
             ->setColumns(4);
 
@@ -175,14 +169,31 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(12);
 
-       AssociationField::new('relatedBrands', 'Gerelateerde merken')
+        /*
+         * Echte relatie met Brand.
+         *
+         * EasyAdmin toont de officiële merknaam uit de database.
+         * In Twig gebruik je:
+         * - brand.name voor het label
+         * - brand.slug voor de merklink
+         */
+        yield AssociationField::new(
+            'relatedBrands',
+            'Gerelateerde merken'
+        )
             ->autocomplete()
+            ->setFormTypeOption('by_reference', false)
             ->setHelp(
-                'Selecteer de merken die inhoudelijk bij dit artikel horen. Deze worden als klikbare merklinks onder het artikel getoond.'
+                'Selecteer de merken die inhoudelijk bij dit artikel horen. De officiële merknaam en slug worden uit de database gebruikt.'
             )
             ->hideOnIndex()
             ->setColumns(12);
 
+        /*
+         * Dit veld kan blijven bestaan.
+         * Het verwijst naar één gerelateerde productcategorie en staat los
+         * van de gerelateerde merken.
+         */
         yield TextField::new(
             'relatedCategorySlug',
             'Gerelateerde productcategorie'
@@ -197,6 +208,8 @@ final class MagazineArticleCrudController extends AbstractCrudController
             'relatedProducts',
             'Gerelateerde producten'
         )
+            ->autocomplete()
+            ->setFormTypeOption('by_reference', false)
             ->setHelp(
                 'Selecteer producten die onder het artikel mogen worden getoond. Kies producten uit dezelfde context als het artikel.'
             )
