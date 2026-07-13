@@ -180,6 +180,7 @@
         </section>
     {% endif %}
 
+    {# Gerelateerde productcategorieën #}
     {% if article.relatedCategories|length > 0 %}
         <section class="pb-16">
             <div class="container max-w-5xl">
@@ -201,7 +202,8 @@
                         {% for category in article.relatedCategories %}
                             <a
                                 href="{{ path('category_show', {
-                                    slug: category.slug
+                                    slug: category.slug,
+                                    context: context
                                 }) }}"
                                 class="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-amber-500 hover:bg-amber-50 hover:text-amber-800"
                             >
@@ -213,7 +215,7 @@
 
             </div>
         </section>
-    {% endif %}    
+    {% endif %}
 
     {# Gerelateerde producten #}
     {% if relatedProductItems is defined and relatedProductItems|length > 0 %}
