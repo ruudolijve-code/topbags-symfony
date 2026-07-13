@@ -8,6 +8,7 @@ use App\Magazine\Entity\MagazineArticle;
 use App\Admin\Controller\BrandCrudController;
 use App\Catalog\Entity\Brand;
 use Doctrine\ORM\EntityRepository;
+use App\Admin\Controller\CategoryCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -205,12 +206,22 @@ final class MagazineArticleCrudController extends AbstractCrudController
          * Het verwijst naar één gerelateerde productcategorie en staat los
          * van de gerelateerde merken.
          */
-        yield TextField::new(
-            'relatedCategorySlug',
+        yield AssociationField::new(
+            'relatedCategory',
             'Gerelateerde productcategorie'
         )
+            ->setCrudController(CategoryCrudController::class)
+            ->setFormTypeOption('choice_label', 'name')
+            ->setFormTypeOption('placeholder', 'Geen gerelateerde categorie')
+            ->setFormTypeOption(
+                'query_builder',
+                static fn (EntityRepository $repository) => $repository
+                    ->createQueryBuilder('c')
+                    ->andWhere('c.isActive = true')
+                    ->orderBy('c.name', 'ASC')
+            )
             ->setHelp(
-                'Optioneel. Bijvoorbeeld koffers, handbagage, damestassen of rugzakken.'
+                'Kies één productcategorie die inhoudelijk aansluit bij het artikel.'
             )
             ->hideOnIndex()
             ->setColumns(6);

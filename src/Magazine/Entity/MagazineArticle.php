@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Magazine\Entity;
 
 use App\Catalog\Entity\Brand;
+use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
 use App\Magazine\Repository\MagazineArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -86,8 +87,20 @@ class MagazineArticle
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
-    #[ORM\Column(length: 120, nullable: true)]
-    private ?string $relatedCategorySlug = null;
+    /**
+     * Productcategorie die inhoudelijk aansluit bij het artikel.
+     */
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Category $relatedCategory = null;
+
+    /**
+     * Tijdelijk legacyveld voor de migratie naar relatedBrands.
+     *
+     * @deprecated Alleen behouden totdat bestaande merkgegevens zijn overgezet.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $relatedBrandSlug = null;
 
     /**
      * @var Collection<int, MagazineFaq>
@@ -339,15 +352,27 @@ class MagazineArticle
         return $this->updatedAt;
     }
 
-    public function getRelatedCategorySlug(): ?string
+    public function getRelatedCategory(): ?Category
     {
-        return $this->relatedCategorySlug;
+        return $this->relatedCategory;
     }
 
-    public function setRelatedCategorySlug(?string $relatedCategorySlug): self
+    public function setRelatedCategory(?Category $relatedCategory): self
     {
-        $this->relatedCategorySlug = $relatedCategorySlug
-            ? trim($relatedCategorySlug)
+        $this->relatedCategory = $relatedCategory;
+
+        return $this;
+    }
+
+    public function getRelatedBrandSlug(): ?string
+    {
+        return $this->relatedBrandSlug;
+    }
+
+    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
+    {
+        $this->relatedBrandSlug = $relatedBrandSlug
+            ? trim($relatedBrandSlug)
             : null;
 
         return $this;
@@ -460,27 +485,5 @@ class MagazineArticle
         if ($this->isPublished && $this->publishedAt === null) {
             $this->publishedAt = new \DateTimeImmutable();
         }
-    }
-
-    /**
-     * Tijdelijk legacyveld voor de migratie naar relatedBrands.
-     *
-     * @deprecated Alleen behouden totdat bestaande merkgegevens zijn overgezet.
-     */
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $relatedBrandSlug = null;
-        
-    public function getRelatedBrandSlug(): ?string
-    {
-        return $this->relatedBrandSlug;
-    }
-
-    public function setRelatedBrandSlug(?string $relatedBrandSlug): self
-    {
-        $this->relatedBrandSlug = $relatedBrandSlug
-            ? trim($relatedBrandSlug)
-            : null;
-
-        return $this;
     }
 }
