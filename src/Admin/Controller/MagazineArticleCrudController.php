@@ -217,7 +217,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->autocomplete()
             ->setFormTypeOption('by_reference', false)
             ->setHelp(
-                'Zoek en selecteer producten die onder het artikel worden getoond. Kies producten uit dezelfde context als het artikel.'
+                'Zoek op productnaam, model-SKU, serie of merknaam en selecteer de producten die onder het artikel worden getoond.'
             )
             ->hideOnIndex()
             ->setColumns(12);
