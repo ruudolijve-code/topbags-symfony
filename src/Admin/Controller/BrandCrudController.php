@@ -28,10 +28,12 @@ class BrandCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Merk')
             ->setEntityLabelInPlural('Merken')
-            ->setDefaultSort(['name' => 'ASC'])
             ->setSearchFields([
                 'name',
                 'slug',
+            ])
+            ->setDefaultSort([
+                'name' => 'ASC',
             ]);
     }
 
