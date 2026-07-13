@@ -42,7 +42,6 @@ class ProductCrudController extends AbstractCrudController
                 'series',
                 'luggageType',
                 'brand.name',
-                'variants.variantSku',
             ]);
     }
 
