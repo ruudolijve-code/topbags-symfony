@@ -51,7 +51,8 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'excerpt',
                 'category',
                 'relatedBrands.name',
-                'relatedCategorySlug',
+                'relatedCategory.name',
+                'relatedCategory.slug',
             ]);
     }
 
@@ -64,7 +65,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->add('category')
             ->add('publishedAt')
             ->add('relatedBrands')
-            ->add('relatedCategorySlug');
+            ->add('relatedCategory');
     }
 
     public function configureFields(string $pageName): iterable
