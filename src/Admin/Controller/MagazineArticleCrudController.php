@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Controller;
 
 use App\Magazine\Entity\MagazineArticle;
-use App\Admin\Controller\BrandCrudController;
-use App\Catalog\Entity\Brand;
 use Doctrine\ORM\EntityRepository;
-use App\Admin\Controller\CategoryCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -53,6 +50,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'relatedBrands.name',
                 'relatedCategories.name',
                 'relatedCategories.slug',
+                'relatedProducts.name',
             ]);
     }
 
@@ -65,7 +63,8 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->add('category')
             ->add('publishedAt')
             ->add('relatedBrands')
-            ->add('relatedCategories');
+            ->add('relatedCategories')
+            ->add('relatedProducts');
     }
 
     public function configureFields(string $pageName): iterable
@@ -107,9 +106,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
 
         yield ChoiceField::new('category', 'Redactionele categorie')
             ->setChoices([
-                /*
-                 * Koffers & reizen
-                 */
+                // Koffers & reizen
                 'Koffers' => 'Koffers',
                 'Handbagage' => 'Handbagage',
                 'Reistassen' => 'Reistassen',
@@ -117,9 +114,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'Reistips' => 'Reistips',
                 'Reparatie & service' => 'Reparatie & service',
 
-                /*
-                 * Tassen & accessoires
-                 */
+                // Tassen & accessoires
                 'Damestassen' => 'Damestassen',
                 'Laptoptassen' => 'Laptoptassen',
                 'Rugzakken' => 'Rugzakken',
@@ -128,9 +123,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
                 'Leer & onderhoud' => 'Leer & onderhoud',
                 'Mode & inspiratie' => 'Mode & inspiratie',
 
-                /*
-                 * Algemeen
-                 */
+                // Algemeen
                 'Nieuws' => 'Nieuws',
             ])
             ->renderExpanded(false)
@@ -174,15 +167,7 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setColumns(12);
 
-        /*
-         * Echte relatie met Brand.
-         *
-         * EasyAdmin toont de officiële merknaam uit de database.
-         * In Twig gebruik je:
-         * - brand.name voor het label
-         * - brand.slug voor de merklink
-         */
-       yield AssociationField::new(
+        yield AssociationField::new(
             'relatedBrands',
             'Gerelateerde merken'
         )
@@ -198,15 +183,11 @@ final class MagazineArticleCrudController extends AbstractCrudController
                     ->orderBy('b.name', 'ASC')
             )
             ->setHelp(
-                'Selecteer één of meerdere merken uit de database.'
+                'Selecteer één of meerdere merken die inhoudelijk bij dit artikel horen.'
             )
             ->hideOnIndex()
             ->setColumns(12);
-        /*
-         * Dit veld kan blijven bestaan.
-         * Het verwijst naar één gerelateerde productcategorie en staat los
-         * van de gerelateerde merken.
-         */
+
         yield AssociationField::new(
             'relatedCategories',
             'Gerelateerde productcategorieën'
@@ -232,10 +213,11 @@ final class MagazineArticleCrudController extends AbstractCrudController
             'relatedProducts',
             'Gerelateerde producten'
         )
+            ->setCrudController(ProductCrudController::class)
             ->autocomplete()
             ->setFormTypeOption('by_reference', false)
             ->setHelp(
-                'Selecteer producten die onder het artikel mogen worden getoond. Kies producten uit dezelfde context als het artikel.'
+                'Zoek en selecteer producten die onder het artikel worden getoond. Kies producten uit dezelfde context als het artikel.'
             )
             ->hideOnIndex()
             ->setColumns(12);
