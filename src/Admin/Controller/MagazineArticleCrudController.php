@@ -6,6 +6,8 @@ namespace App\Admin\Controller;
 
 use App\Magazine\Entity\MagazineArticle;
 use App\Admin\Controller\BrandCrudController;
+use App\Catalog\Entity\Brand;
+use Doctrine\ORM\EntityRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -186,12 +188,18 @@ final class MagazineArticleCrudController extends AbstractCrudController
             ->setFormTypeOption('by_reference', false)
             ->setFormTypeOption('choice_label', 'name')
             ->setFormTypeOption('multiple', true)
+            ->setFormTypeOption(
+                'query_builder',
+                static fn (EntityRepository $repository) => $repository
+                    ->createQueryBuilder('b')
+                    ->andWhere('b.isActive = true')
+                    ->orderBy('b.name', 'ASC')
+            )
             ->setHelp(
                 'Selecteer één of meerdere merken uit de database.'
             )
             ->hideOnIndex()
             ->setColumns(12);
-
         /*
          * Dit veld kan blijven bestaan.
          * Het verwijst naar één gerelateerde productcategorie en staat los
