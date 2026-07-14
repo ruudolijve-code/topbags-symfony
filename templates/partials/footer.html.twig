@@ -183,6 +183,13 @@
                     transform-origin: center;
                 }
 
+                .footer-payment-logo--google svg {
+                    height: 30px !important;
+                    max-height: 30px !important;
+                    transform: scale(1.65);
+                    transform-origin: center;
+                }
+
                 .footer-payment-logo--wero svg {
                     height: 24px !important;
                 }
@@ -212,6 +219,11 @@
                         <span class="footer-payment-logo footer-payment-logo--apple inline-flex items-center justify-center">
                             <span class="sr-only">Apple Pay</span>
                             {% include 'partials/icons/payment/applepay.svg.twig' %}
+                        </span>
+
+                        <span class="footer-payment-logo footer-payment-logo--google inline-flex items-center justify-center">
+                            <span class="sr-only">Google Pay</span>
+                            {% include 'partials/icons/payment/googlepay.svg.twig' %}
                         </span>
 
                         <span class="footer-payment-logo footer-payment-logo--wero inline-flex items-center justify-center">
