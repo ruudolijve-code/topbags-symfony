@@ -132,10 +132,11 @@ final class HomeController extends AbstractController
         }
 
         /*
-         * Nieuw binnen bij damestassen
-         */
-        $variants = $productRepository->findLatestVariantsForContext(
+        * Nieuw binnen bij damestassen
+        */
+        $variants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
+            categorySlug: 'damestassen',
             limit: 4,
         );
 
