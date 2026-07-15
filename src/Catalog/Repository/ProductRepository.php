@@ -1345,7 +1345,7 @@ final class ProductRepository extends ServiceEntityRepository
         int $limit = 4
     ): array {
         $rows = $this->getEntityManager()->createQueryBuilder()
-            ->select('v.id AS id')
+            ->select('DISTINCT v.id AS id')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
             ->innerJoin('p.categories', 'c')
@@ -1355,8 +1355,7 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('v.isActive = true')
             ->setParameter('context', $context)
             ->setParameter('categorySlug', $categorySlug)
-            ->orderBy('p.id', 'DESC')
-            ->addOrderBy('v.id', 'DESC')
+            ->orderBy('v.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getScalarResult();
