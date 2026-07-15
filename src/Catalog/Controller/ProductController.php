@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Catalog\Controller;
 
 use App\Catalog\Entity\Product;
+use App\Catalog\Repository\ProductRepository;
 use App\Catalog\Repository\ProductVariantRepository;
 use App\Catalog\Service\AvailabilityService;
 use App\Catalog\Service\VariantImagePathResolver;
-use App\Seo\Service\ProductVariantSeoResolver;
 use App\Seo\Service\ProductSchemaBuilder;
-use App\Catalog\Repository\ProductRepository;
-
+use App\Seo\Service\ProductVariantSeoResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,12 +52,29 @@ final class ProductController extends AbstractController
 
         $product = $variant->getProduct();
 
+        if ($product === null || !$product->isActive()) {
+            throw $this->createNotFoundException();
+        }
+
+        /*
+         * Context bepalen.
+         *
+         * De queryparameter ?context=bags of ?context=shop kan worden gebruikt
+         * voor de navigatie/header. Als deze ontbreekt of ongeldig is,
+         * gebruiken we de daadwerkelijke productcontext.
+         */
         $requestedContext = $request->query->get('context');
 
-        if (!in_array($requestedContext, [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS], true)) {
+        if (!in_array($requestedContext, [
+            Product::CONTEXT_SHOP,
+            Product::CONTEXT_BAGS,
+        ], true)) {
             $requestedContext = $product->getProductContext() ?: Product::CONTEXT_SHOP;
         }
 
+        /*
+         * Canonieke product-URL afdwingen.
+         */
         if (
             $slug !== $product->getSlug()
             || $colorSlug !== $variant->getSupplierColorSlug()
@@ -73,35 +89,96 @@ final class ProductController extends AbstractController
                 $routeParams['context'] = Product::CONTEXT_BAGS;
             }
 
-            return $this->redirectToRoute('product_show', $routeParams, Response::HTTP_MOVED_PERMANENTLY);
+            return $this->redirectToRoute(
+                'product_show',
+                $routeParams,
+                Response::HTTP_MOVED_PERMANENTLY
+            );
         }
 
+        /*
+         * Serie- en maatvarianten zijn alleen relevant binnen de travelshop.
+         */
         $sizeSiblings = [];
-            if ($product->getProductContext() === 'shop') {
-                $sizeSiblings = $productRepository->findSizeSiblings($product);
-            }
 
+        if ($product->getProductContext() === Product::CONTEXT_SHOP) {
+            $sizeSiblings = $productRepository->findSizeSiblings($product);
+        }
+
+        /*
+         * Beschikbaarheid.
+         */
         $availability = $availabilityService->get($variant);
 
+        /*
+         * SEO.
+         */
         $seoTitle = $seoResolver->resolveTitle($variant);
         $seoDescription = $seoResolver->resolveDescription($variant);
-        $productSchema = $productSchemaBuilder->build($variant, $seoDescription);
+        $productSchema = $productSchemaBuilder->build(
+            $variant,
+            $seoDescription
+        );
+
+        /*
+         * USP-blok op basis van de daadwerkelijke productcontext.
+         *
+         * Shop:
+         * nadruk op koffers, reizen en reparatieservice.
+         *
+         * Bags:
+         * nadruk op tassen, accessoires en persoonlijk advies.
+         */
+        $purchaseBenefits = match ($product->getProductContext()) {
+            Product::CONTEXT_BAGS => [
+                'title' => 'Waarom kopen bij Topbags?',
+                'items' => [
+                    'Spaar direct Travelmiles voor extra voordeel',
+                    'Persoonlijk advies in onze winkel in Hengelo',
+                    'Specialist in tassen, portemonnees en accessoires',
+                ],
+                'footer' => 'Online bestellen of afhalen in onze winkel aan de Wemenstraat in Hengelo.',
+            ],
+
+            default => [
+                'title' => 'Waarom kopen bij Topbags?',
+                'items' => [
+                    'Spaar direct Travelmiles voor extra voordeel',
+                    'Eigen reparatieservice in Hengelo',
+                    'Al generaties lang kofferspecialist van Twente',
+                ],
+                'footer' => 'Online bestellen of afhalen in onze winkel aan de Wemenstraat in Hengelo.',
+            ],
+        };
 
         return $this->render('product/show.html.twig', [
             'product' => $product,
             'variant' => $variant,
             'master' => $product->getMasterVariant(),
+
             'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
-            'imageBasePath' => $this->variantImagePathResolver->fromSku($variant->getVariantSku()),
+            'imageBasePath' => $this->variantImagePathResolver->fromSku(
+                $variant->getVariantSku()
+            ),
+
             'availability' => $availability,
             'sizeSiblings' => $sizeSiblings,
 
-            // SEO
-            'seoTitle' => $seoResolver->resolveTitle($variant),
-            'seoDescription' => $seoResolver->resolveDescription($variant),
+            /*
+             * USP / serviceblok.
+             */
+            'purchaseBenefits' => $purchaseBenefits,
+
+            /*
+             * SEO.
+             */
+            'seoTitle' => $seoTitle,
+            'seoDescription' => $seoDescription,
             'productSchema' => $productSchema,
 
-            // Belangrijk voor header/menu/context switcher
+            /*
+             * Header / menu / context switcher.
+             */
             'currentContext' => $requestedContext,
             'activeContext' => $requestedContext,
         ]);

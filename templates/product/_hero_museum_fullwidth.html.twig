@@ -250,37 +250,41 @@
             </div>
 
             <aside class="w-full max-w-md rounded-2xl bg-[#f4f1ea] p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] lg:mt-8">
+
                 <div class="text-xs font-semibold tracking-[0.18em] uppercase text-gray-500">
-                    Waarom kopen bij Topbags?
+                    {{ purchaseBenefits.title }}
                 </div>
 
                 <ul class="mt-5 space-y-4 text-sm leading-6 text-gray-700">
-                    <li class="flex gap-3">
-                        <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">✓</span>
-                        <span>Spaar direct Travelmiles voor extra voordeel</span>
-                    </li>
+                    {% for benefit in purchaseBenefits.items %}
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">
+                                ✓
+                            </span>
 
-                    <li class="flex gap-3">
-                        <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">✓</span>
-                        <span>Eigen reparatieservice in Hengelo</span>
-                    </li>
-
-                    <li class="flex gap-3">
-                        <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">✓</span>
-                        <span>Al generaties lang kofferspecialist van Twente</span>
-                    </li>
+                            <span>
+                                {{ benefit }}
+                            </span>
+                        </li>
+                    {% endfor %}
 
                     {% if product.brand %}
                         <li class="flex gap-3">
-                            <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">✓</span>
-                            <span>Officieel dealer van {{ product.brand.name }}</span>
+                            <span class="mt-0.5 shrink-0 text-base font-bold text-emerald-700">
+                                ✓
+                            </span>
+
+                            <span>
+                                Officieel dealer van {{ product.brand.name }}
+                            </span>
                         </li>
                     {% endif %}
                 </ul>
 
                 <p class="mt-6 border-t border-black/10 pt-5 text-xs leading-5 text-gray-500">
-                    Online bestellen of afhalen in onze winkel aan de Wemenstraat in Hengelo.
+                    {{ purchaseBenefits.footer }}
                 </p>
+
             </aside>
 
         </div>
