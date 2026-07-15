@@ -435,15 +435,7 @@ final class CollectionController extends AbstractController
         );
 
         $canonicalRoute = $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all';
-
-        dd(array_map(
-    static fn (ProductVariant $variant): array => [
-        'id' => $variant->getId(),
-        'sku' => $variant->getVariantSku(),
-        'product' => $variant->getProduct()?->getName(),
-    ],
-    $latestBackpackVariants
-));
+        
 
         return $this->render($template, [
             'activeContext' => $context,
