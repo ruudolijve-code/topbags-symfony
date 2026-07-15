@@ -41,33 +41,34 @@ final class CollectionController extends AbstractController
     ): Response {
         $landingCategory = $categoryRepository->findOneBy(['slug' => 'shop']);
 
+        // Populaire / uitgelichte koffers.
         $featuredProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_SHOP,
             categorySlug: 'koffers',
             limit: 4,
         );
 
+        // Nieuwste koffer-varianten.
+        // Hierdoor worden ook nieuwe seizoenskleuren van bestaande modellen getoond.
+        $latestSuitcaseVariants = $productRepository->findLatestVariantsForContextAndCategory(
+            context: Product::CONTEXT_SHOP,
+            categorySlug: 'koffers',
+            limit: 4,
+        );
+
+        // Populaire rugzakken.
         $popularBackpackProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_SHOP,
             categorySlug: 'rugzakken',
             limit: 4,
         );
 
+        // Nieuwste reistas-varianten.
         $latestTravelBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_SHOP,
             categorySlug: 'reistassen',
             limit: 4,
         );
-
-        $latestTravelBagItems = [];
-
-        foreach ($latestTravelBagVariants as $variant) {
-            $card = $this->createCardFromVariant($variant, $availabilityService);
-
-            if ($card !== null) {
-                $latestTravelBagItems[] = $card;
-            }
-        }
 
         return $this->render('shop/landing.html.twig', [
             'activeContext' => Product::CONTEXT_SHOP,
@@ -84,14 +85,25 @@ final class CollectionController extends AbstractController
                 $availabilityService,
             ),
 
+            'latestSuitcaseItems' => $this->mapVariantsToLandingItems(
+                $latestSuitcaseVariants,
+                $availabilityService,
+            ),
+
             'popularBackpackItems' => $this->mapProductsToLandingItems(
                 $popularBackpackProducts,
                 $productVariantRepository,
                 $availabilityService,
             ),
 
-            'latestTravelBagItems' => $latestTravelBagItems,
-            'categories' => $categoryRepository->findForContext(Product::CONTEXT_SHOP),
+            'latestTravelBagItems' => $this->mapVariantsToLandingItems(
+                $latestTravelBagVariants,
+                $availabilityService,
+            ),
+
+            'categories' => $categoryRepository->findForContext(
+                Product::CONTEXT_SHOP
+            ),
         ]);
     }
 
@@ -130,44 +142,43 @@ final class CollectionController extends AbstractController
     ): Response {
         $landingCategory = $categoryRepository->findOneBy(['slug' => 'bags']);
 
+        // Uitgelichte tassen.
         $featuredBagProducts = $productRepository->findFeaturedForCategorySlug(
             context: Product::CONTEXT_BAGS,
-            categorySlug: 'tassen',
+            categorySlug: 'damestassen',
             limit: 4,
         );
 
-        $latestBagProducts = $productRepository->findForContextGridWithFilters(
+        // Nieuwste tas-varianten.
+        // Hiermee worden ook nieuwe kleuren van bestaande modellen meegenomen.
+        $latestBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
+            categorySlug: 'damestassen',
             limit: 4,
-            offset: 0,
-            brandSlugs: null,
-            categorySlugs: ['damestassen'],
-            sizeSlugs: null,
-            scopeSlugs: null,
-            airlineRules: null,
-            volumeRanges: null,
-            colorSlugs: null,
-            sort: 'newest',
         );
 
+        // Nieuwste portemonnee-varianten.
         $latestWalletVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
             categorySlug: 'portemonnees',
             limit: 4,
         );
 
+        // Nieuwste accessoire-varianten.
         $latestAccessoryVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
             categorySlug: 'accessoires',
             limit: 4,
         );
 
+        // Nieuwste laptoptas-varianten.
         $latestLaptopBagVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
             categorySlug: 'laptoptassen',
             limit: 4,
         );
 
+        // Nieuwste rugtas-varianten.
         $latestBackpackVariants = $productRepository->findLatestVariantsForContextAndCategory(
             context: Product::CONTEXT_BAGS,
             categorySlug: 'rugtassen',
@@ -189,9 +200,8 @@ final class CollectionController extends AbstractController
                 $availabilityService,
             ),
 
-            'latestBagItems' => $this->mapProductsToLandingItems(
-                $latestBagProducts,
-                $productVariantRepository,
+            'latestBagItems' => $this->mapVariantsToLandingItems(
+                $latestBagVariants,
                 $availabilityService,
             ),
 
@@ -215,7 +225,9 @@ final class CollectionController extends AbstractController
                 $availabilityService,
             ),
 
-            'categories' => $categoryRepository->findForContext(Product::CONTEXT_BAGS),
+            'categories' => $categoryRepository->findForContext(
+                Product::CONTEXT_BAGS
+            ),
         ]);
     }
 

@@ -497,31 +497,40 @@
     {% endif %}
 
     {# =========================================
-       7. NIEUW BINNEN BIJ DAMESTASSEN
-       ========================================= #}
+    7. NIEUW BINNEN BIJ TASSEN
+    Nieuwste varianten binnen categorie damestassen
+    ========================================= #}
     {% if newBagVariants is defined and newBagVariants is not empty %}
         <section class="bg-gray-50">
             <div class="mx-auto max-w-7xl px-6 py-14">
-                <div class="mb-8 flex items-end justify-between gap-4">
+
+                <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
+                        <div class="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                            Nieuw in de collectie
+                        </div>
+
                         <h2 class="text-2xl font-bold text-gray-900">
-                            Nieuw binnen bij damestassen
+                            Nieuw binnen bij tassen
                         </h2>
-                        <p class="mt-2 text-gray-600">
-                            De nieuwste kleuren, modellen en varianten in onze tassencollectie.
+
+                        <p class="mt-2 max-w-2xl text-gray-600">
+                            Ontdek de nieuwste kleuren, modellen en varianten in onze tassencollectie.
+                            Ook nieuwe seizoenskleuren van bestaande modellen vind je hier als eerste.
                         </p>
                     </div>
 
-                    <a href="{{ path('bags_index') }}"
-                       class="hidden rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-white md:inline-flex">
-                        Bekijk alle damestassen
+                    <a href="{{ path('bags_all', {
+                        category: ['damestassen']
+                    }) }}"
+                    class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:border-amber-500 hover:text-amber-700">
+                        Bekijk alle tassen
                     </a>
                 </div>
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {% for item in newBagVariants %}
-                        {% include 'shop/component/card/_card.html.twig' with {
-                            context: 'bags',
+                    {% for item in newBagVariants|slice(0, 4) %}
+                        {% include 'shop/component/card/_card_fashion.html.twig' with {
                             product: item.product,
                             variant: item.variant,
                             master: item.master,
@@ -530,6 +539,16 @@
                         } only %}
                     {% endfor %}
                 </div>
+
+                <div class="mt-8 sm:hidden">
+                    <a href="{{ path('bags_all', {
+                        category: ['damestassen']
+                    }) }}"
+                    class="inline-flex items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700">
+                        Bekijk alle tassen
+                    </a>
+                </div>
+
             </div>
         </section>
     {% endif %}

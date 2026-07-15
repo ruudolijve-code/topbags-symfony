@@ -310,7 +310,7 @@
         </div>
     </section>
 
-    {# Populaire producten #}
+   {# Populaire producten #}
     {% if featuredItems is defined and featuredItems is not empty %}
         <section class="mx-auto max-w-7xl px-6 py-14">
             <div class="mb-8 flex items-end justify-between gap-4">
@@ -340,6 +340,50 @@
                         availability: item.availability
                     } only %}
                 {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {# Nieuwste koffers #}
+    {% if latestSuitcaseItems is defined and latestSuitcaseItems is not empty %}
+        <section class="bg-gray-50">
+            <div class="mx-auto max-w-7xl px-6 py-14">
+
+                <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <div class="mb-2 text-sm font-semibold uppercase tracking-wide text-amber-700">
+                            Nieuw in de collectie
+                        </div>
+
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Nieuw binnen bij koffers
+                        </h2>
+
+                        <p class="mt-2 max-w-2xl text-gray-600">
+                            Bekijk de nieuwste koffers in onze collectie. Ontdek nieuwe modellen en series
+                            voor vakantie, citytrip en zakenreis.
+                        </p>
+                    </div>
+
+                    <a href="{{ path('shop_all', { category: ['koffers'], sort: 'newest' }) }}"
+                    class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:border-amber-500 hover:text-amber-700">
+                        Bekijk nieuwste koffers
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for item in latestSuitcaseItems %}
+                        {% include 'shop/component/card/_card.html.twig' with {
+                            context: 'shop',
+                            product: item.product,
+                            variant: item.variant,
+                            master: item.master,
+                            mediaPath: item.mediaPath,
+                            availability: item.availability
+                        } only %}
+                    {% endfor %}
+                </div>
+
             </div>
         </section>
     {% endif %}

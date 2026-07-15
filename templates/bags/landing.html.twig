@@ -54,7 +54,7 @@
 
 
     {# NEW ARRIVALS - 4 tassen #}
-    {% if featuredBagItems is defined and featuredBagItems is not empty %}
+    {% if latestBagItems is defined and latestBagItems is not empty %}
         <section class="mx-auto max-w-7xl px-6 py-14 lg:py-18">
             <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
@@ -72,7 +72,7 @@
                 </div>
 
                 <a href="{{ path('bags_all', { category: ['damestassen'] }) }}"
-                   class="inline-flex rounded-full border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-stone-50">
+                class="inline-flex rounded-full border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-stone-50">
                     Bekijk alle tassen
                 </a>
             </div>
