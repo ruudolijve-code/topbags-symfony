@@ -137,7 +137,7 @@ final class ProductController extends AbstractController
                     'Persoonlijk advies in onze winkel in Hengelo',
                     'Specialist in tassen, portemonnees en accessoires',
                 ],
-                'footer' => 'Online bestellen of afhalen in onze winkel aan de Wemenstraat in Hengelo.',
+                'footer' => 'Online bestellen of afhalen in onze winkel Holtkamp tassen & koffers aan de Wemenstraat in Hengelo.',
             ],
 
             default => [
@@ -147,7 +147,7 @@ final class ProductController extends AbstractController
                     'Eigen reparatieservice in Hengelo',
                     'Al generaties lang kofferspecialist van Twente',
                 ],
-                'footer' => 'Online bestellen of afhalen in onze winkel aan de Wemenstraat in Hengelo.',
+                'footer' => 'Online bestellen of afhalen in onze winkel Holtkamp tassen & koffers aan de Wemenstraat in Hengelo.',
             ],
         };
 
