@@ -6,6 +6,7 @@ use App\Shop\Repository\OrderRepository;
 use App\Shop\Service\CartService;
 use App\Shop\Service\MollieService;
 use App\Shop\Service\OrderService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,7 +19,8 @@ class OrderController extends AbstractController
         OrderRepository $orderRepository,
         CartService $cart,
         MollieService $mollie,
-        OrderService $orderService
+        OrderService $orderService,
+        LoggerInterface $logger
     ): Response {
         $order = $orderRepository->findOneBy([
             'orderNumber' => $orderNumber,
@@ -28,7 +30,7 @@ class OrderController extends AbstractController
             throw $this->createNotFoundException('Order not found.');
         }
 
-        // 1. Normale situatie: webhook was al klaar
+        // 1. Normale situatie: betaling is al verwerkt.
         if ($order->isPaid()) {
             if ($cart->countItems() > 0) {
                 $cart->clear();
@@ -39,16 +41,33 @@ class OrderController extends AbstractController
             ]);
         }
 
-        // 2. Fallback: Mollie direct controleren bij terugkomst
+        // 2. Fallback: controleer Mollie direct wanneer de klant terugkomt
+        // voordat de webhook de betaling volledig heeft verwerkt.
         if ($order->getMolliePaymentId()) {
-            $payment = $mollie->getPayment($order->getMolliePaymentId());
+            try {
+                $payment = $mollie->getPayment($order->getMolliePaymentId());
 
-            if ($payment->isPaid()) {
-                $orderService->markAsPaid($order);
+                if ($payment->isPaid()) {
+                    try {
+                        $orderService->processPaidOrder($order);
+                    } catch (\Throwable $e) {
+                        $logger->error('Fallback verwerking betaalde order mislukt', [
+                            'order' => $order->getOrderNumber(),
+                            'paymentId' => $order->getMolliePaymentId(),
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
 
-                if ($cart->countItems() > 0) {
-                    $cart->clear();
+                    if ($cart->countItems() > 0) {
+                        $cart->clear();
+                    }
                 }
+            } catch (\Throwable $e) {
+                $logger->error('Fallback Mollie status ophalen mislukt', [
+                    'order' => $order->getOrderNumber(),
+                    'paymentId' => $order->getMolliePaymentId(),
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

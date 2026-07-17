@@ -3,7 +3,6 @@
 namespace App\Shop\Controller;
 
 use App\Shop\Service\MollieService;
-use App\Shop\Service\OrderMailer;
 use App\Shop\Service\OrderService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,14 +17,14 @@ class PaymentWebhookController extends AbstractController
         Request $request,
         MollieService $mollie,
         OrderService $orderService,
-        OrderMailer $orderMailer,
         LoggerInterface $logger
     ): Response {
         $paymentId = $request->request->get('id');
 
         if (!$paymentId) {
             $logger->warning('Webhook zonder payment id');
-            return new Response('', 200);
+
+            return new Response('', Response::HTTP_OK);
         }
 
         try {
@@ -36,84 +35,69 @@ class PaymentWebhookController extends AbstractController
                 'error' => $e->getMessage(),
             ]);
 
-            return new Response('', 200);
+            // Tijdelijke fout: laat Mollie de webhook opnieuw proberen.
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $order = $orderService->findByMolliePaymentId($paymentId);
 
         if (!$order) {
-            $logger->warning('Order niet gevonden voor payment', [
+            $logger->warning('Order niet gevonden voor Mollie payment', [
                 'paymentId' => $paymentId,
             ]);
 
-            return new Response('', 200);
+            // Payment bestaat wel, maar wij kunnen hem niet verwerken.
+            // Een retry kan helpen als dit door timing/transaction race ontstaat.
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        if ($order->isPaid()) {
-            $logger->info('Webhook duplicate (already paid)', [
-                'paymentId' => $paymentId,
-                'order' => $order->getOrderNumber(),
-            ]);
-
-            return new Response('', 200);
-        }
-
-        if ($payment->isPaid()) {
-            $logger->info('Start paid verwerking', [
-                'order' => $order->getOrderNumber(),
-                'paymentId' => $paymentId,
-            ]);
-
-            $orderService->markAsPaid($order);
-            $orderService->decreaseStock($order);
-
-            try {
-                $logger->info('Start klantmail', [
+        try {
+            if ($payment->isPaid()) {
+                $logger->info('Start paid verwerking', [
                     'order' => $order->getOrderNumber(),
                     'paymentId' => $paymentId,
                 ]);
 
-                $orderMailer->sendCustomerConfirmation($order);
+                $orderService->processPaidOrder($order);
 
-                $logger->info('Klantmail verzonden', [
+                $logger->info('Order betaald via Mollie verwerkt', [
                     'order' => $order->getOrderNumber(),
                     'paymentId' => $paymentId,
                 ]);
+            } elseif ($payment->isCanceled()) {
+                $orderService->markAsCancelled($order);
 
-                $orderMailer->sendAdminNotification($order);
-
-                $logger->info('Adminmail verzonden', [
+                $logger->info('Orderbetaling geannuleerd', [
                     'order' => $order->getOrderNumber(),
                     'paymentId' => $paymentId,
                 ]);
-            } catch (\Throwable $e) {
-                $logger->error('Ordermail versturen mislukt', [
+            } elseif ($payment->isExpired()) {
+                $orderService->markAsExpired($order);
+
+                $logger->info('Orderbetaling verlopen', [
                     'order' => $order->getOrderNumber(),
                     'paymentId' => $paymentId,
-                    'error' => $e->getMessage(),
+                ]);
+            } elseif ($payment->isFailed()) {
+                $orderService->markAsFailed($order);
+
+                $logger->info('Orderbetaling mislukt', [
+                    'order' => $order->getOrderNumber(),
+                    'paymentId' => $paymentId,
                 ]);
             }
-
-            $logger->info('Order betaald via Mollie', [
+        } catch (\Throwable $e) {
+            $logger->error('Mollie webhook verwerking mislukt', [
                 'order' => $order->getOrderNumber(),
                 'paymentId' => $paymentId,
+                'error' => $e->getMessage(),
             ]);
-        } elseif ($payment->isCanceled() || $payment->isExpired()) {
-            $orderService->markAsCancelled($order);
 
-            $logger->info('Order geannuleerd/verlopen', [
-                'order' => $order->getOrderNumber(),
-                'paymentId' => $paymentId,
-            ]);
-        } elseif ($payment->isFailed()) {
-            $orderService->markAsFailed($order);
-
-            $logger->info('Order betaling mislukt', [
-                'order' => $order->getOrderNumber(),
-                'paymentId' => $paymentId,
-            ]);
+            // Belangrijk: geen 200 geven.
+            // processPaidOrder() is idempotent, dus een retry is veilig.
+            return new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new Response('', 200);
+        return new Response('', Response::HTTP_OK);
     }
 }

@@ -128,6 +128,75 @@ class OrderService
         ]);
     }
 
+    public function processPaidOrder(Order $order): void
+    {
+        // 1. Order als betaald markeren.
+        if ($order->getPaidAt() === null) {
+            $order->markAsPaid();
+            $this->em->flush();
+        }
+
+        // 2. Coupon éénmalig verwerken.
+        if ($order->getCouponProcessedAt() === null) {
+            $couponCode = $order->getCouponCode();
+
+            if ($couponCode !== null && $couponCode !== '') {
+                $coupon = $this->couponRepository->findOneBy([
+                    'code' => $couponCode,
+                ]);
+
+                if ($coupon !== null) {
+                    $coupon->incrementTimesRedeemed();
+                }
+            }
+
+            $order->setCouponProcessedAt(new \DateTimeImmutable());
+            $this->em->flush();
+        }
+
+        // 3. Voorraad éénmalig afboeken.
+        if ($order->getStockProcessedAt() === null) {
+            foreach ($order->getItems() as $item) {
+                $variant = $this->variantRepository->findOneBy([
+                    'variantSku' => $item->getVariantSku(),
+                    'isActive' => true,
+                ]);
+
+                if ($variant === null) {
+                    continue;
+                }
+
+                $stock = $variant->getStock();
+
+                if ($stock === null) {
+                    continue;
+                }
+
+                $stock->decrease($item->getQty());
+                $this->availabilityService->invalidate($variant);
+            }
+
+            $order->setStockProcessedAt(new \DateTimeImmutable());
+            $this->em->flush();
+        }
+
+        // 4. Klantmail onafhankelijk verwerken.
+        if ($order->getConfirmationEmailSentAt() === null) {
+            $this->orderMailer->sendCustomerConfirmation($order);
+
+            $order->setConfirmationEmailSentAt(new \DateTimeImmutable());
+            $this->em->flush();
+        }
+
+        // 5. Adminmail onafhankelijk verwerken.
+        if ($order->getAdminEmailSentAt() === null) {
+            $this->orderMailer->sendAdminNotification($order);
+
+            $order->setAdminEmailSentAt(new \DateTimeImmutable());
+            $this->em->flush();
+        }
+    }
+
     public function markAsPaid(Order $order): void
     {
         if ($order->isPaid()) {
@@ -194,6 +263,16 @@ class OrderService
         }
 
         $order->markAsCancelled();
+        $this->em->flush();
+    }
+
+    public function markAsExpired(Order $order): void
+    {
+        if ($order->getStatus() === Order::STATUS_EXPIRED) {
+            return;
+        }
+
+        $order->markAsExpired();
         $this->em->flush();
     }
 

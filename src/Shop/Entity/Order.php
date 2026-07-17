@@ -77,6 +77,21 @@ class Order
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $paidAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $stockProcessedAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $confirmationEmailSentAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $adminEmailSentAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $couponProcessedAt = null;
+
     #[ORM\Column(length: 20, options: ['default' => self::SHIPPING_METHOD_HOME])]
     private string $shippingMethod = self::SHIPPING_METHOD_HOME;
 
@@ -275,6 +290,66 @@ class Order
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getPaidAt(): ?\DateTimeImmutable
+    {
+        return $this->paidAt;
+    }
+
+    public function setPaidAt(?\DateTimeImmutable $paidAt): self
+    {
+        $this->paidAt = $paidAt;
+
+        return $this;
+    }
+
+    public function getStockProcessedAt(): ?\DateTimeImmutable
+    {
+        return $this->stockProcessedAt;
+    }
+
+    public function setStockProcessedAt(?\DateTimeImmutable $stockProcessedAt): self
+    {
+        $this->stockProcessedAt = $stockProcessedAt;
+
+        return $this;
+    }
+
+    public function getConfirmationEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->confirmationEmailSentAt;
+    }
+
+    public function setConfirmationEmailSentAt(?\DateTimeImmutable $confirmationEmailSentAt): self
+    {
+        $this->confirmationEmailSentAt = $confirmationEmailSentAt;
+
+        return $this;
+    }
+
+    public function getAdminEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->adminEmailSentAt;
+    }
+
+    public function setAdminEmailSentAt(?\DateTimeImmutable $adminEmailSentAt): self
+    {
+        $this->adminEmailSentAt = $adminEmailSentAt;
+
+        return $this;
+    }
+
+    public function getCouponProcessedAt(): ?\DateTimeImmutable
+    {
+        return $this->couponProcessedAt;
+    }
+
+    public function setCouponProcessedAt(?\DateTimeImmutable $couponProcessedAt): self
+    {
+        $this->couponProcessedAt = $couponProcessedAt;
+
+        return $this;
     }
 
     public function getShippingMethod(): string
@@ -484,11 +559,20 @@ class Order
     public function markAsPaid(): void
     {
         $this->setStatus(self::STATUS_PAID);
+
+        if ($this->paidAt === null) {
+            $this->paidAt = new \DateTimeImmutable();
+        }
     }
 
     public function markAsCancelled(): void
     {
         $this->setStatus(self::STATUS_CANCELLED);
+    }
+
+    public function markAsExpired(): void
+    {
+        $this->setStatus(self::STATUS_EXPIRED);
     }
 
     public function getTrackingCode(): ?string
