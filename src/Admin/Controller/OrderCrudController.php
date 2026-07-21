@@ -176,7 +176,7 @@ class OrderCrudController extends AbstractCrudController
 
         yield DateTimeField::new(
             'shipmentEmailSentAt',
-            'Verzendmail verstuurd op'
+            'Verzendbevestiging verstuurd op'
         )
             ->hideOnIndex()
             ->hideOnForm();
