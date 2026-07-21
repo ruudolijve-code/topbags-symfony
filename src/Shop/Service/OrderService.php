@@ -235,24 +235,19 @@ class OrderService
 
         $order->markAsShipped();
 
-        // Eerst de daadwerkelijke verzendstatus opslaan.
+        // Eerst vastleggen dat het pakket daadwerkelijk is verzonden.
+        // Een eventuele mailfout mag de verzendstatus niet terugdraaien.
         $this->em->flush();
 
-        // Alleen mailen als nog geen succesvolle verzendbevestiging is geregistreerd.
+        // Alleen automatisch versturen als nog geen succesvolle
+        // verzendbevestiging geregistreerd is.
         if ($order->getShipmentEmailSentAt() === null) {
             try {
-                $this->orderMailer->sendShipmentNotification($order);
-
-                $order->markShipmentEmailAsSent(
-                    $order->getCustomerEmail()
-                );
-            } catch (\Throwable $e) {
-                $order->markShipmentEmailAsFailed(
-                    $e->getMessage()
-                );
+                $this->sendShipmentNotification($order);
+            } catch (\Throwable) {
+                // De fout is al geregistreerd door sendShipmentNotification().
+                // De order blijft terecht op 'shipped' staan.
             }
-
-            $this->em->flush();
         }
     }
 
@@ -321,6 +316,27 @@ class OrderService
         }
 
         $this->em->flush();
+    }
+
+    public function sendShipmentNotification(Order $order): void
+    {
+        try {
+            $this->orderMailer->sendShipmentNotification($order);
+
+            $order->markShipmentEmailAsSent(
+                $order->getCustomerEmail()
+            );
+
+            $this->em->flush();
+        } catch (\Throwable $e) {
+            $order->markShipmentEmailAsFailed(
+                $e->getMessage()
+            );
+
+            $this->em->flush();
+
+            throw $e;
+        }
     }
 
     /**

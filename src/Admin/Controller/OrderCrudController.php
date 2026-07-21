@@ -9,17 +9,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TelephoneField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class OrderCrudController extends AbstractCrudController
 {
@@ -56,10 +58,58 @@ class OrderCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $sendShipmentEmail = Action::new(
+            'sendShipmentEmail',
+            'Verzendbevestiging versturen'
+        )
+            ->linkToCrudAction('sendShipmentEmail')
+            ->displayIf(
+                static fn (Order $order): bool => $order->isShipped()
+            );
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_DETAIL, $sendShipmentEmail)
             ->disable(Action::NEW)
             ->disable(Action::DELETE);
+    }
+
+    public function sendShipmentEmail(AdminContext $context): RedirectResponse
+    {
+        $order = $context->getEntity()->getInstance();
+
+        if (!$order instanceof Order) {
+            $this->addFlash(
+                'danger',
+                'De order kon niet worden gevonden.'
+            );
+
+            return $this->redirect(
+                $context->getReferrer() ?? $this->generateUrl('admin')
+            );
+        }
+
+        try {
+            $this->orderService->sendShipmentNotification($order);
+
+            $this->addFlash(
+                'success',
+                sprintf(
+                    'De verzendbevestiging is verstuurd naar %s.',
+                    $order->getCustomerEmail()
+                )
+            );
+        } catch (\Throwable $e) {
+            $this->addFlash(
+                'danger',
+                'De verzendbevestiging kon niet worden verstuurd: '
+                . $e->getMessage()
+            );
+        }
+
+        return $this->redirect(
+            $context->getReferrer() ?? $this->generateUrl('admin')
+        );
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -151,14 +201,16 @@ class OrderCrudController extends AbstractCrudController
                 'Afhalen bij PostNL-punt' => Order::SHIPPING_METHOD_PICKUP,
                 'Afhalen in winkel' => Order::SHIPPING_METHOD_STORE_PICKUP,
             ])
-            ->formatValue(static function ($value) {
-                return match ($value) {
-                    Order::SHIPPING_METHOD_HOME => 'Thuisbezorgen',
-                    Order::SHIPPING_METHOD_PICKUP => 'Afhalen bij PostNL-punt',
-                    Order::SHIPPING_METHOD_STORE_PICKUP => 'Afhalen in winkel',
-                    default => (string) $value,
-                };
-            });
+            ->formatValue(
+                static function ($value): string {
+                    return match ($value) {
+                        Order::SHIPPING_METHOD_HOME => 'Thuisbezorgen',
+                        Order::SHIPPING_METHOD_PICKUP => 'Afhalen bij PostNL-punt',
+                        Order::SHIPPING_METHOD_STORE_PICKUP => 'Afhalen in winkel',
+                        default => (string) $value,
+                    };
+                }
+            );
 
         yield FormField::addPanel('Track & trace');
 
@@ -272,15 +324,20 @@ class OrderCrudController extends AbstractCrudController
             ->hideOnForm();
     }
 
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
+    public function updateEntity(
+        EntityManagerInterface $entityManager,
+        $entityInstance
+    ): void {
         if (!$entityInstance instanceof Order) {
             parent::updateEntity($entityManager, $entityInstance);
 
             return;
         }
 
-        $originalOrder = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
+        $originalOrder = $entityManager
+            ->getUnitOfWork()
+            ->getOriginalEntityData($entityInstance);
+
         $originalStatus = $originalOrder['status'] ?? null;
         $newStatus = $entityInstance->getStatus();
 
