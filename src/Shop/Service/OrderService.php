@@ -225,8 +225,6 @@ class OrderService
         ?string $trackingCode = null,
         ?string $trackingUrl = null
     ): void {
-        $wasShipped = $order->isShipped();
-
         if ($trackingCode !== null) {
             $order->setTrackingCode($trackingCode);
         }
@@ -237,15 +235,11 @@ class OrderService
 
         $order->markAsShipped();
 
-        // Eerst vastleggen dat de bestelling daadwerkelijk verzonden is.
+        // Eerst de daadwerkelijke verzendstatus opslaan.
         $this->em->flush();
 
-        // Alleen automatisch mailen bij de eerste overgang naar shipped
-        // en alleen als er nog geen succesvolle verzendmail geregistreerd is.
-        if (
-            !$wasShipped
-            && $order->getShipmentEmailSentAt() === null
-        ) {
+        // Alleen mailen als nog geen succesvolle verzendbevestiging is geregistreerd.
+        if ($order->getShipmentEmailSentAt() === null) {
             try {
                 $this->orderMailer->sendShipmentNotification($order);
 
