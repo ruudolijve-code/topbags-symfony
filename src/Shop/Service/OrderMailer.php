@@ -54,6 +54,7 @@ final class OrderMailer
         $email = (new TemplatedEmail())
             ->from(new Address($this->fromEmail, $this->fromName))
             ->to(new Address($order->getCustomerEmail()))
+            ->bcc(new Address($this->adminEmail, $this->adminName))
             ->subject('Je bestelling is verzonden: ' . $order->getOrderNumber())
             ->htmlTemplate('email/order_shipment_notification.html.twig')
             ->textTemplate('email/order_shipment_notification.txt.twig')
