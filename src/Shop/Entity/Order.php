@@ -146,6 +146,18 @@ class Order
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $shippedAt = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $shipmentEmailSentAt = null;
+
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $shipmentEmailSentTo = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $shipmentEmailLastError = null;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $shipmentEmailSendCount = 0;
+
     /**
      * @var Collection<int, OrderItem>
      */
@@ -379,6 +391,69 @@ class Order
         }
 
         return $this;
+    }
+
+    public function getShipmentEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->shipmentEmailSentAt;
+    }
+
+    public function setShipmentEmailSentAt(?\DateTimeImmutable $shipmentEmailSentAt): self
+    {
+        $this->shipmentEmailSentAt = $shipmentEmailSentAt;
+
+        return $this;
+    }
+
+    public function getShipmentEmailSentTo(): ?string
+    {
+        return $this->shipmentEmailSentTo;
+    }
+
+    public function setShipmentEmailSentTo(?string $shipmentEmailSentTo): self
+    {
+        $this->shipmentEmailSentTo = $shipmentEmailSentTo !== null
+            ? trim($shipmentEmailSentTo)
+            : null;
+
+        return $this;
+    }
+
+    public function getShipmentEmailLastError(): ?string
+    {
+        return $this->shipmentEmailLastError;
+    }
+
+    public function setShipmentEmailLastError(?string $shipmentEmailLastError): self
+    {
+        $this->shipmentEmailLastError = $shipmentEmailLastError;
+
+        return $this;
+    }
+
+    public function getShipmentEmailSendCount(): int
+    {
+        return $this->shipmentEmailSendCount;
+    }
+
+    public function setShipmentEmailSendCount(int $shipmentEmailSendCount): self
+    {
+        $this->shipmentEmailSendCount = max(0, $shipmentEmailSendCount);
+
+        return $this;
+    }
+
+    public function markShipmentEmailAsSent(string $email): void
+    {
+        $this->shipmentEmailSentAt = new \DateTimeImmutable();
+        $this->shipmentEmailSentTo = trim($email);
+        $this->shipmentEmailLastError = null;
+        ++$this->shipmentEmailSendCount;
+    }
+
+    public function markShipmentEmailAsFailed(string $error): void
+    {
+        $this->shipmentEmailLastError = $error;
     }
 
     public function getPickupLocationCode(): ?string

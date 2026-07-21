@@ -237,10 +237,28 @@ class OrderService
 
         $order->markAsShipped();
 
+        // Eerst vastleggen dat de bestelling daadwerkelijk verzonden is.
         $this->em->flush();
 
-        if (!$wasShipped) {
-            $this->orderMailer->sendShipmentNotification($order);
+        // Alleen automatisch mailen bij de eerste overgang naar shipped
+        // en alleen als er nog geen succesvolle verzendmail geregistreerd is.
+        if (
+            !$wasShipped
+            && $order->getShipmentEmailSentAt() === null
+        ) {
+            try {
+                $this->orderMailer->sendShipmentNotification($order);
+
+                $order->markShipmentEmailAsSent(
+                    $order->getCustomerEmail()
+                );
+            } catch (\Throwable $e) {
+                $order->markShipmentEmailAsFailed(
+                    $e->getMessage()
+                );
+            }
+
+            $this->em->flush();
         }
     }
 
