@@ -168,7 +168,11 @@ class OrderCrudController extends AbstractCrudController
         yield TextField::new('trackingUrl', 'Tracking URL')
             ->hideOnIndex();
 
-        yield FormField::addPanel('Verzendmail');
+        yield DateTimeField::new('shippedAt', 'Verzonden op')
+            ->hideOnIndex()
+            ->hideOnForm();
+
+        yield FormField::addPanel('Verzendbevestiging');
 
         yield DateTimeField::new(
             'shipmentEmailSentAt',
@@ -195,10 +199,6 @@ class OrderCrudController extends AbstractCrudController
             'shipmentEmailSendCount',
             'Aantal keer verzonden'
         )
-            ->hideOnIndex()
-            ->hideOnForm();
-
-        yield DateTimeField::new('shippedAt', 'Verzonden op')
             ->hideOnIndex()
             ->hideOnForm();
 
