@@ -29,14 +29,34 @@ Klant: {{ order.customerEmail }}
 
 {% for item in order.items %}
 <tr style="border-bottom:1px solid #eee">
-<td>
-{{ item.productName }}<br>
-<span style="color:#777;font-size:12px">
-SKU: {{ item.variantSku }}
-</span>
-</td>
-<td align="center">{{ item.qty }}</td>
-<td align="right">€ {{ item.lineTotal|number_format(2, ',', '.') }}</td>
+    <td>
+        <strong>
+            {% if item.brandName is defined and item.brandName %}
+                {{ item.brandName }}
+            {% endif %}
+
+            {{ item.productName }}
+
+            {% if item.supplierColorName is defined and item.supplierColorName %}
+                {{ item.supplierColorName }}
+            {% endif %}
+        </strong>
+
+        {% if item.variantSku %}
+            <br>
+            <span style="color:#777;font-size:12px">
+                SKU: {{ item.variantSku }}
+            </span>
+        {% endif %}
+    </td>
+
+    <td align="center">
+        {{ item.qty }}
+    </td>
+
+    <td align="right">
+        € {{ item.lineTotal|number_format(2, ',', '.') }}
+    </td>
 </tr>
 {% endfor %}
 
