@@ -1,0 +1,29 @@
+Je bestelling is verzonden
+
+Beste klant,
+
+Goed nieuws: je bestelling {{ order.orderNumber }} is verzonden.
+
+{% if order.trackingCode %}
+Track & trace-code:
+{{ order.trackingCode }}
+
+{% endif %}
+{% if order.trackingUrl %}
+Je kunt je bestelling volgen via:
+{{ order.trackingUrl }}
+
+{% endif %}
+Bestelling:
+{% for item in order.items %}
+- {% if item.brandName %}{{ item.brandName }} {% endif %}{{ item.productName }}{% if item.supplierColorName %} {{ item.supplierColorName }}{% endif %} ({{ item.qty }}x)
+{% endfor %}
+
+We wensen je veel plezier met je bestelling.
+
+Heb je nog vragen? Dan helpen we je natuurlijk graag.
+
+Met vriendelijke groet,
+
+Topbags
+Holtkamp Tassen & Koffers

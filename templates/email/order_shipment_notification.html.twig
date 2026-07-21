@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Je bestelling {{ order.orderNumber }} is verzonden</title>
+</head>
+
+<body style="font-family: Arial, Helvetica, sans-serif; color:#111; line-height:1.6">
+
+<h1>Je bestelling is verzonden</h1>
+
+<p>Beste klant,</p>
+
+<p>
+    Goed nieuws: je bestelling
+    <strong>{{ order.orderNumber }}</strong>
+    is verzonden.
+</p>
+
+{% if order.trackingCode or order.trackingUrl %}
+    <h2>Track & trace</h2>
+
+    {% if order.trackingCode %}
+        <p>
+            <strong>Track & trace-code:</strong><br>
+            {{ order.trackingCode }}
+        </p>
+    {% endif %}
+
+    {% if order.trackingUrl %}
+        <p>
+            <a
+                href="{{ order.trackingUrl }}"
+                style="
+                    display:inline-block;
+                    padding:12px 20px;
+                    background:#111;
+                    color:#fff;
+                    text-decoration:none;
+                    border-radius:4px;
+                    font-weight:bold;
+                "
+            >
+                Volg je bestelling
+            </a>
+        </p>
+    {% endif %}
+{% endif %}
+
+<h2>Je bestelling</h2>
+
+<table width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse">
+    <tr style="border-bottom:1px solid #ddd">
+        <th align="left">Product</th>
+        <th align="center">Aantal</th>
+    </tr>
+
+    {% for item in order.items %}
+        <tr style="border-bottom:1px solid #eee">
+            <td>
+                <strong>
+                    {% if item.brandName %}
+                        {{ item.brandName }}
+                    {% endif %}
+
+                    {{ item.productName }}
+
+                    {% if item.supplierColorName %}
+                        {{ item.supplierColorName }}
+                    {% endif %}
+                </strong>
+
+                {% if item.variantSku %}
+                    <br>
+                    <span style="color:#777; font-size:13px;">
+                        SKU: {{ item.variantSku }}
+                    </span>
+                {% endif %}
+            </td>
+
+            <td align="center">
+                {{ item.qty }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+<p style="margin-top:24px;">
+    We wensen je veel plezier met je bestelling.
+</p>
+
+<p>
+    Heb je nog vragen? Dan helpen we je natuurlijk graag.
+</p>
+
+<p>
+    Met vriendelijke groet,<br>
+    <strong>Topbags</strong><br>
+    Holtkamp Tassen & Koffers
+</p>
+
+</body>
+</html>
