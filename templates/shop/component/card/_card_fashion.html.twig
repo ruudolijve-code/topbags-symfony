@@ -13,8 +13,8 @@
     {% set productUrl = productUrl ~ '?context=bags' %}
   {% endif %}
 
-  {# Prijslogica: gebruik master als die beschikbaar is, anders de huidige variant #}
-  {% set priceVariant = master is defined and master ? master : variant %}
+  {# Prijslogica: gebruik altijd de daadwerkelijk getoonde variant #}
+  {% set priceVariant = variant %}
 
   {% set displayPrice = priceVariant.displayPrice %}
   {% set regularPrice = priceVariant.price %}
