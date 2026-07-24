@@ -293,6 +293,13 @@
                         transform-origin: center;
                     }
 
+                    .payment-logo-card--vvv svg {
+                        width: 74px !important;
+                        height: auto !important;
+                        transform: scale(1.25);
+                        transform-origin: center;
+                    }
+
                     .payment-logo-card--klarna svg {
                         width: 118px !important;
                         height: auto !important;
@@ -327,6 +334,11 @@
                         <span class="payment-logo-card payment-logo-card--mastercard inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
                             <span class="sr-only">Mastercard</span>
                             {% include 'partials/icons/payment/mastercard.svg.twig' %}
+                        </span>
+
+                        <span class="payment-logo-card payment-logo-card--vvv inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                            <span class="sr-only">VVV Cadeaukaart</span>
+                            {% include 'partials/icons/payment/vvv.svg.twig' %}
                         </span>
 
                         <span class="payment-logo-card payment-logo-card--klarna inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border border-gray-200 bg-white px-4 py-2">
