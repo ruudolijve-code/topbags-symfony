@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Admin\Controller;
 
 use App\Catalog\Entity\Image;
 use App\Catalog\Entity\ProductVariant;
+use App\Catalog\Repository\SizeRepository;
 use App\Catalog\Service\VariantImageUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -19,12 +22,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\CacheInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
 #[IsGranted('ROLE_STORE')]
 class ProductVariantCrudController extends AbstractCrudController
@@ -52,6 +55,8 @@ class ProductVariantCrudController extends AbstractCrudController
                 'supplierColorName',
                 'supplierColorSlug',
                 'supplierColorCode',
+                'size.name',
+                'size.code',
                 'product.name',
                 'product.modelSku',
                 'product.brand.name',
@@ -105,23 +110,41 @@ class ProductVariantCrudController extends AbstractCrudController
 
         yield IntegerField::new('salePercentage', 'Sale %')
             ->hideOnIndex();
-        
+
         yield DateTimeField::new('saleStartsAt', 'Sale start')
             ->hideOnIndex();
-            
+
         yield DateTimeField::new('saleEndsAt', 'Sale einde')
             ->hideOnIndex();
-           
+
         yield TextField::new('saleLabel', 'Sale label')
             ->hideOnIndex();
-            
+
         yield BooleanField::new('isMaster', 'Master')
             ->setFormTypeOption('disabled', $storeOnly);
 
         yield BooleanField::new('isActive', 'Actief')
             ->setFormTypeOption('disabled', $storeOnly);
 
-        yield FormField::addPanel('Kleur');
+        yield FormField::addPanel('Kleur & maat');
+
+        yield AssociationField::new('size', 'Maat')
+            ->setRequired(false)
+            ->setHelp(
+                'Optioneel. Laat leeg voor producten zonder maat, zoals koffers en de meeste tassen.'
+            )
+            ->setFormTypeOption('disabled', $storeOnly)
+            ->setFormTypeOption(
+                'query_builder',
+                static function (SizeRepository $repository) {
+                    return $repository
+                        ->createQueryBuilder('size')
+                        ->andWhere('size.isActive = :active')
+                        ->setParameter('active', true)
+                        ->orderBy('size.sortOrder', 'ASC')
+                        ->addOrderBy('size.name', 'ASC');
+                }
+            );
 
         yield AssociationField::new('color', 'Kleur')
             ->hideOnIndex()
@@ -150,7 +173,9 @@ class ProductVariantCrudController extends AbstractCrudController
         yield IntegerField::new('stockReserved', 'Gereserveerd')
             ->hideOnIndex()
             ->setFormTypeOption('disabled', $storeOnly)
-            ->setHelp('Gereserveerde voorraad wordt normaal door bestellingen bepaald.');
+            ->setHelp(
+                'Gereserveerde voorraad wordt normaal door bestellingen bepaald.'
+            );
 
         yield IntegerField::new('stockAvailable', 'Beschikbaar')
             ->onlyOnIndex();
@@ -206,13 +231,17 @@ class ProductVariantCrudController extends AbstractCrudController
                 ->useEntryCrudForm(ImageCrudController::class)
                 ->setFormTypeOption('allow_add', false)
                 ->setFormTypeOption('allow_delete', true)
-                ->setHelp('Nieuwe afbeeldingen voeg je hierboven toe via upload.')
+                ->setHelp(
+                    'Nieuwe afbeeldingen voeg je hierboven toe via upload.'
+                )
                 ->hideOnIndex();
         }
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
+    public function persistEntity(
+        EntityManagerInterface $entityManager,
+        $entityInstance
+    ): void {
         if (!$entityInstance instanceof ProductVariant) {
             parent::persistEntity($entityManager, $entityInstance);
 
@@ -220,7 +249,9 @@ class ProductVariantCrudController extends AbstractCrudController
         }
 
         if (!$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Winkelmedewerkers mogen geen nieuwe varianten aanmaken.');
+            throw $this->createAccessDeniedException(
+                'Winkelmedewerkers mogen geen nieuwe varianten aanmaken.'
+            );
         }
 
         parent::persistEntity($entityManager, $entityInstance);
@@ -229,8 +260,10 @@ class ProductVariantCrudController extends AbstractCrudController
         $this->invalidateAvailabilityCache($entityInstance);
     }
 
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
+    public function updateEntity(
+        EntityManagerInterface $entityManager,
+        $entityInstance
+    ): void {
         if (!$entityInstance instanceof ProductVariant) {
             parent::updateEntity($entityManager, $entityInstance);
 
@@ -264,7 +297,10 @@ class ProductVariantCrudController extends AbstractCrudController
                 $hasPrimary = true;
             }
 
-            $nextPosition = max($nextPosition, $existingImage->getPosition() + 1);
+            $nextPosition = max(
+                $nextPosition,
+                $existingImage->getPosition() + 1
+            );
         }
 
         foreach ($files as $index => $file) {
@@ -272,7 +308,10 @@ class ProductVariantCrudController extends AbstractCrudController
                 continue;
             }
 
-            $filename = $this->variantImageUploader->upload($file, $variant);
+            $filename = $this->variantImageUploader->upload(
+                $file,
+                $variant
+            );
 
             $image = new Image();
             $image
@@ -290,12 +329,15 @@ class ProductVariantCrudController extends AbstractCrudController
         $entityManager->flush();
     }
 
-    private function invalidateAvailabilityCache(ProductVariant $variant): void
-    {
+    private function invalidateAvailabilityCache(
+        ProductVariant $variant
+    ): void {
         if ($variant->getId() === null) {
             return;
         }
 
-        $this->cache->delete('availability.variant.' . $variant->getId());
+        $this->cache->delete(
+            'availability.variant.' . $variant->getId()
+        );
     }
 }
