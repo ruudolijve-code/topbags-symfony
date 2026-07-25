@@ -1,4 +1,46 @@
-{% set colorVariants = product.variants|filter(v => v.isActive and v.color and v.supplierColorSlug) %}
+{# Alle actieve verkoopvarianten #}
+{% set activeVariants = product.variants|filter(v => v.isActive) %}
+
+{# =========================================================
+   Eén representatieve variant per kleur.
+
+   Hierdoor verschijnt zwart bijvoorbeeld maar één keer als
+   kleurbadge, ook wanneer zwart in meerdere maten bestaat.
+   ========================================================= #}
+{% set colorVariants = {} %}
+
+{% for activeVariant in activeVariants %}
+    {% if activeVariant.color and activeVariant.supplierColorSlug %}
+        {% set colorKey = activeVariant.supplierColorSlug %}
+
+        {% if colorVariants[colorKey] is not defined %}
+            {% set colorVariants = colorVariants|merge({
+                (colorKey): activeVariant
+            }) %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{# =========================================================
+   Maatvarianten binnen de momenteel gekozen kleur.
+
+   Bij een riem:
+   Optic White / 85 cm
+   Optic White / 90 cm
+   Optic White / 95 cm
+   ========================================================= #}
+{% set sizeVariants = activeVariants|filter(v =>
+    v.size
+    and (
+        variant.supplierColorSlug
+            ? v.supplierColorSlug == variant.supplierColorSlug
+            : not v.supplierColorSlug
+    )
+) %}
+
+{% set sizeVariants = sizeVariants|sort(
+    (a, b) => a.size.sortOrder <=> b.size.sortOrder
+) %}
 
 {% set displayPrice = variant.displayPrice %}
 {% set regularPrice = variant.price %}
