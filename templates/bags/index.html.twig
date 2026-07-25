@@ -79,6 +79,10 @@
                         {% include 'shop/filter/_filter_color.html.twig' %}
                     {% endif %}
 
+                    {% if allowedFilters is defined and 'materials' in allowedFilters %}
+                        {% include 'shop/filter/_filter_materials.html.twig' %}
+                    {% endif %}
+
                     {% if allowedFilters is defined and 'cta' in allowedFilters %}
                         {% include 'shop/filter/_filter_cta.html.twig' %}
                     {% endif %}
@@ -218,6 +222,10 @@
 
                 {% if allowedFilters is defined and 'color' in allowedFilters %}
                     {% include 'shop/filter/_filter_color.html.twig' %}
+                {% endif %}
+
+                {% if allowedFilters is defined and 'materials' in allowedFilters %}
+                    {% include 'shop/filter/_filter_materials.html.twig' %}
                 {% endif %}
 
                 {% if allowedFilters is defined and 'cta' in allowedFilters %}

@@ -1,0 +1,33 @@
+{% set selectedMaterials = activeMaterials|default([]) %}
+
+{% if materials is defined and materials is not empty %}
+    <div>
+        <h2 class="font-semibold mb-3">
+            Materiaal
+        </h2>
+
+        <div class="space-y-2">
+            {% for material in materials %}
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                        type="checkbox"
+                        name="material[]"
+                        value="{{ material.slug }}"
+                        {% if material.slug in selectedMaterials %}checked{% endif %}
+                        class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                    >
+
+                    <span>
+                        {{ material.name }}
+                    </span>
+
+                    {% if material.productCount is defined %}
+                        <span class="ml-auto text-xs text-gray-400">
+                            {{ material.productCount }}
+                        </span>
+                    {% endif %}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

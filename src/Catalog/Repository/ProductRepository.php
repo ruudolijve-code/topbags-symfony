@@ -5,6 +5,7 @@ namespace App\Catalog\Repository;
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
 use App\Catalog\Entity\Brand;
+use App\Catalog\Entity\Material;
 use App\Catalog\Entity\Product;
 use App\Catalog\Entity\ProductVariant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -29,6 +30,7 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
         ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
         string $sort = 'recommended',
     ): array {
         $ids = $this->findIdsForContextGridWithFilters(
@@ -42,6 +44,7 @@ final class ProductRepository extends ServiceEntityRepository
             airlineRules: $airlineRules,
             volumeRanges: $volumeRanges,
             colorSlugs: $colorSlugs,
+            materialSlugs: $materialSlugs,
             sort: $sort,
         );
 
@@ -50,9 +53,10 @@ final class ProductRepository extends ServiceEntityRepository
         }
 
         $products = $this->createQueryBuilder('p')
-            ->select('p', 'b', 'c', 'master', 'masterImage', 'variants', 'variantColor')
+            ->select('p', 'b', 'c', 'material', 'master', 'masterImage', 'variants', 'variantColor')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
+            ->leftJoin('p.material', 'material')
             ->leftJoin(
                 'p.variants',
                 'master',
@@ -100,12 +104,14 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
         ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
         string $sort = 'recommended',
     ): array {
         $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id AS id')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
+            ->leftJoin('p.material', 'material')
             ->leftJoin(
                 'p.variants',
                 'variants',
@@ -147,6 +153,12 @@ final class ProductRepository extends ServiceEntityRepository
                 ->setParameter('colors', $colorSlugs);
         }
 
+         if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
         if ($volumeRanges) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
@@ -161,8 +173,10 @@ final class ProductRepository extends ServiceEntityRepository
         );
     }
 
-    private function applyContextGridSorting(\Doctrine\ORM\QueryBuilder $qb, string $sort): void
-    {
+    private function applyContextGridSorting(
+        QueryBuilder $qb,
+        string $sort,
+    ): void {
         match ($sort) {
             'featured' => $qb
                 ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
@@ -174,6 +188,12 @@ final class ProductRepository extends ServiceEntityRepository
             'newest' => $qb
                 ->addSelect('p.id AS HIDDEN idSort')
                 ->orderBy('idSort', 'DESC'),
+
+            'bestseller' => $qb
+                ->addSelect('p.position AS HIDDEN positionSort')
+                ->addSelect('p.name AS HIDDEN nameSort')
+                ->orderBy('positionSort', 'ASC')
+                ->addOrderBy('nameSort', 'ASC'),
 
             'price_asc' => $qb
                 ->addSelect('MIN(variants.price) AS HIDDEN minPriceSort')
@@ -194,7 +214,10 @@ final class ProductRepository extends ServiceEntityRepository
                 ->orderBy('nameSort', 'DESC'),
 
             default => $qb
-                ->addSelect('CASE WHEN p.featuredPosition > 0 THEN 0 ELSE 1 END AS HIDDEN featuredFirstSort')
+                ->addSelect(
+                    'CASE WHEN p.featuredPosition > 0 THEN 0 ELSE 1 END
+                    AS HIDDEN featuredFirstSort'
+                )
                 ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
                 ->addSelect('p.id AS HIDDEN idSort')
                 ->orderBy('featuredFirstSort', 'ASC')
@@ -211,12 +234,14 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
     ): int {
         $qb = $this->createQueryBuilder('p')
             ->select('COUNT(DISTINCT p.id)')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
+            ->leftJoin('p.material', 'material')
             ->leftJoin(
                 'p.variants',
                 'variants',
@@ -228,39 +253,59 @@ final class ProductRepository extends ServiceEntityRepository
             ->andWhere('p.productContext = :context')
             ->setParameter('context', $context);
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if ($categorySlugs) {
-            $qb->andWhere('c.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('c.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($colorSlugs) {
-            $qb->andWhere('variantColor.slug IN (:colors)')
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('variantColor.slug IN (:colors)')
                 ->setParameter('colors', $colorSlugs);
         }
 
-        if ($volumeRanges) {
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     private function applyPlainScopeFilter(QueryBuilder $qb, array $scopes): void
@@ -526,7 +571,8 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $sizeSlugs = null,
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
-        ?array $volumeRanges = null
+        ?array $volumeRanges = null,
+        ?array $materialSlugs = null,
     ): array {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('DISTINCT c')
@@ -535,42 +581,143 @@ final class ProductRepository extends ServiceEntityRepository
             ->innerJoin('v.product', 'p')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'pc')
+            ->leftJoin('p.material', 'material')
             ->where('p.isActive = 1')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = 1')
             ->setParameter('context', $context)
             ->orderBy('c.name', 'ASC');
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if ($categorySlugs) {
-            $qb->andWhere('pc.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('pc.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($volumeRanges) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        return $qb->getQuery()->getResult();
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return $qb
+            ->getQuery()
+            ->getResult();
     }
 
+    public function findMaterialsForContextGridWithFilters(
+        string $context,
+        ?array $brandSlugs = null,
+        ?array $categorySlugs = null,
+        ?array $sizeSlugs = null,
+        ?array $scopeSlugs = null,
+        ?array $airlineRules = null,
+        ?array $volumeRanges = null,
+        ?array $colorSlugs = null,
+    ): array {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('DISTINCT material')
+            ->from(Material::class, 'material')
+            ->innerJoin(
+                Product::class,
+                'p',
+                'WITH',
+                'p.material = material'
+            )
+            ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.categories', 'c')
+            ->leftJoin(
+                'p.variants',
+                'variants',
+                'WITH',
+                'variants.isActive = 1'
+            )
+            ->leftJoin('variants.color', 'variantColor')
+            ->where('p.isActive = 1')
+            ->andWhere('p.productContext = :context')
+            ->setParameter('context', $context)
+            ->orderBy('material.name', 'ASC');
+
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
+                ->setParameter('brands', $brandSlugs);
+        }
+
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:categories)')
+                ->setParameter('categories', $categorySlugs);
+        }
+
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:sizes)')
+                ->setParameter('sizes', $sizeSlugs);
+        }
+
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
+            $this->applyPlainScopeFilter($qb, $scopeSlugs);
+        }
+
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
+        }
+
+        if ($volumeRanges !== null && $volumeRanges !== []) {
+            $this->applyVolumeRanges($qb, $volumeRanges);
+        }
+
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('variantColor.slug IN (:colors)')
+                ->setParameter('colors', $colorSlugs);
+        }
+
+        return $qb
+            ->getQuery()
+            ->getResult();
+    }
     public function findBrandsForContextGridWithFilters(
         string $context,
         ?array $categorySlugs = null,
@@ -578,13 +725,15 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
     ): array {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('DISTINCT b')
-            ->from(\App\Catalog\Entity\Brand::class, 'b')
+            ->from(Brand::class, 'b')
             ->innerJoin('b.products', 'p')
             ->leftJoin('p.categories', 'pc')
+            ->leftJoin('p.material', 'material')
             ->leftJoin(
                 'p.variants',
                 'variants',
@@ -598,34 +747,53 @@ final class ProductRepository extends ServiceEntityRepository
             ->setParameter('context', $context)
             ->orderBy('b.name', 'ASC');
 
-        if ($categorySlugs) {
-            $qb->andWhere('pc.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('pc.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($volumeRanges) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        if ($colorSlugs) {
-            $qb->andWhere('variantColor.slug IN (:colors)')
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('variantColor.slug IN (:colors)')
                 ->setParameter('colors', $colorSlugs);
         }
 
-        return $qb->getQuery()->getResult();
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return $qb
+            ->getQuery()
+            ->getResult();
     }
 
     public function hasProductsForContextGridWithFilters(
@@ -636,12 +804,14 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
     ): bool {
         $qb = $this->createQueryBuilder('p')
             ->select('p.id')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
+            ->leftJoin('p.material', 'material')
             ->leftJoin(
                 'p.variants',
                 'variants',
@@ -654,39 +824,59 @@ final class ProductRepository extends ServiceEntityRepository
             ->setParameter('context', $context)
             ->setMaxResults(1);
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if ($categorySlugs) {
-            $qb->andWhere('c.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('c.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($volumeRanges) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        if ($colorSlugs) {
-            $qb->andWhere('variantColor.slug IN (:colors)')
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('variantColor.slug IN (:colors)')
                 ->setParameter('colors', $colorSlugs);
         }
 
-        return $qb->getQuery()->getOneOrNullResult() !== null;
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return $qb
+            ->getQuery()
+            ->getOneOrNullResult() !== null;
     }
 
     /**
@@ -920,7 +1110,8 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $sizeSlugs = null,
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
-        ?array $volumeRanges = null
+        ?array $volumeRanges = null,
+        ?array $materialSlugs = null,
     ): int {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(DISTINCT c.id)')
@@ -929,39 +1120,59 @@ final class ProductRepository extends ServiceEntityRepository
             ->innerJoin('v.product', 'p')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'pc')
+            ->leftJoin('p.material', 'material')
             ->where('p.isActive = 1')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = 1')
             ->setParameter('context', $context);
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if ($categorySlugs) {
-            $qb->andWhere('pc.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('pc.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($volumeRanges) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function countAvailableVariantsForContextGridWithFilters(
@@ -972,7 +1183,8 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
     ): int {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(DISTINCT v.id)')
@@ -980,50 +1192,71 @@ final class ProductRepository extends ServiceEntityRepository
             ->innerJoin('v.product', 'p')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'pc')
+            ->leftJoin('p.material', 'material')
             ->leftJoin('v.color', 'c')
             ->leftJoin('v.stock', 's')
             ->where('p.isActive = 1')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = 1')
-            ->andWhere('(
+            ->andWhere('
                 (s.onHand - s.reserved) > 0
                 OR v.allowBackorder = 1
-            )')
+            ')
             ->setParameter('context', $context);
 
-        if ($brandSlugs) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if ($categorySlugs) {
-            $qb->andWhere('pc.slug IN (:categories)')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if ($sizeSlugs) {
-            $qb->andWhere('pc.slug IN (:sizes)')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->andWhere('pc.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && $scopeSlugs) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if ($airlineRules) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if ($volumeRanges) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        if ($colorSlugs) {
-            $qb->andWhere('c.slug IN (:colors)')
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:colors)')
                 ->setParameter('colors', $colorSlugs);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function countVisibleVariantsForContextGridWithFilters(
@@ -1034,54 +1267,76 @@ final class ProductRepository extends ServiceEntityRepository
         ?array $scopeSlugs = null,
         ?array $airlineRules = null,
         ?array $volumeRanges = null,
-        ?array $colorSlugs = null
+        ?array $colorSlugs = null,
+        ?array $materialSlugs = null,
     ): int {
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(DISTINCT v.id)')
             ->from(ProductVariant::class, 'v')
             ->innerJoin('v.product', 'p')
             ->leftJoin('p.brand', 'b')
+            ->leftJoin('p.material', 'material')
             ->leftJoin('v.color', 'c')
             ->where('p.isActive = true')
             ->andWhere('p.productContext = :context')
             ->andWhere('v.isActive = true')
             ->setParameter('context', $context);
 
-        if (!empty($brandSlugs)) {
-            $qb->andWhere('b.slug IN (:brands)')
+        if ($brandSlugs !== null && $brandSlugs !== []) {
+            $qb
+                ->andWhere('b.slug IN (:brands)')
                 ->setParameter('brands', $brandSlugs);
         }
 
-        if (!empty($categorySlugs)) {
-            $qb->innerJoin('p.categories', 'catFilter')
+        if ($categorySlugs !== null && $categorySlugs !== []) {
+            $qb
+                ->innerJoin('p.categories', 'catFilter')
                 ->andWhere('catFilter.slug IN (:categories)')
                 ->setParameter('categories', $categorySlugs);
         }
 
-        if (!empty($sizeSlugs)) {
-            $qb->innerJoin('p.categories', 'sizeFilter')
+        if ($sizeSlugs !== null && $sizeSlugs !== []) {
+            $qb
+                ->innerJoin('p.categories', 'sizeFilter')
                 ->andWhere('sizeFilter.slug IN (:sizes)')
                 ->setParameter('sizes', $sizeSlugs);
         }
 
-        if (!$airlineRules && !empty($scopeSlugs)) {
+        if (
+            ($airlineRules === null || $airlineRules === [])
+            && $scopeSlugs !== null
+            && $scopeSlugs !== []
+        ) {
             $this->applyPlainScopeFilter($qb, $scopeSlugs);
         }
 
-        if (!empty($airlineRules)) {
-            $this->applyAirlineRules($qb, $airlineRules, $scopeSlugs);
+        if ($airlineRules !== null && $airlineRules !== []) {
+            $this->applyAirlineRules(
+                $qb,
+                $airlineRules,
+                $scopeSlugs
+            );
         }
 
-        if (!empty($volumeRanges)) {
+        if ($volumeRanges !== null && $volumeRanges !== []) {
             $this->applyVolumeRanges($qb, $volumeRanges);
         }
 
-        if (!empty($colorSlugs)) {
-            $qb->andWhere('c.slug IN (:colors)')
+        if ($colorSlugs !== null && $colorSlugs !== []) {
+            $qb
+                ->andWhere('c.slug IN (:colors)')
                 ->setParameter('colors', $colorSlugs);
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        if ($materialSlugs !== null && $materialSlugs !== []) {
+            $qb
+                ->andWhere('material.slug IN (:materials)')
+                ->setParameter('materials', $materialSlugs);
+        }
+
+        return (int) $qb
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function countForBrandGrid(array $brandSlugs = []): int

@@ -6,7 +6,6 @@ namespace App\Catalog\Controller;
 
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Product;
-use App\Catalog\Repository\BrandRepository;
 use App\Catalog\Repository\CategoryRepository;
 use App\Catalog\Repository\ProductRepository;
 use App\Catalog\Repository\ProductVariantRepository;
@@ -40,7 +39,6 @@ final class CategoryController extends AbstractController
         CategoryRepository $categoryRepository,
         ProductRepository $productRepository,
         ProductVariantRepository $productVariantRepository,
-        BrandRepository $brandRepository,
         AirlineRepository $airlineRepository,
         AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
         AvailabilityService $availabilityService,
@@ -55,13 +53,14 @@ final class CategoryController extends AbstractController
             throw $this->createNotFoundException('Categorie niet gevonden');
         }
 
-       $activeContext = $this->resolveActiveContext($category, $request);
+        $activeContext = $this->resolveActiveContext($category, $request);
         $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($activeContext);
         $fixedCategorySlugs = [$category->getSlug()];
 
         $brandSlugs = $this->getQueryArray($request, 'brand');
         $volumeRanges = $this->getQueryArray($request, 'volume');
         $colorSlugs = $this->getQueryArray($request, 'color');
+        $materialSlugs = $this->getQueryArray($request, 'material');
 
         $sort = $this->normalizeSort(
             (string) $request->query->get('sort', 'recommended')
@@ -75,10 +74,18 @@ final class CategoryController extends AbstractController
             ? trim((string) $request->query->get('scope', ''))
             : '';
 
-        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true) ? $rawScope : '';
-        $scopeSlugs = $selectedScope !== '' ? [$selectedScope] : [];
+        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true)
+            ? $rawScope
+            : '';
 
-        $page = max(1, $request->query->getInt('page', 1));
+        $scopeSlugs = $selectedScope !== ''
+            ? [$selectedScope]
+            : [];
+
+        $page = max(
+            1,
+            $request->query->getInt('page', 1)
+        );
 
         $airlineRules = $this->resolveSelectedAirlineRules(
             context: $activeContext,
@@ -96,6 +103,7 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $pagination = $paginationService->create(
@@ -115,11 +123,15 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
             sort: $sort,
         );
 
         $matchingVariants = $colorSlugs !== []
-            ? $productRepository->findMatchingVariantsForColors($products, $colorSlugs)
+            ? $productRepository->findMatchingVariantsForColors(
+                $products,
+                $colorSlugs
+            )
             : [];
 
         $items = [];
@@ -141,7 +153,10 @@ final class CategoryController extends AbstractController
                 $displayVariant->getVariantSku()
             );
 
-            if ($freshDisplayVariant === null || !$freshDisplayVariant->isActive()) {
+            if (
+                $freshDisplayVariant === null
+                || !$freshDisplayVariant->isActive()
+            ) {
                 continue;
             }
 
@@ -153,8 +168,12 @@ final class CategoryController extends AbstractController
                 'product' => $product,
                 'variant' => $freshDisplayVariant,
                 'master' => $freshMaster,
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshDisplayVariant),
-                'availability' => $availabilityService->get($freshDisplayVariant),
+                'mediaPath' => $this->variantImagePathResolver->fromVariant(
+                    $freshDisplayVariant
+                ),
+                'availability' => $availabilityService->get(
+                    $freshDisplayVariant
+                ),
             ];
         }
 
@@ -162,6 +181,11 @@ final class CategoryController extends AbstractController
             ? $airlineRepository->findActiveOrdered()
             : [];
 
+        /*
+         * Het kleurfilter reageert op de overige filters, waaronder materiaal.
+         * De geselecteerde kleuren worden hier niet zelf als beperking gebruikt,
+         * zodat de bezoeker meerdere kleuren kan aanvinken.
+         */
         $availableColors = $productRepository->findColorsForContextGridWithFilters(
             context: $activeContext,
             brandSlugs: $brandSlugs ?: null,
@@ -170,8 +194,29 @@ final class CategoryController extends AbstractController
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
+        /*
+         * Het materiaalfilter reageert op de overige filters, waaronder kleur.
+         * De geselecteerde materialen worden hier niet zelf als beperking gebruikt,
+         * zodat de bezoeker meerdere materialen kan aanvinken.
+         */
+        $availableMaterials = $productRepository->findMaterialsForContextGridWithFilters(
+            context: $activeContext,
+            brandSlugs: $brandSlugs ?: null,
+            categorySlugs: $fixedCategorySlugs,
+            sizeSlugs: null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
+        );
+
+        /*
+         * Het merkfilter reageert op zowel kleur als materiaal.
+         * De geselecteerde merken worden niet aan deze query meegegeven.
+         */
         $availableBrands = $productRepository->findBrandsForContextGridWithFilters(
             context: $activeContext,
             categorySlugs: $fixedCategorySlugs,
@@ -180,6 +225,7 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $totalColors = $productRepository->countColorsForContextGridWithFilters(
@@ -190,6 +236,7 @@ final class CategoryController extends AbstractController
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $totalAvailableVariants = $productRepository->countAvailableVariantsForContextGridWithFilters(
@@ -201,6 +248,7 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $totalVisibleVariants = $productRepository->countVisibleVariantsForContextGridWithFilters(
@@ -212,13 +260,17 @@ final class CategoryController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         return $this->render('category/index.html.twig', [
             'category' => $category,
-            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl('category_show', [
-                'slug' => $category->getSlug(),
-            ]),
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl(
+                'category_show',
+                [
+                    'slug' => $category->getSlug(),
+                ]
+            ),
 
             'activeContext' => $activeContext,
             'context' => $activeContext,
@@ -226,10 +278,12 @@ final class CategoryController extends AbstractController
 
             'allowedFilters' => $allowedFilters,
             'items' => $items,
+
             'brands' => $availableBrands,
             'categories' => $categoryRepository->findForContext($activeContext),
             'airlines' => $availableAirlines,
             'colors' => $availableColors,
+            'materials' => $availableMaterials,
 
             'activeBrands' => $brandSlugs,
             'activeCategories' => $fixedCategorySlugs,
@@ -237,9 +291,12 @@ final class CategoryController extends AbstractController
             'activeScopes' => $scopeSlugs,
             'activeVolumes' => $volumeRanges,
             'activeColors' => $colorSlugs,
+            'activeMaterials' => $materialSlugs,
 
             'currentAirline' => $airlineSlugs[0] ?? null,
-            'currentScope' => $scopeSlugs[0] ?? null,
+            'currentScope' => $selectedScope !== ''
+                ? $selectedScope
+                : 'all',
             'currentSort' => $sort,
 
             'pagination' => $pagination,
@@ -252,12 +309,22 @@ final class CategoryController extends AbstractController
     /**
      * @return string[]
      */
-    private function getQueryArray(Request $request, string $key): array
-    {
-        return array_values(array_filter(
+    private function getQueryArray(
+        Request $request,
+        string $key,
+    ): array {
+        $values = array_filter(
             (array) $request->query->all($key),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
+            static fn (mixed $value): bool => is_string($value)
+                && trim($value) !== ''
+        );
+
+        $values = array_map(
+            static fn (string $value): string => trim($value),
+            $values
+        );
+
+        return array_values(array_unique($values));
     }
 
     private function normalizeSort(string $sort): string
@@ -272,16 +339,26 @@ final class CategoryController extends AbstractController
             'name_desc',
         ];
 
-        return in_array($sort, $allowedSorts, true) ? $sort : 'recommended';
+        return in_array($sort, $allowedSorts, true)
+            ? $sort
+            : 'recommended';
     }
 
+    /**
+     * @param string[] $airlineSlugs
+     *
+     * @return array
+     */
     private function resolveSelectedAirlineRules(
         string $context,
         array $airlineSlugs,
         AirlineRepository $airlineRepository,
         AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
     ): array {
-        if ($context !== Product::CONTEXT_SHOP || $airlineSlugs === []) {
+        if (
+            $context !== Product::CONTEXT_SHOP
+            || $airlineSlugs === []
+        ) {
             return [];
         }
 
@@ -293,18 +370,32 @@ final class CategoryController extends AbstractController
         $airlineRules = [];
 
         foreach ($selectedAirlines as $airline) {
-            $rules = $airlineBaggageRuleRepository->findActiveForAirline($airline);
-            $airlineRules = array_merge($airlineRules, $rules);
+            $rules = $airlineBaggageRuleRepository->findActiveForAirline(
+                $airline
+            );
+
+            $airlineRules = array_merge(
+                $airlineRules,
+                $rules
+            );
         }
 
         return $airlineRules;
     }
 
-    private function resolveActiveContext(Category $category, Request $request): string
-    {
+    private function resolveActiveContext(
+        Category $category,
+        Request $request,
+    ): string {
         $requestedContext = $request->query->get('context');
 
-        if (in_array($requestedContext, [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS], true)) {
+        if (
+            in_array(
+                $requestedContext,
+                [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS],
+                true
+            )
+        ) {
             return $requestedContext;
         }
 
@@ -313,12 +404,19 @@ final class CategoryController extends AbstractController
         return $resolvedContext ?? Product::CONTEXT_SHOP;
     }
 
-    private function resolveContextFromCategoryTree(Category $category): ?string
-    {
+    private function resolveContextFromCategoryTree(
+        Category $category,
+    ): ?string {
         foreach ($category->getContexts() as $contextRelation) {
             $context = $contextRelation->getContext();
 
-            if (in_array($context, [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS], true)) {
+            if (
+                in_array(
+                    $context,
+                    [Product::CONTEXT_SHOP, Product::CONTEXT_BAGS],
+                    true
+                )
+            ) {
                 return $context;
             }
         }

@@ -11,6 +11,7 @@ final class CategoryFilterResolver
     public const FILTER_WEIGHT = 'weight';
     public const FILTER_VOLUME = 'volume';
     public const FILTER_COLOR = 'color';
+    public const FILTER_MATERIALS = 'materials';
     public const FILTER_AIRLINES = 'airlines';
     public const FILTER_FLYING_SCOPE = 'flying_scope';
     public const FILTER_CTA = 'cta';
@@ -21,6 +22,7 @@ final class CategoryFilterResolver
             Product::CONTEXT_BAGS => [
                 self::FILTER_BRANDS,
                 self::FILTER_COLOR,
+                self::FILTER_MATERIALS,
                 self::FILTER_CTA,
             ],
             Product::CONTEXT_SHOP => [
@@ -29,6 +31,7 @@ final class CategoryFilterResolver
                 self::FILTER_WEIGHT,
                 self::FILTER_VOLUME,
                 self::FILTER_COLOR,
+                self::FILTER_MATERIALS,
                 self::FILTER_AIRLINES,
                 self::FILTER_FLYING_SCOPE,
                 self::FILTER_CTA,
@@ -36,6 +39,7 @@ final class CategoryFilterResolver
             default => [
                 self::FILTER_BRANDS,
                 self::FILTER_COLOR,
+                self::FILTER_MATERIALS,
                 self::FILTER_CTA,
             ],
         };

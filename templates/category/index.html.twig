@@ -122,6 +122,10 @@
                         {% include 'shop/filter/_filter_color.html.twig' %}
                     {% endif %}
 
+                    {% if 'materials' in allowedFilters %}
+                        {% include 'shop/filter/_filter_materials.html.twig' %}
+                    {% endif %}
+
                     {% if 'airlines' in allowedFilters %}
                         {% include 'shop/filter/_filter_airlines.html.twig' %}
                     {% endif %}
@@ -310,6 +314,10 @@
 
                     {% if 'color' in allowedFilters %}
                         {% include 'shop/filter/_filter_color.html.twig' %}
+                    {% endif %}
+
+                    {% if 'materials' in allowedFilters %}
+                        {% include 'shop/filter/_filter_materials.html.twig' %}
                     {% endif %}
 
                     {% if 'airlines' in allowedFilters %}

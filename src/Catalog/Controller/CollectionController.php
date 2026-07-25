@@ -39,7 +39,9 @@ final class CollectionController extends AbstractController
         ProductVariantRepository $productVariantRepository,
         AvailabilityService $availabilityService,
     ): Response {
-        $landingCategory = $categoryRepository->findOneBy(['slug' => 'shop']);
+        $landingCategory = $categoryRepository->findOneBy([
+            'slug' => 'shop',
+        ]);
 
         // Populaire / uitgelichte koffers.
         $featuredProducts = $productRepository->findFeaturedForCategorySlug(
@@ -140,7 +142,9 @@ final class CollectionController extends AbstractController
         ProductVariantRepository $productVariantRepository,
         AvailabilityService $availabilityService,
     ): Response {
-        $landingCategory = $categoryRepository->findOneBy(['slug' => 'bags']);
+        $landingCategory = $categoryRepository->findOneBy([
+            'slug' => 'bags',
+        ]);
 
         // Uitgelichte tassen.
         $featuredBagProducts = $productRepository->findFeaturedForCategorySlug(
@@ -270,7 +274,9 @@ final class CollectionController extends AbstractController
         AvailabilityService $availabilityService,
         PaginationService $paginationService,
     ): Response {
-        $landingCategory = $categoryRepository->findOneBy(['slug' => $landingCategorySlug]);
+        $landingCategory = $categoryRepository->findOneBy([
+            'slug' => $landingCategorySlug,
+        ]);
 
         $allowedFilters = $this->categoryFilterResolver->getAllowedFilters($context);
 
@@ -278,6 +284,7 @@ final class CollectionController extends AbstractController
         $categorySlugs = $this->getStringArrayQuery($request, 'category');
         $volumeRanges = $this->getStringArrayQuery($request, 'volume');
         $colorSlugs = $this->getStringArrayQuery($request, 'color');
+        $materialSlugs = $this->getStringArrayQuery($request, 'material');
 
         $sort = $this->normalizeSort(
             (string) $request->query->get('sort', 'recommended')
@@ -287,8 +294,13 @@ final class CollectionController extends AbstractController
             ? $this->getStringArrayQuery($request, 'airline')
             : [];
 
-        $rawScope = trim((string) $request->query->get('scope', ''));
-        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true) ? $rawScope : '';
+        $rawScope = trim(
+            (string) $request->query->get('scope', '')
+        );
+
+        $selectedScope = in_array($rawScope, self::ALL_SCOPES, true)
+            ? $rawScope
+            : '';
 
         $scopeSlugs = $this->normalizeScopeSlugs(
             context: $context,
@@ -296,9 +308,14 @@ final class CollectionController extends AbstractController
             airlineSlugs: $airlineSlugs,
         );
 
-        $activeScopes = $selectedScope !== '' ? [$selectedScope] : [''];
+        $activeScopes = $selectedScope !== ''
+            ? [$selectedScope]
+            : [''];
 
-        $page = max(1, $request->query->getInt('page', 1));
+        $page = max(
+            1,
+            $request->query->getInt('page', 1)
+        );
 
         $airlineRules = $this->resolveSelectedAirlineRules(
             context: $context,
@@ -316,6 +333,7 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $pagination = $paginationService->create(
@@ -335,11 +353,15 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
             sort: $sort,
         );
 
         $matchingVariants = $colorSlugs !== []
-            ? $productRepository->findMatchingVariantsForColors($products, $colorSlugs)
+            ? $productRepository->findMatchingVariantsForColors(
+                $products,
+                $colorSlugs
+            )
             : [];
 
         $items = [];
@@ -361,7 +383,10 @@ final class CollectionController extends AbstractController
                 $displayVariant->getVariantSku()
             );
 
-            if ($freshDisplayVariant === null || !$freshDisplayVariant->isActive()) {
+            if (
+                $freshDisplayVariant === null
+                || !$freshDisplayVariant->isActive()
+            ) {
                 continue;
             }
 
@@ -373,8 +398,12 @@ final class CollectionController extends AbstractController
                 'product' => $product,
                 'variant' => $freshDisplayVariant,
                 'master' => $freshMaster,
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshDisplayVariant),
-                'availability' => $availabilityService->get($freshDisplayVariant),
+                'mediaPath' => $this->variantImagePathResolver->fromVariant(
+                    $freshDisplayVariant
+                ),
+                'availability' => $availabilityService->get(
+                    $freshDisplayVariant
+                ),
             ];
         }
 
@@ -382,6 +411,11 @@ final class CollectionController extends AbstractController
             ? $airlineRepository->findActiveOrdered()
             : [];
 
+        /*
+         * Beschikbare kleuren worden beperkt door de overige actieve filters,
+         * waaronder materiaal. Het kleurfilter wordt niet op zichzelf toegepast,
+         * zodat meerdere kleuren geselecteerd kunnen worden.
+         */
         $availableColors = $productRepository->findColorsForContextGridWithFilters(
             context: $context,
             brandSlugs: $brandSlugs ?: null,
@@ -390,8 +424,29 @@ final class CollectionController extends AbstractController
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
+        /*
+         * Beschikbare materialen worden beperkt door de overige actieve filters.
+         * Het materiaalfilter wordt niet op zichzelf toegepast, zodat meerdere
+         * materialen geselecteerd kunnen worden.
+         */
+        $availableMaterials = $productRepository->findMaterialsForContextGridWithFilters(
+            context: $context,
+            brandSlugs: $brandSlugs ?: null,
+            categorySlugs: $categorySlugs ?: null,
+            sizeSlugs: null,
+            scopeSlugs: $scopeSlugs ?: null,
+            airlineRules: $airlineRules ?: null,
+            volumeRanges: $volumeRanges ?: null,
+            colorSlugs: $colorSlugs ?: null,
+        );
+
+        /*
+         * Beschikbare merken reageren zowel op kleur als materiaal.
+         * Het merkfilter zelf wordt niet aan deze query meegegeven.
+         */
         $availableBrands = $productRepository->findBrandsForContextGridWithFilters(
             context: $context,
             categorySlugs: $categorySlugs ?: null,
@@ -400,6 +455,7 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $totalColors = $productRepository->countColorsForContextGridWithFilters(
@@ -410,6 +466,7 @@ final class CollectionController extends AbstractController
             scopeSlugs: $scopeSlugs ?: null,
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
         $totalAvailableVariants = $productRepository->countAvailableVariantsForContextGridWithFilters(
@@ -421,9 +478,10 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
-         $totalVisibleVariants = $productRepository->countVisibleVariantsForContextGridWithFilters(
+        $totalVisibleVariants = $productRepository->countVisibleVariantsForContextGridWithFilters(
             context: $context,
             brandSlugs: $brandSlugs ?: null,
             categorySlugs: $categorySlugs ?: null,
@@ -432,35 +490,47 @@ final class CollectionController extends AbstractController
             airlineRules: $airlineRules ?: null,
             volumeRanges: $volumeRanges ?: null,
             colorSlugs: $colorSlugs ?: null,
+            materialSlugs: $materialSlugs ?: null,
         );
 
-        $canonicalRoute = $context === Product::CONTEXT_BAGS ? 'bags_index' : 'shop_all';
-        
+        $canonicalRoute = $context === Product::CONTEXT_BAGS
+            ? 'bags_index'
+            : 'shop_all';
 
         return $this->render($template, [
             'activeContext' => $context,
             'context' => $context,
             'currentContext' => $context,
-            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl($canonicalRoute),
+            'canonical_url' => self::CANONICAL_HOST . $this->generateUrl(
+                $canonicalRoute
+            ),
 
             'category' => $landingCategory,
             'landingCategory' => $landingCategory,
 
             'allowedFilters' => $allowedFilters,
             'items' => $items,
+
             'brands' => $availableBrands,
             'categories' => $categoryRepository->findForContext($context),
             'airlines' => $availableAirlines,
             'colors' => $availableColors,
+            'materials' => $availableMaterials,
+
             'activeBrands' => $brandSlugs,
             'activeCategories' => $categorySlugs,
             'activeAirlines' => $airlineSlugs,
             'activeScopes' => $activeScopes,
             'activeVolumes' => $volumeRanges,
             'activeColors' => $colorSlugs,
+            'activeMaterials' => $materialSlugs,
+
             'currentAirline' => $airlineSlugs[0] ?? null,
-            'currentScope' => $selectedScope !== '' ? $selectedScope : 'all',
+            'currentScope' => $selectedScope !== ''
+                ? $selectedScope
+                : 'all',
             'currentSort' => $sort,
+
             'pagination' => $pagination,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
@@ -468,12 +538,20 @@ final class CollectionController extends AbstractController
         ]);
     }
 
+    /**
+     * @param string[] $airlineSlugs
+     *
+     * @return string[]
+     */
     private function normalizeScopeSlugs(
         string $context,
         string $selectedScope,
         array $airlineSlugs,
     ): array {
-        if ($context !== Product::CONTEXT_SHOP || $airlineSlugs === []) {
+        if (
+            $context !== Product::CONTEXT_SHOP
+            || $airlineSlugs === []
+        ) {
             return [];
         }
 
@@ -484,13 +562,21 @@ final class CollectionController extends AbstractController
         return [$selectedScope];
     }
 
+    /**
+     * @param string[] $airlineSlugs
+     *
+     * @return array
+     */
     private function resolveSelectedAirlineRules(
         string $context,
         array $airlineSlugs,
         AirlineRepository $airlineRepository,
         AirlineBaggageRuleRepository $airlineBaggageRuleRepository,
     ): array {
-        if ($context !== Product::CONTEXT_SHOP || $airlineSlugs === []) {
+        if (
+            $context !== Product::CONTEXT_SHOP
+            || $airlineSlugs === []
+        ) {
             return [];
         }
 
@@ -502,8 +588,14 @@ final class CollectionController extends AbstractController
         $airlineRules = [];
 
         foreach ($selectedAirlines as $airline) {
-            $rules = $airlineBaggageRuleRepository->findActiveForAirline($airline);
-            $airlineRules = array_merge($airlineRules, $rules);
+            $rules = $airlineBaggageRuleRepository->findActiveForAirline(
+                $airline
+            );
+
+            $airlineRules = array_merge(
+                $airlineRules,
+                $rules
+            );
         }
 
         return $airlineRules;
@@ -512,12 +604,17 @@ final class CollectionController extends AbstractController
     /**
      * @return string[]
      */
-    private function getStringArrayQuery(Request $request, string $key): array
-    {
-        return array_values(array_filter(
+    private function getStringArrayQuery(
+        Request $request,
+        string $key,
+    ): array {
+        $values = array_filter(
             (array) $request->query->all($key),
-            static fn (mixed $value): bool => is_string($value) && $value !== ''
-        ));
+            static fn (mixed $value): bool => is_string($value)
+                && trim($value) !== ''
+        );
+
+        return array_values(array_unique($values));
     }
 
     private function normalizeSort(string $sort): string
@@ -532,11 +629,15 @@ final class CollectionController extends AbstractController
             'name_desc',
         ];
 
-        return in_array($sort, $allowedSorts, true) ? $sort : 'recommended';
+        return in_array($sort, $allowedSorts, true)
+            ? $sort
+            : 'recommended';
     }
 
     /**
      * @param Product[] $products
+     *
+     * @return array<int, array<string, mixed>>
      */
     private function mapProductsToLandingItems(
         array $products,
@@ -556,7 +657,10 @@ final class CollectionController extends AbstractController
                 $master->getVariantSku()
             );
 
-            if ($freshMaster === null || !$freshMaster->isActive()) {
+            if (
+                $freshMaster === null
+                || !$freshMaster->isActive()
+            ) {
                 continue;
             }
 
@@ -564,8 +668,12 @@ final class CollectionController extends AbstractController
                 'product' => $product,
                 'variant' => $freshMaster,
                 'master' => $freshMaster,
-                'mediaPath' => $this->variantImagePathResolver->fromVariant($freshMaster),
-                'availability' => $availabilityService->get($freshMaster),
+                'mediaPath' => $this->variantImagePathResolver->fromVariant(
+                    $freshMaster
+                ),
+                'availability' => $availabilityService->get(
+                    $freshMaster
+                ),
             ];
         }
 
@@ -574,6 +682,8 @@ final class CollectionController extends AbstractController
 
     /**
      * @param ProductVariant[] $variants
+     *
+     * @return array<int, array<string, mixed>>
      */
     private function mapVariantsToLandingItems(
         array $variants,
@@ -582,7 +692,10 @@ final class CollectionController extends AbstractController
         $items = [];
 
         foreach ($variants as $variant) {
-            $card = $this->createCardFromVariant($variant, $availabilityService);
+            $card = $this->createCardFromVariant(
+                $variant,
+                $availabilityService
+            );
 
             if ($card !== null) {
                 $items[] = $card;
@@ -592,13 +705,20 @@ final class CollectionController extends AbstractController
         return $items;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function createCardFromVariant(
         ProductVariant $variant,
         AvailabilityService $availabilityService,
     ): ?array {
         $product = $variant->getProduct();
 
-        if ($product === null || !$product->isActive() || !$variant->isActive()) {
+        if (
+            $product === null
+            || !$product->isActive()
+            || !$variant->isActive()
+        ) {
             return null;
         }
 
@@ -612,7 +732,9 @@ final class CollectionController extends AbstractController
             'product' => $product,
             'variant' => $variant,
             'master' => $master,
-            'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
+            'mediaPath' => $this->variantImagePathResolver->fromVariant(
+                $variant
+            ),
             'availability' => $availabilityService->get($variant),
         ];
     }
