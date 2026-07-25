@@ -9,6 +9,7 @@ use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
 use App\Catalog\Entity\Material;
+use App\Catalog\Entity\Size;
 use App\Catalog\Entity\Product;
 use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Entity\Supplier;
