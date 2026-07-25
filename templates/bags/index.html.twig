@@ -71,6 +71,18 @@
             {# Desktop filters #}
             <aside class="hidden rounded-xl bg-white p-6 shadow-sm lg:col-span-1 lg:block">
                 <form method="get" class="space-y-6">
+                    {% for categorySlug in activeCategories|default([]) %}
+                        <input
+                            type="hidden"
+                            name="category[]"
+                            value="{{ categorySlug }}"
+                        >
+                    {% endfor %}
+
+                    {% if currentSort != 'recommended' %}
+                        <input type="hidden" name="sort" value="{{ currentSort }}">
+                    {% endif %}
+
                     {% if allowedFilters is defined and 'brands' in allowedFilters %}
                         {% include 'shop/filter/_filter_brands.html.twig' %}
                     {% endif %}
@@ -216,6 +228,18 @@
             </div>
 
             <form method="get" class="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+                {% for categorySlug in activeCategories|default([]) %}
+                    <input
+                        type="hidden"
+                        name="category[]"
+                        value="{{ categorySlug }}"
+                    >
+                {% endfor %}
+
+                {% if currentSort != 'recommended' %}
+                    <input type="hidden" name="sort" value="{{ currentSort }}">
+                {% endif %}
+
                 {% if allowedFilters is defined and 'brands' in allowedFilters %}
                     {% include 'shop/filter/_filter_brands.html.twig' %}
                 {% endif %}
