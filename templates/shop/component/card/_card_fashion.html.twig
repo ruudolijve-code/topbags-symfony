@@ -45,9 +45,12 @@
           {# ===============================
             Leather badge rechtsboven
           =============================== #}
-          {% set materialName = product.material is defined and product.material ? product.material.name|lower|trim : '' %}
+          {% set materialName = product.material is defined and product.material
+            ? product.material.name|lower|trim
+            : ''
+          %}
 
-          {# Normaliseer accenten, zodat "Suède" ook als "suede" wordt herkend #}
+          {# Normaliseer accenten #}
           {% set materialKey = materialName
             |replace({
               'è': 'e',
@@ -61,13 +64,25 @@
             })
           %}
 
+          {# Kunstleer uitsluiten van de leren badge #}
+          {% set isVeganLeather =
+            'vegan leer' in materialKey
+            or 'vegan leather' in materialKey
+            or 'pu leer' in materialKey
+            or 'pu leather' in materialKey
+            or materialKey == 'pu'
+          %}
+
           {% set isLeather =
-            materialKey == 'leer'
-            or materialKey == 'leather'
-            or materialKey == 'suede'
-            or 'leer' in materialKey
-            or 'leather' in materialKey
-            or 'suede' in materialKey
+            not isVeganLeather
+            and (
+              materialKey == 'leer'
+              or materialKey == 'leather'
+              or materialKey == 'suede'
+              or 'leer' in materialKey
+              or 'leather' in materialKey
+              or 'suede' in materialKey
+            )
           %}
 
           {% if isLeather %}
