@@ -120,6 +120,9 @@ final class DashboardController extends AbstractDashboardController
 
                 MenuItem::linkToCrud('Materialen', 'fa fa-layer-group', Material::class)
                     ->setController(MaterialCrudController::class),
+
+                MenuItem::linkToCrud('Maten', 'fa fa-ruler', \App\Catalog\Entity\Size::class)
+                    ->setController(SizeCrudController::class),
             ]);
 
             yield MenuItem::subMenu('Leveranciers', 'fa fa-truck')->setSubItems([
