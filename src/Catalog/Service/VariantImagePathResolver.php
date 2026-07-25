@@ -8,54 +8,6 @@ use App\Catalog\Entity\ProductVariant;
 
 final class VariantImagePathResolver
 {
-    /**
-     * Bepaalt de afbeeldingsmap op basis van model-SKU en kleurcode.
-     *
-     * Voorbeeld:
-     * modelSku: AW0AW18856
-     * colorCode: BDS
-     *
-     * Resultaat:
-     * media/variants/a/w/AW0AW18856/BDS
-     */
-    public function fromModelAndColor(
-        string $modelSku,
-        string $colorCode
-    ): ?string {
-        $modelSku = trim($modelSku);
-        $colorCode = trim($colorCode);
-
-        if ($modelSku === '' || $colorCode === '') {
-            return null;
-        }
-
-        $modelForIndex = preg_replace(
-            '/[^A-Za-z0-9]/',
-            '',
-            $modelSku
-        ) ?? '';
-
-        if (strlen($modelForIndex) < 2) {
-            return null;
-        }
-
-        return sprintf(
-            'media/variants/%s/%s/%s/%s',
-            strtolower($modelForIndex[0]),
-            strtolower($modelForIndex[1]),
-            $modelSku,
-            $colorCode
-        );
-    }
-
-    /**
-     * Oude fallback voor bestaande SKU-opbouw:
-     *
-     * MODEL-KLEUR
-     *
-     * Gebruik deze methode niet voor nieuwe maatvarianten zoals:
-     * MODEL-KLEUR-MAAT
-     */
     public static function fromSku(string $variantSku): ?string
     {
         $parts = array_values(
@@ -67,6 +19,22 @@ final class VariantImagePathResolver
 
         if (count($parts) < 2) {
             return null;
+        }
+
+        /*
+         * SKU met maat:
+         *
+         * AM0AM13014-BDS-105
+         *
+         * laatste deel = maat
+         * voorlaatste deel = kleur
+         * overige delen = model
+         */
+        if (
+            count($parts) >= 3
+            && self::looksLikeSize((string) end($parts))
+        ) {
+            array_pop($parts);
         }
 
         $color = trim((string) array_pop($parts));
@@ -95,41 +63,11 @@ final class VariantImagePathResolver
         );
     }
 
-    /**
-     * Bepaalt alleen de map voor een variant.
-     *
-     * De maat wordt bewust niet in het afbeeldingspad opgenomen.
-     */
     public function directoryFromVariant(ProductVariant $variant): ?string
     {
-        $product = $variant->getProduct();
-
-        if ($product !== null) {
-            $modelSku = trim((string) $product->getModelSku());
-            $colorCode = trim((string) $variant->getSupplierColorCode());
-
-            $directory = $this->fromModelAndColor(
-                $modelSku,
-                $colorCode
-            );
-
-            if ($directory !== null) {
-                return $directory;
-            }
-        }
-
-        /*
-         * Fallback voor oude of onvolledige data.
-         *
-         * Let op: dit werkt alleen betrouwbaar bij oude SKU's
-         * zonder maat als laatste onderdeel.
-         */
         return self::fromSku($variant->getVariantSku());
     }
 
-    /**
-     * Geeft het volledige pad van de primaire of eerste afbeelding.
-     */
     public function fromVariant(ProductVariant $variant): ?string
     {
         $basePath = $this->directoryFromVariant($variant);
@@ -159,5 +97,50 @@ final class VariantImagePathResolver
         }
 
         return null;
+    }
+
+    private static function looksLikeSize(string $value): bool
+    {
+        $value = strtolower(trim($value));
+
+        if ($value === '') {
+            return false;
+        }
+
+        /*
+         * Riemmaten, schoenmaten, lengtematen:
+         *
+         * 85
+         * 95
+         * 105
+         * 7.5
+         * 7,5
+         * 105cm
+         */
+        if (
+            preg_match(
+                '/^\d+(?:[.,]\d+)?(?:cm)?$/',
+                $value
+            ) === 1
+        ) {
+            return true;
+        }
+
+        return in_array(
+            $value,
+            [
+                'xxs',
+                'xs',
+                's',
+                'm',
+                'l',
+                'xl',
+                'xxl',
+                'xxxl',
+                'one-size',
+                'onesize',
+            ],
+            true
+        );
     }
 }
