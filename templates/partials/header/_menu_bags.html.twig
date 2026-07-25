@@ -7,10 +7,15 @@
         <ul class="flex items-center gap-10 h-full">
 
             {% for category in menuBagsCategories %}
-                {% set categoryUrl = category.slug == 'tassen'
-                    ? path('category_show', { slug: 'damestassen', context: 'bags' })
-                    : path('category_show', { slug: category.slug, context: 'bags' })
-                %}
+            {% set categoryUrl = category.slug == 'tassen'
+                ? path('bags_all', {
+                    category: ['damestassen']
+                })
+                : path('category_show', {
+                    slug: category.slug,
+                    context: 'bags'
+                })
+            %}
 
                 <li class="group h-full flex items-center">
 
