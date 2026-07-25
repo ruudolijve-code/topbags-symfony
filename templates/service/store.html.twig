@@ -277,6 +277,160 @@
         </div>
     </section>
 
+    {# Belangrijke merken – interne links voor bezoekers en SEO #}
+    {% set storeBrands = [
+        {
+            name: 'Samsonite',
+            label: 'Samsonite koffers',
+            slug: 'samsonite'
+        },
+        {
+            name: 'American Tourister',
+            label: 'American Tourister koffers',
+            slug: 'american-tourister'
+        },
+        {
+            name: 'Delsey',
+            label: 'Delsey koffers',
+            slug: 'delsey'
+        },
+        {
+            name: 'Eastpak',
+            label: 'Eastpak rugzakken',
+            slug: 'eastpak'
+        },
+        {
+            name: 'CabinZero',
+            label: 'CabinZero rugzakken',
+            slug: 'cabinzero'
+        },
+        {
+            name: 'Kipling',
+            label: 'Kipling tassen',
+            slug: 'kipling'
+        },
+        {
+            name: 'Barbour',
+            label: 'Barbour tassen',
+            slug: 'barbour'
+        },
+        {
+            name: 'Cabaia',
+            label: 'Cabaia rugzakken',
+            slug: 'cabaia'
+        },
+        {
+            name: 'Guess',
+            label: 'Guess tassen',
+            slug: 'guess'
+        },
+        {
+            name: 'Valentino Bags',
+            label: 'Valentino Bags',
+            slug: 'valentino-bags'
+        },
+        {
+            name: 'Bear Design',
+            label: 'Bear Design tassen',
+            slug: 'bear-design'
+        },
+        {
+            name: 'Berba',
+            label: 'Berba tassen',
+            slug: 'berba'
+        },
+        {
+            name: 'Spikes & Sparrow',
+            label: 'Spikes & Sparrow tassen',
+            slug: 'spikes-sparrow'
+        },
+        {
+            name: 'dR Amsterdam',
+            label: 'dR Amsterdam tassen',
+            slug: 'dr-amsterdam'
+        },
+        {
+            name: 'Piquadro',
+            label: 'Piquadro tassen',
+            slug: 'piquadro'
+        },
+        {
+            name: 'Gabol',
+            label: 'Gabol tassen',
+            slug: 'gabol'
+        }
+    ] %}
+
+    <section
+        class="border-t border-gray-200 bg-gray-50"
+        aria-labelledby="store-brands-heading"
+    >
+        <div class="mx-auto max-w-6xl px-6 py-14 lg:px-8 lg:py-16">
+
+            <div class="max-w-3xl">
+                <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-orange-600">
+                    Onze merken
+                </p>
+
+                <h2
+                    id="store-brands-heading"
+                    class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl"
+                >
+                    Dealer van bekende koffer- en tassenmerken
+                </h2>
+
+                <p class="mt-4 text-base leading-7 text-gray-600">
+                    Bij Holtkamp Tassen &amp; Koffers in Hengelo vind je een ruime
+                    collectie koffers, reistassen, rugzakken en damestassen van bekende
+                    merken. Bekijk een merk online of kom langs in onze winkel voor
+                    persoonlijk advies.
+                </p>
+            </div>
+
+            <nav
+                class="mt-8"
+                aria-label="Bekijk onze belangrijkste merken"
+            >
+                <ul class="flex flex-wrap gap-3">
+                    {% for brand in storeBrands %}
+                        <li>
+                            <a
+                                href="{{ path('brand_show', { slug: brand.slug }) }}"
+                                class="inline-flex min-h-11 items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-800 transition duration-200 hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 sm:text-base"
+                                title="Bekijk {{ brand.name }} bij Holtkamp Tassen & Koffers"
+                            >
+                                {{ brand.label }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+            <div class="mt-8">
+                <a
+                    href="{{ path('brands_index') }}"
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 underline decoration-gray-300 underline-offset-4 transition hover:decoration-gray-900"
+                >
+                    Bekijk alle merken
+
+                    <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M3.75 10a.75.75 0 0 1 .75-.75h9.19L10.47 6.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 1 1-1.06-1.06l3.22-3.22H4.5a.75.75 0 0 1-.75-.75Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
     {# Contact #}
     <section id="contact" class="bg-white">
         <div class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
