@@ -9,10 +9,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: ProductVariantRepository::class)]
 #[ORM\Table(name: 'product_variant')]
+#[UniqueEntity(
+    fields: ['variantSku'],
+    message: 'Deze SKU bestaat al. Gebruik een unieke SKU per kleur- en maatvariant.'
+)]
 class ProductVariant
 {
     #[ORM\Id]
@@ -29,6 +34,10 @@ class ProductVariant
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private string $price = '0.00';
 
+    /**
+     * Verkoopmaat, bijvoorbeeld:
+     * 85 cm, 95 cm, S, M, L, 7,5 of 8.
+     */
     #[ORM\ManyToOne(inversedBy: 'variants')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Size $size = null;
@@ -51,7 +60,12 @@ class ProductVariant
     #[ORM\Column(options: ['default' => false])]
     private bool $allowBackorder = false;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    #[ORM\Column(
+        type: Types::DECIMAL,
+        precision: 10,
+        scale: 2,
+        nullable: true
+    )]
     private ?string $compareAtPrice = null;
 
     #[ORM\Column(nullable: true)]
@@ -79,7 +93,10 @@ class ProductVariant
         cascade: ['persist'],
         orphanRemoval: true
     )]
-    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy([
+        'position' => 'ASC',
+        'id' => 'ASC',
+    ])]
     private Collection $images;
 
     #[ORM\OneToOne(
@@ -92,7 +109,10 @@ class ProductVariant
     #[ORM\ManyToOne(inversedBy: 'productVariants')]
     private ?Color $normalizedColor = null;
 
-    #[ORM\OneToMany(mappedBy: 'variant', targetEntity: VariantSupply::class)]
+    #[ORM\OneToMany(
+        mappedBy: 'variant',
+        targetEntity: VariantSupply::class
+    )]
     private Collection $supplies;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -105,7 +125,9 @@ class ProductVariant
     private ?string $heroIntro = null;
 
     /**
-     * Alleen voor EasyAdmin upload, niet opslaan in database.
+     * Alleen voor EasyAdmin-upload.
+     *
+     * Dit veld wordt niet opgeslagen in de database.
      *
      * @var array<int, UploadedFile>|null
      */
@@ -153,7 +175,12 @@ class ProductVariant
 
     public function setPrice(string|float|int $price): self
     {
-        $this->price = number_format((float) $price, 2, '.', '');
+        $this->price = number_format(
+            (float) $price,
+            2,
+            '.',
+            ''
+        );
 
         return $this;
     }
@@ -163,7 +190,7 @@ class ProductVariant
         return $this->size;
     }
 
-    public function setSize(?Size $size): static
+    public function setSize(?Size $size): self
     {
         $this->size = $size;
 
@@ -211,8 +238,9 @@ class ProductVariant
         return $this->supplierColorSlug;
     }
 
-    public function setSupplierColorSlug(string $supplierColorSlug): self
-    {
+    public function setSupplierColorSlug(
+        string $supplierColorSlug
+    ): self {
         $this->supplierColorSlug = trim($supplierColorSlug);
 
         return $this;
@@ -223,13 +251,44 @@ class ProductVariant
         return $this->supplierColorCode;
     }
 
-    public function setSupplierColorCode(?string $supplierColorCode): self
-    {
-        $this->supplierColorCode = $supplierColorCode !== null
+    public function setSupplierColorCode(
+        ?string $supplierColorCode
+    ): self {
+        $supplierColorCode = $supplierColorCode !== null
             ? trim($supplierColorCode)
             : null;
 
+        $this->supplierColorCode = $supplierColorCode !== ''
+            ? $supplierColorCode
+            : null;
+
         return $this;
+    }
+
+    /**
+     * Model-SKU voor de gedeelde afbeeldingsmap.
+     *
+     * Voorbeeld:
+     * AW0AW18856
+     */
+    public function getImageModelSku(): string
+    {
+        return trim($this->product->getModelSku());
+    }
+
+    /**
+     * Kleurcode voor de gedeelde afbeeldingsmap.
+     *
+     * Voorbeeld:
+     * BDS
+     */
+    public function getImageColorCode(): ?string
+    {
+        $colorCode = trim((string) $this->supplierColorCode);
+
+        return $colorCode !== ''
+            ? $colorCode
+            : null;
     }
 
     public function isAllowBackorder(): bool
@@ -254,8 +313,9 @@ class ProductVariant
         return $this->compareAtPrice;
     }
 
-    public function setCompareAtPrice(string|float|int|null $compareAtPrice): self
-    {
+    public function setCompareAtPrice(
+        string|float|int|null $compareAtPrice
+    ): self {
         $this->compareAtPrice = $compareAtPrice !== null
             ? number_format((float) $compareAtPrice, 2, '.', '')
             : null;
@@ -271,7 +331,10 @@ class ProductVariant
     public function setSalePercentage(?int $salePercentage): self
     {
         if ($salePercentage !== null) {
-            $salePercentage = max(0, min(90, $salePercentage));
+            $salePercentage = max(
+                0,
+                min(90, $salePercentage)
+            );
         }
 
         $this->salePercentage = $salePercentage;
@@ -284,8 +347,9 @@ class ProductVariant
         return $this->saleStartsAt;
     }
 
-    public function setSaleStartsAt(?\DateTimeImmutable $saleStartsAt): self
-    {
+    public function setSaleStartsAt(
+        ?\DateTimeImmutable $saleStartsAt
+    ): self {
         $this->saleStartsAt = $saleStartsAt;
 
         return $this;
@@ -296,8 +360,9 @@ class ProductVariant
         return $this->saleEndsAt;
     }
 
-    public function setSaleEndsAt(?\DateTimeImmutable $saleEndsAt): self
-    {
+    public function setSaleEndsAt(
+        ?\DateTimeImmutable $saleEndsAt
+    ): self {
         $this->saleEndsAt = $saleEndsAt;
 
         return $this;
@@ -310,26 +375,40 @@ class ProductVariant
 
     public function setSaleLabel(?string $saleLabel): self
     {
-        $this->saleLabel = $saleLabel !== null
+        $saleLabel = $saleLabel !== null
             ? trim($saleLabel)
+            : null;
+
+        $this->saleLabel = $saleLabel !== ''
+            ? $saleLabel
             : null;
 
         return $this;
     }
 
-    public function isSaleActive(?\DateTimeImmutable $now = null): bool
-    {
+    public function isSaleActive(
+        ?\DateTimeImmutable $now = null
+    ): bool {
         $now ??= new \DateTimeImmutable();
 
-        if ($this->salePercentage === null || $this->salePercentage <= 0) {
+        if (
+            $this->salePercentage === null
+            || $this->salePercentage <= 0
+        ) {
             return false;
         }
 
-        if ($this->saleStartsAt !== null && $now < $this->saleStartsAt) {
+        if (
+            $this->saleStartsAt !== null
+            && $now < $this->saleStartsAt
+        ) {
             return false;
         }
 
-        if ($this->saleEndsAt !== null && $now > $this->saleEndsAt) {
+        if (
+            $this->saleEndsAt !== null
+            && $now > $this->saleEndsAt
+        ) {
             return false;
         }
 
@@ -349,9 +428,17 @@ class ProductVariant
 
         $basePrice = (float) $this->price;
         $percentage = (int) $this->salePercentage;
-        $salePrice = $basePrice * (1 - ($percentage / 100));
 
-        return number_format(max(0, $salePrice), 2, '.', '');
+        $salePrice = $basePrice * (
+            1 - ($percentage / 100)
+        );
+
+        return number_format(
+            max(0, $salePrice),
+            2,
+            '.',
+            ''
+        );
     }
 
     public function getDisplayPrice(): string
@@ -367,7 +454,10 @@ class ProductVariant
             return null;
         }
 
-        if ($this->saleLabel !== null && $this->saleLabel !== '') {
+        if (
+            $this->saleLabel !== null
+            && $this->saleLabel !== ''
+        ) {
             return $this->saleLabel;
         }
 
@@ -407,8 +497,9 @@ class ProductVariant
         return $this->normalizedColor;
     }
 
-    public function setNormalizedColor(?Color $normalizedColor): self
-    {
+    public function setNormalizedColor(
+        ?Color $normalizedColor
+    ): self {
         $this->normalizedColor = $normalizedColor;
 
         return $this;
@@ -452,7 +543,10 @@ class ProductVariant
 
     public function removeSupply(VariantSupply $supply): self
     {
-        if ($this->supplies->removeElement($supply) && $supply->getVariant() === $this) {
+        if (
+            $this->supplies->removeElement($supply)
+            && $supply->getVariant() === $this
+        ) {
             $supply->setVariant(null);
         }
 
@@ -479,7 +573,12 @@ class ProductVariant
 
     public function removeImage(Image $image): self
     {
-        $this->images->removeElement($image);
+        if (
+            $this->images->removeElement($image)
+            && $image->getProductVariant() === $this
+        ) {
+            $image->setProductVariant(null);
+        }
 
         return $this;
     }
@@ -521,9 +620,13 @@ class ProductVariant
 
     public function setSeoTitle(?string $seoTitle): self
     {
-        $seoTitle = $seoTitle !== null ? trim($seoTitle) : null;
+        $seoTitle = $seoTitle !== null
+            ? trim($seoTitle)
+            : null;
 
-        $this->seoTitle = $seoTitle !== '' ? $seoTitle : null;
+        $this->seoTitle = $seoTitle !== ''
+            ? $seoTitle
+            : null;
 
         return $this;
     }
@@ -533,8 +636,9 @@ class ProductVariant
         return $this->seoDescription;
     }
 
-    public function setSeoDescription(?string $seoDescription): self
-    {
+    public function setSeoDescription(
+        ?string $seoDescription
+    ): self {
         $seoDescription = $seoDescription !== null
             ? trim($seoDescription)
             : null;
@@ -555,7 +659,10 @@ class ProductVariant
     {
         $this->stock = $stock;
 
-        if ($stock !== null && $stock->getProductVariant() !== $this) {
+        if (
+            $stock !== null
+            && $stock->getProductVariant() !== $this
+        ) {
             $stock->setProductVariant($this);
         }
 
@@ -567,6 +674,7 @@ class ProductVariant
         if ($this->stock === null) {
             $stock = new Stock();
             $stock->setProductVariant($this);
+
             $this->stock = $stock;
         }
 
@@ -614,7 +722,11 @@ class ProductVariant
 
     public function isPurchasable(): bool
     {
-        return $this->isActive() && ($this->isInStock() || $this->allowsBackorder());
+        return $this->isActive()
+            && (
+                $this->isInStock()
+                || $this->allowsBackorder()
+            );
     }
 
     public function hasBackorderOption(): bool
@@ -647,7 +759,9 @@ class ProductVariant
             return $supply->getSupplier();
         }
 
-        return $this->product->getBrand()?->getDefaultSupplier();
+        return $this->product
+            ->getBrand()
+            ?->getDefaultSupplier();
     }
 
     public function getBackorderLeadTimeMinDays(): ?int
@@ -658,7 +772,8 @@ class ProductVariant
             return $supply->getLeadTimeMin();
         }
 
-        return $this->getBackorderSupplier()?->getDefaultLeadTimeMin();
+        return $this->getBackorderSupplier()
+            ?->getDefaultLeadTimeMin();
     }
 
     public function getBackorderLeadTimeMaxDays(): ?int
@@ -669,7 +784,8 @@ class ProductVariant
             return $supply->getLeadTimeMax();
         }
 
-        return $this->getBackorderSupplier()?->getDefaultLeadTimeMax();
+        return $this->getBackorderSupplier()
+            ?->getDefaultLeadTimeMax();
     }
 
     public function getDeliveryLabel(): string
@@ -683,11 +799,18 @@ class ProductVariant
             $max = $this->getBackorderLeadTimeMaxDays();
 
             if ($min !== null && $max !== null) {
-                return sprintf('%d-%d werkdagen', $min, $max);
+                return sprintf(
+                    '%d-%d werkdagen',
+                    $min,
+                    $max
+                );
             }
 
             if ($min !== null) {
-                return sprintf('ca. %d werkdagen', $min);
+                return sprintf(
+                    'ca. %d werkdagen',
+                    $min
+                );
             }
 
             return 'Leverbaar';
@@ -707,8 +830,9 @@ class ProductVariant
     /**
      * @param array<int, UploadedFile>|null $uploadedImages
      */
-    public function setUploadedImages(?array $uploadedImages): self
-    {
+    public function setUploadedImages(
+        ?array $uploadedImages
+    ): self {
         $this->uploadedImages = $uploadedImages;
 
         return $this;
@@ -739,7 +863,10 @@ class ProductVariant
 
         usort(
             $items,
-            static fn (array $a, array $b): int => $a['position'] <=> $b['position']
+            static fn (
+                array $first,
+                array $second
+            ): int => $first['position'] <=> $second['position']
         );
 
         return $items;
@@ -747,10 +874,21 @@ class ProductVariant
 
     public function __toString(): string
     {
+        $parts = [
+            $this->variantSku,
+            $this->supplierColorName !== ''
+                ? $this->supplierColorName
+                : 'variant',
+        ];
+
+        if ($this->size !== null) {
+            $parts[] = $this->size->getName();
+        }
+
         return sprintf(
             '%s (%s)',
-            $this->variantSku,
-            $this->supplierColorName ?: 'variant'
+            array_shift($parts),
+            implode(' · ', $parts)
         );
     }
 }
