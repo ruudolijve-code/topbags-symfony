@@ -133,7 +133,6 @@ class ProductVariantCrudController extends AbstractCrudController
             ->setHelp(
                 'Optioneel. Laat leeg voor producten zonder maat, zoals koffers en de meeste tassen.'
             )
-            ->setFormTypeOption('disabled', $storeOnly)
             ->setFormTypeOption(
                 'query_builder',
                 static function (SizeRepository $repository) {
