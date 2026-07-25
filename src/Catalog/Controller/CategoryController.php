@@ -267,9 +267,10 @@ final class CategoryController extends AbstractController
             'category' => $category,
             'canonical_url' => self::CANONICAL_HOST . $this->generateUrl(
                 'category_show',
-                [
-                    'slug' => $category->getSlug(),
-                ]
+                $this->buildCategoryRouteParameters(
+                    category: $category,
+                    activeContext: $activeContext,
+                )
             ),
 
             'activeContext' => $activeContext,
@@ -428,5 +429,27 @@ final class CategoryController extends AbstractController
         }
 
         return null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildCategoryRouteParameters(
+        Category $category,
+        string $activeContext,
+    ): array {
+        $parameters = [
+            'slug' => $category->getSlug(),
+        ];
+
+        /*
+        * De shop-context is de standaardcontext.
+        * Voor bags moet de context expliciet in de URL blijven staan.
+        */
+        if ($activeContext === Product::CONTEXT_BAGS) {
+            $parameters['context'] = Product::CONTEXT_BAGS;
+        }
+
+        return $parameters;
     }
 }
