@@ -8,7 +8,7 @@
 
             {% for category in menuBagsCategories %}
                 {% set categoryUrl = category.slug == 'tassen'
-                    ? path('bags_index')
+                    ? path('category_show', { slug: 'damestassen', context: 'bags' })
                     : path('category_show', { slug: category.slug, context: 'bags' })
                 %}
 
