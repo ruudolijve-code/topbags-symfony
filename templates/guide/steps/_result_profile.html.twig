@@ -6,63 +6,63 @@
 
 {% block result_content %}
 
-<section class="relative rounded-2xl border border-gray-200 bg-white overflow-hidden">
-
   {# =========================================================
-   HERO
-   ========================================================= #}
-
-  <section class="relative overflow-hidden min-h-[70vh] md:min-h-[80vh]">
+    HERO – afbeelding over volledige breedte
+    ========================================================= #}
+  <section class="relative min-h-[70vh] overflow-hidden md:min-h-[80vh]">
 
     <div class="absolute inset-0">
-      <img src="{{ profile.hero.imageUrl }}"
-          alt="{{ profile.hero.imageAlt }}"
-          class="h-full w-full object-cover">
+      <img
+        src="{{ profile.hero.imageUrl }}"
+        alt="{{ profile.hero.imageAlt }}"
+        class="h-full w-full object-cover"
+      >
+
       <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
     </div>
 
-    <div class="relative z-10 mx-auto max-w-6xl px-4 py-20 text-white">
+    {# De afbeelding is breed, maar de hero-inhoud blijft uitgelijnd #}
+    <div class="relative z-10 mx-auto max-w-7xl px-6 py-20 text-white lg:px-8">
 
       <p class="text-xs uppercase tracking-wider opacity-80">
         Jouw reisprofiel
       </p>
 
-      <h1 class="mt-2 text-3xl md:text-5xl font-semibold leading-tight">
+      <h1 class="mt-2 text-3xl font-semibold leading-tight md:text-5xl">
         {{ profile.title }}
       </h1>
 
-      <p class="mt-4 text-lg opacity-95 max-w-2xl">
+      <p class="mt-4 max-w-2xl text-lg opacity-95">
         {{ profile.subtitle }}
       </p>
 
-
-
-      {# ===============================
-        Frequentie nuance
-        =============================== #}
-
+      {# Frequentie nuance #}
       {% if frequency == 'incidental' %}
-          <p class="mt-3 text-sm opacity-80 max-w-xl">
-            Je reist niet vaak. Slim kiezen betekent: geen over-investering.
-          </p>
+        <p class="mt-3 max-w-xl text-sm opacity-80">
+          Je reist niet vaak. Slim kiezen betekent: geen over-investering.
+        </p>
       {% elseif frequency == 'yearly' %}
-          <p class="mt-3 text-sm opacity-80 max-w-xl">
-            Je reist regelmatig. Duurzaamheid en comfort worden belangrijker.
-          </p>
+        <p class="mt-3 max-w-xl text-sm opacity-80">
+          Je reist regelmatig. Duurzaamheid en comfort worden belangrijker.
+        </p>
       {% elseif frequency == 'frequent' %}
-          <p class="mt-3 text-sm opacity-80 max-w-xl">
-            Jij reist vaak. Gewicht, materiaal en betrouwbaarheid zijn doorslaggevend.
-          </p>
+        <p class="mt-3 max-w-xl text-sm opacity-80">
+          Jij reist vaak. Gewicht, materiaal en betrouwbaarheid zijn doorslaggevend.
+        </p>
       {% endif %}
 
       <div class="mt-8 flex flex-wrap gap-3">
-        <a href="#best-match"
-          class="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white hover:bg-amber-700 transition">
+        <a
+          href="#best-match"
+          class="inline-flex items-center rounded-full bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700"
+        >
           Bekijk jouw beste match
         </a>
 
-        <a href="#why"
-          class="inline-flex items-center rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+        <a
+          href="#why"
+          class="inline-flex items-center rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
           Waarom dit bij je past
         </a>
       </div>
@@ -71,17 +71,18 @@
   </section>
 
   {# =========================================================
-     CONTENT
-     ========================================================= #}
-  <div class="mx-auto max-w-8xl px-4 py-10 md:py-14">
+    CONTENT – vaste en goed leesbare maximale breedte
+    ========================================================= #}
+  <section class="bg-white">
+    <div class="mx-auto max-w-7xl px-6 py-10 md:py-14 lg:px-8">
 
-    <div id="why" class="grid gap-8 md:grid-cols-12">
+    <div id="why" class="grid gap-8 lg:grid-cols-12">
 
       {# ================= LEFT (Beleving / Tips / Huren) ================= #}
-      <aside class="md:col-span-4">
+      <aside class="min-w-0 lg:col-span-4">
 
         {# Sticky op desktop voor “magazine gevoel” #}
-        <div class="md:sticky md:top-6 space-y-6">
+        <div class="space-y-6 lg:sticky lg:top-6">
 
           {# ---------- Beleving / Story card ---------- #}
           <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -582,7 +583,7 @@
 
 
       {# ================= RIGHT (Product flow) ================= #}
-      <div class="md:col-span-8">
+      <div class="min-w-0 lg:col-span-8">
 
         {# =========================================================
            VOLUME BLOK
@@ -867,9 +868,9 @@
         {% endfor %}
 
       </div> {# END RIGHT #}
-    </div>
-  </div>
 
+    </div> {# END GRID #}
+  </div> {# END MAX-W-7XL #}
 </section>
 
     {# =========================================================
@@ -877,97 +878,105 @@
       ========================================================= #}
     {% if faqs is defined and faqs|length > 0 %}
 
-    <section id="faq" class="mx-auto mt-14 max-w-8xl px-4 pb-14">
+    <section id="faq" class="bg-gray-50">
+      <div class="mx-auto max-w-7xl px-6 py-14 lg:px-8">
 
-      <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
 
-        <div class="flex items-start justify-between gap-6">
-          <div>
-            <h2 class="text-xl font-semibold text-gray-900">
-              Veelgestelde vragen
-            </h2>
-            <p class="mt-2 text-sm text-gray-600">
-              Antwoorden op basis van jouw gekozen transport{% if transport == 'plane' and airline is defined and airline %} en {{ airline.name }}{% endif %}.
-            </p>
+          <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">
+                Veelgestelde vragen
+              </h2>
+
+              <p class="mt-2 text-sm text-gray-600">
+                Antwoorden op basis van jouw gekozen transport{% if transport == 'plane' and airline is defined and airline %} en {{ airline.name }}{% endif %}.
+              </p>
+            </div>
+
+            <div class="hidden items-center gap-3 md:flex">
+              <a
+                href="{{ path('guide_index', app.request.query.all | merge({ step: 'preferences' })) }}"
+                class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+              >
+                Wijzig reisprofiel
+              </a>
+
+              <a
+                href="#best-match"
+                class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+              >
+                Terug naar advies
+              </a>
+            </div>
           </div>
 
-          <div class="hidden md:flex items-center gap-3">
+          <div class="mt-8 space-y-3">
+            {% for faq in faqs %}
+              <details class="group rounded-2xl border border-gray-200 bg-gray-50 p-5 transition open:bg-white open:shadow-sm">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
+                  <span class="text-sm font-semibold text-gray-900">
+                    {{ faq.question }}
+                  </span>
 
-            <a href="{{ path( 'guide_index', app.request.query.all | merge({ step: 'preferences' })) }}"
-              class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition">
-              Wijzig reisprofiel
-            </a>
+                  <span class="text-gray-500 transition group-open:rotate-180">
+                    ⌄
+                  </span>
+                </summary>
 
-            <a href="#best-match"
-              class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition">
-              Terug naar advies
-            </a>
+                <div class="mt-3 text-sm leading-relaxed text-gray-600">
+                  {{ faq.answer|raw }}
+
+                  {% if showRentalCta is defined
+                    and showRentalCta
+                    and faq.question matches '/huren/i'
+                  %}
+                    <a
+                      href="{{ rentalUrl ?? '/koffer-huren' }}"
+                      class="mt-4 inline-flex items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+                    >
+                      Bekijk koffer huren →
+                    </a>
+                  {% endif %}
+                </div>
+              </details>
+            {% endfor %}
+          </div>
+
+          <div class="mt-8 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+              <p class="text-sm font-semibold text-gray-900">
+                Nog vragen of twijfel?
+              </p>
+
+              <p class="mt-1 text-xs text-gray-600">
+                Ons team helpt je graag bij het kiezen van de juiste koffer of bagagecombinatie.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <a
+                href="#best-match"
+                class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+              >
+                Bekijk advies
+              </a>
+
+              <a
+                href="/contact"
+                class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+              >
+                Contact
+              </a>
+            </div>
 
           </div>
+
         </div>
-
-        <div class="mt-8 space-y-3">
-
-          {% for faq in faqs %}
-            <details class="group rounded-2xl border border-gray-200 bg-gray-50 p-5 open:bg-white open:shadow-sm transition">
-
-              <summary class="flex cursor-pointer list-none items-center justify-between gap-4">
-                <span class="text-sm font-semibold text-gray-900">
-                  {{ faq.question }}
-                </span>
-                <span class="text-gray-500 group-open:rotate-180 transition">⌄</span>
-              </summary>
-
-              <div class="mt-3 text-sm text-gray-600 leading-relaxed">
-                {{ faq.answer|raw }}
-
-                {# Optioneel: huur CTA injecteren bij relevante vraag #}
-                {% if showRentalCta is defined and showRentalCta
-                    and faq.question matches '/huren/i' %}
-                  <a href="{{ rentalUrl ?? '/koffer-huren' }}"
-                    class="mt-4 inline-flex items-center rounded-full bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition">
-                    Bekijk koffer huren →
-                  </a>
-                {% endif %}
-              </div>
-
-            </details>
-          {% endfor %}
-
-        </div>
-
-        {# ================= CTA ONDERAAN ================= #}
-
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-gray-200 bg-white p-5">
-
-          <div>
-            <p class="text-sm font-semibold text-gray-900">
-              Nog vragen of twijfel?
-            </p>
-            <p class="mt-1 text-xs text-gray-600">
-              Ons team helpt je graag bij het kiezen van de juiste koffer of bagagecombinatie.
-            </p>
-          </div>
-
-          <div class="flex gap-3">
-            <a href="#best-match"
-              class="inline-flex items-center rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition">
-              Bekijk advies
-            </a>
-
-            <a href="/contact"
-              class="inline-flex items-center rounded-full bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700 transition">
-              Contact
-            </a>
-          </div>
-
-        </div>
-
       </div>
-
     </section>
 
-    {# ================= JSON-LD STRUCTURED DATA ================= #}
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -987,8 +996,7 @@
     }
     </script>
 
-    {% endif %}
-  </div>
-</section>
+  {% endif %}
+
 
 {% endblock %}
