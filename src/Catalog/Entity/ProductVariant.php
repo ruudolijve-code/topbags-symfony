@@ -29,6 +29,10 @@ class ProductVariant
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private string $price = '0.00';
 
+    #[ORM\ManyToOne(inversedBy: 'variants')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Size $size = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $isMaster = false;
 
@@ -150,6 +154,18 @@ class ProductVariant
     public function setPrice(string|float|int $price): self
     {
         $this->price = number_format((float) $price, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getSize(): ?Size
+    {
+        return $this->size;
+    }
+
+    public function setSize(?Size $size): static
+    {
+        $this->size = $size;
 
         return $this;
     }
