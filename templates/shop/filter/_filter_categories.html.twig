@@ -1,19 +1,33 @@
-                    {# ========= Type (categorie) ========= #}
-                    <div>
-                        <h2 class="font-semibold mb-3">Type</h2>
+{# ========= Type (categorie) ========= #}
+<div>
+    <h2 class="mb-3 font-semibold">Type</h2>
 
-                        <div class="space-y-2">
-                            {% for c in categories %}
-                                <label class="flex items-center gap-2 text-sm">
-                                    <input
-                                        type="checkbox"
-                                        name="category[]"
-                                        value="{{ c.slug }}"
-                                        {% if c.slug in activeCategories %}checked{% endif %}
-                                        class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                                    >
-                                    {{ c.menuLabel ?? c.name }}
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </div>
+    <div class="space-y-2">
+        {% for c in categories %}
+            {% set isActive = c.slug in activeCategories|default([]) %}
+
+            <label
+                class="
+                    flex cursor-pointer items-center gap-2 rounded-lg border px-2 py-1.5 text-sm
+                    transition-colors
+                    {{ isActive
+                        ? 'border-amber-500 bg-amber-50 text-amber-900'
+                        : 'border-transparent text-gray-700 hover:bg-gray-50'
+                    }}
+                "
+            >
+                <input
+                    type="checkbox"
+                    name="category[]"
+                    value="{{ c.slug }}"
+                    {% if isActive %}checked{% endif %}
+                    class="rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                >
+
+                <span>
+                    {{ c.menuLabel ?? c.name }}
+                </span>
+            </label>
+        {% endfor %}
+    </div>
+</div>
