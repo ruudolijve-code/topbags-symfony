@@ -351,35 +351,35 @@
         },
         {
             name: 'Piquadro',
-            label: 'Piquadro tassen',
+            label: 'Piquadro koffers en tassen',
             slug: 'piquadro'
         },
         {
             name: 'Gabol',
-            label: 'Gabol tassen',
+            label: 'Gabol koffers',
             slug: 'gabol'
         }
     ] %}
 
     <section
-        class="border-t border-gray-200 bg-gray-50"
+        class="border-b border-stone-200 bg-stone-50"
         aria-labelledby="store-brands-heading"
     >
-        <div class="mx-auto max-w-6xl px-6 py-14 lg:px-8 lg:py-16">
+        <div class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
 
             <div class="max-w-3xl">
-                <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-orange-600">
+                <p class="text-sm font-semibold uppercase tracking-wide text-orange-600">
                     Onze merken
                 </p>
 
                 <h2
                     id="store-brands-heading"
-                    class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl"
+                    class="mt-3 text-3xl font-bold tracking-tight text-stone-900"
                 >
                     Dealer van bekende koffer- en tassenmerken
                 </h2>
 
-                <p class="mt-4 text-base leading-7 text-gray-600">
+                <p class="mt-4 text-lg leading-8 text-stone-600">
                     Bij Holtkamp Tassen &amp; Koffers in Hengelo vind je een ruime
                     collectie koffers, reistassen, rugzakken en damestassen van bekende
                     merken. Bekijk een merk online of kom langs in onze winkel voor
@@ -388,7 +388,7 @@
             </div>
 
             <nav
-                class="mt-8"
+                class="mt-10"
                 aria-label="Bekijk onze belangrijkste merken"
             >
                 <ul class="flex flex-wrap gap-3">
@@ -396,7 +396,7 @@
                         <li>
                             <a
                                 href="{{ path('brand_show', { slug: brand.slug }) }}"
-                                class="inline-flex min-h-11 items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-800 transition duration-200 hover:border-gray-900 hover:bg-gray-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 sm:text-base"
+                                class="inline-flex min-h-11 items-center justify-center rounded-full border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 transition duration-200 hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:ring-offset-2 focus:ring-offset-stone-50"
                                 title="Bekijk {{ brand.name }} bij Holtkamp Tassen & Koffers"
                             >
                                 {{ brand.label }}
@@ -406,10 +406,10 @@
                 </ul>
             </nav>
 
-            <div class="mt-8">
+            <div class="mt-10">
                 <a
                     href="{{ path('brand_index') }}"
-                    class="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 underline decoration-gray-300 underline-offset-4 transition hover:decoration-gray-900"
+                    class="inline-flex items-center gap-2 text-base font-semibold text-stone-900 underline decoration-stone-300 underline-offset-4 transition hover:decoration-stone-900"
                 >
                     Bekijk alle merken
 
