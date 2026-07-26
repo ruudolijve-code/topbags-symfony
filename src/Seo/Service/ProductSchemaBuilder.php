@@ -103,7 +103,8 @@ final class ProductSchemaBuilder
     private function buildImages(ProductVariant $variant): array
     {
         $images = [];
-        $basePath = $this->variantImagePathResolver->fromSku($variant->getVariantSku());
+        $basePath = $this->variantImagePathResolver
+            ->directoryFromVariant($variant);
 
         $homeUrl = rtrim($this->forceHttps($this->router->generate(
             'home',

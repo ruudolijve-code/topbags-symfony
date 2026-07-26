@@ -157,9 +157,8 @@ final class ProductController extends AbstractController
             'master' => $product->getMasterVariant(),
 
             'mediaPath' => $this->variantImagePathResolver->fromVariant($variant),
-            'imageBasePath' => $this->variantImagePathResolver->fromSku(
-                $variant->getVariantSku()
-            ),
+            'imageBasePath' => $this->variantImagePathResolver
+                ->directoryFromVariant($variant),
 
             'availability' => $availability,
             'sizeSiblings' => $sizeSiblings,
