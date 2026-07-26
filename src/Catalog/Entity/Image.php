@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Catalog\Entity;
 
 use App\Catalog\Service\VariantImagePathResolver;
@@ -16,26 +18,27 @@ class Image
     private ?int $id = null;
 
     /**
-     * Alleen bestandsnaam, bijvoorbeeld:
+     * Alleen de bestandsnaam, bijvoorbeeld:
      * 1.jpg of main.webp
      */
     #[ORM\Column(length: 255)]
     private string $filename;
 
     /**
-     * Sorteervolgorde binnen een variant (0 = eerste)
+     * Sorteervolgorde binnen een variant.
+     * 0 is de eerste positie.
      */
     #[ORM\Column(options: ['default' => 0])]
     private int $position = 0;
 
     /**
-     * Of dit de hoofdafbeelding is voor deze variant
+     * Geeft aan of dit de hoofdafbeelding van de variant is.
      */
     #[ORM\Column(options: ['default' => false])]
     private bool $isPrimary = false;
 
     /**
-     * Elke afbeelding hoort altijd bij exact één productvariant
+     * Elke afbeelding hoort bij exact één productvariant.
      */
     #[ORM\ManyToOne(inversedBy: 'images')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -106,14 +109,25 @@ class Image
 
     public function getPreviewPath(): ?string
     {
-        $variant = $this->getProductVariant();
-        $basePath = VariantImagePathResolver::fromSku($variant->getVariantSku());
-
-        if ($basePath === null || $this->filename === '') {
+        if ($this->filename === '') {
             return null;
         }
 
-        return $basePath . '/' . ltrim($this->filename, '/');
+        $variant = $this->getProductVariant();
+
+        $basePath = VariantImagePathResolver::directoryFromVariantData(
+            $variant
+        );
+
+        if ($basePath === null) {
+            return null;
+        }
+
+        return sprintf(
+            '%s/%s',
+            rtrim($basePath, '/'),
+            ltrim($this->filename, '/')
+        );
     }
 
     public function getPreviewUrl(): ?string
