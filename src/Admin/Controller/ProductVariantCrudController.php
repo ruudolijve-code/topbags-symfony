@@ -167,23 +167,13 @@ class ProductVariantCrudController extends AbstractCrudController
             ->setTargetFieldName('supplierColorName')
             ->setFormTypeOption('disabled', $storeOnly);
 
-        yield AssociationField::new('size', 'Maat')
-            ->setRequired(false)
+        yield TextField::new('supplierColorCode', 'Supplier kleurcode')
+            ->hideOnIndex()
+            ->setRequired(true)
             ->setHelp(
-                'Optioneel. De maatcode wordt automatisch aan de variant-SKU toegevoegd.'
+                'Verplicht. Wordt samen met de model-SKU gebruikt om de variant-SKU en afbeeldingsmap te bepalen.'
             )
-            ->setFormTypeOption('disabled', $storeOnly)
-            ->setFormTypeOption(
-                'query_builder',
-                static function (SizeRepository $repository) {
-                    return $repository
-                        ->createQueryBuilder('size')
-                        ->andWhere('size.isActive = :active')
-                        ->setParameter('active', true)
-                        ->orderBy('size.sortOrder', 'ASC')
-                        ->addOrderBy('size.name', 'ASC');
-                }
-            );
+            ->setFormTypeOption('disabled', $storeOnly);
 
         yield FormField::addPanel('Voorraad');
 
