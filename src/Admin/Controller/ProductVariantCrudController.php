@@ -8,6 +8,7 @@ use App\Catalog\Entity\Image;
 use App\Catalog\Entity\ProductVariant;
 use App\Catalog\Repository\SizeRepository;
 use App\Catalog\Service\VariantImageUploader;
+use App\Catalog\Service\VariantSkuGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -35,6 +36,7 @@ class ProductVariantCrudController extends AbstractCrudController
     public function __construct(
         private readonly CacheInterface $cache,
         private readonly VariantImageUploader $variantImageUploader,
+        private readonly VariantSkuGenerator $variantSkuGenerator,
     ) {
     }
 
@@ -89,7 +91,10 @@ class ProductVariantCrudController extends AbstractCrudController
             ->onlyOnIndex();
 
         yield TextField::new('variantSku', 'SKU')
-            ->setFormTypeOption('disabled', $storeOnly);
+            ->setFormTypeOption('disabled', true)
+            ->setHelp(
+                'Wordt automatisch opgebouwd uit model-SKU, supplier kleurcode en optioneel de maatcode.'
+            );
 
         yield TextField::new('ean', 'EAN')
             ->hideOnIndex()
@@ -131,8 +136,9 @@ class ProductVariantCrudController extends AbstractCrudController
         yield AssociationField::new('size', 'Maat')
             ->setRequired(false)
             ->setHelp(
-                'Optioneel. Laat leeg voor producten zonder maat, zoals koffers en de meeste tassen.'
+                'Optioneel. De maatcode wordt automatisch aan de variant-SKU toegevoegd.'
             )
+            ->setFormTypeOption('disabled', $storeOnly)
             ->setFormTypeOption(
                 'query_builder',
                 static function (SizeRepository $repository) {
@@ -161,9 +167,23 @@ class ProductVariantCrudController extends AbstractCrudController
             ->setTargetFieldName('supplierColorName')
             ->setFormTypeOption('disabled', $storeOnly);
 
-        yield TextField::new('supplierColorCode', 'Supplier kleurcode')
-            ->hideOnIndex()
-            ->setFormTypeOption('disabled', $storeOnly);
+        yield AssociationField::new('size', 'Maat')
+            ->setRequired(false)
+            ->setHelp(
+                'Optioneel. De maatcode wordt automatisch aan de variant-SKU toegevoegd.'
+            )
+            ->setFormTypeOption('disabled', $storeOnly)
+            ->setFormTypeOption(
+                'query_builder',
+                static function (SizeRepository $repository) {
+                    return $repository
+                        ->createQueryBuilder('size')
+                        ->andWhere('size.isActive = :active')
+                        ->setParameter('active', true)
+                        ->orderBy('size.sortOrder', 'ASC')
+                        ->addOrderBy('size.name', 'ASC');
+                }
+            );
 
         yield FormField::addPanel('Voorraad');
 
@@ -253,6 +273,13 @@ class ProductVariantCrudController extends AbstractCrudController
             );
         }
 
+        /*
+        * Belangrijk:
+        * vóór Doctrine opslaat, zodat de variant direct met de juiste
+        * unieke SKU wordt opgeslagen.
+        */
+        $this->variantSkuGenerator->assignSku($entityInstance);
+
         parent::persistEntity($entityManager, $entityInstance);
 
         $this->handleUploadedImages($entityManager, $entityInstance);
@@ -268,6 +295,12 @@ class ProductVariantCrudController extends AbstractCrudController
 
             return;
         }
+
+        /*
+        * Hierdoor wordt de SKU opnieuw samengesteld wanneer een admin
+        * de kleurcode, maat of het gekoppelde product wijzigt.
+        */
+        $this->variantSkuGenerator->assignSku($entityInstance);
 
         parent::updateEntity($entityManager, $entityInstance);
 
