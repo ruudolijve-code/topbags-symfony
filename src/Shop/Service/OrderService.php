@@ -98,6 +98,7 @@ class OrderService
                 ->setBrandName($brandName)
                 ->setSupplierColorName($supplierColorName)
                 ->setVariantSku($sku)
+                ->setEan($variant?->getEan())
                 ->setPrice($price)
                 ->setQty($qty)
                 ->setLineTotal($lineTotal);

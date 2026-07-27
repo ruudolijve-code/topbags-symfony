@@ -30,6 +30,9 @@ class OrderItem
     #[ORM\Column(length: 100)]
     private string $variantSku;
 
+    #[ORM\Column(length: 14, nullable: true)]
+    private ?string $ean = null;
+
     #[ORM\Column]
     private float $price;
 
@@ -75,7 +78,9 @@ class OrderItem
 
     public function setBrandName(?string $brandName): static
     {
-        $this->brandName = $brandName !== null ? trim($brandName) : null;
+        $this->brandName = $brandName !== null
+            ? trim($brandName)
+            : null;
 
         return $this;
     }
@@ -87,7 +92,9 @@ class OrderItem
 
     public function setSupplierColorName(?string $supplierColorName): static
     {
-        $this->supplierColorName = $supplierColorName !== null ? trim($supplierColorName) : null;
+        $this->supplierColorName = $supplierColorName !== null
+            ? trim($supplierColorName)
+            : null;
 
         return $this;
     }
@@ -100,6 +107,20 @@ class OrderItem
     public function setVariantSku(string $variantSku): static
     {
         $this->variantSku = trim($variantSku);
+
+        return $this;
+    }
+
+    public function getEan(): ?string
+    {
+        return $this->ean;
+    }
+
+    public function setEan(?string $ean): static
+    {
+        $ean = $ean !== null ? trim($ean) : null;
+
+        $this->ean = $ean !== '' ? $ean : null;
 
         return $this;
     }
