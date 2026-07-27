@@ -70,6 +70,18 @@
 
                         <div>
                             <h3 class="mb-2 font-semibold text-gray-900">
+                                Google Pay
+                            </h3>
+
+                            <p class="leading-7">
+                                Op geschikte Google-apparaten kun je snel en veilig afrekenen
+                                met Google Pay. Deze betaaloptie verschijnt automatisch wanneer
+                                Google Pay beschikbaar is voor jouw apparaat en browser.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3 class="mb-2 font-semibold text-gray-900">
                                 Creditcard
                             </h3>
 
@@ -200,6 +212,13 @@
                             transform-origin: center;
                         }
 
+                        .footer-payment-logo--google svg {
+                            height: 30px !important;
+                            max-height: 30px !important;
+                            transform: scale(1.65);
+                            transform-origin: center;
+                        }
+
                         .payment-page-logo--wero svg {
                             height: 28px !important;
                         }
@@ -234,6 +253,11 @@
                         <span class="payment-page-logo payment-page-logo--apple inline-flex h-10 w-28 items-center justify-center overflow-visible">
                             <span class="sr-only">Apple Pay</span>
                             {% include 'partials/icons/payment/applepay.svg.twig' %}
+                        </span>
+
+                        <span class="payment-page-logo payment-page-logo--google inline-flex h-10 w-28 items-center justify-center overflow-visible">
+                            <span class="sr-only">Google Pay</span>
+                            {% include 'partials/icons/payment/googlepay.svg.twig' %}
                         </span>
 
                         <span class="payment-page-logo payment-page-logo--wero inline-flex h-10 w-28 items-center justify-center">
