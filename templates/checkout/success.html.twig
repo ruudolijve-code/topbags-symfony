@@ -4,111 +4,197 @@
 
 {% block body %}
 
-<div class="max-w-2xl mx-auto py-24 text-center">
+    <div class="mx-auto max-w-2xl py-24 text-center">
 
-    <h1 class="text-3xl font-semibold mb-6">
-        Bedankt voor je bestelling
-    </h1>
+        <h1 class="mb-6 text-3xl font-semibold">
+            Bedankt voor je bestelling
+        </h1>
 
-    <p class="text-gray-600 mb-2">
-        Je ordernummer is:
-    </p>
+        <p class="mb-2 text-gray-600">
+            Je ordernummer is:
+        </p>
 
-    <div class="text-xl font-mono tracking-wide mb-6">
-        {{ order.orderNumber }}
-    </div>
-
-    <div class="text-lg mb-6">
-        Totaal: <strong>€ {{ order.total|number_format(2, ',', '.') }}</strong>
-    </div>
-
-
-    {% if order.couponCode %}
-        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-left mb-8">
-            <h2 class="font-semibold text-emerald-900 mb-2">
-                Toegepaste korting
-            </h2>
-
-            <div class="text-sm text-emerald-800 leading-relaxed">
-                Couponcode: <strong>{{ order.couponCode }}</strong><br>
-                Korting: <strong>€ {{ order.discountAmount|number_format(2, ',', '.') }}</strong>
-            </div>
+        <div class="mb-6 font-mono text-xl tracking-wide">
+            {{ order.orderNumber }}
         </div>
-    {% endif %}
 
+        <div class="mb-6 text-lg">
+            Totaal:
+            <strong>
+                € {{ order.total|number_format(2, ',', '.') }}
+            </strong>
+        </div>
 
-    {# ======================
-       VERZENDMETHODE
-    ====================== #}
+        {% if order.couponCode %}
+            <div class="mb-8 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-left">
+                <h2 class="mb-2 font-semibold text-emerald-900">
+                    Toegepaste korting
+                </h2>
 
-    <div class="bg-gray-50 rounded-lg p-6 text-left mb-8">
+                <div class="text-sm leading-relaxed text-emerald-800">
+                    Couponcode:
+                    <strong>{{ order.couponCode }}</strong>
+                    <br>
 
-        <h2 class="font-semibold mb-3">
-            Verzendmethode
-        </h2>
-
-        {% if order.shippingMethod == 'pickup' %}
-
-            <p class="mb-3">
-                Afhalen bij PostNL punt:
-            </p>
-
-            <div class="text-sm leading-relaxed">
-                <strong>{{ order.pickupPointName }}</strong><br>
-                {{ order.pickupStreet }} {{ order.pickupHouseNumber }}<br>
-                {{ order.pickupPostalCode }} {{ order.pickupCity }}
+                    Korting:
+                    <strong>
+                        € {{ order.discountAmount|number_format(2, ',', '.') }}
+                    </strong>
+                </div>
             </div>
-
-        {% else %}
-
-            <p class="mb-3">
-                Thuisbezorging
-            </p>
-
-            {% set a = order.shippingAddress %}
-
-            <div class="text-sm leading-relaxed">
-                {{ a.firstName ?? '' }} {{ a.lastName ?? '' }}<br>
-                {{ a.street ?? '' }}<br>
-                {{ a.postalCode ?? '' }} {{ a.city ?? '' }}<br>
-                {{ a.country ?? '' }}
-            </div>
-
         {% endif %}
 
+        {# ======================
+           VERZENDMETHODE
+        ====================== #}
+
+        <div class="mb-8 rounded-lg bg-gray-50 p-6 text-left">
+
+            <h2 class="mb-3 font-semibold">
+                Verzendmethode
+            </h2>
+
+            {% if order.shippingMethod == 'pickup' %}
+
+                <p class="mb-3">
+                    Afhalen bij PostNL-punt:
+                </p>
+
+                <div class="text-sm leading-relaxed">
+                    <strong>{{ order.pickupPointName }}</strong>
+                    <br>
+
+                    {{ order.pickupStreet }}
+                    {{ order.pickupHouseNumber }}
+                    <br>
+
+                    {{ order.pickupPostalCode }}
+                    {{ order.pickupCity }}
+                </div>
+
+            {% elseif order.shippingMethod == 'store_pickup' %}
+
+                <p class="mb-3">
+                    Afhalen in de winkel:
+                </p>
+
+                <div class="text-sm leading-relaxed">
+                    <strong>Holtkamp Tassen &amp; Koffers</strong>
+                    <br>
+                    Wemenstraat 5-7
+                    <br>
+                    7551 ET Hengelo
+                </div>
+
+            {% else %}
+
+                {% set address = order.shippingAddress %}
+
+                <p class="mb-3">
+                    Thuisbezorging
+                </p>
+
+                <div class="text-sm leading-relaxed">
+                    {{ address.firstName ?? '' }}
+                    {{ address.lastName ?? '' }}
+                    <br>
+
+                    {{ address.street ?? '' }}
+                    <br>
+
+                    {{ address.postalCode ?? '' }}
+                    {{ address.city ?? '' }}
+                    <br>
+
+                    {{ address.country ?? '' }}
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <a
+            href="{{ path('home') }}"
+            class="mt-4 inline-block text-sm font-semibold hover:underline"
+        >
+            Verder winkelen
+        </a>
+
     </div>
 
+    {# ======================
+       GA4 AANKOOP
+       Alleen bij de eerste geldige terugkeer vanuit Mollie.
+    ====================== #}
 
-    <a href="{{ path('home') }}"
-       class="inline-block mt-4 text-sm font-semibold hover:underline">
-        Verder winkelen
-    </a>
+    {% if
+        ga4_measurement_id
+        and showCheckoutTracking|default(false)
+        and order is defined
+        and order.isPaid
+        and order.items is not empty
+    %}
+        <script>
+            window.dataLayer = window.dataLayer || [];
 
-</div>
+            function gtag() {
+                dataLayer.push(arguments);
+            }
 
-{% if ga4_measurement_id and order is defined and order.items is not empty %}
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+            gtag('event', 'purchase', {
+                transaction_id: {{ order.orderNumber|json_encode|raw }},
+                currency: 'EUR',
+                value: {{ order.total|number_format(2, '.', '') }},
+                coupon: {{ order.couponCode|default('')|json_encode|raw }},
+                shipping: {{ order.shippingCost|number_format(2, '.', '') }},
+                items: [
+                    {% for item in order.items %}
+                        {
+                            item_id: {{ item.variantSku|json_encode|raw }},
+                            item_name: {{ item.productName|json_encode|raw }},
+                            price: {{ item.price|number_format(2, '.', '') }},
+                            quantity: {{ item.qty }}
+                        }{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            });
+        </script>
+    {% endif %}
 
-    gtag('event', 'purchase', {
-        transaction_id: '{{ order.orderNumber|e('js') }}',
-        currency: 'EUR',
-        value: {{ order.total|number_format(2, '.', '') }},
-        coupon: '{{ order.couponCode|default('')|e('js') }}',
-        shipping: {{ order.shippingCost|number_format(2, '.', '') }},
-        items: [
-            {% for item in order.items %}
-            {
-                item_id: '{{ item.variantSku|e('js') }}',
-                item_name: '{{ item.productName|e('js') }}',
-                price: {{ item.price|number_format(2, '.', '') }},
-                quantity: {{ item.qty }}
-            }{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ]
-    });
-</script>
-{% endif %}
+    {# ======================
+       GOOGLE KLANTENREVIEWS
+       Alleen bij de eerste geldige terugkeer vanuit Mollie.
+    ====================== #}
+
+    {% if
+        showCheckoutTracking|default(false)
+        and order is defined
+        and order.isPaid
+        and order.customerEmail
+        and googleCustomerReviewsMerchantId is defined
+        and googleCustomerReviewsDeliveryCountry is defined
+        and googleCustomerReviewsEstimatedDeliveryDate is defined
+    %}
+        <script>
+            window.renderGoogleCustomerReviewsOptIn = function () {
+                window.gapi.load('surveyoptin', function () {
+                    window.gapi.surveyoptin.render({
+                        merchant_id: {{ googleCustomerReviewsMerchantId }},
+                        order_id: {{ order.orderNumber|json_encode|raw }},
+                        email: {{ order.customerEmail|json_encode|raw }},
+                        delivery_country: {{ googleCustomerReviewsDeliveryCountry|json_encode|raw }},
+                        estimated_delivery_date: {{ googleCustomerReviewsEstimatedDeliveryDate|json_encode|raw }},
+                        opt_in_style: 'CENTER_DIALOG'
+                    });
+                });
+            };
+        </script>
+
+        <script
+            src="https://apis.google.com/js/platform.js?onload=renderGoogleCustomerReviewsOptIn"
+            async
+            defer
+        ></script>
+    {% endif %}
 
 {% endblock %}

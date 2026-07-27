@@ -227,6 +227,16 @@ class CheckoutController extends AbstractController
 
         $orderService->attachMolliePaymentId($order, $payment->id);
 
+        /*
+        * Hiermee herkennen we de eerste terugkeer vanuit Mollie.
+        * De Google-reviewopt-in en GA4 purchase worden daardoor
+        * niet opnieuw uitgevoerd wanneer iemand de order later opent.
+        */
+        $request->getSession()->set(
+            sprintf('completed_checkout_order_%s', $order->getOrderNumber()),
+            true
+        );
+
         return $this->redirect($payment->getCheckoutUrl(), 303);
     }
 
