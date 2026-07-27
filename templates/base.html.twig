@@ -97,7 +97,7 @@
     {% include 'partials/header/mobile/_menu_drawer.html.twig' with { context: context } %}
 </div>
 
-<div class="hidden lg:block">
+<div class="max-lg:hidden">
     {% include 'partials/header/_topbar.html.twig' %}
     {% include 'partials/header/_menu_logo.html.twig' %}
 
@@ -203,6 +203,34 @@
 
         hideCookieBanner();
     });
+</script>
+
+{# ======================
+   GOOGLE STORE WIDGET
+====================== #}
+
+<script
+    id="merchantWidgetScript"
+    src="https://www.gstatic.com/shopping/merchant/merchantwidget.js"
+    defer
+></script>
+
+<script>
+    document
+        .getElementById('merchantWidgetScript')
+        .addEventListener('load', function () {
+            if (
+                typeof window.merchantwidget === 'undefined'
+                || typeof window.merchantwidget.start !== 'function'
+            ) {
+                return;
+            }
+
+            window.merchantwidget.start({
+                merchant_id: 112478191,
+                position: 'LEFT_BOTTOM'
+            });
+        });
 </script>
 
 </body>
