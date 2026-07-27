@@ -17,33 +17,93 @@
     {% set saleBadge = variant.discountBadge %}
 
     <article class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
-        <a href="{{ productUrl }}" class="block">
+    <a href="{{ productUrl }}" class="block">
 
-            {% set isGabol = product.brand and product.brand.slug == 'gabol' %}
+        {% set isGabol = product.brand and product.brand.slug == 'gabol' %}
 
-            <div class="relative aspect-square bg-white flex items-center justify-center p-4 overflow-hidden">
-                {% if saleActive and saleBadge %}
-                    <span class="badge-sale absolute left-3 top-3 z-50">
-                        SALE {{ saleBadge }}
+        {# Materiaal normaliseren #}
+        {% set materialName = product.material is defined and product.material
+            ? product.material.name|lower|trim
+            : ''
+        %}
+
+        {% set materialKey = materialName
+            |replace({
+                'è': 'e',
+                'é': 'e',
+                'ë': 'e',
+                'ê': 'e',
+                'á': 'a',
+                'à': 'a',
+                'ä': 'a',
+                'â': 'a'
+            })
+        %}
+
+        {# Vegan leer en PU uitsluiten #}
+        {% set isVeganLeather =
+            'vegan leer' in materialKey
+            or 'vegan leather' in materialKey
+            or 'pu leer' in materialKey
+            or 'pu leather' in materialKey
+            or materialKey == 'pu'
+        %}
+
+        {% set isLeather =
+            not isVeganLeather
+            and (
+                materialKey == 'leer'
+                or materialKey == 'leather'
+                or materialKey == 'suede'
+                or 'leer' in materialKey
+                or 'leather' in materialKey
+                or 'suede' in materialKey
+            )
+        %}
+
+        {# ===============================
+           Product image + badges
+           =============================== #}
+        <div class="relative flex aspect-square items-center justify-center overflow-hidden bg-white p-4">
+
+            {# Sale badge linksboven #}
+            {% if saleActive and saleBadge %}
+                <span class="absolute left-3 top-3 z-30 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 shadow-sm">
+                    SALE {{ saleBadge }}
+                </span>
+            {% endif %}
+
+            {# Leather badge rechtsboven #}
+            {% if isLeather %}
+                <span
+                    class="absolute right-3 top-3 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 shadow-sm"
+                    title="Echt leer"
+                    aria-label="Echt leer"
+                >
+                    <span class="block h-7 w-7 text-stone-700">
+                        {% include 'partials/icons/leather.svg.twig' %}
                     </span>
-                {% endif %}
+                </span>
+            {% endif %}
 
-                {% if mediaPath is defined and mediaPath %}
-                    <img
-                        src="{{ asset(mediaPath) }}"
-                        alt="{{ product.name }}"
-                        loading="lazy"
-                        class="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                        {% if isGabol %}
-                            style="transform: scale(1.12); transform-origin: center;"
-                        {% endif %}
-                    >
-                {% else %}
-                    <div class="text-xs text-gray-400">Geen afbeelding</div>
-                {% endif %}
-            </div>
+            {% if mediaPath is defined and mediaPath %}
+                <img
+                    src="{{ asset(mediaPath) }}"
+                    alt="{{ product.name }}"
+                    loading="lazy"
+                    class="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+                    {% if isGabol %}
+                        style="transform: scale(1.12); transform-origin: center;"
+                    {% endif %}
+                >
+            {% else %}
+                <div class="text-xs text-gray-400">
+                    Geen afbeelding
+                </div>
+            {% endif %}
+        </div>
 
-            <div class="p-5">
+        <div class="p-5">
                <div class="text-xs uppercase tracking-wide text-gray-500">
                     {{ product.brand.name }}
                 </div>
