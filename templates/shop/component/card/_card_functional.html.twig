@@ -62,13 +62,32 @@
         %}
 
         {# ===============================
-           Product image + badges
-           =============================== #}
-        <div class="relative flex aspect-square items-center justify-center overflow-hidden bg-white p-4">
+        Product image + badges
+        =============================== #}
+        <div class="relative isolate flex aspect-square items-center justify-center overflow-hidden bg-white p-4">
+
+            {# Productafbeelding eerst renderen #}
+            {% if mediaPath is defined and mediaPath %}
+                <img
+                    src="{{ asset(mediaPath) }}"
+                    alt="{{ product.name }}"
+                    loading="lazy"
+                    class="relative z-0 h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+                    {% if isGabol %}
+                        style="transform: scale(1.12); transform-origin: center;"
+                    {% endif %}
+                >
+            {% else %}
+                <div class="relative z-0 text-xs text-gray-400">
+                    Geen afbeelding
+                </div>
+            {% endif %}
 
             {# Sale badge linksboven #}
             {% if saleActive and saleBadge %}
-                <span class="absolute left-3 top-3 z-30 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 shadow-sm">
+                <span
+                    class="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-semibold text-red-600 shadow-sm"
+                >
                     SALE {{ saleBadge }}
                 </span>
             {% endif %}
@@ -76,7 +95,7 @@
             {# Leather badge rechtsboven #}
             {% if isLeather %}
                 <span
-                    class="absolute right-3 top-3 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 shadow-sm"
+                    class="pointer-events-none absolute right-3 top-3 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 shadow-sm"
                     title="Echt leer"
                     aria-label="Echt leer"
                 >
@@ -86,21 +105,6 @@
                 </span>
             {% endif %}
 
-            {% if mediaPath is defined and mediaPath %}
-                <img
-                    src="{{ asset(mediaPath) }}"
-                    alt="{{ product.name }}"
-                    loading="lazy"
-                    class="relative z-10 h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-                    {% if isGabol %}
-                        style="transform: scale(1.12); transform-origin: center;"
-                    {% endif %}
-                >
-            {% else %}
-                <div class="text-xs text-gray-400">
-                    Geen afbeelding
-                </div>
-            {% endif %}
         </div>
 
         <div class="p-5">
