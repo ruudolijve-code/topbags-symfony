@@ -612,27 +612,26 @@
     {% include 'shop/component/reviews/_google_reviews.html.twig' %}
 
     {# =========================================
-       9. SEO TEKST
-       ========================================= #}
-    {% if landingCategory is defined and landingCategory and landingCategory.seoDescription %}
-        <section class="mx-auto max-w-7xl px-6 py-14">
-            <div class="rich-text-content max-w-4xl text-gray-700">
-                {{ landingCategory.seoDescription|raw }}
-            </div>
-        </section>
-    {% else %}
-        <section class="mx-auto max-w-7xl px-6 py-14">
-            <div class="max-w-4xl text-gray-700">
-                <h2 class="text-2xl font-bold text-gray-900">
-                    Topbags – koffers, reistassen en damestassen met persoonlijk advies
-                </h2>
-                <p class="mt-4 leading-relaxed">
-                    Bij Topbags vind je sterke koffers, praktische reistassen, handbagage en stijlvolle damestassen.
-                    Online bestel je eenvoudig, en voor persoonlijk advies kun je terecht bij Holtkamp Tassen &amp; Koffers in Hengelo.
-                </p>
-            </div>
-        </section>
-    {% endif %}
+   9. SEO-TEKST HOMEPAGE
+   ========================================= #}
+
+<section class="mx-auto max-w-7xl px-6 py-14">
+    <div class="max-w-4xl text-gray-700">
+        <h2 class="text-2xl font-bold text-gray-900">
+            Topbags – koffers, reistassen en damestassen met persoonlijk advies
+        </h2>
+
+        <p class="mt-4 leading-relaxed">
+            Bij Topbags vind je sterke koffers, praktische reistassen, handbagage en stijlvolle damestassen.
+            Online bestel je eenvoudig, en voor persoonlijk advies kun je terecht bij
+            <a href="{{ path('service_store') }}"
+            class="font-semibold text-orange-600 hover:text-orange-700 hover:underline">
+                Holtkamp tassen &amp; koffers
+            </a>
+            in Hengelo.
+        </p>
+    </div>
+</section>
 
 </div>
 {% endblock %}
