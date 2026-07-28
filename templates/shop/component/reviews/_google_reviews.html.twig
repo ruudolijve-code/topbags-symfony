@@ -1,0 +1,114 @@
+{% set googleReviews = google_business_reviews() %}
+
+{% if googleReviews %}
+    <section class="bg-white py-12">
+        <div class="mx-auto max-w-7xl px-6">
+            <div class="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-wide text-orange-600">
+                            Beoordeeld door onze klanten
+                        </p>
+
+                        <h2 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+                            {{ googleReviews.name }}
+                        </h2>
+
+                        <div class="mt-3 flex flex-wrap items-center gap-3">
+                            <span class="text-xl font-bold text-gray-900">
+                                {{ googleReviews.rating|number_format(1, ',', '.') }}
+                            </span>
+
+                            <span
+                                class="text-lg tracking-wide text-amber-500"
+                                aria-label="{{ googleReviews.rating|number_format(1, ',', '.') }} van 5 sterren"
+                            >
+                                ★★★★★
+                            </span>
+
+                            <span class="text-sm text-gray-600">
+                                Gebaseerd op {{ googleReviews.reviewCount }} Google-reviews
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if googleReviews.googleMapsUrl %}
+                        <a
+                            href="{{ googleReviews.googleMapsUrl }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center rounded-xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-400 hover:bg-gray-50"
+                        >
+                            Bekijk alle reviews
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if googleReviews.reviews %}
+                    <div class="mt-8 grid gap-5 md:grid-cols-3">
+                        {% for review in googleReviews.reviews %}
+                            <article class="flex h-full flex-col rounded-2xl border border-gray-200 bg-gray-50 p-6">
+                                <div class="flex items-center gap-3">
+                                    {% if review.authorPhoto %}
+                                        <img
+                                            src="{{ review.authorPhoto }}"
+                                            alt=""
+                                            width="44"
+                                            height="44"
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer"
+                                            class="h-11 w-11 rounded-full object-cover"
+                                        >
+                                    {% else %}
+                                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-700">
+                                            {{ review.authorName|slice(0, 1)|upper }}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="min-w-0">
+                                        <p class="truncate font-semibold text-gray-900">
+                                            {{ review.authorName }}
+                                        </p>
+
+                                        {% if review.relativeTime %}
+                                            <p class="text-xs text-gray-500">
+                                                {{ review.relativeTime }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="mt-4 text-sm tracking-wide text-amber-500"
+                                    aria-label="{{ review.rating|number_format(0) }} van 5 sterren"
+                                >
+                                    {% for star in 1..5 %}
+                                        {{ star <= review.rating ? '★' : '☆' }}
+                                    {% endfor %}
+                                </div>
+
+                                {% if review.text %}
+                                    <blockquote class="mt-4 flex-1 text-sm leading-6 text-gray-700">
+                                        “{{ review.text }}"
+                                    </blockquote>
+                                {% endif %}
+
+                                {% if review.authorUrl %}
+                                    <a
+                                        href="{{ review.authorUrl }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="mt-5 text-sm font-semibold text-gray-900 hover:text-orange-600"
+                                    >
+                                        Bekijk op Google
+                                    </a>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endif %}
