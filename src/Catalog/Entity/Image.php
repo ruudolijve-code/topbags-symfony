@@ -42,7 +42,7 @@ class Image
      */
     #[ORM\ManyToOne(inversedBy: 'images')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ProductVariant $productVariant;
+    private ?ProductVariant $productVariant = null;
 
     public function __construct()
     {
@@ -91,16 +91,19 @@ class Image
         return $this;
     }
 
-    public function getProductVariant(): ProductVariant
+    public function getProductVariant(): ?ProductVariant
     {
         return $this->productVariant;
     }
 
-    public function setProductVariant(ProductVariant $productVariant): self
+    public function setProductVariant(?ProductVariant $productVariant): self
     {
         $this->productVariant = $productVariant;
 
-        if (!$productVariant->getImages()->contains($this)) {
+        if (
+            $productVariant !== null
+            && !$productVariant->getImages()->contains($this)
+        ) {
             $productVariant->addImage($this);
         }
 
