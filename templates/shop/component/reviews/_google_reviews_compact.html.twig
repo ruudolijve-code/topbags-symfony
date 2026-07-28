@@ -1,0 +1,43 @@
+{% set googleReviews = google_business_reviews() %}
+
+{% if googleReviews %}
+    <aside
+        class="mt-5 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+        aria-label="Google-beoordelingen"
+    >
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+
+            <div
+                class="flex items-center gap-1 text-amber-500"
+                aria-label="{{ googleReviews.rating|number_format(1, ',', '.') }} van 5 sterren"
+            >
+                {% for star in 1..5 %}
+                    <span aria-hidden="true">★</span>
+                {% endfor %}
+            </div>
+
+            <strong class="text-sm text-gray-900">
+                {{ googleReviews.rating|number_format(1, ',', '.') }}
+            </strong>
+
+            <span class="text-sm text-gray-600">
+                uit {{ googleReviews.reviewCount }} Google-reviews
+            </span>
+
+            {% if googleReviews.googleMapsUrl %}
+                <a
+                    href="{{ googleReviews.googleMapsUrl }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="ml-auto text-sm font-semibold text-gray-900 transition hover:text-orange-600"
+                >
+                    Bekijk reviews
+                </a>
+            {% endif %}
+        </div>
+
+        <p class="mt-2 text-xs leading-5 text-gray-500">
+            Persoonlijk advies van onze kofferspecialisten in Hengelo.
+        </p>
+    </aside>
+{% endif %}

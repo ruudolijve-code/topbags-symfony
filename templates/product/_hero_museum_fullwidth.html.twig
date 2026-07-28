@@ -410,9 +410,7 @@
                                 ✓
                             </span>
 
-                            <span>
-                                {{ benefit }}
-                            </span>
+                            <span>{{ benefit }}</span>
                         </li>
                     {% endfor %}
 
@@ -429,12 +427,74 @@
                     {% endif %}
                 </ul>
 
+                {% set googleReviews = google_business_reviews() %}
+
+                {% if googleReviews %}
+                    <div class="mt-6 border-t border-black/10 pt-5">
+                        <a
+                            href="{{ googleReviews.googleMapsUrl }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="group flex items-center gap-4 rounded-xl bg-white px-5 py-4 transition hover:shadow-sm"
+                            aria-label="Bekijk onze Google-reviews"
+                        >
+                            <div class="min-w-0 flex-1">
+
+                                <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+
+                                    <span class="inline-flex h-5 w-16 shrink-0 items-center overflow-hidden
+                                                [&_svg]:!h-5 [&_svg]:!w-auto [&_svg]:max-w-full">
+                                        {% include 'partials/icons/google.svg.twig' %}
+                                    </span>
+
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-base tracking-wide text-amber-500"
+                                            aria-label="{{ googleReviews.rating|number_format(1, ',', '.') }} van 5 sterren"
+                                        >
+                                            ★★★★★
+                                        </span>
+
+                                        <strong class="text-lg font-semibold text-gray-900">
+                                            {{ googleReviews.rating|number_format(1, ',', '.') }}
+                                        </strong>
+
+                                        <span class="text-base text-gray-500">
+                                            ({{ googleReviews.reviewCount }})
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <p class="mt-2 text-sm leading-6 text-gray-500">
+                                    Klanten beoordelen Holtkamp Tassen &amp; Koffers en Topbags.nl via Google
+                                </p>
+
+                            </div>
+
+                            <svg
+                                class="h-5 w-5 shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-gray-600"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                {% endif %}
+
                 <p class="mt-6 border-t border-black/10 pt-5 text-xs leading-5 text-gray-500">
                     {{ purchaseBenefits.footer }}
                 </p>
 
             </aside>
-
         </div>
     </div>
 </div>
