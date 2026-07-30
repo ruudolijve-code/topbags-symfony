@@ -192,15 +192,13 @@
         <template x-if="mobileContext === 'bags'">
             <div>
                 <div class="px-5 py-4 border-b border-gray-200 bg-white space-y-3">
-                   <a
-                        href="{{ path('bags_all', {
-                            category: ['damestassen']
-                        }) }}"
-                        class="block w-full rounded-lg bg-gray-900 px-5 py-4 text-center text-sm font-bold uppercase tracking-widest text-white"
-                        @click="mobileMenuOpen = false"
-                    >
-                        Alle tassen
-                    </a>
+                  <a
+                    href="{{ path('bags_index') }}"
+                    class="block w-full rounded-lg bg-gray-900 px-5 py-4 text-center text-sm font-bold uppercase tracking-widest text-white"
+                    @click="mobileMenuOpen = false"
+                >
+                    Alle tassen
+                </a>
 
                     <a
                         href="{{ path('sale_index', { context: 'bags' }) }}"
