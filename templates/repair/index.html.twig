@@ -6,25 +6,49 @@
 <div class="bg-amber-50">
     <!-- Hero -->
     <section class="max-w-6xl mx-auto px-6 py-16">
-        <div class="max-w-3xl">
+        <div class="max-w-4xl">
             <h1 class="text-4xl font-bold text-gray-900 mb-4">
-                Officieel koffer reparatie & servicepunt
+                Koffer reparatie, service & schaderapporten
             </h1>
-            <p class="text-lg text-gray-700 mb-6">
-                Is je koffer beschadigd of twijfel je of hij nog klaar is voor je volgende reis?
-                Bij <strong>Topbags</strong> ben je aan het juiste adres voor snelle, vakkundige reparaties
-                van A-merken koffers.
+
+            <p class="text-lg text-gray-700 mb-6 max-w-3xl">
+                Is je koffer beschadigd, heeft deze een defect of is er schade ontstaan tijdens een vliegreis?
+                Bij <strong>Topbags</strong> kun je terecht voor vakkundige reparaties van A-merken koffers
+                én voor een deskundig schaderapport voor je luchtvaartmaatschappij of reisverzekering.
             </p>
-            <div class="flex gap-4 flex-wrap">
-                <a href="#faq"
-                   class="inline-flex items-center rounded-xl bg-amber-600 px-6 py-3 text-white font-semibold hover:bg-amber-700 transition">
-                    Veelgestelde vragen
-                </a>
-                <a href="/contact"
-                   class="inline-flex items-center rounded-xl bg-white px-6 py-3 text-amber-700 font-semibold border border-amber-200 hover:bg-amber-100 transition">
+
+            <div class="flex flex-wrap items-center gap-4">
+                <a
+                    href="/contact"
+                    class="inline-flex items-center rounded-xl bg-amber-600 px-6 py-3 font-semibold text-white transition hover:bg-amber-700"
+                >
                     Reparatie aanvragen
                 </a>
+
+                <a
+                    href="{{ path('product_show', {
+                        slug: 'schaderapport-luchtvaartschade',
+                        colorSlug: 'default',
+                        variantSku: 'SERVICE-SCHADERAPPORT-01'
+                    }) }}"
+                    class="inline-flex items-center rounded-xl border border-amber-300 bg-white px-6 py-3 font-semibold text-amber-700 transition hover:bg-amber-100"
+                >
+                    Schaderapport bestellen – €25
+                </a>
+
+                <a
+                    href="#faq"
+                    class="inline-flex items-center font-medium text-amber-700 transition hover:text-amber-900"
+                >
+                    Veelgestelde vragen
+                    <span class="ml-1" aria-hidden="true">→</span>
+                </a>
             </div>
+
+            <p class="mt-4 text-sm text-gray-600">
+                Bestel je na het schaderapport een nieuwe koffer bij Topbags?
+                Dan verrekenen we de volledige €25 met je aankoop.
+            </p>
         </div>
     </section>
 

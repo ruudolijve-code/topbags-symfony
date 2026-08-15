@@ -13,14 +13,19 @@ final class ShippingCalculator
     }
 
     public function calculate(
-        float $subtotal,
+        float $shippableSubtotal,
         string $shippingMethod = Order::SHIPPING_METHOD_HOME
     ): float {
         if ($shippingMethod === Order::SHIPPING_METHOD_STORE_PICKUP) {
             return 0.0;
         }
 
-        if ($subtotal >= $this->freeFrom) {
+        // Geen fysieke/verzendbare producten in de winkelwagen.
+        if ($shippableSubtotal <= 0.0) {
+            return 0.0;
+        }
+
+        if ($shippableSubtotal >= $this->freeFrom) {
             return 0.0;
         }
 

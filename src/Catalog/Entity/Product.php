@@ -3,6 +3,7 @@
 namespace App\Catalog\Entity;
 
 use App\Catalog\Repository\ProductRepository;
+use App\Catalog\Enum\ProductType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -127,6 +128,13 @@ class Product
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'products')]
     #[ORM\JoinTable(name: 'product_category')]
     private Collection $categories;
+
+    #[ORM\Column(
+        type: 'string',
+        enumType: ProductType::class,
+        options: ['default' => 'physical']
+    )]
+    private ProductType $productType = ProductType::PHYSICAL;
 
     #[ORM\OneToMany(
         mappedBy: 'product',
@@ -592,6 +600,33 @@ class Product
         $this->brand = $brand;
 
         return $this;
+    }
+
+    public function getProductType(): ProductType
+    {
+        return $this->productType;
+    }
+
+    public function setProductType(ProductType $productType): self
+    {
+        $this->productType = $productType;
+
+        return $this;
+    }
+
+    public function isService(): bool
+    {
+        return $this->productType === ProductType::SERVICE;
+    }
+
+    public function requiresShipping(): bool
+    {
+        return !$this->isService();
+    }
+
+    public function acceptsCoupons(): bool
+    {
+        return !$this->isService();
     }
 
     /**

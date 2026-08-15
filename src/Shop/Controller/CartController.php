@@ -31,25 +31,49 @@ final class CartController extends AbstractController
         CouponService $couponService
     ): Response {
         $rawItems = $cart->all();
+
         $cartItems = [];
         $subtotal = 0.0;
+        $shippableSubtotal = 0.0;
+        $hasCouponEligibleItems = false;
 
         foreach ($rawItems as $row) {
             if (!isset($row['sku'], $row['qty'])) {
                 continue;
             }
 
-            $variant = $variantRepository->findOneForGridBySku((string) $row['sku']);
+            $variant = $variantRepository->findOneBy([
+                'variantSku' => (string) $row['sku'],
+                'isActive' => true,
+            ]);
 
-            if ($variant === null || !$variant->isActive()) {
+            if ($variant === null) {
                 continue;
             }
 
             $product = $variant->getProduct();
+
+            if ($product === null || !$product->isActive()) {
+                continue;
+            }
+
             $price = (float) $variant->getDisplayPrice();
             $qty = max(1, (int) $row['qty']);
             $lineTotal = $price * $qty;
+
+            $productType = $product->getProductType();
+            $requiresShipping = $productType->requiresShipping();
+            $couponEligible = $productType->couponEligible();
+
             $subtotal += $lineTotal;
+
+            if ($requiresShipping) {
+                $shippableSubtotal += $lineTotal;
+            }
+
+            if ($couponEligible) {
+                $hasCouponEligibleItems = true;
+            }
 
             $cartItems[] = [
                 'sku' => $variant->getVariantSku(),
@@ -58,12 +82,22 @@ final class CartController extends AbstractController
                 'brand' => $product->getBrand()?->getName(),
                 'color' => $variant->getSupplierColorName(),
                 'imageUrl' => $this->variantImagePathResolver->fromVariant($variant),
+
                 'price' => $price,
                 'regularPrice' => (float) $variant->getPrice(),
-                'compareAtPrice' => $variant->getCompareAtPrice() !== null ? (float) $variant->getCompareAtPrice() : null,
+                'compareAtPrice' => $variant->getCompareAtPrice() !== null
+                    ? (float) $variant->getCompareAtPrice()
+                    : null,
+
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
+
                 'productContext' => $product->getProductContext(),
+                'productType' => $productType->value,
+
+                'requiresShipping' => $requiresShipping,
+                'couponEligible' => $couponEligible,
+
                 'lineTotal' => $lineTotal,
             ];
         }
@@ -72,11 +106,25 @@ final class CartController extends AbstractController
         $couponResult = null;
         $discountAmount = 0.0;
 
+        /*
+        * Als er geen enkel artikel in de winkelwagen zit waarop
+        * coupons zijn toegestaan, verwijderen we een eventueel
+        * eerder opgeslagen coupon direct uit de sessie.
+        */
+        if (!$hasCouponEligibleItems && $couponCode !== null) {
+            $cart->clearCouponCode();
+            $couponCode = null;
+        }
+
         if ($couponCode !== null) {
-            $couponResult = $couponService->validateForCartItems($couponCode, $cartItems);
+            $couponResult = $couponService->validateForCartItems(
+                $couponCode,
+                $cartItems
+            );
 
             if (!$couponResult->isValid()) {
                 $cart->clearCouponCode();
+
                 $couponCode = null;
                 $couponResult = null;
             } else {
@@ -84,18 +132,37 @@ final class CartController extends AbstractController
             }
         }
 
-        $shippingCost = $shippingCalculator->calculate($subtotal);
-        $grandTotal = max(0, $subtotal - $discountAmount + $shippingCost);
+        /*
+        * Alleen fysieke/verzendbare artikelen tellen mee
+        * voor de verzendkosten en gratis-verzendgrens.
+        */
+        $shippingCost = $shippingCalculator->calculate(
+            $shippableSubtotal
+        );
+
+        $requiresShipping = $shippableSubtotal > 0.0;
+
+        $grandTotal = max(
+            0.0,
+            $subtotal - $discountAmount + $shippingCost
+        );
 
         return $this->render('cart/show.html.twig', [
             'items' => $cartItems,
+
             'subtotal' => $subtotal,
+            'shippableSubtotal' => $shippableSubtotal,
+            'requiresShipping' => $requiresShipping,
+
             'shippingCost' => $shippingCost,
             'freeShippingFrom' => $shippingCalculator->getFreeFrom(),
-            'discountAmount' => $discountAmount,
-            'grandTotal' => $grandTotal,
+
             'couponCode' => $couponCode,
             'couponResult' => $couponResult,
+            'hasCouponEligibleItems' => $hasCouponEligibleItems,
+            'discountAmount' => $discountAmount,
+
+            'grandTotal' => $grandTotal,
         ]);
     }
 
@@ -130,6 +197,17 @@ final class CartController extends AbstractController
             );
         }
 
+        $product = $variant->getProduct();
+
+        if ($product === null || !$product->isActive()) {
+            return $this->handleCartError(
+                $request,
+                'Dit product is niet meer beschikbaar.',
+                404,
+                'cart_show'
+            );
+        }
+
         $currentQty = 0;
 
         foreach ($cart->all() as $item) {
@@ -140,7 +218,16 @@ final class CartController extends AbstractController
         }
 
         $requestedQty = $currentQty + $qty;
-        $errorMessage = $cartAvailabilityGuard->getErrorMessage($variant, $requestedQty);
+
+        /*
+         * Voorlopig blijft CartAvailabilityGuard hier staan.
+         * Bij de volgende voorraadstap laten we deze zelf rekening
+         * houden met ProductType::tracksStock().
+         */
+        $errorMessage = $cartAvailabilityGuard->getErrorMessage(
+            $variant,
+            $requestedQty
+        );
 
         if ($errorMessage !== null) {
             return $this->handleCartError(
@@ -149,8 +236,8 @@ final class CartController extends AbstractController
                 422,
                 'product_show',
                 [
-                    'slug' => $variant->getProduct()->getSlug(),
-                    'colorSlug' => $variant->getSupplierColorSlug(),
+                    'slug' => $product->getSlug(),
+                    'colorSlug' => $variant->getSupplierColorSlug() ?: 'default',
                     'variantSku' => $variant->getVariantSku(),
                 ]
             );
@@ -166,7 +253,10 @@ final class CartController extends AbstractController
             ]);
         }
 
-        $this->addFlash('success', 'Product toegevoegd aan winkelwagen.');
+        $this->addFlash(
+            'success',
+            'Product toegevoegd aan winkelwagen.'
+        );
 
         return $this->redirectToRoute('cart_show');
     }
@@ -182,14 +272,21 @@ final class CartController extends AbstractController
         $qty = (int) $request->request->get('qty', 1);
 
         if ($sku === '') {
-            $this->addFlash('error', 'Geen variant geselecteerd.');
+            $this->addFlash(
+                'error',
+                'Geen variant geselecteerd.'
+            );
 
             return $this->redirectToRoute('cart_show');
         }
 
         if ($qty <= 0) {
             $cart->remove($sku);
-            $this->addFlash('success', 'Product verwijderd uit je winkelwagen.');
+
+            $this->addFlash(
+                'success',
+                'Product verwijderd uit je winkelwagen.'
+            );
 
             return $this->redirectToRoute('cart_show');
         }
@@ -201,33 +298,53 @@ final class CartController extends AbstractController
 
         if ($variant === null) {
             $cart->remove($sku);
-            $this->addFlash('error', 'Dit product is niet meer beschikbaar en is uit je winkelwagen verwijderd.');
+
+            $this->addFlash(
+                'error',
+                'Dit product is niet meer beschikbaar en is uit je winkelwagen verwijderd.'
+            );
 
             return $this->redirectToRoute('cart_show');
         }
 
-        $errorMessage = $cartAvailabilityGuard->getErrorMessage($variant, $qty);
+        $errorMessage = $cartAvailabilityGuard->getErrorMessage(
+            $variant,
+            $qty
+        );
 
         if ($errorMessage !== null) {
-            $this->addFlash('error', $errorMessage);
+            $this->addFlash(
+                'error',
+                $errorMessage
+            );
 
             return $this->redirectToRoute('cart_show');
         }
 
         $cart->setQty($sku, $qty);
-        $this->addFlash('success', 'Aantal bijgewerkt.');
+
+        $this->addFlash(
+            'success',
+            'Aantal bijgewerkt.'
+        );
 
         return $this->redirectToRoute('cart_show');
     }
 
     #[Route('/cart/remove', name: 'cart_remove', methods: ['POST'])]
-    public function remove(Request $request, CartService $cart): Response
-    {
+    public function remove(
+        Request $request,
+        CartService $cart
+    ): Response {
         $sku = (string) $request->request->get('variantSku', '');
 
         if ($sku !== '') {
             $cart->remove($sku);
-            $this->addFlash('success', 'Product verwijderd uit je winkelwagen.');
+
+            $this->addFlash(
+                'success',
+                'Product verwijderd uit je winkelwagen.'
+            );
         }
 
         return $this->redirectToRoute('cart_show');
@@ -240,7 +357,9 @@ final class CartController extends AbstractController
         ProductVariantRepository $variantRepository,
         CouponService $couponService
     ): Response {
-        $code = trim((string) $request->request->get('couponCode', ''));
+        $code = trim(
+            (string) $request->request->get('couponCode', '')
+        );
 
         $rawItems = $cart->all();
         $cartItems = [];
@@ -260,9 +379,16 @@ final class CartController extends AbstractController
             }
 
             $product = $variant->getProduct();
+
+            if ($product === null || !$product->isActive()) {
+                continue;
+            }
+
             $qty = max(1, (int) $row['qty']);
             $price = (float) $variant->getDisplayPrice();
             $lineTotal = $price * $qty;
+
+            $productType = $product->getProductType();
 
             $cartItems[] = [
                 'sku' => $variant->getVariantSku(),
@@ -270,33 +396,61 @@ final class CartController extends AbstractController
                 'price' => $price,
                 'saleActive' => $variant->isSaleActive(),
                 'productContext' => $product->getProductContext(),
+                'productType' => $productType->value,
+                'requiresShipping' => $productType->requiresShipping(),
+                'couponEligible' => $productType->couponEligible(),
                 'lineTotal' => $lineTotal,
             ];
         }
 
-        $result = $couponService->validateForCartItems($code, $cartItems);
+        /*
+         * De CouponService gebruikt couponEligible in deze stap
+         * nog niet. Dat pakken we bewust hierna apart aan.
+         */
+        $result = $couponService->validateForCartItems(
+            $code,
+            $cartItems
+        );
 
         if (!$result->isValid()) {
             $cart->clearCouponCode();
-            $this->addFlash('error', $result->getMessage() ?? 'Deze couponcode is niet geldig.');
+
+            $this->addFlash(
+                'error',
+                $result->getMessage()
+                    ?? 'Deze couponcode is niet geldig.'
+            );
 
             return $this->redirectToRoute('cart_show');
         }
 
-        $cart->setCouponCode($result->getCoupon()?->getCode() ?? $code);
-        $this->addFlash('success', sprintf(
-            'Coupon "%s" is toegevoegd.',
-            $result->getCoupon()?->getCode() ?? mb_strtoupper($code)
-        ));
+        $appliedCode = $result->getCoupon()?->getCode()
+            ?? $code;
+
+        $cart->setCouponCode($appliedCode);
+
+        $this->addFlash(
+            'success',
+            sprintf(
+                'Coupon "%s" is toegevoegd.',
+                $result->getCoupon()?->getCode()
+                    ?? mb_strtoupper($code)
+            )
+        );
 
         return $this->redirectToRoute('cart_show');
     }
 
     #[Route('/cart/coupon/remove', name: 'cart_coupon_remove', methods: ['POST'])]
-    public function removeCoupon(CartService $cart): Response
-    {
+    public function removeCoupon(
+        CartService $cart
+    ): Response {
         $cart->clearCouponCode();
-        $this->addFlash('success', 'Coupon is verwijderd.');
+
+        $this->addFlash(
+            'success',
+            'Coupon is verwijderd.'
+        );
 
         return $this->redirectToRoute('cart_show');
     }
@@ -315,8 +469,14 @@ final class CartController extends AbstractController
             ], $statusCode);
         }
 
-        $this->addFlash('error', $message);
+        $this->addFlash(
+            'error',
+            $message
+        );
 
-        return $this->redirectToRoute($fallbackRoute, $fallbackRouteParameters);
+        return $this->redirectToRoute(
+            $fallbackRoute,
+            $fallbackRouteParameters
+        );
     }
 }

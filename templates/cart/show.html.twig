@@ -32,22 +32,24 @@
                 Voeg eerst een product toe voordat je kunt afrekenen.
             </p>
 
-            <a href="{{ path('shop_index') }}"
-               class="mt-6 inline-block bg-black text-white px-6 py-3 text-sm font-semibold hover:bg-gray-900 transition">
+            <a
+                href="{{ path('shop_index') }}"
+                class="mt-6 inline-block bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-900"
+            >
                 Verder winkelen
             </a>
         </div>
 
     {% else %}
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div class="grid grid-cols-1 gap-16 lg:grid-cols-12">
 
-            <div class="lg:col-span-8 space-y-10">
+            <div class="space-y-10 lg:col-span-8">
 
                 {% for item in items %}
                     <div class="flex gap-8 border-b border-gray-200 pb-10">
 
-                        <div class="w-32 h-32 sm:w-40 sm:h-40 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden rounded-lg">
+                        <div class="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-50 sm:h-40 sm:w-40">
                             {% if item.imageUrl is defined and item.imageUrl %}
                                 <img
                                     src="{{ asset(item.imageUrl) }}"
@@ -55,16 +57,16 @@
                                     class="max-h-36 object-contain"
                                 >
                             {% else %}
-                                <div class="text-xs text-gray-400 text-center px-3">
+                                <div class="px-3 text-center text-xs text-gray-400">
                                     Geen afbeelding
                                 </div>
                             {% endif %}
                         </div>
 
-                        <div class="flex-1 min-w-0">
+                        <div class="min-w-0 flex-1">
 
                             <div class="text-xs uppercase tracking-[0.18em] text-gray-500">
-                                {{ item.brand ?? 'Merk' }}
+                                {{ item.brand ?? 'Topbags Service' }}
                             </div>
 
                             <div class="mt-1 text-lg font-medium text-gray-900">
@@ -91,30 +93,47 @@
 
                             <div class="mt-6 flex flex-wrap items-center gap-4">
 
-                                <form method="post" action="{{ path('cart_update') }}" class="flex items-center gap-2">
-                                    <input type="hidden" name="variantSku" value="{{ item.sku }}">
+                                <form
+                                    method="post"
+                                    action="{{ path('cart_update') }}"
+                                    class="flex items-center gap-2"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="variantSku"
+                                        value="{{ item.sku }}"
+                                    >
 
                                     <input
                                         type="number"
                                         name="qty"
                                         value="{{ item.qty }}"
                                         min="1"
-                                        class="w-20 border border-gray-300 px-3 py-2 text-sm rounded-md"
+                                        class="w-20 rounded-md border border-gray-300 px-3 py-2 text-sm"
                                     >
 
                                     <button
                                         type="submit"
-                                        class="text-sm font-medium text-gray-700 hover:text-black transition">
+                                        class="text-sm font-medium text-gray-700 transition hover:text-black"
+                                    >
                                         Bijwerken
                                     </button>
                                 </form>
 
-                                <form method="post" action="{{ path('cart_remove') }}">
-                                    <input type="hidden" name="variantSku" value="{{ item.sku }}">
+                                <form
+                                    method="post"
+                                    action="{{ path('cart_remove') }}"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="variantSku"
+                                        value="{{ item.sku }}"
+                                    >
 
                                     <button
                                         type="submit"
-                                        class="text-sm text-gray-500 hover:text-gray-900 transition">
+                                        class="text-sm text-gray-500 transition hover:text-gray-900"
+                                    >
                                         Verwijderen
                                     </button>
                                 </form>
@@ -122,11 +141,13 @@
                             </div>
                         </div>
 
-                        <div class="text-right shrink-0">
+                        <div class="shrink-0 text-right">
+
                             {% if item.price is defined %}
                                 <div class="text-sm text-gray-500">
                                     {{ item.qty }} ×
-                                    <span class="{{ item.saleActive is defined and item.saleActive ? 'text-red-600 font-semibold' : '' }}">
+
+                                    <span class="{{ item.saleActive is defined and item.saleActive ? 'font-semibold text-red-600' : '' }}">
                                         € {{ item.price|number_format(2, ',', '.') }}
                                     </span>
                                 </div>
@@ -138,6 +159,7 @@
                                 {% elseif item.compareAtPrice is defined and item.compareAtPrice and item.compareAtPrice > item.price %}
                                     <div class="mt-1 text-sm text-gray-400">
                                         adviesprijs
+
                                         <span class="line-through">
                                             € {{ item.compareAtPrice|number_format(2, ',', '.') }}
                                         </span>
@@ -148,256 +170,374 @@
                             <div class="mt-2 text-lg font-semibold {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-900' }}">
                                 € {{ item.lineTotal|number_format(2, ',', '.') }}
                             </div>
+
                         </div>
+
                     </div>
                 {% endfor %}
 
                 <div class="pt-2">
-                    <a href="{{ path('shop_index') }}"
-                       class="text-sm text-gray-600 hover:text-black transition">
+                    <a
+                        href="{{ path('shop_index') }}"
+                        class="text-sm text-gray-600 transition hover:text-black"
+                    >
                         ← Verder winkelen
                     </a>
                 </div>
+
             </div>
 
+
             <aside class="lg:col-span-4">
-                <div class="border border-gray-200 p-8 sticky top-24 bg-white space-y-6">
+
+                <div class="sticky top-24 space-y-6 border border-gray-200 bg-white p-8">
 
                     <div class="text-sm text-gray-500">
                         Overzicht
                     </div>
 
+
+                    {# =========================
+                    Coupon
+                    ========================= #}
                     <div>
-                        <div class="text-sm font-medium text-gray-900 mb-3">
+
+                        <div class="mb-3 text-sm font-medium text-gray-900">
                             Couponcode
                         </div>
 
-                        {% if couponCode %}
-                            <div class="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                                Coupon <strong>{{ couponCode }}</strong> is toegepast.
+                        {% if hasCouponEligibleItems %}
+
+                            {% if couponCode %}
+                                <div class="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                                    Coupon <strong>{{ couponCode }}</strong> is toegepast.
+                                </div>
+
+                                <form
+                                    method="post"
+                                    action="{{ path('cart_coupon_remove') }}"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="text-sm font-medium text-gray-700 underline transition hover:text-black"
+                                    >
+                                        Coupon verwijderen
+                                    </button>
+                                </form>
+
+                            {% else %}
+
+                                <form
+                                    method="post"
+                                    action="{{ path('cart_coupon_apply') }}"
+                                    class="space-y-3"
+                                >
+                                    <input
+                                        type="text"
+                                        name="couponCode"
+                                        placeholder="Vul je couponcode in"
+                                        class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="w-full rounded-md border border-[#4c3228] px-4 py-3 text-sm font-semibold text-[#4c3228] transition hover:bg-[#4c3228] hover:text-white"
+                                    >
+                                        Coupon toepassen
+                                    </button>
+                                </form>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-relaxed text-gray-600">
+                                Couponcodes zijn niet geldig op diensten.
                             </div>
 
-                            <form method="post" action="{{ path('cart_coupon_remove') }}">
-                                <button
-                                    type="submit"
-                                    class="text-sm font-medium text-gray-700 underline hover:text-black transition">
-                                    Coupon verwijderen
-                                </button>
-                            </form>
-                        {% else %}
-                            <form method="post" action="{{ path('cart_coupon_apply') }}" class="space-y-3">
-                                <input
-                                    type="text"
-                                    name="couponCode"
-                                    placeholder="Vul je couponcode in"
-                                    class="w-full rounded-md border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#e3c965]"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="w-full rounded-md border border-[#4c3228] px-4 py-3 text-sm font-semibold text-[#4c3228] hover:bg-[#4c3228] hover:text-white transition">
-                                    Coupon toepassen
-                                </button>
-                            </form>
                         {% endif %}
+
                     </div>
 
-                    <div class="border-t border-gray-200 pt-6 space-y-3 text-sm">
+
+                    {# =========================
+                       Prijsoverzicht
+                       ========================= #}
+                    <div class="space-y-3 border-t border-gray-200 pt-6 text-sm">
+
                         <div class="flex justify-between">
                             <span>Subtotaal</span>
-                            <span>€ {{ subtotal|number_format(2, ',', '.') }}</span>
+                            <span>
+                                € {{ subtotal|number_format(2, ',', '.') }}
+                            </span>
                         </div>
 
                         {% if discountAmount > 0 %}
                             <div class="flex justify-between text-emerald-700">
                                 <span>Korting</span>
-                                <span>- € {{ discountAmount|number_format(2, ',', '.') }}</span>
+                                <span>
+                                    - € {{ discountAmount|number_format(2, ',', '.') }}
+                                </span>
                             </div>
                         {% endif %}
 
+
+                        {# =========================
+                           Verzending
+                           ========================= #}
                         <div class="flex justify-between">
+
                             <span>Verzending</span>
-                            <span class="text-gray-500">
-                                {% if shippingCost > 0 %}
-                                    € {{ shippingCost|number_format(2, ',', '.') }}
-                                {% else %}
+
+                            {% if not requiresShipping %}
+                                <span class="text-gray-500">
+                                    Niet van toepassing
+                                </span>
+
+                            {% elseif shippingCost <= 0 %}
+                                <span class="font-medium text-emerald-700">
                                     Gratis
+                                </span>
+
+                            {% else %}
+                                <span>
+                                    € {{ shippingCost|number_format(2, ',', '.') }}
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+
+                        {% if not requiresShipping %}
+
+                            <div class="text-xs leading-5 text-gray-500">
+                                Je winkelwagen bevat alleen digitale diensten;
+                                er worden geen verzendkosten berekend.
+                            </div>
+
+                        {% elseif shippingCost <= 0 %}
+
+                            <div class="text-xs leading-5 text-emerald-700">
+                                Je fysieke bestelling komt in aanmerking voor gratis verzending.
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-xs leading-5 text-gray-500">
+                                Gratis verzending vanaf
+                                € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                                aan fysieke producten.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="flex justify-between border-t border-gray-200 pt-6 font-semibold text-gray-900">
+                        <span>Totaal</span>
+                        <span>
+                            € {{ grandTotal|number_format(2, ',', '.') }}
+                        </span>
+                    </div>
+
+
+                    <a
+                        href="{{ path('checkout_index') }}"
+                        class="block w-full bg-black py-3 text-center text-sm font-semibold text-white transition hover:bg-gray-900"
+                    >
+                        Afrekenen
+                    </a>
+
+
+                    {# =========================
+                       Betaalmethoden
+                       ========================= #}
+                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+
+                        <div class="text-sm font-semibold text-gray-900">
+                            Veilig en flexibel betalen
+                        </div>
+
+                        <style>
+                            .payment-logo-card svg {
+                                display: block !important;
+                                max-width: 100% !important;
+                                max-height: 100% !important;
+                            }
+
+                            .payment-logo-card--apple svg {
+                                width: 100px !important;
+                                height: auto !important;
+                                transform: scale(1.85);
+                                transform-origin: center;
+                            }
+
+                            .payment-logo-card--google svg {
+                                width: 100px !important;
+                                height: auto !important;
+                                transform: scale(1.85);
+                                transform-origin: center;
+                            }
+
+                            .payment-logo-card--wero svg {
+                                width: 112px !important;
+                                height: auto !important;
+                                transform: scale(1.45);
+                                transform-origin: center;
+                            }
+
+                            .payment-logo-card--visa svg {
+                                width: 86px !important;
+                                height: auto !important;
+                            }
+
+                            .payment-logo-card--mastercard svg {
+                                width: 74px !important;
+                                height: auto !important;
+                                transform: scale(1.25);
+                                transform-origin: center;
+                            }
+
+                            .payment-logo-card--vvv svg {
+                                width: 70px !important;
+                                height: auto !important;
+                                transform: scale(1.25);
+                                transform-origin: center;
+                            }
+
+                            .payment-logo-card--klarna svg {
+                                width: 118px !important;
+                                height: auto !important;
+                            }
+
+                            .payment-logo-card--riverty svg {
+                                width: 118px !important;
+                                height: auto !important;
+                            }
+                        </style>
+
+
+                        <div
+                            class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"
+                            aria-label="Beschikbare betaalmethoden"
+                        >
+
+                            <span class="payment-logo-card payment-logo-card--apple inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">Apple Pay</span>
+                                {% include 'partials/icons/payment/applepay.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--google inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">Google Pay</span>
+                                {% include 'partials/icons/payment/googlepay.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--wero inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">iDEAL en Wero</span>
+                                {% include 'partials/icons/payment/wero.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--visa inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">Visa</span>
+                                {% include 'partials/icons/payment/visa.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--mastercard inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">Mastercard</span>
+                                {% include 'partials/icons/payment/mastercard.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--vvv inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">VVV Cadeaukaart</span>
+                                {% include 'partials/icons/payment/vvv.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--riverty inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">
+                                    Riverty - betaal later of in 3 termijnen indien beschikbaar
+                                </span>
+                                {% include 'partials/icons/payment/riverty.svg.twig' %}
+                            </span>
+
+                            <span class="payment-logo-card payment-logo-card--klarna inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
+                                <span class="sr-only">
+                                    Klarna - betaal later of in 3 termijnen indien beschikbaar
+                                </span>
+                                {% include 'partials/icons/payment/klarna.svg.twig' %}
+                            </span>
+
+                        </div>
+
+                        <p class="sr-only">
+                            Beschikbare betaalmethoden bij Topbags:
+                            Apple Pay, iDEAL, Wero, Visa, Mastercard,
+                            VVV Cadeaubon, Riverty en Klarna.
+                        </p>
+
+                        <div class="mt-3 rounded-xl border border-pink-100 bg-white px-3 py-2 text-xs leading-relaxed text-gray-600">
+                            <span class="font-semibold text-gray-900">
+                                Klarna:
+                            </span>
+                            betaal later of verspreid je betaling over 3 termijnen,
+                            indien goedgekeurd door Klarna.
+                        </div>
+
+                    </div>
+
+
+                    {# =========================
+                       Vertrouwen / service
+                       ========================= #}
+                    <div class="space-y-2 text-xs leading-relaxed text-gray-600">
+
+                        {% if requiresShipping %}
+                            <div class="flex items-start gap-2">
+                                <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                    {% include 'partials/icons/badge-check.svg.twig' %}
+                                </span>
+
+                                <span>
+                                    Gratis verzending vanaf
+                                    € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                                    aan fysieke producten
+                                </span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-start gap-2">
+                                <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                    {% include 'partials/icons/badge-check.svg.twig' %}
+                                </span>
+
+                                <span>
+                                    Digitale dienst – geen verzendkosten
+                                </span>
+                            </div>
+                        {% endif %}
+
+
+                        <div class="flex items-start gap-2">
+                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
+                                {% include 'partials/icons/badge-check.svg.twig' %}
+                            </span>
+
+                            <span>
+                                {% if requiresShipping %}
+                                    30 dagen retour
+                                {% else %}
+                                    Digitaal rapport per e-mail
                                 {% endif %}
                             </span>
                         </div>
 
-                        {% if shippingCost > 0 %}
-                            <div class="text-xs text-gray-500">
-                                Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
-                            </div>
-                        {% else %}
-                            <div class="text-xs text-emerald-700">
-                                Je bestelling komt in aanmerking voor gratis verzending.
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="border-t border-gray-200 pt-6 flex justify-between font-semibold text-gray-900">
-                        <span>Totaal</span>
-                        <span>€ {{ grandTotal|number_format(2, ',', '.') }}</span>
-                    </div>
-
-                    <a href="{{ path('checkout_index') }}"
-                       class="block w-full text-center bg-black text-white py-3 text-sm font-semibold hover:bg-gray-900 transition">
-                        Afrekenen
-                    </a>
-
-               {# Betaalmethoden / conversieblok #}
-                <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                    <div class="text-sm font-semibold text-gray-900">
-                        Veilig en flexibel betalen
-                    </div>
-
-                   <style>
-                    .payment-logo-card svg {
-                        display: block !important;
-                        max-width: 100% !important;
-                        max-height: 100% !important;
-                    }
-
-                    .payment-logo-card--apple svg {
-                        width: 100px !important;
-                        height: auto !important;
-                        transform: scale(1.85);
-                        transform-origin: center;
-                    }
-
-                    .payment-logo-card--google svg {
-                        width: 100px !important;
-                        height: auto !important;
-                        transform: scale(1.85);
-                        transform-origin: center;
-                    }
-
-                    .payment-logo-card--wero svg {
-                        width: 112px !important;
-                        height: auto !important;
-                        transform: scale(1.45);
-                        transform-origin: center;
-                    }
-
-                    .payment-logo-card--visa svg {
-                        width: 86px !important;
-                        height: auto !important;
-                    }
-
-                    .payment-logo-card--mastercard svg {
-                        width: 74px !important;
-                        height: auto !important;
-                        transform: scale(1.25);
-                        transform-origin: center;
-                    }
-
-                    .payment-logo-card--vvv svg {
-                        width: 70px !important;
-                        height: auto !important;
-                        transform: scale(1.25);
-                        transform-origin: center;
-                    }
-
-                    .payment-logo-card--klarna svg {
-                        width: 118px !important;
-                        height: auto !important;
-                    }
-
-                    .payment-logo-card--riverty svg {
-                        width: 118px !important;
-                        height: auto !important;
-                    }
-                </style>
-
-                    <div
-                        class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3"
-                        aria-label="Beschikbare betaalmethoden"
-                    >
-
-                        <span class="payment-logo-card payment-logo-card--apple inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">Apple Pay</span>
-                            {% include 'partials/icons/payment/applepay.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--google inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">Google Pay</span>
-                            {% include 'partials/icons/payment/googlepay.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--wero inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">iDEAL en Wero</span>
-                            {% include 'partials/icons/payment/wero.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--visa inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">Visa</span>
-                            {% include 'partials/icons/payment/visa.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--mastercard inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">Mastercard</span>
-                            {% include 'partials/icons/payment/mastercard.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--vvv inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">VVV Cadeaukaart</span>
-                            {% include 'partials/icons/payment/vvv.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--riverty inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">
-                                Riverty - betaal later of in 3 termijnen indien beschikbaar
-                            </span>
-                            {% include 'partials/icons/payment/riverty.svg.twig' %}
-                        </span>
-
-                        <span class="payment-logo-card payment-logo-card--klarna inline-flex h-12 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-white px-4 py-2">
-                            <span class="sr-only">
-                                Klarna - betaal later of in 3 termijnen indien beschikbaar
-                            </span>
-                            {% include 'partials/icons/payment/klarna.svg.twig' %}
-                        </span>
-
-                    </div>
-
-                    <p class="sr-only">
-                        Beschikbare betaalmethoden bij Topbags: Apple Pay, iDEAL, Wero, Visa, Mastercard, VVV Cadeaubon, Riverty en Klarna.
-                        Met Klarna/Riverty kun je, indien beschikbaar en na goedkeuring door Klarna/Riverty, later of in 3 termijnen betalen.
-                    </p>
-
-                    <div class="mt-3 rounded-xl border border-pink-100 bg-white px-3 py-2 text-xs leading-relaxed text-gray-600">
-                        <span class="font-semibold text-gray-900">Klarna:</span>
-                        betaal later of verspreid je betaling over 3 termijnen, indien goedgekeurd door Klarna/Riverty.
-                    </div>
-                </div>
-                    <div class="space-y-2 text-xs text-gray-600 leading-relaxed">
 
                         <div class="flex items-start gap-2">
                             <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
                                 {% include 'partials/icons/badge-check.svg.twig' %}
                             </span>
-                            <span>
-                                Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
-                            </span>
-                        </div>
 
-                        <div class="flex items-start gap-2">
-                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
-                                {% include 'partials/icons/badge-check.svg.twig' %}
-                            </span>
                             <span>
-                                30 dagen retour
-                            </span>
-                        </div>
-
-                        <div class="flex items-start gap-2">
-                            <span class="mt-0.5 inline-flex h-4 w-4 shrink-0 text-emerald-600">
-                                {% include 'partials/icons/badge-check.svg.twig' %}
-                            </span>
-                            <span>
-                                Officieel dealer
+                                Officieel dealer en servicepunt
                             </span>
                         </div>
 
@@ -412,15 +552,13 @@
 
 </div>
 
+
 {# ======================
    GA4 WINKELWAGEN BEKEKEN
    Waarde exclusief verzendkosten.
 ====================== #}
 
-{% if
-    ga4_measurement_id
-    and items is not empty
-%}
+{% if ga4_measurement_id and items is not empty %}
     <script>
         window.dataLayer = window.dataLayer || [];
 

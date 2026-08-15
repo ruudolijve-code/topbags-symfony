@@ -3,6 +3,7 @@
 namespace App\Admin\Controller;
 
 use App\Catalog\Entity\Product;
+use App\Catalog\Enum\ProductType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -19,7 +20,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
-
 class ProductCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -62,6 +62,16 @@ class ProductCrudController extends AbstractCrudController
         yield SlugField::new('slug', 'Slug')
             ->setTargetFieldName('name');
 
+        yield ChoiceField::new('productType')
+            ->setLabel('Producttype')
+            ->setChoices([
+                ProductType::PHYSICAL->label() => ProductType::PHYSICAL,
+                ProductType::SERVICE->label() => ProductType::SERVICE,
+            ])
+            ->setHelp(
+                'Bepaalt hoe het product wordt afgehandeld, bijvoorbeeld verzending, voorraad en coupongebruik.'
+            );
+
         yield AssociationField::new('brand', 'Merk');
 
         yield TextField::new('series', 'Serie')
@@ -69,10 +79,14 @@ class ProductCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield BooleanField::new('isFeatured', 'Populair op shop-home')
-            ->setHelp('Aanvinken om dit product te tonen bij “Populaire koffers” op /shop.');
+            ->setHelp(
+                'Aanvinken om dit product te tonen bij “Populaire koffers” op /shop.'
+            );
 
         yield IntegerField::new('featuredPosition', 'Populair positie')
-            ->setHelp('Lage nummers komen eerst. Gebruik bijvoorbeeld 10, 20, 30, 40.');
+            ->setHelp(
+                'Lage nummers komen eerst. Gebruik bijvoorbeeld 10, 20, 30, 40.'
+            );
 
         yield ChoiceField::new('productContext', 'Context')
             ->setChoices([
@@ -80,7 +94,9 @@ class ProductCrudController extends AbstractCrudController
                 'Damestassen' => Product::CONTEXT_BAGS,
             ])
             ->setRequired(true)
-            ->setHelp('Bepaalt of dit product onder reisartikelen of damestassen valt.')
+            ->setHelp(
+                'Bepaalt of dit product onder reisartikelen of damestassen valt.'
+            )
             ->hideOnIndex();
 
         yield ChoiceField::new('luggageType', 'Bagagetype')
@@ -92,7 +108,9 @@ class ProductCrudController extends AbstractCrudController
                 'Travel kit' => 'travel-kit',
             ])
             ->setRequired(false)
-            ->setHelp('Alleen invullen voor reisartikelen. Voor damestassen leeg laten.');
+            ->setHelp(
+                'Alleen invullen voor fysieke reisartikelen. Voor diensten en damestassen leeg laten.'
+            );
 
         yield BooleanField::new('isActive', 'Actief');
 

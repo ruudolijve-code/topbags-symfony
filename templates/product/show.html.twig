@@ -40,14 +40,25 @@
     </div>
 
     <section id="product-focus" class="scroll-mt-40">
-        {% include 'product/_hero_museum_fullwidth.html.twig' with {
-            product: product,
-            variant: variant,
-            master: master,
-            mediaPath: mediaPath,
-            imageBasePath: imageBasePath,
-            availability: availability
-        } %}
+        {% if product.isService %}
+            {% include 'product/_hero_service.html.twig' with {
+                product: product,
+                variant: variant,
+                master: master,
+                mediaPath: mediaPath,
+                imageBasePath: imageBasePath,
+                availability: availability
+            } %}
+        {% else %}
+            {% include 'product/_hero_museum_fullwidth.html.twig' with {
+                product: product,
+                variant: variant,
+                master: master,
+                mediaPath: mediaPath,
+                imageBasePath: imageBasePath,
+                availability: availability
+            } %}
+        {% endif %}
     </section>
 
     <div class="max-w-[1400px] mx-auto px-6">

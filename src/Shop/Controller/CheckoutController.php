@@ -193,7 +193,7 @@ class CheckoutController extends AbstractController
         $shippingMethod = $customerData['shipping']['method'] ?? Order::SHIPPING_METHOD_HOME;
 
         $shippingCost = $shippingCalculator->calculate(
-            $cartData['subtotal'],
+            $cartData['shippableSubtotal'],
             $shippingMethod
         );
 
@@ -241,22 +241,27 @@ class CheckoutController extends AbstractController
     }
 
     /**
-     * @return array{
-     *   items: array<int, array{
-     *     sku: string,
-     *     name: string,
-     *     price: float,
-     *     qty: int,
-     *     lineTotal: float,
-     *     color?: string,
-     *     regularPrice?: float,
-     *     compareAtPrice?: ?float,
-     *     saleActive?: bool,
-     *     saleBadge?: ?string
-     *   }>,
-     *   subtotal: float
-     * }
-     */
+    * @return array{
+    *   items: array<int, array{
+    *     sku: string,
+    *     name: string,
+    *     price: float,
+    *     qty: int,
+    *     lineTotal: float,
+    *     color?: ?string,
+    *     regularPrice?: float,
+    *     compareAtPrice?: ?float,
+    *     saleActive?: bool,
+    *     saleBadge?: ?string,
+    *     productContext?: string,
+    *     productType: string,
+    *     requiresShipping: bool,
+    *     couponEligible: bool
+    *   }>,
+    *   subtotal: float,
+    *   shippableSubtotal: float
+    * }
+    */
     private function buildCartView(
         CartService $cart,
         ProductVariantRepository $variantRepository
@@ -264,6 +269,7 @@ class CheckoutController extends AbstractController
         $rawItems = $cart->all();
         $items = [];
         $subtotal = 0.0;
+        $shippableSubtotal = 0.0;
 
         foreach ($rawItems as $row) {
             if (!isset($row['sku'], $row['qty'])) {
@@ -288,7 +294,16 @@ class CheckoutController extends AbstractController
             $price = (float) $variant->getDisplayPrice();
             $qty = max(1, (int) $row['qty']);
             $lineTotal = $price * $qty;
+
+            $productType = $product->getProductType();
+            $requiresShipping = $productType->requiresShipping();
+            $couponEligible = $productType->couponEligible();
+
             $subtotal += $lineTotal;
+
+            if ($requiresShipping) {
+                $shippableSubtotal += $lineTotal;
+            }
 
             $items[] = [
                 'sku' => $variant->getVariantSku(),
@@ -304,12 +319,16 @@ class CheckoutController extends AbstractController
                 'saleActive' => $variant->isSaleActive(),
                 'saleBadge' => $variant->getDiscountBadge(),
                 'productContext' => $product->getProductContext(),
+                'productType' => $productType->value,
+                'requiresShipping' => $requiresShipping,
+                'couponEligible' => $couponEligible,
             ];
         }
 
         return [
             'items' => $items,
             'subtotal' => $subtotal,
+            'shippableSubtotal' => $shippableSubtotal,
         ];
     }
 
@@ -322,11 +341,15 @@ class CheckoutController extends AbstractController
      *   price: float,
      *   qty: int,
      *   lineTotal: float,
-     *   color?: ?string
+     *   color?: ?string,
+     *   productType?: string
      * }> $cartItems
      */
-    private function buildMolliePaymentData(Order $order, array $cartItems, array $customerData): array
-    {
+    private function buildMolliePaymentData(
+        Order $order,
+        array $cartItems,
+        array $customerData
+    ): array {
         $address = $customerData['address'] ?? [];
 
         $firstName = trim((string) ($address['firstName'] ?? ''));
@@ -336,8 +359,13 @@ class CheckoutController extends AbstractController
         $city = trim((string) ($address['city'] ?? ''));
         $country = strtoupper(trim((string) ($address['country'] ?? 'NL'))) ?: 'NL';
 
-        $email = mb_strtolower(trim((string) ($customerData['email'] ?? $order->getCustomerEmail())));
-        $phone = $this->molliePhone((string) ($customerData['phone'] ?? $order->getCustomerPhone() ?? ''));
+        $email = mb_strtolower(
+            trim((string) ($customerData['email'] ?? $order->getCustomerEmail()))
+        );
+
+        $phone = $this->molliePhone(
+            (string) ($customerData['phone'] ?? $order->getCustomerPhone() ?? '')
+        );
 
         $billingAddress = [
             'givenName' => $firstName,
@@ -360,18 +388,26 @@ class CheckoutController extends AbstractController
             $unitPrice = (float) ($item['price'] ?? 0.0);
             $totalAmount = $unitPrice * $quantity;
 
-            if ($unitPrice <= 0 || $totalAmount <= 0) {
+            if ($unitPrice <= 0.0 || $totalAmount <= 0.0) {
                 continue;
             }
 
-            $description = trim((string) ($item['name'] ?? 'Topbags product'));
+            $description = trim(
+                (string) ($item['name'] ?? 'Topbags product')
+            );
 
             if (!empty($item['color'])) {
                 $description .= ' - ' . trim((string) $item['color']);
             }
 
+            $productType = (string) ($item['productType'] ?? 'physical');
+
+            $mollieLineType = $productType === 'service'
+                ? 'digital'
+                : 'physical';
+
             $lines[] = [
-                'type' => 'physical',
+                'type' => $mollieLineType,
                 'description' => mb_substr($description, 0, 255),
                 'quantity' => $quantity,
                 'unitPrice' => [
@@ -393,7 +429,7 @@ class CheckoutController extends AbstractController
 
         $shippingCost = (float) $order->getShippingCost();
 
-        if ($shippingCost > 0) {
+        if ($shippingCost > 0.0) {
             $lines[] = [
                 'type' => 'shipping_fee',
                 'description' => 'Verzendkosten',
@@ -416,8 +452,8 @@ class CheckoutController extends AbstractController
 
         $discountAmount = (float) $order->getDiscountAmount();
 
-        if ($discountAmount > 0) {
-            $negativeDiscount = -1 * $discountAmount;
+        if ($discountAmount > 0.0) {
+            $negativeDiscount = -$discountAmount;
 
             $lines[] = [
                 'type' => 'discount',
@@ -443,7 +479,7 @@ class CheckoutController extends AbstractController
             'billingEmail' => $email,
             'billingAddress' => $billingAddress,
 
-            // Voor nu gelijk aan factuuradres. Dit is veilig om Klarna eerst werkend te krijgen.
+            // Voor Klarna voorlopig gelijk aan het factuuradres.
             'shippingAddress' => $billingAddress,
 
             'lines' => $lines,
@@ -466,7 +502,9 @@ class CheckoutController extends AbstractController
      *   name: string,
      *   price: float,
      *   qty: int,
-     *   lineTotal: float
+     *   lineTotal: float,
+     *   productType?: string,
+     *   requiresShipping?: bool
      * }> $cartItems
      *
      * @return string[]
@@ -489,6 +527,26 @@ class CheckoutController extends AbstractController
                     'Product "%s" is niet meer beschikbaar.',
                     $item['name']
                 );
+
+                continue;
+            }
+
+            $product = $variant->getProduct();
+
+            if ($product === null) {
+                $errors[] = sprintf(
+                    'Product "%s" is niet meer beschikbaar.',
+                    $item['name']
+                );
+
+                continue;
+            }
+
+            /*
+            * Diensten hebben geen fysieke voorraad en hoeven daarom
+            * niet door de normale beschikbaarheidscontrole.
+            */
+            if (!$product->getProductType()->tracksStock()) {
                 continue;
             }
 
@@ -499,6 +557,7 @@ class CheckoutController extends AbstractController
                     'Product "%s" is momenteel niet leverbaar en kan niet worden besteld.',
                     $item['name']
                 );
+
                 continue;
             }
 
@@ -514,9 +573,8 @@ class CheckoutController extends AbstractController
             }
         }
 
-        return $errors;
+        return array_values(array_unique($errors));
     }
-
     /**
      * @return array{
      *   email: string,
@@ -878,15 +936,20 @@ class CheckoutController extends AbstractController
      *     price: float,
      *     qty: int,
      *     lineTotal: float,
-     *     color?: string,
+     *     color?: ?string,
      *     regularPrice?: float,
      *     compareAtPrice?: ?float,
      *     saleActive?: bool,
-     *     saleBadge?: ?string
+     *     saleBadge?: ?string,
+     *     productContext?: string,
+     *     productType: string,
+     *     requiresShipping: bool,
+     *     couponEligible: bool
      *   }>,
-     *   subtotal: float
+     *   subtotal: float,
+     *   shippableSubtotal: float
      * } $cartData
-     * 
+     *
      * @param array{
      *   email: string,
      *   rawPhone: string,
@@ -930,15 +993,22 @@ class CheckoutController extends AbstractController
         CouponService $couponService
     ): Response {
         $subtotal = $cartData['subtotal'];
+        $shippableSubtotal = $cartData['shippableSubtotal'];
+        $requiresShipping = $shippableSubtotal > 0.0;
+
         $couponCode = $cart->getCouponCode();
         $couponResult = null;
         $discountAmount = 0.0;
 
         if ($couponCode !== null) {
-            $couponResult = $couponService->validateForCartItems($couponCode, $cartData['items'] ?? []);
+            $couponResult = $couponService->validateForCartItems(
+                $couponCode,
+                $cartData['items']
+            );
 
             if (!$couponResult->isValid()) {
                 $cart->clearCouponCode();
+
                 $couponCode = null;
                 $couponResult = null;
             } else {
@@ -946,23 +1016,34 @@ class CheckoutController extends AbstractController
             }
         }
 
-        $shippingMethod = $formData['shipping']['method'] ?? Order::SHIPPING_METHOD_HOME;
+        $shippingMethod = $formData['shipping']['method']
+            ?? Order::SHIPPING_METHOD_HOME;
 
         $shippingCost = $shippingCalculator->calculate(
-            $subtotal,
+            $shippableSubtotal,
             $shippingMethod
         );
-        $grandTotal = max(0, $subtotal - $discountAmount + $shippingCost);
+
+        $grandTotal = max(
+            0.0,
+            $subtotal - $discountAmount + $shippingCost
+        );
 
         return $this->render('checkout/index.html.twig', [
             'items' => $cartData['items'],
             'subtotal' => $subtotal,
+            'shippableSubtotal' => $shippableSubtotal,
+            'requiresShipping' => $requiresShipping,
+
             'formData' => $formData,
+
             'couponCode' => $couponCode,
             'couponResult' => $couponResult,
             'discountAmount' => $discountAmount,
+
             'shippingCost' => $shippingCost,
             'freeShippingFrom' => $shippingCalculator->getFreeFrom(),
+
             'grandTotal' => $grandTotal,
         ]);
     }
