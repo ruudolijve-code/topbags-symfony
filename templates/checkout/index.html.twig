@@ -326,152 +326,315 @@
                 {% endif %}
 
                 <section>
-                    <h2 class="text-lg font-medium mb-6">Verzendmethode</h2>
+                    {% if not requiresShipping %}
 
-                    <div class="space-y-4">
-                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="shippingMethod"
-                                value="home"
-                                {{ shippingMethod == 'home' ? 'checked' : '' }}
-                                class="mt-1"
-                            >
-                            <span class="block">
-                                <span class="block text-sm font-medium text-gray-900">Thuisbezorgen</span>
-                                <span class="block text-sm text-gray-500 mt-1">
-                                    Je bestelling wordt op het opgegeven adres bezorgd.
+                        <h2 class="text-lg font-medium mb-6">
+                            Levering
+                        </h2>
+
+                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
+                                    ✓
                                 </span>
-                            </span>
-                        </label>
 
-                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="shippingMethod"
-                                value="pickup"
-                                {{ shippingMethod == 'pickup' ? 'checked' : '' }}
-                                class="mt-1"
-                            >
-                            <span class="block">
-                                <span class="block text-sm font-medium text-gray-900">Afhalen bij PostNL-punt</span>
-                                <span class="block text-sm text-gray-500 mt-1">
-                                    Kies een PostNL afhaalpunt bij jou in de buurt.
-                                </span>
-                            </span>
-                        </label>
+                                <div>
+                                    <div class="font-medium text-gray-900">
+                                        Per e-mail
+                                    </div>
 
-                        <label class="flex items-start gap-3 rounded-2xl border border-gray-200 p-4 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="shippingMethod"
-                                value="store_pickup"
-                                {{ shippingMethod == 'store_pickup' ? 'checked' : '' }}
-                                class="mt-1"
-                            >
-                            <span class="block">
-                                <span class="block text-sm font-medium text-gray-900">Gratis afhalen in onze winkel</span>
-                                <span class="block text-sm text-gray-500 mt-1">
-                                    Holtkamp tassen &amp; koffers, Wemenstraat 5-7, 7551 ET Hengelo.
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-
-                    <div
-                        id="pickup-section"
-                        class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'pickup' ? '' : 'hidden' }}"
-                    >
-                        <div class="flex items-center justify-between gap-4 mb-4">
-                            <h3 class="text-sm font-medium text-gray-900">PostNL afhaalpunten</h3>
-
-                            <button
-                                type="button"
-                                id="pickup-search-button"
-                                class="rounded-full border border-gray-900 px-4 py-2 text-sm font-medium hover:bg-gray-900 hover:text-white transition"
-                            >
-                                Zoek PostNL-punten
-                            </button>
+                                    <p class="mt-1 text-sm leading-6 text-gray-600">
+                                        Je schaderapport wordt digitaal per e-mail geleverd.
+                                        Na je bestelling ontvang je instructies voor het aanleveren
+                                        van de benodigde gegevens en foto's.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
-                        <p class="text-sm text-gray-500 mb-4">
-                            We zoeken afhaalpunten op basis van de ingevulde postcode en het huisnummer van je verzendadres.
-                        </p>
+                        {#
+                            CheckoutController verwacht momenteel nog een shippingMethod.
+                            Bij een pure service-order gebruiken we 'home' als interne
+                            technische waarde. ShippingCalculator berekent vanwege
+                            shippableSubtotal = 0 sowieso € 0 verzendkosten.
+                        #}
+                        <input
+                            type="hidden"
+                            name="shippingMethod"
+                            value="home"
+                        >
 
-                        <div id="pickup-feedback" class="mb-4 text-sm hidden"></div>
+                    {% else %}
 
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-4">Gekozen afhaalpunt</h4>
+                        <h2 class="text-lg font-medium mb-6">
+                            Verzendmethode
+                        </h2>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label for="pickupName" class="block text-sm text-gray-600 mb-2">Naam afhaalpunt</label>
-                                        <input id="pickupName" type="text" name="pickupName" value="{{ formData.shipping.pickup.name|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
+                        <div class="space-y-4">
+                            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                                <input
+                                    type="radio"
+                                    name="shippingMethod"
+                                    value="home"
+                                    {{ shippingMethod == 'home' ? 'checked' : '' }}
+                                    class="mt-1"
+                                >
+
+                                <span class="block">
+                                    <span class="block text-sm font-medium text-gray-900">
+                                        Thuisbezorgen
+                                    </span>
+
+                                    <span class="mt-1 block text-sm text-gray-500">
+                                        Je bestelling wordt op het opgegeven adres bezorgd.
+                                    </span>
+                                </span>
+                            </label>
+
+                            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                                <input
+                                    type="radio"
+                                    name="shippingMethod"
+                                    value="pickup"
+                                    {{ shippingMethod == 'pickup' ? 'checked' : '' }}
+                                    class="mt-1"
+                                >
+
+                                <span class="block">
+                                    <span class="block text-sm font-medium text-gray-900">
+                                        Afhalen bij PostNL-punt
+                                    </span>
+
+                                    <span class="mt-1 block text-sm text-gray-500">
+                                        Kies een PostNL afhaalpunt bij jou in de buurt.
+                                    </span>
+                                </span>
+                            </label>
+
+                            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-gray-200 p-4">
+                                <input
+                                    type="radio"
+                                    name="shippingMethod"
+                                    value="store_pickup"
+                                    {{ shippingMethod == 'store_pickup' ? 'checked' : '' }}
+                                    class="mt-1"
+                                >
+
+                                <span class="block">
+                                    <span class="block text-sm font-medium text-gray-900">
+                                        Gratis afhalen in onze winkel
+                                    </span>
+
+                                    <span class="mt-1 block text-sm text-gray-500">
+                                        Holtkamp Tassen &amp; Koffers,
+                                        Wemenstraat 5-7, 7551 ET Hengelo.
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+
+
+                        {# =========================
+                        PostNL afhaalpunt
+                        ========================= #}
+                        <div
+                            id="pickup-section"
+                            class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'pickup' ? '' : 'hidden' }}"
+                        >
+                            <div class="mb-4 flex items-center justify-between gap-4">
+                                <h3 class="text-sm font-medium text-gray-900">
+                                    PostNL afhaalpunten
+                                </h3>
+
+                                <button
+                                    type="button"
+                                    id="pickup-search-button"
+                                    class="rounded-full border border-gray-900 px-4 py-2 text-sm font-medium transition hover:bg-gray-900 hover:text-white"
+                                >
+                                    Zoek PostNL-punten
+                                </button>
+                            </div>
+
+                            <p class="mb-4 text-sm text-gray-500">
+                                We zoeken afhaalpunten op basis van de ingevulde postcode
+                                en het huisnummer van je verzendadres.
+                            </p>
+
+                            <div
+                                id="pickup-feedback"
+                                class="mb-4 hidden text-sm"
+                            ></div>
+
+                            <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                                <div>
+                                    <h4 class="mb-4 text-sm font-medium text-gray-900">
+                                        Gekozen afhaalpunt
+                                    </h4>
+
+                                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                        <div>
+                                            <label for="pickupName" class="mb-2 block text-sm text-gray-600">
+                                                Naam afhaalpunt
+                                            </label>
+                                            <input
+                                                id="pickupName"
+                                                type="text"
+                                                name="pickupName"
+                                                value="{{ formData.shipping.pickup.name|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label for="pickupLocationCode" class="mb-2 block text-sm text-gray-600">
+                                                Location code
+                                            </label>
+                                            <input
+                                                id="pickupLocationCode"
+                                                type="text"
+                                                name="pickupLocationCode"
+                                                value="{{ formData.shipping.pickup.locationCode|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label for="pickupRetailNetworkId" class="mb-2 block text-sm text-gray-600">
+                                                Retail network ID
+                                            </label>
+                                            <input
+                                                id="pickupRetailNetworkId"
+                                                type="text"
+                                                name="pickupRetailNetworkId"
+                                                value="{{ formData.shipping.pickup.retailNetworkId|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label for="pickupStreet" class="mb-2 block text-sm text-gray-600">
+                                                Straat
+                                            </label>
+                                            <input
+                                                id="pickupStreet"
+                                                type="text"
+                                                name="pickupStreet"
+                                                value="{{ formData.shipping.pickup.street|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label for="pickupHouseNumber" class="mb-2 block text-sm text-gray-600">
+                                                Huisnummer
+                                            </label>
+                                            <input
+                                                id="pickupHouseNumber"
+                                                type="text"
+                                                name="pickupHouseNumber"
+                                                value="{{ formData.shipping.pickup.houseNumber|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div>
+                                            <label for="pickupPostalCode" class="mb-2 block text-sm text-gray-600">
+                                                Postcode
+                                            </label>
+                                            <input
+                                                id="pickupPostalCode"
+                                                type="text"
+                                                name="pickupPostalCode"
+                                                value="{{ formData.shipping.pickup.postalCode|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
+
+                                        <div class="md:col-span-2">
+                                            <label for="pickupCity" class="mb-2 block text-sm text-gray-600">
+                                                Plaats
+                                            </label>
+                                            <input
+                                                id="pickupCity"
+                                                type="text"
+                                                name="pickupCity"
+                                                value="{{ formData.shipping.pickup.city|default('') }}"
+                                                autocomplete="off"
+                                                readonly
+                                                class="w-full border-b border-gray-300 bg-transparent py-3 focus:outline-none"
+                                            >
+                                        </div>
                                     </div>
+                                </div>
 
-                                    <div>
-                                        <label for="pickupLocationCode" class="block text-sm text-gray-600 mb-2">Location code</label>
-                                        <input id="pickupLocationCode" type="text" name="pickupLocationCode" value="{{ formData.shipping.pickup.locationCode|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
+                                <div>
+                                    <h4 class="mb-4 text-sm font-medium text-gray-900">
+                                        Beschikbare afhaalpunten
+                                    </h4>
 
-                                    <div>
-                                        <label for="pickupRetailNetworkId" class="block text-sm text-gray-600 mb-2">Retail network ID</label>
-                                        <input id="pickupRetailNetworkId" type="text" name="pickupRetailNetworkId" value="{{ formData.shipping.pickup.retailNetworkId|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
+                                    <div
+                                        id="pickup-results"
+                                        class="max-h-[520px] space-y-3 overflow-y-auto pr-1"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <div>
-                                        <label for="pickupStreet" class="block text-sm text-gray-600 mb-2">Straat</label>
-                                        <input id="pickupStreet" type="text" name="pickupStreet" value="{{ formData.shipping.pickup.street|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
 
-                                    <div>
-                                        <label for="pickupHouseNumber" class="block text-sm text-gray-600 mb-2">Huisnummer</label>
-                                        <input id="pickupHouseNumber" type="text" name="pickupHouseNumber" value="{{ formData.shipping.pickup.houseNumber|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
+                        {# =========================
+                        Afhalen winkel
+                        ========================= #}
+                        <div
+                            id="store-pickup-section"
+                            class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'store_pickup' ? '' : 'hidden' }}"
+                        >
+                            <h3 class="mb-4 text-sm font-medium text-gray-900">
+                                Afhalen in onze winkel
+                            </h3>
 
-                                    <div>
-                                        <label for="pickupPostalCode" class="block text-sm text-gray-600 mb-2">Postcode</label>
-                                        <input id="pickupPostalCode" type="text" name="pickupPostalCode" value="{{ formData.shipping.pickup.postalCode|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
+                            <div class="space-y-2 rounded-xl border border-gray-200 bg-white p-5">
+                                <div class="font-semibold text-gray-900">
+                                    Holtkamp Tassen &amp; Koffers
+                                </div>
 
-                                    <div class="md:col-span-2">
-                                        <label for="pickupCity" class="block text-sm text-gray-600 mb-2">Plaats</label>
-                                        <input id="pickupCity" type="text" name="pickupCity" value="{{ formData.shipping.pickup.city|default('') }}" autocomplete="off" readonly class="w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none">
-                                    </div>
+                                <div class="text-sm text-gray-700">
+                                    Wemenstraat 5-7
+                                </div>
+
+                                <div class="text-sm text-gray-700">
+                                    7551 ET Hengelo
+                                </div>
+
+                                <div class="text-sm text-gray-700">
+                                    Nederland
                                 </div>
                             </div>
 
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-900 mb-4">Beschikbare afhaalpunten</h4>
-                                <div id="pickup-results" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"></div>
-                            </div>
-                        </div>
-                    </div>
+                            <p class="mt-4 text-sm text-gray-500">
+                                Na je bestelling ontvang je bericht zodra je bestelling
+                                klaar ligt om af te halen in onze winkel.
+                            </p>
 
-                    <div
-                        id="store-pickup-section"
-                        class="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-6 {{ shippingMethod == 'store_pickup' ? '' : 'hidden' }}"
-                    >
-                        <h3 class="text-sm font-medium text-gray-900 mb-4">Afhalen in onze winkel</h3>
-
-                        <div class="rounded-xl bg-white border border-gray-200 p-5 space-y-2">
-                            <div class="font-semibold text-gray-900">Holtkamp tassen &amp; koffers</div>
-                            <div class="text-sm text-gray-700">Wemenstraat 5-7</div>
-                            <div class="text-sm text-gray-700">7551 ET Hengelo</div>
-                            <div class="text-sm text-gray-700">Nederland</div>
+                            <input type="hidden" name="storePickupName" value="Holtkamp Tassen & Koffers">
+                            <input type="hidden" name="storePickupStreet" value="Wemenstraat 5-7">
+                            <input type="hidden" name="storePickupPostalCode" value="7551 ET">
+                            <input type="hidden" name="storePickupCity" value="Hengelo">
+                            <input type="hidden" name="storePickupCountry" value="NL">
                         </div>
 
-                        <p class="mt-4 text-sm text-gray-500">
-                            Na je bestelling ontvang je bericht zodra je bestelling klaar ligt om af te halen in onze winkel.
-                        </p>
-
-                        <input type="hidden" name="storePickupName" value="Holtkamp tassen & koffers">
-                        <input type="hidden" name="storePickupStreet" value="Wemenstraat 5-7">
-                        <input type="hidden" name="storePickupPostalCode" value="7551 ET">
-                        <input type="hidden" name="storePickupCity" value="Hengelo">
-                        <input type="hidden" name="storePickupCountry" value="NL">
-                    </div>
+                    {% endif %}
                 </section>
 
                 <div class="pt-4 flex justify-end">
@@ -490,11 +653,15 @@
 
         <aside class="lg:col-span-5 lg:sticky lg:top-12">
             <div class="rounded-2xl border border-gray-200 bg-white p-8 space-y-8">
-                <h2 class="text-lg font-medium">Overzicht</h2>
+
+                <h2 class="text-lg font-medium">
+                    Overzicht
+                </h2>
 
                 <div class="space-y-5">
                     {% for item in items %}
                         <div class="flex justify-between gap-6 text-sm">
+
                             <div class="min-w-0">
                                 <div class="text-gray-900">
                                     {{ item.name }} × {{ item.qty }}
@@ -507,7 +674,8 @@
                                 {% endif %}
 
                                 {% if item.saleActive is defined and item.saleActive %}
-                                    <div class="mt-2 flex items-center gap-2 flex-wrap">
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+
                                         {% if item.saleBadge is defined and item.saleBadge %}
                                             <span class="badge-sale">
                                                 {{ item.saleBadge }}
@@ -519,10 +687,16 @@
                                                 € {{ item.regularPrice|number_format(2, ',', '.') }} p/st
                                             </span>
                                         {% endif %}
+
                                     </div>
-                                {% elseif item.compareAtPrice is defined and item.compareAtPrice and item.compareAtPrice > item.price %}
+
+                                {% elseif item.compareAtPrice is defined
+                                    and item.compareAtPrice
+                                    and item.compareAtPrice > item.price
+                                %}
                                     <div class="mt-2 text-xs text-gray-400">
                                         adviesprijs
+
                                         <span class="line-through">
                                             € {{ item.compareAtPrice|number_format(2, ',', '.') }}
                                         </span>
@@ -531,6 +705,7 @@
                             </div>
 
                             <div class="shrink-0 text-right">
+
                                 {% if item.price is defined %}
                                     <div class="text-xs {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-500' }}">
                                         {{ item.qty }} × € {{ item.price|number_format(2, ',', '.') }}
@@ -540,18 +715,29 @@
                                 <div class="mt-1 font-semibold {{ item.saleActive is defined and item.saleActive ? 'text-red-600' : 'text-gray-900' }}">
                                     € {{ item.lineTotal|number_format(2, ',', '.') }}
                                 </div>
+
                             </div>
+
                         </div>
                     {% endfor %}
                 </div>
 
-                <div class="border-t border-gray-200 pt-6 space-y-3 text-sm">
+
+                {# =========================
+                Bedragen
+                ========================= #}
+                <div class="space-y-3 border-t border-gray-200 pt-6 text-sm">
+
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Subtotaal</span>
+                        <span class="text-gray-600">
+                            Subtotaal
+                        </span>
+
                         <span class="text-gray-900">
                             € {{ subtotal|number_format(2, ',', '.') }}
                         </span>
                     </div>
+
 
                     {% if couponCode %}
                         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
@@ -559,41 +745,92 @@
                         </div>
                     {% endif %}
 
+
                     {% if discountAmount > 0 %}
                         <div class="flex justify-between text-emerald-700">
-                            <span>Korting</span>
+                            <span>
+                                Korting
+                            </span>
+
                             <span>
                                 - € {{ discountAmount|number_format(2, ',', '.') }}
                             </span>
                         </div>
                     {% endif %}
 
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Verzendkosten</span>
-                        <span class="text-gray-900">
-                            {% if shippingCost > 0 %}
-                                € {{ shippingCost|number_format(2, ',', '.') }}
-                            {% else %}
-                                Gratis
-                            {% endif %}
-                        </span>
+
+                    {# =========================
+                    Levering / verzending
+                    ========================= #}
+                    <div class="flex justify-between gap-6">
+
+                        {% if not requiresShipping %}
+
+                            <span class="text-gray-600">
+                                Levering
+                            </span>
+
+                            <span class="text-right font-medium text-gray-900">
+                                Per e-mail
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-gray-600">
+                                Verzendkosten
+                            </span>
+
+                            <span class="text-gray-900">
+                                {% if shippingCost > 0 %}
+                                    € {{ shippingCost|number_format(2, ',', '.') }}
+                                {% else %}
+                                    Gratis
+                                {% endif %}
+                            </span>
+
+                        {% endif %}
+
                     </div>
 
-                    {% if shippingCost > 0 %}
-                        <div class="text-xs text-gray-500">
-                            Gratis verzending vanaf € {{ freeShippingFrom|number_format(2, ',', '.') }}
+
+                    {% if not requiresShipping %}
+
+                        <div class="text-xs leading-5 text-gray-500">
+                            Digitale dienst – er worden geen verzendkosten berekend.
                         </div>
+
+                    {% elseif shippingCost > 0 %}
+
+                        <div class="text-xs leading-5 text-gray-500">
+                            Gratis verzending vanaf
+                            € {{ freeShippingFrom|number_format(2, ',', '.') }}
+                            aan fysieke producten.
+                        </div>
+
                     {% else %}
-                        <div class="text-xs text-emerald-700">
-                            Je bestelling komt in aanmerking voor gratis verzending.
+
+                        <div class="text-xs leading-5 text-emerald-700">
+                            Je fysieke bestelling komt in aanmerking voor gratis verzending.
                         </div>
+
                     {% endif %}
+
                 </div>
 
-                <div class="border-t border-gray-200 pt-6 flex justify-between font-medium text-base">
-                    <span>Totaal</span>
-                    <span>€ {{ grandTotal|number_format(2, ',', '.') }}</span>
+
+                {# =========================
+                Totaal
+                ========================= #}
+                <div class="flex justify-between border-t border-gray-200 pt-6 text-base font-medium">
+                    <span>
+                        Totaal
+                    </span>
+
+                    <span>
+                        € {{ grandTotal|number_format(2, ',', '.') }}
+                    </span>
                 </div>
+
             </div>
         </aside>
 <script>
