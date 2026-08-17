@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ontdek jouw tasstijl – Topbags{% endblock %}
+
+{% block body %}
+<section class="bg-white">
+    <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-20">
+
+        <nav class="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
+            <a
+                href="{{ path('home') }}"
+                class="transition hover:text-gray-900"
+            >
+                Home
+            </a>
+
+            <span class="mx-2" aria-hidden="true">/</span>
+
+            <span class="text-gray-900">
+                Stijlgids
+            </span>
+        </nav>
+
+        <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+
+            <div class="max-w-2xl">
+                <p class="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+                    Topbags Stijlgids
+                </p>
+
+                <h1 class="text-4xl font-bold tracking-tight text-gray-950 sm:text-5xl lg:text-6xl">
+                    Welke tas past echt bij jou?
+                </h1>
+
+                <p class="mt-6 max-w-xl text-lg leading-8 text-gray-600">
+                    Een tas is meer dan iets waarin je jouw spullen meeneemt.
+                    Ze moet passen bij je leven, je kleding en vooral bij wie je bent.
+                </p>
+
+                <p class="mt-4 max-w-xl leading-7 text-gray-600">
+                    Ontdek jouw stijlwereld en ontvang een persoonlijke selectie
+                    uit onze collectie.
+                </p>
+
+                <div class="mt-8 flex flex-wrap items-center gap-4">
+
+                    <a
+                        href="{{ path('style_guide_use') }}"
+                        class="inline-flex items-center justify-center rounded-full bg-black px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-orange-600"
+                    >
+                        {% if hasStyleWorld %}
+                            Doorloop mijn stijl opnieuw
+                        {% else %}
+                            Ontdek mijn stijl
+                        {% endif %}
+                    </a>
+
+                    {% if hasStyleWorld %}
+                        <a
+                            href="{{ path('style_guide_result') }}"
+                            class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-7 py-3.5 text-sm font-semibold text-gray-900 transition hover:border-black"
+                        >
+                            Bekijk mijn resultaat
+                        </a>
+                    {% endif %}
+
+                </div>
+
+                <div class="mt-10 grid max-w-xl gap-4 sm:grid-cols-3">
+                    <div>
+                        <p class="text-2xl font-bold text-gray-950">
+                            6
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            stijlwerelden
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-2xl font-bold text-gray-950">
+                            ± 2 min.
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            om te ontdekken
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-2xl font-bold text-gray-950">
+                            Persoonlijk
+                        </p>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            advies van Topbags
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl bg-stone-100 p-8 sm:p-12">
+                <p class="text-sm font-semibold uppercase tracking-[0.15em] text-gray-500">
+                    Onze overtuiging
+                </p>
+
+                <blockquote class="mt-5 text-2xl font-semibold leading-relaxed text-gray-950 sm:text-3xl">
+                    “De juiste tas laat niet alleen zien wat je meeneemt,
+                    maar vooral wie je bent.”
+                </blockquote>
+
+                <div class="mt-8 border-t border-black/10 pt-6">
+                    <p class="leading-7 text-gray-600">
+                        Gebaseerd op meer dan 55 jaar ervaring met tassen en
+                        125 jaar persoonlijk vakmanschap van Holtkamp.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

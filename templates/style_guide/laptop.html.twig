@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ question.title }} – Topbags{% endblock %}
+
+{% block body %}
+<section class="min-h-screen bg-stone-50">
+    <div class="mx-auto max-w-7xl px-6 py-10 lg:px-8 lg:py-16">
+
+        <div class="mx-auto max-w-3xl text-center">
+            <a
+                href="{{ path('style_guide_content') }}"
+                class="text-sm font-medium text-gray-500 transition hover:text-black"
+            >
+                ← Vorige stap
+            </a>
+
+            <p class="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+                Extra vraag
+            </p>
+
+            <h1 class="mt-3 text-3xl font-bold tracking-tight text-gray-950 sm:text-4xl">
+                {{ question.title }}
+            </h1>
+
+            {% if question.subtitle %}
+                <p class="mt-4 text-lg font-medium leading-7 text-gray-700">
+                    {{ question.subtitle }}
+                </p>
+            {% endif %}
+
+            {% if question.helpText %}
+                <p class="mt-3 text-sm leading-6 text-gray-500">
+                    {{ question.helpText }}
+                </p>
+            {% elseif question.description %}
+                <p class="mt-4 text-base leading-7 text-gray-600">
+                    {{ question.description }}
+                </p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="mt-12">
+            <input
+                type="hidden"
+                name="_token"
+                value="{{ csrf_token('style_guide_laptop') }}"
+            >
+
+            {% if error %}
+                <div
+                    class="mx-auto mb-8 max-w-2xl rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800"
+                    role="alert"
+                >
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <div class="mx-auto grid max-w-5xl gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {% for answer in answers %}
+                    {% set isSelected =
+                        selectedAnswer is same as(answer.code)
+                    %}
+
+                    <label
+                        for="laptop-size-{{ answer.code }}"
+                        class="group relative block cursor-pointer"
+                    >
+                        <input
+                            id="laptop-size-{{ answer.code }}"
+                            type="radio"
+                            name="laptop_size"
+                            value="{{ answer.code }}"
+                            class="peer sr-only"
+                            {% if isSelected %}checked{% endif %}
+                        >
+
+                        <div
+                            class="h-full rounded-3xl border border-gray-200 bg-white p-6 transition
+                                   hover:border-gray-400 hover:shadow-md
+                                   peer-checked:border-black
+                                   peer-checked:ring-2
+                                   peer-checked:ring-black
+                                   peer-checked:ring-offset-2"
+                        >
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <h2 class="text-xl font-bold text-gray-950">
+                                        {{ answer.label }}
+                                    </h2>
+
+                                    {% if answer.description %}
+                                        <p class="mt-3 text-sm leading-6 text-gray-600">
+                                            {{ answer.description }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                                <span
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white"
+                                    aria-hidden="true"
+                                >
+                                    <span
+                                        class="h-3 w-3 rounded-full bg-black opacity-0 transition
+                                               group-has-[:checked]:opacity-100"
+                                    ></span>
+                                </span>
+                            </div>
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+
+            <div class="mt-10 flex justify-center">
+                <button
+                    type="submit"
+                    class="inline-flex min-w-56 items-center justify-center rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition hover:bg-orange-600"
+                >
+                    Volgende stap
+                </button>
+            </div>
+        </form>
+
+    </div>
+</section>
+{% endblock %}

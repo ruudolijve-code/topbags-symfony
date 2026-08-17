@@ -136,6 +136,17 @@ class Product
     )]
     private ProductType $productType = ProductType::PHYSICAL;
 
+    /**
+     * @var Collection<int, ProductContext>
+     */
+    #[ORM\OneToMany(
+        mappedBy: 'product',
+        targetEntity: ProductContext::class,
+        cascade: ['persist'],
+        orphanRemoval: true,
+    )]
+    private Collection $contexts;
+
     #[ORM\OneToMany(
         mappedBy: 'product',
         targetEntity: ProductVariant::class,
@@ -151,6 +162,7 @@ class Product
     {
         $this->categories = new ArrayCollection();
         $this->variants = new ArrayCollection();
+        $this->contexts = new ArrayCollection();
     }
 
     public function getMasterVariant(): ?ProductVariant
@@ -238,12 +250,71 @@ class Product
 
     public function isShopContext(): bool
     {
-        return $this->productContext === self::CONTEXT_SHOP;
+        return $this->hasContext(self::CONTEXT_SHOP);
     }
 
     public function isBagsContext(): bool
     {
-        return $this->productContext === self::CONTEXT_BAGS;
+        return $this->hasContext(self::CONTEXT_BAGS);
+    }
+
+    /**
+     * @return Collection<int, ProductContext>
+     */
+    public function getContexts(): Collection
+    {
+        return $this->contexts;
+    }
+
+    public function addContext(ProductContext $context): self
+    {
+        if (!$this->contexts->contains($context)) {
+            $this->contexts->add($context);
+            $context->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContext(ProductContext $context): self
+    {
+        if (
+            $this->contexts->removeElement($context)
+            && $context->getProduct() === $this
+        ) {
+            $context->setProduct(null);
+        }
+
+        return $this;
+    }
+
+    public function hasContext(string $context): bool
+    {
+        if (!in_array($context, self::ALLOWED_CONTEXTS, true)) {
+            return false;
+        }
+
+        /*
+        * Zodra er nieuwe contextrecords bestaan, zijn die leidend.
+        */
+        if (!$this->contexts->isEmpty()) {
+            foreach ($this->contexts as $productContext) {
+                if (
+                    $productContext->isActive()
+                    && $productContext->getContext() === $context
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /*
+        * Tijdelijke backwards compatibility zolang de bestaande
+        * product_context-kolom nog niet verwijderd is.
+        */
+        return $this->productContext === $context;
     }
 
     public function getId(): ?int
@@ -468,16 +539,19 @@ class Product
     public function setProductContext(string $productContext): self
     {
         if (!in_array($productContext, self::ALLOWED_CONTEXTS, true)) {
-            throw new \InvalidArgumentException('Invalid product context.');
+            throw new \InvalidArgumentException(sprintf(
+                'Ongeldige productcontext "%s".',
+                $productContext,
+            ));
         }
 
+        /*
+        * Legacy veld.
+        *
+        * Tijdelijk behouden tijdens de migratie naar ProductContext.
+        * Geen producteigenschappen meer wijzigen op basis van dit veld.
+        */
         $this->productContext = $productContext;
-
-        if ($productContext === self::CONTEXT_BAGS) {
-            $this->luggageType = null;
-            $this->cabinSize = false;
-            $this->underseater = false;
-        }
 
         return $this;
     }
@@ -684,6 +758,32 @@ class Product
         }
 
         return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getContextValues(): array
+    {
+        if ($this->contexts->isEmpty()) {
+            return [$this->productContext];
+        }
+
+        $values = [];
+
+        foreach ($this->contexts as $productContext) {
+            if (!$productContext->isActive()) {
+                continue;
+            }
+
+            $value = $productContext->getContext();
+
+            if (!in_array($value, $values, true)) {
+                $values[] = $value;
+            }
+        }
+
+        return $values;
     }
 
     public function __toString(): string

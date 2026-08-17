@@ -93,6 +93,95 @@ final class ProductRepository extends ServiceEntityRepository
         return $ordered;
     }
 
+    /**
+     * @return Product[]
+     */
+    public function findStyleGuideCandidates(
+        float $minimumWidthCm,
+        float $minimumHeightCm,
+        float $minimumDepthCm,
+        bool $requiresLaptopCompartment,
+        ?float $requiredLaptopInch,
+        int $limit = 200,
+    ): array {
+        $qb = $this->createQueryBuilder('p')
+            ->select(
+                'DISTINCT p',
+                'brand',
+                'material',
+                'categories',
+                'variants',
+                'variantColor',
+                'images'
+            )
+            ->innerJoin(
+                'p.contexts',
+                'productContext',
+                'WITH',
+                'productContext.isActive = 1'
+            )
+            ->leftJoin('p.brand', 'brand')
+            ->leftJoin('p.material', 'material')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin(
+                'p.variants',
+                'variants',
+                'WITH',
+                'variants.isActive = 1'
+            )
+            ->leftJoin('variants.color', 'variantColor')
+            ->leftJoin('variants.images', 'images')
+            ->where('p.isActive = 1')
+            ->andWhere('productContext.context = :context')
+            ->setParameter('context', Product::CONTEXT_BAGS)
+            ->setMaxResults($limit);
+
+        /*
+        * De buitenmaten gebruiken we hier voorlopig als harde
+        * eerste kandidaatselectie.
+        *
+        * Later voegen we een tolerantie toe omdat buitenmaat
+        * niet gelijk is aan bruikbare binnenmaat.
+        */
+        if ($minimumWidthCm > 0.0) {
+            $qb
+                ->andWhere('p.widthCm >= :minimumWidth')
+                ->setParameter('minimumWidth', $minimumWidthCm);
+        }
+
+        if ($minimumHeightCm > 0.0) {
+            $qb
+                ->andWhere('p.heightCm >= :minimumHeight')
+                ->setParameter('minimumHeight', $minimumHeightCm);
+        }
+
+        if ($minimumDepthCm > 0.0) {
+            $qb
+                ->andWhere('p.depthCm >= :minimumDepth')
+                ->setParameter('minimumDepth', $minimumDepthCm);
+        }
+
+        if ($requiresLaptopCompartment) {
+            $qb->andWhere('p.laptopCompartment = true');
+
+            if ($requiredLaptopInch !== null) {
+                $qb
+                    ->andWhere('p.laptopMaxInch IS NOT NULL')
+                    ->andWhere('p.laptopMaxInch >= :requiredLaptopInch')
+                    ->setParameter(
+                        'requiredLaptopInch',
+                        $requiredLaptopInch,
+                    );
+            }
+        }
+
+        return $qb
+            ->orderBy('p.featuredPosition', 'ASC')
+            ->addOrderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     private function findIdsForContextGridWithFilters(
         string $context,
         int $limit = 24,
@@ -109,6 +198,12 @@ final class ProductRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p.id AS id')
+            ->innerJoin(
+                'p.contexts',
+                'productContext',
+                'WITH',
+                'productContext.isActive = 1'
+            )
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
             ->leftJoin('p.material', 'material')
@@ -120,7 +215,7 @@ final class ProductRepository extends ServiceEntityRepository
             )
             ->leftJoin('variants.color', 'variantColor')
             ->where('p.isActive = 1')
-            ->andWhere('p.productContext = :context')
+            ->andWhere('productContext.context = :context')
             ->setParameter('context', $context)
             ->setFirstResult($offset)
             ->setMaxResults($limit);
@@ -239,6 +334,12 @@ final class ProductRepository extends ServiceEntityRepository
     ): int {
         $qb = $this->createQueryBuilder('p')
             ->select('COUNT(DISTINCT p.id)')
+            ->innerJoin(
+                'p.contexts',
+                'productContext',
+                'WITH',
+                'productContext.isActive = 1'
+            )
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
             ->leftJoin('p.material', 'material')
@@ -250,7 +351,7 @@ final class ProductRepository extends ServiceEntityRepository
             )
             ->leftJoin('variants.color', 'variantColor')
             ->where('p.isActive = 1')
-            ->andWhere('p.productContext = :context')
+            ->andWhere('productContext.context = :context')
             ->setParameter('context', $context);
 
         if ($brandSlugs !== null && $brandSlugs !== []) {
@@ -2066,4 +2167,74 @@ final class ProductRepository extends ServiceEntityRepository
 
         return $categories[0] ?? null;
     }
+
+    /**
+    * Brede kandidatenlijst voor de Stijlgids.
+    *
+    * Fysieke maatvoering en laptopgeschiktheid worden hier bewust
+    * nog niet gefilterd; dat gebeurt in StyleGuideFitCandidateFilter.
+    *
+    * @param list<string> $materialSlugs
+    *
+    * @return list<Product>
+    */
+    public function findStyleGuideCatalogCandidates(
+        array $materialSlugs = [],
+        bool $strictMaterialFilter = false,
+        int $limit = 300,
+    ): array {
+        $qb = $this->createQueryBuilder('p')
+            ->select(
+                'DISTINCT p',
+                'brand',
+                'material',
+                'categories',
+                'variants',
+                'variantColor',
+                'images'
+            )
+            ->innerJoin(
+                'p.contexts',
+                'productContext',
+                'WITH',
+                'productContext.isActive = true'
+            )
+            ->leftJoin('p.brand', 'brand')
+            ->leftJoin('p.material', 'material')
+            ->leftJoin('p.categories', 'categories')
+            ->leftJoin(
+                'p.variants',
+                'variants',
+                'WITH',
+                'variants.isActive = true'
+            )
+            ->leftJoin('variants.color', 'variantColor')
+            ->leftJoin('variants.images', 'images')
+            ->where('p.isActive = true')
+            ->andWhere('productContext.context = :context')
+            ->setParameter(
+                'context',
+                Product::CONTEXT_BAGS,
+            )
+            ->setMaxResults(max(1, $limit));
+
+        if (
+            $strictMaterialFilter
+            && $materialSlugs !== []
+        ) {
+            $qb
+                ->andWhere('material.slug IN (:materialSlugs)')
+                ->setParameter(
+                    'materialSlugs',
+                    $materialSlugs,
+                );
+        }
+
+        return $qb
+            ->addOrderBy('p.featuredPosition', 'ASC')
+            ->addOrderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+    
 }
