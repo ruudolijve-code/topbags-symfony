@@ -285,7 +285,7 @@ final class ProductRepository extends ServiceEntityRepository
                 ->orderBy('idSort', 'DESC'),
 
             'bestseller' => $qb
-                ->addSelect('p.position AS HIDDEN positionSort')
+                ->addSelect('productContext.position AS HIDDEN positionSort')
                 ->addSelect('p.name AS HIDDEN nameSort')
                 ->orderBy('positionSort', 'ASC')
                 ->addOrderBy('nameSort', 'ASC'),
