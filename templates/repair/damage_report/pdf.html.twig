@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        @page {
+            margin: 14mm 16mm 16mm 16mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 9px;
+            line-height: 1.35;
+            color: #1f2937;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            margin-bottom: 11px;
+            padding-bottom: 9px;
+            border-bottom: 2px solid #ea580c;
+        }
+
+        .header-table,
+        .meta-owner-table,
+        .bagage-table,
+        .data-table,
+        .photo-table,
+        .signature-table,
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-logo-cell {
+            width: 50%;
+            vertical-align: middle;
+        }
+
+        .header-title-cell {
+            width: 50%;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .logo {
+            display: block;
+            width: 155px;
+            height: auto;
+        }
+
+        .logo-fallback {
+            font-size: 22px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .report-title {
+            margin: 0;
+            font-size: 24px;
+            line-height: 1.05;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .report-subtitle {
+            margin: 4px 0 0;
+            font-size: 8.5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6b7280;
+        }
+
+        /* =========================
+           ALGEMENE TABELLEN
+        ========================= */
+
+        .meta-owner-table td,
+        .bagage-table td,
+        .data-table td {
+            padding: 2px 4px 2px 0;
+            vertical-align: top;
+        }
+
+        .column {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .column-left {
+            padding-right: 14px !important;
+        }
+
+        .inner-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .inner-table td {
+            padding: 2px 4px 2px 0;
+            vertical-align: top;
+        }
+
+        .label {
+            width: 125px;
+            font-weight: bold;
+            color: #4b5563;
+        }
+
+        .compact-label {
+            width: 100px;
+            font-weight: bold;
+            color: #4b5563;
+        }
+
+        /* =========================
+           SECTIONS
+        ========================= */
+
+        .section {
+            margin-top: 10px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 8.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+            color: #ea580c;
+        }
+
+        /* =========================
+           TEXT
+        ========================= */
+
+        .text-box {
+            min-height: 34px;
+            padding: 7px 9px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .conclusion-box {
+            min-height: 34px;
+            padding: 7px 9px;
+            border-left: 3px solid #ea580c;
+            background: #fff7ed;
+        }
+
+        /* =========================
+           PHOTO'S
+        ========================= */
+
+        .photo-table {
+            table-layout: fixed;
+        }
+
+        .photo-table td {
+            width: 50%;
+            padding: 3px;
+            vertical-align: top;
+        }
+
+        .photo-table td:first-child {
+            padding-left: 0;
+        }
+
+        .photo-table td:last-child {
+            padding-right: 0;
+        }
+
+        .photo-frame {
+            width: 100%;
+            height: 125px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .photo-frame img {
+            max-width: 100%;
+            max-height: 125px;
+        }
+
+        .photo-placeholder {
+            padding-top: 54px;
+            font-size: 8px;
+            color: #9ca3af;
+        }
+
+        .photo-caption {
+            margin-top: 2px;
+            font-size: 7px;
+            color: #6b7280;
+        }
+
+        /* =========================
+           TECHNISCHE CONCLUSIE
+        ========================= */
+
+        .assessment-table td {
+            padding: 1px 0;
+            vertical-align: middle;
+        }
+
+        .assessment-radio {
+            width: 20px;
+            font-size: 12px;
+            line-height: 1;
+            color: #111827;
+        }
+
+        /* =========================
+           SIGNATURE
+        ========================= */
+
+        .signature-section {
+            margin-top: 11px;
+            page-break-inside: avoid;
+        }
+
+        .signature-table td {
+            width: 50%;
+            vertical-align: bottom;
+        }
+
+        .signature-image-container {
+            height: 38px;
+            margin-bottom: 2px;
+        }
+
+        .signature-image {
+            max-height: 36px;
+            max-width: 170px;
+        }
+
+        .signature-line {
+            width: 180px;
+            margin-top: 2px;
+            border-top: 1px solid #9ca3af;
+        }
+
+        .signature-label {
+            margin-top: 2px;
+            font-size: 7px;
+            color: #6b7280;
+        }
+
+        .company {
+            margin-top: 1px;
+            font-size: 7.5px;
+            color: #4b5563;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            position: fixed;
+            bottom: -9mm;
+            left: 0;
+            right: 0;
+            padding-top: 4px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 7px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+{# =====================================================
+   HEADER
+===================================================== #}
+
+<div class="header">
+    <table class="header-table">
+        <tr>
+            <td class="header-logo-cell">
+                {% if logoDataUri %}
+                    <img
+                        src="{{ logoDataUri }}"
+                        alt="Topbags"
+                        class="logo"
+                    >
+                {% else %}
+                    <span class="logo-fallback">Topbags</span>
+                {% endif %}
+            </td>
+
+            <td class="header-title-cell">
+                <h1 class="report-title">Schaderapport</h1>
+                <p class="report-subtitle">Luchtvaartschade</p>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{# =====================================================
+   RAPPORT + KOFFEREIGENAAR
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Rapport- en klantgegevens
+    </div>
+
+    <table class="meta-owner-table">
+        <tr>
+            <td class="column column-left">
+                <table class="inner-table">
+                    <tr>
+                        <td class="compact-label">Rapportnummer</td>
+                        <td>{{ report.reportNumber }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="compact-label">Rapportdatum</td>
+                        <td>{{ report.reportDate|date('d-m-Y') }}</td>
+                    </tr>
+                </table>
+            </td>
+
+            <td class="column">
+                <table class="inner-table">
+                    <tr>
+                        <td class="compact-label">Naam</td>
+                        <td>{{ report.customerName }}</td>
+                    </tr>
+
+                    {% if report.customerAddress %}
+                        <tr>
+                            <td class="compact-label">Adres</td>
+                            <td>
+                                {{ report.customerAddress }}
+
+                                {% if report.customerPostalCode or report.customerCity %}
+                                    <br>
+                                    {{ report.customerPostalCode }}
+                                    {{ report.customerCity }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.customerEmail %}
+                        <tr>
+                            <td class="compact-label">E-mail</td>
+                            <td>{{ report.customerEmail }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.customerPhone %}
+                        <tr>
+                            <td class="compact-label">Telefoon</td>
+                            <td>{{ report.customerPhone }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{# =====================================================
+   BAGAGEGEGEVENS
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Gegevens bagage
+    </div>
+
+    <table class="bagage-table">
+        <tr>
+            <td class="column column-left">
+                <table class="inner-table">
+                    <tr>
+                        <td class="compact-label">Merk</td>
+                        <td>{{ report.brand ?: 'Niet bekend' }}</td>
+                    </tr>
+
+                    {% if report.series %}
+                        <tr>
+                            <td class="compact-label">Serie</td>
+                            <td>{{ report.series }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.model %}
+                        <tr>
+                            <td class="compact-label">Model / type</td>
+                            <td>{{ report.model }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.color %}
+                        <tr>
+                            <td class="compact-label">Kleur</td>
+                            <td>{{ report.color }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+
+            <td class="column">
+                <table class="inner-table">
+                    {% if report.dimensions %}
+                        <tr>
+                            <td class="compact-label">Afmetingen</td>
+                            <td>{{ report.dimensions }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.estimatedPurchaseDate %}
+                        <tr>
+                            <td class="compact-label">Aankoop</td>
+                            <td>{{ report.estimatedPurchaseDate }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.estimatedPurchasePrice is not null %}
+                        <tr>
+                            <td class="compact-label">Aankoopprijs</td>
+                            <td>
+                                € {{ report.estimatedPurchasePrice|number_format(2, ',', '.') }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{# =====================================================
+   SCHADEGEGEVENS
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Gegevens schade
+    </div>
+
+    <table class="bagage-table">
+        <tr>
+            <td class="column column-left">
+                <table class="inner-table">
+                    {% if report.flightDate %}
+                        <tr>
+                            <td class="compact-label">Datum schade</td>
+                            <td>{{ report.flightDate|date('d-m-Y') }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.airport %}
+                        <tr>
+                            <td class="compact-label">Plaats schade</td>
+                            <td>{{ report.airport }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.airline %}
+                        <tr>
+                            <td class="compact-label">Maatschappij</td>
+                            <td>{{ report.airline }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+
+            <td class="column">
+                <table class="inner-table">
+                    {% if report.flightNumber %}
+                        <tr>
+                            <td class="compact-label">Vluchtnummer</td>
+                            <td>{{ report.flightNumber }}</td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.pirNumber %}
+                        <tr>
+                            <td class="compact-label">PIR-nummer</td>
+                            <td>{{ report.pirNumber }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{# =====================================================
+   SCHADEOMSCHRIJVING
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Omschrijving schade
+    </div>
+
+    <div class="text-box">
+        {{ report.damageDescription|nl2br }}
+    </div>
+</div>
+
+
+{# =====================================================
+   SCHADEFOTO'S
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Schadefoto's
+    </div>
+
+    {% if photoDataUris is defined and photoDataUris|length > 0 %}
+
+        <table class="photo-table">
+
+            {% for photo in photoDataUris|slice(0, 2) %}
+                {% if loop.index0 is even %}
+                    <tr>
+                {% endif %}
+
+                <td>
+                    <div class="photo-frame">
+                        <img
+                            src="{{ photo }}"
+                            alt="Schadefoto {{ loop.index }}"
+                        >
+                    </div>
+
+                    <div class="photo-caption">
+                        Schadefoto {{ loop.index }}
+                    </div>
+                </td>
+
+                {% if loop.index is even or loop.last %}
+                    {% if loop.last and loop.index is odd %}
+                        <td></td>
+                    {% endif %}
+
+                    </tr>
+                {% endif %}
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        <table class="photo-table">
+            <tr>
+                <td>
+                    <div class="photo-frame">
+                        <div class="photo-placeholder">
+                            Schadefoto
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="photo-frame">
+                        <div class="photo-placeholder">
+                            Schadefoto
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    {% endif %}
+</div>
+
+
+{# =====================================================
+   TECHNISCHE CONCLUSIE + BEOORDELING
+===================================================== #}
+
+<div class="section">
+    <div class="section-title">
+        Technische conclusie
+    </div>
+
+    <table class="bagage-table">
+        <tr>
+            <td class="column column-left">
+                <table class="assessment-table">
+                    <tr>
+                        <td class="assessment-radio">
+                            {{ report.assessment == 'repairable' ? '●' : '○' }}
+                        </td>
+                        <td>Repareerbaar</td>
+                    </tr>
+
+                    <tr>
+                        <td class="assessment-radio">
+                            {{ report.assessment == 'uneconomic' ? '●' : '○' }}
+                        </td>
+                        <td>Reparatie economisch niet verantwoord</td>
+                    </tr>
+
+                    <tr>
+                        <td class="assessment-radio">
+                            {{ report.assessment == 'total_loss' ? '●' : '○' }}
+                        </td>
+                        <td>Total loss</td>
+                    </tr>
+                </table>
+            </td>
+
+            <td class="column">
+                <table class="inner-table">
+                    {% if report.repairCosts is not null %}
+                        <tr>
+                            <td class="compact-label">Reparatiekosten</td>
+                            <td>
+                                € {{ report.repairCosts|number_format(2, ',', '.') }}
+                            </td>
+                        </tr>
+                    {% endif %}
+
+                    {% if report.replacementValue is not null %}
+                        <tr>
+                            <td class="compact-label">Vervangingswaarde</td>
+                            <td>
+                                € {{ report.replacementValue|number_format(2, ',', '.') }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+{% if report.technicalAssessment %}
+    <div class="section">
+        <div class="section-title">
+            Technische beoordeling
+        </div>
+
+        <div class="text-box">
+            {{ report.technicalAssessment|nl2br }}
+        </div>
+    </div>
+{% endif %}
+
+
+{# =====================================================
+   CONCLUSIE
+===================================================== #}
+
+{% if report.conclusion %}
+    <div class="section">
+        <div class="section-title">
+            Conclusie rapport
+        </div>
+
+        <div class="conclusion-box">
+            {{ report.conclusion|nl2br }}
+        </div>
+    </div>
+{% endif %}
+
+
+{# =====================================================
+   ONDERTEKENING
+===================================================== #}
+
+<div class="signature-section">
+    <div class="section-title">
+        Ondertekening
+    </div>
+
+    <table class="signature-table">
+        <tr>
+            <td>
+                {% if signatureDataUri is defined and signatureDataUri %}
+                    <div class="signature-image-container">
+                        <img
+                            src="{{ signatureDataUri }}"
+                            alt="Handtekening"
+                            class="signature-image"
+                        >
+                    </div>
+                {% else %}
+                    <div class="signature-image-container"></div>
+                {% endif %}
+
+                <div class="signature-line"></div>
+
+                <strong>
+                    {{ report.assessorName ?: 'Topbags Tassen & Koffers' }}
+                </strong>
+
+                <div class="signature-label">
+                    Beoordelaar / deskundige
+                </div>
+
+                <div class="company">
+                    Topbags Tassen &amp; Koffers
+                </div>
+            </td>
+
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+
+{# =====================================================
+   FOOTER
+===================================================== #}
+
+<div class="footer">
+    Topbags Tassen &amp; Koffers ·
+    Wemenstraat 5-7 ·
+    7551 ET Hengelo ·
+    topbags.nl
+</div>
+
+</body>
+</html>

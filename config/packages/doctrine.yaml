@@ -91,6 +91,20 @@ doctrine:
                 prefix: 'App\Seo\Entity'
                 alias: Seo
 
+            StyleGuide:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/StyleGuide/Entity'
+                prefix: 'App\StyleGuide\Entity'
+                alias: StyleGuide
+
+            Repair:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Repair/Entity'
+                prefix: 'App\Repair\Entity'
+                alias: Repair
+
                 
 when@test:
     doctrine:

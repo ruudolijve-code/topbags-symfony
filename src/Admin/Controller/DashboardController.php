@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Controller;
 
 use App\Admin\Entity\AdminUser;
+use App\Repair\Entity\DamageReport;
 use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
@@ -169,6 +170,11 @@ final class DashboardController extends AbstractDashboardController
 
                 MenuItem::linkToCrud('FAQ’s', 'fa fa-question-circle', Faq::class)
                     ->setController(FaqCrudController::class),
+            ]);
+
+            yield MenuItem::subMenu('Service', 'fa fa-screwdriver-wrench')->setSubItems([
+                MenuItem::linkToCrud('Schaderapporten', 'fa fa-file-shield', DamageReport::class)
+                    ->setController(DamageReportCrudController::class),
             ]);
 
             yield MenuItem::subMenu('Beheer', 'fa fa-gear')->setSubItems([
