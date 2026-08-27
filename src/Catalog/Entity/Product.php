@@ -545,13 +545,25 @@ class Product
             ));
         }
 
-        /*
-        * Legacy veld.
-        *
-        * Tijdelijk behouden tijdens de migratie naar ProductContext.
-        * Geen producteigenschappen meer wijzigen op basis van dit veld.
-        */
+        // Legacy kolom synchroon houden zolang deze nog bestaat.
         $this->productContext = $productContext;
+
+        // Bestaande relationele context activeren.
+        foreach ($this->contexts as $context) {
+            if ($context->getContext() === $productContext) {
+                $context->setIsActive(true);
+
+                return $this;
+            }
+        }
+
+        // Ontbrekende relationele context toevoegen.
+        $context = (new ProductContext())
+            ->setContext($productContext)
+            ->setPosition(0)
+            ->setIsActive(true);
+
+        $this->addContext($context);
 
         return $this;
     }
