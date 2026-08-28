@@ -1,0 +1,65 @@
+<section class="mt-16 pt-4 lg:mt-24 lg:pt-6" aria-labelledby="product-results-title">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-orange-600">Speciaal voor jou</p>
+            <h2 id="product-results-title" class="mt-2 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Onze beste matches</h2>
+            <p class="mt-3 text-stone-600">
+                {{ productMatches|length }} {{ productMatches|length == 1 ? 'tas gevonden die' : 'tassen gevonden die' }} goed {{ productMatches|length == 1 ? 'aansluit' : 'aansluiten' }} bij jouw profiel.
+            </p>
+        </div>
+        <a href="{{ path('style_guide_use') }}" class="text-sm font-semibold text-stone-700 underline decoration-stone-300 underline-offset-4 transition hover:text-orange-600">Keuzes verfijnen</a>
+    </div>
+
+    {% if productMatches is not empty %}
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+            {% for match in productMatches %}
+                {% set product = match.product %}
+                {% set variant = product.masterVariant %}
+                {% set mediaPath = variant and variant.primaryImage ? variant.primaryImage.previewPath : null %}
+                {% if variant %}
+                    <div class="flex min-w-0 flex-col">
+                        {% include 'shop/component/card/_card_fashion.html.twig' with {
+                            product: product,
+                            variant: variant,
+                            mediaPath: mediaPath,
+                            currentContext: 'bags'
+                        } only %}
+                        {% if match.reasons is not empty %}
+                            <div class="mt-5 rounded-2xl bg-stone-50 p-4">
+                                <h3 class="text-sm font-semibold text-stone-950">Waarom deze tas?</h3>
+                                <ul class="mt-3 space-y-2 text-sm leading-5 text-stone-600">
+                                    {% for reason in match.reasons %}
+                                        <li class="flex gap-2"><span class="mt-px shrink-0 text-orange-600" aria-hidden="true">✓</span><span>{{ reason }}</span></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="mt-10 rounded-[2rem] bg-stone-100 px-6 py-10 text-center sm:px-10">
+            <h3 class="text-xl font-semibold text-stone-950">Nog geen perfecte match gevonden</h3>
+            <p class="mx-auto mt-3 max-w-xl text-sm leading-6 text-stone-600">Pas een van je keuzes aan om de selectie iets ruimer te maken. Je stijlprofiel blijft daarbij gewoon bewaard.</p>
+            <a href="{{ path('style_guide_use') }}" class="mt-6 inline-flex items-center justify-center rounded-full bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700">Profiel aanpassen</a>
+        </div>
+    {% endif %}
+
+    <div class="mt-16 flex flex-col items-center justify-between gap-5 border-t border-stone-200 pt-8 sm:flex-row">
+        <div><h2 class="font-semibold text-stone-950">Toch iets anders in gedachten?</h2><p class="mt-1 text-sm text-stone-600">Pas je antwoorden aan of begin met een volledig nieuw profiel.</p></div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ path('style_guide_use') }}" class="inline-flex items-center justify-center rounded-full border border-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-900 transition hover:border-stone-950">Profiel aanpassen</a>
+            <form method="post" action="{{ path('style_guide_restart') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('style_guide_restart') }}">
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                    style="background-color: #ea580c; color: #ffffff;"
+                >
+                    Opnieuw beginnen
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

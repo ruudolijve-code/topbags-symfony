@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\StyleGuide\Service;
+namespace App\StyleGuide\Service\Recommendation;
 
 use App\Catalog\Entity\Product;
 use App\StyleGuide\ValueObject\BagFitProfile;
@@ -43,11 +43,26 @@ final class StyleGuideFitCandidateFilter
             return false;
         }
 
-        if ($product->getWidthCm() < $fitProfile->minimumWidthCm) {
-            return false;
-        }
+        $fitsUpright =
+            $product->getWidthCm() >= $fitProfile->minimumWidthCm
+            && $product->getHeightCm() >= $fitProfile->minimumHeightCm;
 
-        if ($product->getHeightCm() < $fitProfile->minimumHeightCm) {
+        /*
+         * Een telefoon of portemonnee kan ook liggend in een tas.
+         * Alleen profielen met een expliciete verticale, A4- of
+         * laptopbelasting moeten de berekende oriëntatie behouden.
+         */
+        $mayRotateContents =
+            !$fitProfile->hasVerticalLoad
+            && !$fitProfile->requiresA4Fit
+            && !$fitProfile->requiresLaptopCompartment;
+
+        $fitsRotated =
+            $mayRotateContents
+            && $product->getWidthCm() >= $fitProfile->minimumHeightCm
+            && $product->getHeightCm() >= $fitProfile->minimumWidthCm;
+
+        if (!$fitsUpright && !$fitsRotated) {
             return false;
         }
 

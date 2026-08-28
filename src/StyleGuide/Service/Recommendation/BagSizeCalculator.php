@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\StyleGuide\Service;
+namespace App\StyleGuide\Service\Recommendation;
 
 use App\StyleGuide\Enum\BagSizePreference;
 use App\StyleGuide\Enum\CarryItem;

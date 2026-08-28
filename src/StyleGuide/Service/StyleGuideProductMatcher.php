@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\StyleGuide\Service;
 
+use App\StyleGuide\Service\Recommendation\StyleGuideFitCandidateFilter;
 use App\StyleGuide\ValueObject\BagFitProfile;
 use App\StyleGuide\ValueObject\BagRecommendationProfile;
 use App\StyleGuide\ValueObject\ProductMatch;

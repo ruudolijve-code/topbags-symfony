@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\StyleGuide\Controller;
 
 use App\StyleGuide\Engine\StyleGuideEngine;
+use App\Catalog\Entity\Product;
 use App\StyleGuide\Enum\CarryItem;
 use App\StyleGuide\Repository\StyleGuideWorldRepository;
-use App\StyleGuide\Service\BagFitCalculator;
-use App\StyleGuide\Service\BagSizeCalculator;
-use App\StyleGuide\Service\BagRecommendationProfileCalculator;
+use App\StyleGuide\Service\Recommendation\BagFitCalculator;
+use App\StyleGuide\Service\Recommendation\BagRecommendationProfileCalculator;
+use App\StyleGuide\Service\Recommendation\BagSizeCalculator;
+use App\StyleGuide\Service\Recommendation\StyleGuideCriteriaFactory;
 use App\StyleGuide\Service\StyleGuideProductMatcher;
-use App\StyleGuide\Service\StyleGuideCriteriaFactory;
 use App\StyleGuide\Service\StyleGuideSession;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,18 +20,27 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/stijlgids', name: 'style_guide_')]
-final class StyleGuideController extends AbstractController
-{
-    #[Route('', name: 'index', methods: ['GET'])]
-    public function index(
-        StyleGuideEngine $engine,
-    ): Response {
-        return $this->render('style_guide/index.html.twig', [
-            'hasUseMoment' => $engine->hasAnswer('use_moment'),
-            'hasStyleWorld' => $engine->hasAnswer('style_world'),
-        ]);
-    }
+    #[Route('/stijlgids', name: 'style_guide_')]
+    final class StyleGuideController extends AbstractController
+    {
+        /**
+         * De Stijlgids hoort altijd bij de tassencontext.
+         *
+         * Producten mogen via product_context zowel in shop als bags
+         * voorkomen, maar de gebruikerservaring van de Stijlgids zelf
+         * blijft altijd binnen CONTEXT_BAGS.
+         */
+        private const CONTEXT = Product::CONTEXT_BAGS;
+
+        #[Route('', name: 'index', methods: ['GET'])]
+        public function index(
+            StyleGuideEngine $engine,
+        ): Response {
+            return $this->renderStyleGuide('style_guide/index.html.twig', [
+                'hasUseMoment' => $engine->hasAnswer('use_moment'),
+                'hasStyleWorld' => $engine->hasAnswer('style_world'),
+            ]);
+        }
 
     #[Route('/gebruik', name: 'use', methods: ['GET', 'POST'])]
     public function use(
@@ -65,7 +75,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/use.html.twig', [
+        return $this->renderStyleGuide('style_guide/use.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -110,7 +120,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/style.html.twig', [
+        return $this->renderStyleGuide('style_guide/style.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -159,7 +169,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/outfit.html.twig', [
+        return $this->renderStyleGuide('style_guide/outfit.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -242,7 +252,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/content.html.twig', [
+        return $this->renderStyleGuide('style_guide/content.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswers' => $selectedAnswers,
@@ -314,7 +324,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/laptop.html.twig', [
+        return $this->renderStyleGuide('style_guide/laptop.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -381,7 +391,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/carry_method.html.twig', [
+        return $this->renderStyleGuide('style_guide/carry_method.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -442,7 +452,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/material.html.twig', [
+        return $this->renderStyleGuide('style_guide/material.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -499,7 +509,7 @@ final class StyleGuideController extends AbstractController
             );
 
             if (!is_string($answer)) {
-                $error = 'Kies welk prijsniveau het beste bij je past.';
+                $error = 'Kies welk kwaliteitsniveau het beste bij je past.';
             } else {
                 $engine->saveAnswer($question, $answer);
 
@@ -507,7 +517,7 @@ final class StyleGuideController extends AbstractController
             }
         }
 
-        return $this->render('style_guide/budget.html.twig', [
+        return $this->renderStyleGuide('style_guide/budget.html.twig', [
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
@@ -659,7 +669,7 @@ final class StyleGuideController extends AbstractController
             limit: 24,
         );
 
-        return $this->render('style_guide/result.html.twig', [
+        return $this->renderStyleGuide('style_guide/result.html.twig', [
             'useMoment' => $useMoment,
             'styleWorld' => $styleWorld,
             'outfitPreference' => $outfitPreference,
@@ -719,5 +729,28 @@ final class StyleGuideController extends AbstractController
         $styleGuideSession->clear();
 
         return $this->redirectToRoute('style_guide_index');
+    }
+
+    /**
+     * Rendert iedere stap van de Stijlgids binnen de bags-context.
+     *
+     * Hierdoor hoeven afzonderlijke actions niet zelf currentContext
+     * en context door te geven en kan de navigatie tijdens de wizard
+     * niet terugvallen naar de standaard shop-context.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    private function renderStyleGuide(
+        string $template,
+        array $parameters = [],
+    ): Response {
+        return $this->render(
+            $template,
+            [
+                'currentContext' => self::CONTEXT,
+                'context' => self::CONTEXT,
+                ...$parameters,
+            ],
+        );
     }
 }
