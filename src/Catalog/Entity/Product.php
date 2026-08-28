@@ -112,6 +112,9 @@ class Product
     #[ORM\Column(options: ['default' => 0])]
     private int $featuredPosition = 0;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $qualityScoreOverride = null;
+
     #[ORM\Column(
         name: 'weight_per_liter',
         type: 'integer',
@@ -660,6 +663,22 @@ class Product
     public function setIsFeatured(bool $isFeatured): self
     {
         $this->isFeatured = $isFeatured;
+
+        return $this;
+    }
+
+    public function getQualityScoreOverride(): ?int
+    {
+        return $this->qualityScoreOverride;
+    }
+
+    public function setQualityScoreOverride(
+        ?int $qualityScoreOverride,
+    ): self {
+        $this->qualityScoreOverride =
+            $qualityScoreOverride === null
+                ? null
+                : max(0, min(100, $qualityScoreOverride));
 
         return $this;
     }

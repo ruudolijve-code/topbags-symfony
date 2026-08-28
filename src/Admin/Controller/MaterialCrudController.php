@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Admin\Controller;
 
 use App\Catalog\Entity\Material;
@@ -13,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
-
 class MaterialCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -29,7 +30,9 @@ class MaterialCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Materialen')
             ->setPageTitle(Crud::PAGE_NEW, 'Materiaal toevoegen')
             ->setPageTitle(Crud::PAGE_EDIT, 'Materiaal bewerken')
-            ->setDefaultSort(['name' => 'ASC']);
+            ->setDefaultSort([
+                'name' => 'ASC',
+            ]);
     }
 
     public function configureFields(string $pageName): iterable
@@ -40,19 +43,44 @@ class MaterialCrudController extends AbstractCrudController
         yield TextField::new('name', 'Naam');
 
         yield TextField::new('slug', 'Slug')
-            ->setHelp('Bijvoorbeeld: polycarbonaat, leer, polyester');
+            ->setHelp(
+                'Bijvoorbeeld: leer, nylon, polyester, rpet.'
+            );
+
+        yield IntegerField::new(
+            'qualityModifier',
+            'Kwaliteitsmodifier'
+        )
+            ->setHelp(
+                'Extra kwaliteitscorrectie voor de Style Guide. '
+                . 'Negatieve waarden verlagen de score, positieve verhogen deze. '
+                . 'Advies: -10 t/m +25.'
+            );
 
         yield NumberField::new('density', 'Dichtheid')
-            ->setHelp('Optioneel. Bijvoorbeeld gewicht/dichtheid als je dit later voor advies wilt gebruiken.')
             ->setNumDecimals(3)
+            ->setHelp(
+                'Optioneel. Kan later worden gebruikt voor gewichtsberekeningen.'
+            )
             ->hideOnIndex();
 
-        yield BooleanField::new('isRigid', 'Hard materiaal');
+        yield BooleanField::new(
+            'isRigid',
+            'Hard materiaal'
+        );
 
-        yield BooleanField::new('isFlexible', 'Flexibel materiaal');
+        yield BooleanField::new(
+            'isFlexible',
+            'Flexibel materiaal'
+        );
 
-        yield IntegerField::new('sustainabilityScore', 'Duurzaamheidsscore')
-            ->setHelp('Optioneel. Bijvoorbeeld 1 t/m 10.')
+        yield IntegerField::new(
+            'sustainabilityScore',
+            'Duurzaamheidsscore'
+        )
+            ->setHelp(
+                'Optioneel. Bijvoorbeeld een score van 1 t/m 10.'
+            )
             ->hideOnIndex();
 
         yield TextField::new('notes', 'Notities')

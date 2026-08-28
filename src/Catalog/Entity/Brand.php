@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Catalog\Entity;
 
 use App\Catalog\Repository\BrandRepository;
@@ -29,6 +31,25 @@ class Brand
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /**
+     * Basispositionering van het merk voor de Style Guide.
+     *
+     * Dit is nadrukkelijk niet de uiteindelijke productkwaliteit.
+     * Die wordt later samengesteld uit:
+     *
+     * - merkpositionering
+     * - materiaalmodifier
+     * - prijspositie
+     * - optionele productoverride
+     *
+     * Bereik: 0 t/m 100.
+     */
+    #[ORM\Column(
+        name: 'brand_quality_score',
+        options: ['default' => 50],
+    )]
+    private int $brandQualityScore = 50;
+
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
@@ -39,13 +60,15 @@ class Brand
     /**
      * @var Collection<int, Product>
      */
-    #[ORM\OneToMany(mappedBy: 'brand', targetEntity: Product::class)]
+    #[ORM\OneToMany(
+        mappedBy: 'brand',
+        targetEntity: Product::class,
+    )]
     private Collection $products;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->isActive = true;
     }
 
     public function getId(): ?int
@@ -60,7 +83,7 @@ class Brand
 
     public function setName(string $name): self
     {
-        $this->name = $name;
+        $this->name = trim($name);
 
         return $this;
     }
@@ -72,7 +95,7 @@ class Brand
 
     public function setSlug(string $slug): self
     {
-        $this->slug = $slug;
+        $this->slug = trim($slug);
 
         return $this;
     }
@@ -84,7 +107,9 @@ class Brand
 
     public function setLogo(?string $logo): self
     {
-        $this->logo = $logo;
+        $this->logo = $logo !== null
+            ? trim($logo)
+            : null;
 
         return $this;
     }
@@ -96,7 +121,25 @@ class Brand
 
     public function setDescription(?string $description): self
     {
-        $this->description = $description;
+        $this->description = $description !== null
+            ? trim($description)
+            : null;
+
+        return $this;
+    }
+
+    public function getBrandQualityScore(): int
+    {
+        return $this->brandQualityScore;
+    }
+
+    public function setBrandQualityScore(
+        int $brandQualityScore,
+    ): self {
+        $this->brandQualityScore = max(
+            0,
+            min(100, $brandQualityScore),
+        );
 
         return $this;
     }
@@ -118,8 +161,9 @@ class Brand
         return $this->defaultSupplier;
     }
 
-    public function setDefaultSupplier(?Supplier $defaultSupplier): self
-    {
+    public function setDefaultSupplier(
+        ?Supplier $defaultSupplier,
+    ): self {
         $this->defaultSupplier = $defaultSupplier;
 
         return $this;
@@ -147,6 +191,10 @@ class Brand
     {
         if ($this->products->removeElement($product)) {
             if ($product->getBrand() === $this) {
+                /*
+                 * Alleen uitvoeren wanneer Product::brand nullable is.
+                 * Als brand verplicht is, deze regel liever verwijderen.
+                 */
                 $product->setBrand(null);
             }
         }
@@ -156,6 +204,7 @@ class Brand
 
     public function __toString(): string
     {
-        return $this->name ?? ('Brand #' . $this->id);
+        return $this->name
+            ?? sprintf('Brand #%s', $this->id ?? 'nieuw');
     }
 }

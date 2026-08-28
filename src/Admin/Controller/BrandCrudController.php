@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Admin\Controller;
 
 use App\Catalog\Entity\Brand;
@@ -9,13 +11,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
-
 class BrandCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -50,15 +52,32 @@ class BrandCrudController extends AbstractCrudController
         yield SlugField::new('slug', 'Slug')
             ->setTargetFieldName('name');
 
-        yield BooleanField::new('isActive', 'Actief');
+        yield BooleanField::new(
+            'isActive',
+            'Actief',
+        );
 
-        yield AssociationField::new('defaultSupplier', 'Standaard leverancier')
+        yield IntegerField::new(
+            'qualityPosition',
+            'Kwaliteitspositie',
+        )
+            ->setHelp(
+                'Basispositionering van het merk voor de Style Guide (0-100). '
+                . 'Deze score wordt gecombineerd met materiaal en prijs om de uiteindelijke kwaliteitsbeleving van een product te bepalen.'
+            );
+
+        yield AssociationField::new(
+            'defaultSupplier',
+            'Standaard leverancier',
+        )
             ->setRequired(false);
 
         yield TextField::new('logo', 'Logo')
             ->hideOnIndex();
 
-        yield TextEditorField::new('description', 'Omschrijving')
-            ->hideOnIndex();
+        yield TextEditorField::new(
+            'description',
+            'Omschrijving',
+        )->hideOnIndex();
     }
 }

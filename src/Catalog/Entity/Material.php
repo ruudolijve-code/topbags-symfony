@@ -31,6 +31,9 @@ class Material
     #[ORM\Column(type: 'smallint', nullable: true)]
     private ?int $sustainabilityScore = null;
 
+    #[ORM\Column(options: ['default' => 0])]
+    private int $qualityModifier = 0;
+
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $notes = null;
 
@@ -122,6 +125,21 @@ class Material
     public function setSustainabilityScore(?int $sustainabilityScore): self
     {
         $this->sustainabilityScore = $sustainabilityScore;
+
+        return $this;
+    }
+
+    public function getQualityModifier(): int
+    {
+        return $this->qualityModifier;
+    }
+
+    public function setQualityModifier(int $qualityModifier): self
+    {
+        $this->qualityModifier = max(
+            -30,
+            min(30, $qualityModifier),
+        );
 
         return $this;
     }
