@@ -58,12 +58,14 @@ class BrandCrudController extends AbstractCrudController
         );
 
         yield IntegerField::new(
-            'qualityPosition',
-            'Kwaliteitspositie',
+            'brandQualityScore',
+            'Merkpositionering',
         )
             ->setHelp(
-                'Basispositionering van het merk voor de Style Guide (0-100). '
-                . 'Deze score wordt gecombineerd met materiaal en prijs om de uiteindelijke kwaliteitsbeleving van een product te bepalen.'
+                'Basispositionering van het merk voor de Style Guide, van 0 tot 100. '
+                . 'Dit is niet de uiteindelijke productscore. De Style Guide combineert '
+                . 'de merkpositionering met onder andere materiaal, prijs en een eventuele '
+                . 'productoverride.'
             );
 
         yield AssociationField::new(
@@ -72,12 +74,16 @@ class BrandCrudController extends AbstractCrudController
         )
             ->setRequired(false);
 
-        yield TextField::new('logo', 'Logo')
+        yield TextField::new(
+            'logo',
+            'Logo',
+        )
             ->hideOnIndex();
 
         yield TextEditorField::new(
             'description',
             'Omschrijving',
-        )->hideOnIndex();
+        )
+            ->hideOnIndex();
     }
 }
