@@ -42,7 +42,10 @@ class StyleGuideQuestion
     )]
     private SelectionType $selectionType = SelectionType::SINGLE;
 
-    #[ORM\Column(type: Types::SMALLINT, options: ['default' => 0])]
+    #[ORM\Column(
+        type: Types::SMALLINT,
+        options: ['default' => 0],
+    )]
     private int $position = 0;
 
     #[ORM\Column(options: ['default' => true])]
@@ -57,7 +60,10 @@ class StyleGuideQuestion
         cascade: ['persist'],
         orphanRemoval: true,
     )]
-    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy([
+        'position' => 'ASC',
+        'id' => 'ASC',
+    ])]
     private Collection $answers;
 
     public function __construct()
@@ -69,7 +75,10 @@ class StyleGuideQuestion
     {
         return $this->title !== ''
             ? $this->title
-            : sprintf('Vraag #%s', $this->id ?? 'nieuw');
+            : sprintf(
+                'Vraag #%s',
+                $this->id ?? 'nieuw',
+            );
     }
 
     public function getId(): ?int
@@ -175,7 +184,10 @@ class StyleGuideQuestion
 
     public function setPosition(int $position): self
     {
-        $this->position = max(0, $position);
+        $this->position = max(
+            0,
+            $position,
+        );
 
         return $this;
     }
@@ -205,8 +217,9 @@ class StyleGuideQuestion
         return $this->answers;
     }
 
-    public function addAnswer(StyleGuideAnswer $answer): self
-    {
+    public function addAnswer(
+        StyleGuideAnswer $answer,
+    ): self {
         if (!$this->answers->contains($answer)) {
             $this->answers->add($answer);
             $answer->setQuestion($this);
@@ -215,14 +228,10 @@ class StyleGuideQuestion
         return $this;
     }
 
-    public function removeAnswer(StyleGuideAnswer $answer): self
-    {
-        if (
-            $this->answers->removeElement($answer)
-            && $answer->getQuestion() === $this
-        ) {
-            $answer->setQuestion(null);
-        }
+    public function removeAnswer(
+        StyleGuideAnswer $answer,
+    ): self {
+        $this->answers->removeElement($answer);
 
         return $this;
     }

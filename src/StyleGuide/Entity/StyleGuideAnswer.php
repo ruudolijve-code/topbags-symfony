@@ -28,10 +28,13 @@ class StyleGuideAnswer
     private ?int $id = null;
 
     #[ORM\ManyToOne(
-        inversedBy: 'answers',
         targetEntity: StyleGuideQuestion::class,
+        inversedBy: 'answers',
     )]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(
+        nullable: false,
+        onDelete: 'CASCADE',
+    )]
     private ?StyleGuideQuestion $question = null;
 
     #[ORM\Column(length: 100)]
@@ -43,7 +46,10 @@ class StyleGuideAnswer
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    #[ORM\Column(
+        type: Types::SMALLINT,
+        options: ['default' => 0],
+    )]
     private int $position = 0;
 
     #[ORM\Column(options: ['default' => true])]
@@ -75,9 +81,10 @@ class StyleGuideAnswer
             );
         }
 
-        return $this->label !== ''
-            ? $this->label
-            : sprintf('Antwoord #%s', $this->id ?? 'nieuw');
+        return $this->label ?: sprintf(
+            'Antwoord #%s',
+            $this->id ?? 'nieuw',
+        );
     }
 
     public function getId(): ?int
@@ -91,7 +98,7 @@ class StyleGuideAnswer
     }
 
     public function setQuestion(
-        ?StyleGuideQuestion $question,
+        StyleGuideQuestion $question,
     ): self {
         $this->question = $question;
 
@@ -147,7 +154,10 @@ class StyleGuideAnswer
 
     public function setPosition(int $position): self
     {
-        $this->position = max(0, $position);
+        $this->position = max(
+            0,
+            $position,
+        );
 
         return $this;
     }
@@ -191,12 +201,7 @@ class StyleGuideAnswer
     public function removeWorldScore(
         StyleGuideAnswerWorldScore $worldScore,
     ): self {
-        if (
-            $this->worldScores->removeElement($worldScore)
-            && $worldScore->getAnswer() === $this
-        ) {
-            $worldScore->setAnswer(null);
-        }
+        $this->worldScores->removeElement($worldScore);
 
         return $this;
     }
