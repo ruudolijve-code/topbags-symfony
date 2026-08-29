@@ -16,8 +16,10 @@ final class CategoryMatcher
         $productSlugs = [];
 
         foreach ($product->getCategories() as $category) {
-            $productSlugs[] = $category->getSlug();
+            $productSlugs[] = strtolower($category->getSlug());
         }
+
+        $wantedSlugs = array_map('strtolower', $wantedSlugs);
 
         return array_intersect(array_unique($productSlugs), $wantedSlugs) !== [];
     }

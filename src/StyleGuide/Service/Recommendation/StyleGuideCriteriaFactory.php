@@ -14,6 +14,7 @@ final class StyleGuideCriteriaFactory
      * @param list<StyleGuideAnswer> $carryItems
      */
     public function create(
+        StyleGuideAnswer $targetAudience,
         StyleGuideAnswer $useMoment,
         StyleGuideWorld $styleWorld,
         StyleGuideAnswer $outfitPreference,
@@ -23,6 +24,7 @@ final class StyleGuideCriteriaFactory
         StyleGuideAnswer $budgetPreference,
     ): StyleGuideCriteria {
         return new StyleGuideCriteria(
+            targetAudience: $targetAudience,
             useMoment: $useMoment,
             styleWorld: $styleWorld,
             outfitPreference: $outfitPreference,

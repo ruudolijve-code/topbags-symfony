@@ -71,7 +71,7 @@ use Symfony\Component\Routing\Attribute\Route;
             } else {
                 $engine->saveAnswer($question, $answer);
 
-                return $this->redirectToRoute('style_guide_style');
+                return $this->redirectToRoute('style_guide_audience');
             }
         }
 
@@ -83,6 +83,36 @@ use Symfony\Component\Routing\Attribute\Route;
         ]);
     }
 
+    #[Route('/doelgroep', name: 'audience', methods: ['GET', 'POST'])]
+    public function audience(Request $request, StyleGuideEngine $engine): Response
+    {
+        if (!$engine->hasAnswer('use_moment')) {
+            return $this->redirectToRoute('style_guide_use');
+        }
+
+        $question = $engine->getQuestion('target_audience');
+        $selectedAnswer = $engine->getAnswer($question->getCode());
+        $error = null;
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('style_guide_audience', (string) $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException('De beveiligingscontrole is mislukt.');
+            }
+            $answer = $engine->normalizeSubmittedAnswer($question, $request->request->get('target_audience'));
+            if (!is_string($answer)) {
+                $error = 'Kies voor wie je een tas zoekt.';
+            } else {
+                $engine->saveAnswer($question, $answer);
+                return $this->redirectToRoute('style_guide_style');
+            }
+        }
+
+        return $this->renderStyleGuide('style_guide/audience.html.twig', [
+            'question' => $question, 'answers' => $question->getAnswers(),
+            'selectedAnswer' => $selectedAnswer, 'error' => $error,
+        ]);
+    }
+
     #[Route('/stijl', name: 'style', methods: ['GET', 'POST'])]
     public function style(
         Request $request,
@@ -90,6 +120,9 @@ use Symfony\Component\Routing\Attribute\Route;
     ): Response {
         if (!$engine->hasAnswer('use_moment')) {
             return $this->redirectToRoute('style_guide_use');
+        }
+        if (!$engine->hasAnswer('target_audience')) {
+            return $this->redirectToRoute('style_guide_audience');
         }
 
         $question = $engine->getQuestion('style_world');
@@ -537,6 +570,7 @@ use Symfony\Component\Routing\Attribute\Route;
     ): Response {
         $requiredQuestions = [
             'use_moment' => 'style_guide_use',
+            'target_audience' => 'style_guide_audience',
             'style_world' => 'style_guide_style',
             'outfit' => 'style_guide_outfit',
             'carry_items' => 'style_guide_content',
@@ -568,6 +602,9 @@ use Symfony\Component\Routing\Attribute\Route;
         */
         $useMoment =
             $engine->getSelectedAnswerEntity('use_moment');
+
+        $targetAudience =
+            $engine->getSelectedAnswerEntity('target_audience');
 
         $styleWorldAnswer =
             $engine->getSelectedAnswerEntity('style_world');
@@ -603,6 +640,7 @@ use Symfony\Component\Routing\Attribute\Route;
         */
         if (
             $useMoment === null
+            || $targetAudience === null
             || $styleWorldAnswer === null
             || $styleWorld === null
             || $outfitPreference === null
@@ -650,6 +688,7 @@ use Symfony\Component\Routing\Attribute\Route;
         * en verdere scoring.
         */
         $criteria = $criteriaFactory->create(
+            targetAudience: $targetAudience,
             useMoment: $useMoment,
             styleWorld: $styleWorld,
             outfitPreference: $outfitPreference,

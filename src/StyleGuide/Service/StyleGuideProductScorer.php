@@ -13,7 +13,6 @@ use App\StyleGuide\Service\Score\MaterialScoreCalculator;
 use App\StyleGuide\Service\Score\OutfitScoreCalculator;
 use App\StyleGuide\Service\Score\QualityMatchCalculator;
 use App\StyleGuide\Service\Score\RecommendedCategoryScoreCalculator;
-use App\StyleGuide\Service\Score\StyleWorldScoreCalculator;
 use App\StyleGuide\Service\Score\UseMomentScoreCalculator;
 use App\StyleGuide\Service\Score\VolumeScoreCalculator;
 use App\StyleGuide\ValueObject\BagFitProfile;
@@ -32,7 +31,7 @@ final class StyleGuideProductScorer
         private readonly QualityMatchCalculator $qualityMatchCalculator,
         private readonly QualityScoreCalculator $qualityScoreCalculator,
         private readonly MaterialScoreCalculator $materialScoreCalculator,
-        private readonly StyleWorldScoreCalculator $styleWorldScoreCalculator,
+        private readonly StyleAffinityCalculator $styleAffinityCalculator,
         private readonly UseMomentScoreCalculator $useMomentScoreCalculator,
         private readonly OutfitScoreCalculator $outfitScoreCalculator,
     ) {
@@ -44,6 +43,7 @@ final class StyleGuideProductScorer
         BagFitProfile $fitProfile,
         BagRecommendationProfile $recommendationProfile,
     ): ProductMatch {
+        $styleAffinity = $this->styleAffinityCalculator->calculate($product, $criteria);
         $breakdown = [
             'dimensions' => $this->dimensionScoreCalculator->calculate($product, $fitProfile),
             'volume' => $this->volumeScoreCalculator->calculate($product, $fitProfile),
@@ -53,26 +53,19 @@ final class StyleGuideProductScorer
             'recommended_category' => $this->recommendedCategoryScoreCalculator->calculate($product, $recommendationProfile),
             'quality' => $this->qualityMatchCalculator->calculate($product, $criteria),
             'product_quality_score' => $this->qualityScoreCalculator->calculate($product),
+            'material' => $this->materialScoreCalculator->calculate($product, $criteria),
+            'style_affinity' => $styleAffinity->affinityScore,
+            'product_override' => $styleAffinity->overrideScore,
+            'use_moment' => $this->useMomentScoreCalculator->calculate($product, $criteria),
+            'outfit' => $this->outfitScoreCalculator->calculate($product, $criteria),
         ];
 
-        $score = array_sum([
-            $breakdown['dimensions'],
-            $breakdown['volume'],
-            $breakdown['laptop'],
-            $breakdown['a4'],
-            $breakdown['carry_method'],
-            $breakdown['recommended_category'],
-            $breakdown['quality'],
-            $this->materialScoreCalculator->calculate($product, $criteria),
-            $this->styleWorldScoreCalculator->calculate($product, $criteria),
-            $this->useMomentScoreCalculator->calculate($product, $criteria),
-            $this->outfitScoreCalculator->calculate($product, $criteria),
-        ]);
+        $score = array_sum($breakdown);
 
         return new ProductMatch(
             product: $product,
             score: max(0, $score),
-            reasons: $this->buildReasons($breakdown, $fitProfile),
+            reasons: array_values(array_unique([...$this->buildReasons($breakdown, $fitProfile), ...$styleAffinity->reasons])),
             scoreBreakdown: $breakdown,
         );
     }

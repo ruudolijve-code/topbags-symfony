@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\StyleGuide\Service;
 
 use App\StyleGuide\Service\Recommendation\StyleGuideFitCandidateFilter;
+use App\StyleGuide\Service\Recommendation\StyleGuideCategoryCandidateFilter;
 use App\StyleGuide\ValueObject\BagFitProfile;
 use App\StyleGuide\ValueObject\BagRecommendationProfile;
 use App\StyleGuide\ValueObject\ProductMatch;
@@ -15,6 +16,7 @@ final class StyleGuideProductMatcher
     public function __construct(
         private readonly StyleGuideCatalogCandidateFinder $catalogCandidateFinder,
         private readonly StyleGuideFitCandidateFilter $fitCandidateFilter,
+        private readonly StyleGuideCategoryCandidateFilter $categoryCandidateFilter,
         private readonly StyleGuideProductScorer $productScorer,
         private readonly StyleGuideProductRanker $productRanker,
     ) {
@@ -41,7 +43,12 @@ final class StyleGuideProductMatcher
         );
 
         /*
-         * Stap 2:
+         * Stap 2: harde doelgroep- en draagwijzefilters op bestaande categorieën.
+         */
+        $candidates = $this->categoryCandidateFilter->filter($candidates, $criteria);
+
+        /*
+         * Stap 3:
          * harde fysieke geschiktheid.
          *
          * Afmetingen, laptopvak en laptopmaat.
@@ -52,7 +59,7 @@ final class StyleGuideProductMatcher
         );
 
         /*
-         * Stap 3:
+         * Stap 4:
          * kwaliteit van iedere match bepalen.
          */
         $matches = [];
@@ -67,7 +74,7 @@ final class StyleGuideProductMatcher
         }
 
         /*
-         * Stap 4:
+         * Stap 5:
          * beste matches sorteren en begrenzen.
          */
         return $this->productRanker->rank(

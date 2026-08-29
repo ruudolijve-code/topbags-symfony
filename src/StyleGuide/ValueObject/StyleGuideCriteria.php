@@ -13,6 +13,7 @@ final readonly class StyleGuideCriteria
      * @param list<StyleGuideAnswer> $carryItems
      */
     public function __construct(
+        public StyleGuideAnswer $targetAudience,
         public StyleGuideAnswer $useMoment,
         public StyleGuideWorld $styleWorld,
         public StyleGuideAnswer $outfitPreference,

@@ -28,6 +28,10 @@ use App\Seo\Entity\Redirect;
 use App\Shop\Entity\Coupon;
 use App\Shop\Entity\Order;
 use App\Magazine\Entity\MagazineArticle;
+use App\StyleGuide\Entity\StyleGuideAffinity;
+use App\StyleGuide\Entity\StyleGuideProductOverride;
+use App\StyleGuide\Entity\StyleGuideQuestion;
+use App\StyleGuide\Entity\StyleGuideAnswer;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -170,6 +174,13 @@ final class DashboardController extends AbstractDashboardController
 
                 MenuItem::linkToCrud('FAQ’s', 'fa fa-question-circle', Faq::class)
                     ->setController(FaqCrudController::class),
+            ]);
+
+            yield MenuItem::subMenu('Stijlgids', 'fa fa-wand-magic-sparkles')->setSubItems([
+                MenuItem::linkToCrud('Vragen', 'fa fa-circle-question', StyleGuideQuestion::class)->setController(StyleGuideQuestionCrudController::class),
+                MenuItem::linkToCrud('Antwoorden', 'fa fa-list', StyleGuideAnswer::class)->setController(StyleGuideAnswerCrudController::class),
+                MenuItem::linkToCrud('Affiniteiten', 'fa fa-sliders', StyleGuideAffinity::class)->setController(StyleGuideAffinityCrudController::class),
+                MenuItem::linkToCrud('Productuitzonderingen', 'fa fa-star', StyleGuideProductOverride::class)->setController(StyleGuideProductOverrideCrudController::class),
             ]);
 
             yield MenuItem::subMenu('Service', 'fa fa-screwdriver-wrench')->setSubItems([

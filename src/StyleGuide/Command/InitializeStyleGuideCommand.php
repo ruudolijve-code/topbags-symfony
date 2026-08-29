@@ -148,6 +148,18 @@ final class InitializeStyleGuideCommand extends Command
     {
         $definitions = [
             [
+                'code' => 'target_audience',
+                'title' => 'Voor wie zoek je een tas?',
+                'description' => 'Kies een doelgroep, of laat alle tassen meenemen.',
+                'selectionType' => SelectionType::SINGLE,
+                'position' => 5,
+                'answers' => [
+                    ['dames', 'Dames', 10],
+                    ['heren', 'Heren', 20],
+                    ['geen-voorkeur', 'Geen voorkeur', 30],
+                ],
+            ],
+            [
                 'code' => 'use_moment',
                 'title' => 'Waarvoor zoek je vooral een tas?',
                 'description' => 'Kies het gebruiksmoment dat voor jou het belangrijkst is.',
