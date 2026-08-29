@@ -2175,12 +2175,16 @@ final class ProductRepository extends ServiceEntityRepository
     * nog niet gefilterd; dat gebeurt in StyleGuideFitCandidateFilter.
     *
     * @param list<string> $materialSlugs
+    * @param list<string> $audienceCategorySlugs
+    * @param list<string> $carryMethodCategorySlugs
     *
     * @return list<Product>
     */
     public function findStyleGuideCatalogCandidates(
         array $materialSlugs = [],
         bool $strictMaterialFilter = false,
+        array $audienceCategorySlugs = [],
+        array $carryMethodCategorySlugs = [],
         int $limit = 300,
     ): array {
         $qb = $this->createQueryBuilder('p')
@@ -2228,6 +2232,20 @@ final class ProductRepository extends ServiceEntityRepository
                     'materialSlugs',
                     $materialSlugs,
                 );
+        }
+
+        if ($audienceCategorySlugs !== []) {
+            $qb
+                ->innerJoin('p.categories', 'audienceCategory')
+                ->andWhere('LOWER(audienceCategory.slug) IN (:audienceCategorySlugs)')
+                ->setParameter('audienceCategorySlugs', array_map('strtolower', $audienceCategorySlugs));
+        }
+
+        if ($carryMethodCategorySlugs !== []) {
+            $qb
+                ->innerJoin('p.categories', 'carryMethodCategory')
+                ->andWhere('LOWER(carryMethodCategory.slug) IN (:carryMethodCategorySlugs)')
+                ->setParameter('carryMethodCategorySlugs', array_map('strtolower', $carryMethodCategorySlugs));
         }
 
         return $qb

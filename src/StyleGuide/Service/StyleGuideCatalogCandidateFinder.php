@@ -7,6 +7,7 @@ namespace App\StyleGuide\Service;
 use App\Catalog\Entity\Product;
 use App\Catalog\Repository\ProductRepository;
 use App\StyleGuide\ValueObject\StyleGuideCriteria;
+use App\StyleGuide\Service\Recommendation\StyleGuideCategorySlugMapper;
 
 final class StyleGuideCatalogCandidateFinder
 {
@@ -15,6 +16,7 @@ final class StyleGuideCatalogCandidateFinder
     public function __construct(
         private readonly ProductRepository $productRepository,
         private readonly MaterialPreferenceMapper $materialMapper,
+        private readonly StyleGuideCategorySlugMapper $categorySlugMapper,
     ) {
     }
 
@@ -40,6 +42,8 @@ final class StyleGuideCatalogCandidateFinder
                 strictMaterialFilter: $this->materialMapper->isStrict(
                     $criteria->materialPreference,
                 ),
+                audienceCategorySlugs: $this->categorySlugMapper->audience($criteria),
+                carryMethodCategorySlugs: $this->categorySlugMapper->carryMethod($criteria),
                 limit: $limit,
             );
     }

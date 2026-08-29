@@ -10,18 +10,16 @@ use App\StyleGuide\ValueObject\StyleGuideCriteria;
 
 final class StyleGuideCategoryCandidateFilter
 {
-    private const AUDIENCE = ['dames' => ['damestassen'], 'heren' => ['herentassen']];
-    private const CARRY = [
-        'rugzak' => ['rugzakken', 'laptoprugzakken', 'schoolrugzakken', 'vrijetijdsrugzakken', 'daypacks', 'rugtassen'],
-        'crossbody' => ['crossbodys', 'telefoontasje'], 'schoudertas' => ['schoudertassen'],
-        'handtas' => ['handtassen'], 'shopper' => ['shopper'],
-    ];
-    public function __construct(private readonly CategoryMatcher $categoryMatcher) {}
+    public function __construct(
+        private readonly CategoryMatcher $categoryMatcher,
+        private readonly StyleGuideCategorySlugMapper $slugMapper,
+    ) {
+    }
     /** @param list<Product> $products @return list<Product> */
     public function filter(array $products, StyleGuideCriteria $criteria): array
     {
-        $audience = self::AUDIENCE[$criteria->targetAudience->getCode()] ?? [];
-        $carry = self::CARRY[$criteria->carryMethod->getCode()] ?? [];
+        $audience = $this->slugMapper->audience($criteria);
+        $carry = $this->slugMapper->carryMethod($criteria);
         return array_values(array_filter($products, fn (Product $product): bool => ($audience === [] || $this->categoryMatcher->matches($product, $audience)) && ($carry === [] || $this->categoryMatcher->matches($product, $carry))));
     }
 }
