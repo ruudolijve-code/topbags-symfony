@@ -18,6 +18,13 @@ final class MaterialPreferenceMapper
             'leer' => [
                 'leer',
                 'leer-nylon',
+
+                 // Leersoorten
+                'suede',
+                'italiaans-leer',
+                'nubuck',
+                'rundleer',
+                'volnerf-leer',
             ],
 
             'vegan' => [
