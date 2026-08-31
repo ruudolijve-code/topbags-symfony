@@ -14,7 +14,7 @@
             <input type="hidden" name="_token" value="{{ csrf_token('style_guide_wishes') }}">
             {% if error %}<div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800" role="alert">{{ error }}</div>{% endif %}
             <label for="personal-wish" class="block text-sm font-semibold text-stone-900">Jouw toelichting</label>
-            <textarea id="personal-wish" name="personal_wish" maxlength="1000" rows="7" class="mt-3 block w-full rounded-3xl border border-stone-300 bg-white px-5 py-4 text-base leading-7 shadow-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20" placeholder="Bijvoorbeeld: ik zoek een rustige leren werktas die professioneel oogt, niet te zwaar is en ruimte heeft voor mijn laptop.">{{ personalWish }}</textarea>
+            <textarea id="personal-wish" name="personal_wish" maxlength="1000" rows="7" class="mt-3 block w-full rounded-3xl border border-stone-300 bg-white px-5 py-4 text-base leading-7 shadow-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20" placeholder="Bijvoorbeeld: ik zoek een rustige leren werktas die professioneel oogt, niet te zwaar is en ruimte heeft voor mijn laptop. Ik hou van de kleur cognac">{{ personalWish }}</textarea>
             <p class="mt-3 text-sm text-stone-500">Vul niets persoonlijks of vertrouwelijks in. Je kunt deze stap ook leeg laten.</p>
             <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <button type="submit" class="inline-flex min-w-56 items-center justify-center rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition hover:bg-orange-600">Maak mijn persoonlijke advies</button>
