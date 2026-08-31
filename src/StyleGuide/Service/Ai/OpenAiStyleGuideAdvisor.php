@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\StyleGuide\Service\Ai;
 
+use App\StyleGuide\Service\ProductStyleAttributeResolver;
 use App\StyleGuide\ValueObject\ProductMatch;
 use App\StyleGuide\ValueObject\StyleGuideAiRecommendation;
 use App\StyleGuide\ValueObject\StyleGuideCriteria;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class OpenAiStyleGuideAdvisor
@@ -15,6 +17,8 @@ final class OpenAiStyleGuideAdvisor
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
+        private readonly ProductStyleAttributeResolver $attributes,
+        private readonly LoggerInterface $logger,
         private readonly string $apiKey,
         private readonly string $model,
     ) {
@@ -34,10 +38,11 @@ final class OpenAiStyleGuideAdvisor
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/responses', [
                 'auth_bearer' => $this->apiKey,
                 'headers' => ['Content-Type' => 'application/json'],
-                'timeout' => 12,
+                'timeout' => 35,
                 'json' => [
                     'model' => $this->model,
                     'store' => false,
+                    'max_output_tokens' => 1200,
                     'input' => [
                         [
                             'role' => 'system',
@@ -84,7 +89,14 @@ final class OpenAiStyleGuideAdvisor
             ]);
 
             return $this->buildRecommendation($matches, $response->toArray());
-        } catch (\Throwable) {
+        } catch (\Throwable $error) {
+            $this->logger->warning('OpenAI Style Guide advice fell back to deterministic ranking.', [
+                'exception' => $error::class,
+                'message' => mb_substr($error->getMessage(), 0, 500),
+                'model' => $this->model,
+                'candidate_count' => count($candidateMatches),
+            ]);
+
             return new StyleGuideAiRecommendation($matches);
         }
     }
@@ -107,6 +119,7 @@ final class OpenAiStyleGuideAdvisor
     private function candidate(ProductMatch $match): array
     {
         $product = $match->product;
+        $colors = $this->attributes->colors($product);
 
         return [
             'product_id' => $product->getId(),
@@ -114,6 +127,14 @@ final class OpenAiStyleGuideAdvisor
             'merk' => $product->getBrand()->getName(),
             'materiaal' => $product->getMaterial()?->getName(),
             'materiaalfamilie' => $product->getMaterial()?->getFamily()?->getName(),
+            'kleuren' => array_values(array_unique(array_map(
+                static fn ($color): string => $color->getName(),
+                $colors,
+            ))),
+            'kleurfamilies' => array_values(array_unique(array_filter(array_map(
+                static fn ($color): ?string => $color->getFamily(),
+                $colors,
+            )))),
             'categorieen' => array_map(static fn ($category): ?string => $category->getName(), $product->getCategories()->toArray()),
             'deterministische_score' => $match->score,
             'vastgestelde_matchredenen' => $match->reasons,
