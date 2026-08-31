@@ -127,6 +127,46 @@
                                 mediaPath: item.mediaPath,
                                 availability: item.availability
                             } only %}
+
+                            {% if
+                                loop.index == 6
+                                and pagination.page == 1
+                                and 'damestassen' in activeCategories|default([])
+                            %}
+                                <a
+                                    href="{{ path('style_guide_index') }}"
+                                    class="group relative isolate min-h-96 overflow-hidden rounded-2xl shadow-sm ring-1 ring-black/5 transition duration-300 hover:shadow-lg md:col-span-2"
+                                    style="background-color: #f7f0e9;"
+                                    aria-label="Ontdek jouw ideale tas met de Topbags Stijlgids"
+                                >
+                                    <img
+                                        src="{{ asset('images/stijlgids/style-guide-grid-banner.webp') }}"
+                                        alt="Een stijlvolle selectie tassen voor de Topbags Stijlgids"
+                                        loading="lazy"
+                                        width="1774"
+                                        height="887"
+                                        class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                        style="object-position: 62% center;"
+                                    >
+                                    <div class="absolute inset-0" style="background: linear-gradient(90deg, #faf7f2 0%, rgba(250, 247, 242, 0.96) 48%, rgba(250, 247, 242, 0) 78%);"></div>
+
+                                    <div class="relative flex h-full w-2/3 flex-col items-start justify-center px-6 py-10 sm:w-1/2 sm:px-8 lg:px-10">
+                                        <span class="text-xs font-semibold uppercase tracking-widest text-orange-600">
+                                            Persoonlijke tassengids
+                                        </span>
+                                        <h2 class="mt-3 text-2xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-3xl">
+                                            Welke tas past écht bij jou?
+                                        </h2>
+                                        <p class="mt-4 text-sm leading-6 text-stone-700 sm:text-base">
+                                            Ontdek in een paar minuten welke stijl, kleur en tas het beste bij jouw wensen aansluiten.
+                                        </p>
+                                        <span class="mt-6 inline-flex items-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition group-hover:bg-orange-600">
+                                            Start de Stijlgids
+                                            <span class="ml-2" aria-hidden="true">→</span>
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 {% else %}
