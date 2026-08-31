@@ -117,6 +117,12 @@
                 </div>
 
                 {% if items is not empty %}
+                    <style>
+                        .style-guide-promo-copy { width: 66.666667%; }
+                        @media (min-width: 640px) {
+                            .style-guide-promo-copy { width: 50%; }
+                        }
+                    </style>
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {% for item in items %}
                             {% include 'shop/component/card/_card.html.twig' with {
@@ -150,7 +156,7 @@
                                     >
                                     <div class="absolute inset-0" style="background: linear-gradient(90deg, #faf7f2 0%, #faf7f2 48%, rgba(250, 247, 242, 0.96) 55%, rgba(250, 247, 242, 0) 72%);"></div>
 
-                                    <div class="relative flex h-full w-2/3 flex-col items-start justify-center px-5 py-8 sm:w-1/2 sm:px-7 lg:px-8">
+                                    <div class="style-guide-promo-copy relative flex h-full flex-col items-start justify-center px-5 py-8 sm:px-7 lg:px-8">
                                         <span class="text-xs font-semibold uppercase tracking-widest text-orange-600">
                                             Persoonlijke tassengids
                                         </span>
