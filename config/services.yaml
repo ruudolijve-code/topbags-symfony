@@ -23,7 +23,7 @@ parameters:
     google_places.api_key: '%env(string:GOOGLE_PLACES_API_KEY)%'
     google_places.place_id: '%env(string:GOOGLE_BUSINESS_PLACE_ID)%'
     openai.api_key: '%env(string:OPENAI_API_KEY)%'
-    openai.style_guide_model: '%env(string:OPENAI_STYLE_GUIDE_MODEL)%'
+    openai.style_guide_model: '%env(string:OPENAI_STYLE_GUIDE_RANKING_MODEL)%'
 
 services:
     _defaults:

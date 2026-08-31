@@ -42,11 +42,11 @@ final class OpenAiStyleGuideAdvisor
             $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/responses', [
                 'auth_bearer' => $this->apiKey,
                 'headers' => ['Content-Type' => 'application/json'],
-                'timeout' => 35,
+                'timeout' => 20,
                 'json' => [
                     'model' => $this->model,
                     'store' => false,
-                    'max_output_tokens' => 3000,
+                    'max_output_tokens' => 2000,
                     'input' => [
                         [
                             'role' => 'system',
