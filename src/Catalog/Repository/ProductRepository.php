@@ -204,6 +204,12 @@ final class ProductRepository extends ServiceEntityRepository
                 'WITH',
                 'productContext.isActive = 1'
             )
+            ->innerJoin(
+                'p.variants',
+                'gridMaster',
+                'WITH',
+                'gridMaster.isMaster = 1 AND gridMaster.isActive = 1'
+            )
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
             ->leftJoin('p.material', 'material')
@@ -334,6 +340,12 @@ final class ProductRepository extends ServiceEntityRepository
                 'productContext',
                 'WITH',
                 'productContext.isActive = 1'
+            )
+            ->innerJoin(
+                'p.variants',
+                'gridMaster',
+                'WITH',
+                'gridMaster.isMaster = 1 AND gridMaster.isActive = 1'
             )
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'c')
