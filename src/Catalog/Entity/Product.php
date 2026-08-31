@@ -113,7 +113,7 @@ class Product
     private int $featuredPosition = 0;
 
     #[ORM\Column(nullable: true)]
-    private ?int $qualityScoreOverride = null;
+    private ?int $marketPositionOverride = null;
 
     #[ORM\Column(
         name: 'weight_per_liter',
@@ -667,18 +667,18 @@ class Product
         return $this;
     }
 
-    public function getQualityScoreOverride(): ?int
+    public function getMarketPositionOverride(): ?int
     {
-        return $this->qualityScoreOverride;
+        return $this->marketPositionOverride;
     }
 
-    public function setQualityScoreOverride(
-        ?int $qualityScoreOverride,
+    public function setMarketPositionOverride(
+        ?int $marketPositionOverride,
     ): self {
-        $this->qualityScoreOverride =
-            $qualityScoreOverride === null
+        $this->marketPositionOverride =
+            $marketPositionOverride === null
                 ? null
-                : max(0, min(100, $qualityScoreOverride));
+                : max(0, min(100, $marketPositionOverride));
 
         return $this;
     }

@@ -10,6 +10,7 @@ use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
 use App\Catalog\Entity\Material;
+use App\Catalog\Entity\MaterialFamily;
 use App\Catalog\Entity\Size;
 use App\Catalog\Entity\Product;
 use App\Catalog\Entity\ProductVariant;
@@ -126,6 +127,9 @@ final class DashboardController extends AbstractDashboardController
 
                 MenuItem::linkToCrud('Materialen', 'fa fa-layer-group', Material::class)
                     ->setController(MaterialCrudController::class),
+
+                MenuItem::linkToCrud('Materiaalfamilies', 'fa fa-object-group', MaterialFamily::class)
+                    ->setController(MaterialFamilyCrudController::class),
 
                 MenuItem::linkToCrud('Maten', 'fa fa-ruler', \App\Catalog\Entity\Size::class)
                     ->setController(SizeCrudController::class),

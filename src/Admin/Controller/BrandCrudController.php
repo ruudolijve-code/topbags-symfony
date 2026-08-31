@@ -58,11 +58,11 @@ class BrandCrudController extends AbstractCrudController
         );
 
         yield IntegerField::new(
-            'brandPositioning',
-            'Merkpositionering',
+            'marketPosition',
+            'Marktpositionering',
         )
             ->setHelp(
-                'Basispositionering van het merk voor de Style Guide, van 0 tot 100. '
+                'Marktpositionering van het merk voor de Style Guide, van 0 tot 100. '
                 . 'Dit is niet de uiteindelijke productscore. De Style Guide combineert '
                 . 'de merkpositionering met onder andere materiaal, prijs en een eventuele '
                 . 'productoverride.'

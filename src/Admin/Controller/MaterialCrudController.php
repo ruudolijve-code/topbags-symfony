@@ -8,6 +8,7 @@ use App\Catalog\Entity\Material;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
@@ -48,14 +49,17 @@ class MaterialCrudController extends AbstractCrudController
             );
 
         yield IntegerField::new(
-            'qualityModifier',
-            'Kwaliteitsmodifier'
+            'marketPositionModifier',
+            'Marktpositioneringsmodifier'
         )
             ->setHelp(
-                'Extra kwaliteitscorrectie voor de Style Guide. '
+                'Correctie op de marktpositionering voor de Style Guide. '
                 . 'Negatieve waarden verlagen de score, positieve verhogen deze. '
                 . 'Advies: -10 t/m +25.'
             );
+
+        yield AssociationField::new('family', 'Materiaalfamilie')
+            ->setRequired(false);
 
         yield NumberField::new('density', 'Dichtheid')
             ->setNumDecimals(3)

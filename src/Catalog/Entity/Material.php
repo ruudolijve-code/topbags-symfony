@@ -2,9 +2,10 @@
 
 namespace App\Catalog\Entity;
 
+use App\Catalog\Repository\MaterialRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MaterialRepository::class)]
 #[ORM\Table(name: 'material')]
 class Material
 {
@@ -32,7 +33,11 @@ class Material
     private ?int $sustainabilityScore = null;
 
     #[ORM\Column(options: ['default' => 0])]
-    private int $qualityModifier = 0;
+    private int $marketPositionModifier = 0;
+
+    #[ORM\ManyToOne(inversedBy: 'materials')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?MaterialFamily $family = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $notes = null;
@@ -129,17 +134,29 @@ class Material
         return $this;
     }
 
-    public function getQualityModifier(): int
+    public function getMarketPositionModifier(): int
     {
-        return $this->qualityModifier;
+        return $this->marketPositionModifier;
     }
 
-    public function setQualityModifier(int $qualityModifier): self
+    public function setMarketPositionModifier(int $marketPositionModifier): self
     {
-        $this->qualityModifier = max(
+        $this->marketPositionModifier = max(
             -30,
-            min(30, $qualityModifier),
+            min(30, $marketPositionModifier),
         );
+
+        return $this;
+    }
+
+    public function getFamily(): ?MaterialFamily
+    {
+        return $this->family;
+    }
+
+    public function setFamily(?MaterialFamily $family): self
+    {
+        $this->family = $family;
 
         return $this;
     }

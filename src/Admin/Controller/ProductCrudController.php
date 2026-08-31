@@ -117,6 +117,11 @@ class ProductCrudController extends AbstractCrudController
         yield AssociationField::new('material', 'Materiaal')
             ->setRequired(false);
 
+        yield IntegerField::new('marketPositionOverride', 'Marktpositionering override')
+            ->setRequired(false)
+            ->setHelp('Optionele productspecifieke marktpositionering van 0 tot 100; leeg gebruikt merk, materiaal en prijs.')
+            ->hideOnIndex();
+
         yield AssociationField::new('categories', 'Categorieën')
             ->setFormTypeOption('by_reference', false)
             ->setFormTypeOption('multiple', true)

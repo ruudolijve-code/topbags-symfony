@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\StyleGuide\Service;
 
 use App\Catalog\Entity\Product;
-use App\StyleGuide\Service\Quality\QualityScoreCalculator;
+use App\StyleGuide\Service\MarketPosition\MarketPositionCalculator;
 use App\StyleGuide\Service\Score\CarryMethodScoreCalculator;
 use App\StyleGuide\Service\Score\DimensionScoreCalculator;
 use App\StyleGuide\Service\Score\LaptopScoreCalculator;
 use App\StyleGuide\Service\Score\MaterialScoreCalculator;
 use App\StyleGuide\Service\Score\OutfitScoreCalculator;
-use App\StyleGuide\Service\Score\QualityMatchCalculator;
+use App\StyleGuide\Service\Score\MarketPositionMatchCalculator;
 use App\StyleGuide\Service\Score\RecommendedCategoryScoreCalculator;
 use App\StyleGuide\Service\Score\UseMomentScoreCalculator;
 use App\StyleGuide\Service\Score\VolumeScoreCalculator;
@@ -28,8 +28,8 @@ final class StyleGuideProductScorer
         private readonly LaptopScoreCalculator $laptopScoreCalculator,
         private readonly CarryMethodScoreCalculator $carryMethodScoreCalculator,
         private readonly RecommendedCategoryScoreCalculator $recommendedCategoryScoreCalculator,
-        private readonly QualityMatchCalculator $qualityMatchCalculator,
-        private readonly QualityScoreCalculator $qualityScoreCalculator,
+        private readonly MarketPositionMatchCalculator $marketPositionMatchCalculator,
+        private readonly MarketPositionCalculator $marketPositionCalculator,
         private readonly MaterialScoreCalculator $materialScoreCalculator,
         private readonly StyleAffinityCalculator $styleAffinityCalculator,
         private readonly UseMomentScoreCalculator $useMomentScoreCalculator,
@@ -51,8 +51,8 @@ final class StyleGuideProductScorer
             'a4' => $fitProfile->requiresA4Fit ? 5 : 0,
             'carry_method' => $this->carryMethodScoreCalculator->calculate($product, $criteria),
             'recommended_category' => $this->recommendedCategoryScoreCalculator->calculate($product, $recommendationProfile),
-            'quality' => $this->qualityMatchCalculator->calculate($product, $criteria),
-            'product_quality_score' => $this->qualityScoreCalculator->calculate($product),
+            'market_position_match' => $this->marketPositionMatchCalculator->calculate($product, $criteria),
+            'product_market_position' => $this->marketPositionCalculator->calculate($product),
             'material' => $this->materialScoreCalculator->calculate($product, $criteria),
             'style_affinity' => $styleAffinity->affinityScore,
             'product_override' => $styleAffinity->overrideScore,
@@ -107,10 +107,10 @@ final class StyleGuideProductScorer
             $reasons[] = 'Sluit aan op het aanbevolen type tas';
         }
 
-        if ($breakdown['quality'] >= 20) {
-            $reasons[] = 'Kwaliteitsniveau sluit uitstekend aan';
-        } elseif ($breakdown['quality'] >= 10) {
-            $reasons[] = 'Kwaliteitsniveau sluit goed aan';
+        if ($breakdown['market_position_match'] >= 20) {
+            $reasons[] = 'Marktsegment sluit uitstekend aan';
+        } elseif ($breakdown['market_position_match'] >= 10) {
+            $reasons[] = 'Marktsegment sluit goed aan';
         }
 
         return array_values(array_unique($reasons));

@@ -44,14 +44,13 @@ class Brand
      *
      * Bereik: 0 t/m 100.
      *
-     * De bestaande databasekolom brand_quality_score blijft voorlopig
-     * behouden om een onnodige databasemigratie te voorkomen.
+     * De databasekolom wordt via een databehoudende migratie hernoemd.
      */
     #[ORM\Column(
-        name: 'brand_quality_score',
+        name: 'market_position',
         options: ['default' => 50],
     )]
-    private int $brandPositioning = 50;
+    private int $marketPosition = 50;
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
@@ -131,16 +130,16 @@ class Brand
         return $this;
     }
 
-    public function getBrandPositioning(): int
+    public function getMarketPosition(): int
     {
-        return $this->brandPositioning;
+        return $this->marketPosition;
     }
 
-    public function setBrandPositioning(int $brandPositioning): self
+    public function setMarketPosition(int $marketPosition): self
     {
-        $this->brandPositioning = max(
+        $this->marketPosition = max(
             0,
-            min(100, $brandPositioning),
+            min(100, $marketPosition),
         );
 
         return $this;
