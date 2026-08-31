@@ -41,28 +41,12 @@ final class StyleGuideProductMatcher
             criteria: $criteria,
             limit: 300,
         );
-dump([
-    'catalog' => array_map(
-        fn ($p) => $p->getBrand()->getSlug().' - '.$p->getName(),
-        array_filter(
-            $candidates,
-            fn ($p) => $p->getBrand()?->getSlug() === 'abro'
-        )
-    ),
-]);
+
         /*
          * Stap 2: harde doelgroep- en draagwijzefilters op bestaande categorieën.
          */
         $candidates = $this->categoryCandidateFilter->filter($candidates, $criteria);
-dump([
-    'category' => array_map(
-        fn ($p) => $p->getBrand()->getSlug().' - '.$p->getName(),
-        array_filter(
-            $candidates,
-            fn ($p) => $p->getBrand()?->getSlug() === 'abro'
-        )
-    ),
-]);
+
         /*
          * Stap 3:
          * harde fysieke geschiktheid.
@@ -73,15 +57,7 @@ dump([
             products: $candidates,
             fitProfile: $fitProfile,
         );
-dump([
-    'fit' => array_map(
-        fn ($p) => $p->getBrand()->getSlug().' - '.$p->getName(),
-        array_filter(
-            $candidates,
-            fn ($p) => $p->getBrand()?->getSlug() === 'abro'
-        )
-    ),
-]);
+
         /*
          * Stap 4:
          * kwaliteit van iedere match bepalen.
