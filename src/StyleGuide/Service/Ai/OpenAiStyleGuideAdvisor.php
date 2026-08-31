@@ -167,6 +167,7 @@ final class OpenAiStyleGuideAdvisor
 
         $scored = [];
         $reasons = [];
+        $explicitPreferences = $this->explicitPreferences($personalWish, $matches);
         foreach ($advice['ranked_products'] as $item) {
             if (!is_array($item)) { continue; }
             $id = filter_var($item['product_id'] ?? null, FILTER_VALIDATE_INT);
@@ -174,7 +175,7 @@ final class OpenAiStyleGuideAdvisor
             $reason = trim((string) ($item['reason'] ?? ''));
             if ($id === false || $preferenceScore === false || !isset($matchesById[$id]) || isset($scored[$id])) { continue; }
             $scored[$id] = ['match' => $matchesById[$id], 'preference_score' => max(0, min(100, $preferenceScore))];
-            $groundedReason = $this->groundedReason($personalWish, $matchesById[$id], $reason);
+            $groundedReason = $this->groundedReason($matchesById[$id], $explicitPreferences, $reason);
             if ($groundedReason !== '') {
                 $reasons[$id] = $groundedReason;
             }
@@ -203,40 +204,98 @@ final class OpenAiStyleGuideAdvisor
         return new StyleGuideAiRecommendation(array_values($ranked), mb_substr($summary, 0, 600), $reasons, true);
     }
 
-    private function groundedReason(string $personalWish, ProductMatch $match, string $aiReason): string
+    /**
+     * @param array<string, string> $explicitPreferences normalized label => display label
+     */
+    private function groundedReason(ProductMatch $match, array $explicitPreferences, string $aiReason): string
     {
-        $product = $match->product;
-        $explicitMatches = [];
-
-        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getBrand()->getName());
-        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getMaterial()?->getName());
-        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getMaterial()?->getFamily()?->getName());
-
-        foreach ($this->attributes->colors($product) as $color) {
-            $this->addExplicitMatch($explicitMatches, $personalWish, $color->getName());
-            $this->addExplicitMatch($explicitMatches, $personalWish, $color->getFamily());
+        if ($explicitPreferences === []) {
+            return mb_substr($aiReason, 0, 300);
         }
 
-        $explicitMatches = array_values(array_unique($explicitMatches));
-        if ($explicitMatches !== []) {
+        $product = $match->product;
+        $productAttributes = [];
+
+        $this->addProductAttribute($productAttributes, $product->getBrand()->getName());
+        $this->addProductAttribute($productAttributes, $product->getBrand()->getSlug());
+        $this->addProductAttribute($productAttributes, $product->getMaterial()?->getName());
+        $this->addProductAttribute($productAttributes, $product->getMaterial()?->getFamily()?->getName());
+
+        foreach ($this->attributes->colors($product) as $color) {
+            $this->addProductAttribute($productAttributes, $color->getName());
+            $this->addProductAttribute($productAttributes, $color->getFamily());
+        }
+
+        $matches = [];
+        $misses = [];
+        foreach ($explicitPreferences as $normalized => $label) {
+            if (isset($productAttributes[$normalized])) {
+                $matches[] = $label;
+            } else {
+                $misses[] = $label;
+            }
+        }
+
+        if ($matches !== [] && $misses !== []) {
             return mb_substr(sprintf(
-                'Sluit aan op jouw voorkeur voor %s.',
-                $this->humanList($explicitMatches),
+                'Past bij jouw voorkeur voor %s; %s ontbreekt bij deze uitvoering.',
+                $this->humanList($matches),
+                $this->humanList($misses),
             ), 0, 300);
         }
 
-        return mb_substr($aiReason, 0, 300);
+        if ($matches !== []) {
+            return mb_substr(sprintf('Past bij jouw voorkeur voor %s.', $this->humanList($matches)), 0, 300);
+        }
+
+        return mb_substr(sprintf(
+            'Wijkt af van jouw voorkeur voor %s.',
+            $this->humanList($misses),
+        ), 0, 300);
     }
 
-    /** @param list<string> $matches */
-    private function addExplicitMatch(array &$matches, string $personalWish, ?string $label): void
+    /**
+     * @param list<ProductMatch> $matches
+     * @return array<string, string> normalized label => display label
+     */
+    private function explicitPreferences(string $personalWish, array $matches): array
     {
-        if ($label === null || mb_strlen(trim($label)) < 3) {
+        $preferences = [];
+
+        foreach ($matches as $match) {
+            $product = $match->product;
+            $this->addExplicitPreference($preferences, $personalWish, $product->getBrand()->getName());
+            $this->addExplicitPreference($preferences, $personalWish, $product->getBrand()->getSlug(), $product->getBrand()->getName());
+            $this->addExplicitPreference($preferences, $personalWish, $product->getMaterial()?->getName());
+            $this->addExplicitPreference($preferences, $personalWish, $product->getMaterial()?->getFamily()?->getName());
+
+            foreach ($this->attributes->colors($product) as $color) {
+                $this->addExplicitPreference($preferences, $personalWish, $color->getName());
+                $this->addExplicitPreference($preferences, $personalWish, $color->getFamily());
+            }
+        }
+
+        return $preferences;
+    }
+
+    /** @param array<string, string> $preferences */
+    private function addExplicitPreference(array &$preferences, string $personalWish, ?string $needle, ?string $displayLabel = null): void
+    {
+        if ($needle === null || mb_strlen(trim($needle)) < 3) {
             return;
         }
 
-        if (str_contains($this->normalize($personalWish), $this->normalize($label))) {
-            $matches[] = trim($label);
+        $normalized = $this->normalize($needle);
+        if (str_contains($this->normalize($personalWish), $normalized)) {
+            $preferences[$normalized] = trim($displayLabel ?? $needle);
+        }
+    }
+
+    /** @param array<string, true> $attributes */
+    private function addProductAttribute(array &$attributes, ?string $label): void
+    {
+        if ($label !== null && mb_strlen(trim($label)) >= 3) {
+            $attributes[$this->normalize($label)] = true;
         }
     }
 
