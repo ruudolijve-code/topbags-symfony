@@ -309,14 +309,9 @@ final class ProductRepository extends ServiceEntityRepository
                 ->orderBy('nameSort', 'DESC'),
 
             default => $qb
-                ->addSelect(
-                    'CASE WHEN p.featuredPosition > 0 THEN 0 ELSE 1 END
-                    AS HIDDEN featuredFirstSort'
-                )
-                ->addSelect('p.featuredPosition AS HIDDEN featuredPositionSort')
+                ->addSelect('productContext.position AS HIDDEN positionSort')
                 ->addSelect('p.id AS HIDDEN idSort')
-                ->orderBy('featuredFirstSort', 'ASC')
-                ->addOrderBy('featuredPositionSort', 'ASC')
+                ->orderBy('positionSort', 'ASC')
                 ->addOrderBy('idSort', 'DESC'),
         };
     }
