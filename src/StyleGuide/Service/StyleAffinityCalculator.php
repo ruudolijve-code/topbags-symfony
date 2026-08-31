@@ -36,6 +36,7 @@ final class StyleAffinityCalculator
     private function matches(StyleGuideAffinity $affinity, Product $product, array $colors, array $families): bool
     {
         if ($affinity->getBrand() !== null) { return $product->getBrand() === $affinity->getBrand(); }
+        if ($affinity->getMaterialFamily() !== null) { return $product->getMaterial()?->getFamily() === $affinity->getMaterialFamily(); }
         if ($affinity->getMaterial() !== null) { return $product->getMaterial() === $affinity->getMaterial(); }
         if ($affinity->getColor() !== null) { return in_array($affinity->getColor(), $colors, true); }
         if ($affinity->getCategory() !== null) { return $product->getCategories()->contains($affinity->getCategory()); }

@@ -17,8 +17,8 @@ final class StyleGuideAffinityRepository extends ServiceEntityRepository
     /** @return list<StyleGuideAffinity> */
     public function findActiveForWorld(StyleGuideWorld $world): array
     {
-        return $this->createQueryBuilder('a')->addSelect('brand', 'material', 'color', 'category')
-            ->leftJoin('a.brand', 'brand')->leftJoin('a.material', 'material')->leftJoin('a.color', 'color')->leftJoin('a.category', 'category')
+        return $this->createQueryBuilder('a')->addSelect('brand', 'materialFamily', 'material', 'color', 'category')
+            ->leftJoin('a.brand', 'brand')->leftJoin('a.materialFamily', 'materialFamily')->leftJoin('a.material', 'material')->leftJoin('a.color', 'color')->leftJoin('a.category', 'category')
             ->andWhere('a.styleWorld = :world')->andWhere('a.isActive = true')->setParameter('world', $world)
             ->addOrderBy('a.position', 'ASC')->addOrderBy('a.id', 'ASC')->getQuery()->getResult();
     }

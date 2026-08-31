@@ -8,6 +8,7 @@ use App\Catalog\Entity\Brand;
 use App\Catalog\Entity\Category;
 use App\Catalog\Entity\Color;
 use App\Catalog\Entity\Material;
+use App\Catalog\Entity\MaterialFamily;
 use App\StyleGuide\Repository\StyleGuideAffinityRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
@@ -32,6 +33,10 @@ class StyleGuideAffinity
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Material $material = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?MaterialFamily $materialFamily = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
@@ -68,6 +73,8 @@ class StyleGuideAffinity
     public function setBrand(?Brand $brand): self { $this->brand = $brand; return $this; }
     public function getMaterial(): ?Material { return $this->material; }
     public function setMaterial(?Material $material): self { $this->material = $material; return $this; }
+    public function getMaterialFamily(): ?MaterialFamily { return $this->materialFamily; }
+    public function setMaterialFamily(?MaterialFamily $materialFamily): self { $this->materialFamily = $materialFamily; return $this; }
     public function getColor(): ?Color { return $this->color; }
     public function setColor(?Color $color): self { $this->color = $color; return $this; }
     public function getCategory(): ?Category { return $this->category; }
@@ -87,14 +94,14 @@ class StyleGuideAffinity
     #[\Symfony\Component\Validator\Constraints\Callback]
     public function validateExactlyOneTarget(ExecutionContextInterface $context): void
     {
-        $targets = [$this->brand, $this->material, $this->color, $this->category, $this->colorFamily];
+        $targets = [$this->brand, $this->material, $this->materialFamily, $this->color, $this->category, $this->colorFamily];
         if (count(array_filter($targets, static fn (mixed $target): bool => $target !== null)) !== 1) {
-            $context->buildViolation('Kies exact één doel: merk, materiaal, kleur, categorie of kleurfamilie.')->addViolation();
+            $context->buildViolation('Kies exact één doel: merk, materiaalfamilie, materiaal, kleur, categorie of kleurfamilie.')->addViolation();
         }
     }
 
     public function targetLabel(): string
     {
-        return (string) ($this->brand ?? $this->material ?? $this->color ?? $this->category ?? $this->colorFamily ?? 'Geen doel');
+        return (string) ($this->brand ?? $this->materialFamily ?? $this->material ?? $this->color ?? $this->category ?? $this->colorFamily ?? 'Geen doel');
     }
 }

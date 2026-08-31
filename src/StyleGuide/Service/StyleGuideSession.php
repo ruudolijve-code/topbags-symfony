@@ -206,6 +206,27 @@ final class StyleGuideSession
         $this->session()->remove(self::SESSION_KEY);
     }
 
+    public function setPersonalWish(?string $personalWish): void
+    {
+        $data = $this->all();
+        $value = $personalWish !== null ? trim($personalWish) : '';
+
+        if ($value === '') {
+            unset($data['personal_wish']);
+        } else {
+            $data['personal_wish'] = mb_substr($value, 0, 1000);
+        }
+
+        $this->session()->set(self::SESSION_KEY, $data);
+    }
+
+    public function getPersonalWish(): ?string
+    {
+        $value = $this->all()['personal_wish'] ?? null;
+
+        return is_string($value) && trim($value) !== '' ? $value : null;
+    }
+
     private function session(): SessionInterface
     {
         return $this->requestStack->getSession();

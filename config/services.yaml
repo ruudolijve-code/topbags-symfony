@@ -22,6 +22,8 @@ parameters:
 
     google_places.api_key: '%env(string:GOOGLE_PLACES_API_KEY)%'
     google_places.place_id: '%env(string:GOOGLE_BUSINESS_PLACE_ID)%'
+    openai.api_key: '%env(string:OPENAI_API_KEY)%'
+    openai.style_guide_model: '%env(string:OPENAI_STYLE_GUIDE_MODEL)%'
 
 services:
     _defaults:
@@ -79,6 +81,11 @@ services:
     App\Seo\EventListener\RedirectOnNotFoundListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+    App\StyleGuide\Service\Ai\OpenAiStyleGuideAdvisor:
+        arguments:
+            $apiKey: '%openai.api_key%'
+            $model: '%openai.style_guide_model%'
 
     App\Shop\Service\GoogleReviewsService:
         arguments:

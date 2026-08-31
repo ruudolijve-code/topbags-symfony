@@ -38,6 +38,7 @@ final class StyleGuideAffinityCrudController extends AbstractCrudController
                 'styleWorld.name',
                 'brand.name',
                 'material.name',
+                'materialFamily.name',
                 'color.name',
                 'category.name',
                 'colorFamily',
@@ -51,6 +52,7 @@ final class StyleGuideAffinityCrudController extends AbstractCrudController
             ->add('styleWorld')
             ->add('brand')
             ->add('material')
+            ->add('materialFamily')
             ->add('color')
             ->add('category')
             ->add(TextFilter::new('colorFamily', 'Kleurfamilie'))
@@ -72,6 +74,9 @@ final class StyleGuideAffinityCrudController extends AbstractCrudController
         yield AssociationField::new('material', 'Materiaal')
             ->setRequired(false);
 
+        yield AssociationField::new('materialFamily', 'Materiaalfamilie')
+            ->setRequired(false);
+
         yield AssociationField::new('color', 'Kleur')
             ->setRequired(false);
 
@@ -81,7 +86,7 @@ final class StyleGuideAffinityCrudController extends AbstractCrudController
         yield TextField::new('colorFamily', 'Kleurfamilie')
             ->setRequired(false)
             ->setHelp(
-                'Vul exact één doel in. Gebruik dezelfde waarde als Color.family, bijvoorbeeld bruin.'
+                'Vul exact één doel in: merk, materiaalfamilie, materiaal, kleur, categorie of kleurfamilie.'
             );
 
         yield IntegerField::new('score', 'Score')

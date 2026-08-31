@@ -14,6 +14,7 @@ use App\StyleGuide\Service\Recommendation\BagSizeCalculator;
 use App\StyleGuide\Service\Recommendation\StyleGuideCriteriaFactory;
 use App\StyleGuide\Service\StyleGuideProductMatcher;
 use App\StyleGuide\Service\StyleGuideSession;
+use App\StyleGuide\Service\Ai\OpenAiStyleGuideAdvisor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -546,7 +547,7 @@ use Symfony\Component\Routing\Attribute\Route;
             } else {
                 $engine->saveAnswer($question, $answer);
 
-                return $this->redirectToRoute('style_guide_result');
+                return $this->redirectToRoute('style_guide_wishes');
             }
         }
 
@@ -554,6 +555,37 @@ use Symfony\Component\Routing\Attribute\Route;
             'question' => $question,
             'answers' => $question->getAnswers(),
             'selectedAnswer' => $selectedAnswer,
+            'error' => $error,
+        ]);
+    }
+
+    #[Route('/jouw-wensen', name: 'wishes', methods: ['GET', 'POST'])]
+    public function wishes(Request $request, StyleGuideEngine $engine, StyleGuideSession $styleGuideSession): Response
+    {
+        if (!$engine->hasAnswer('budget')) {
+            return $this->redirectToRoute('style_guide_budget');
+        }
+
+        $error = null;
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('style_guide_wishes', (string) $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException('De beveiligingscontrole is mislukt.');
+            }
+
+            $wish = $request->request->has('skip')
+                ? ''
+                : trim((string) $request->request->get('personal_wish', ''));
+            if (mb_strlen($wish) > 1000) {
+                $error = 'Houd je toelichting korter dan 1000 tekens.';
+            } else {
+                $styleGuideSession->setPersonalWish($wish);
+
+                return $this->redirectToRoute('style_guide_result');
+            }
+        }
+
+        return $this->renderStyleGuide('style_guide/wishes.html.twig', [
+            'personalWish' => $styleGuideSession->getPersonalWish(),
             'error' => $error,
         ]);
     }
@@ -567,6 +599,7 @@ use Symfony\Component\Routing\Attribute\Route;
         BagRecommendationProfileCalculator $recommendationProfileCalculator,
         StyleGuideCriteriaFactory $criteriaFactory,
         StyleGuideProductMatcher $productMatcher,
+        OpenAiStyleGuideAdvisor $aiAdvisor,
     ): Response {
         $requiredQuestions = [
             'use_moment' => 'style_guide_use',
@@ -708,6 +741,14 @@ use Symfony\Component\Routing\Attribute\Route;
             limit: 24,
         );
 
+        $aiRecommendation = $aiAdvisor->advise(
+            personalWish: $styleGuideSession->getPersonalWish(),
+            criteria: $criteria,
+            matches: $productMatches,
+        );
+
+        $productMatches = $aiRecommendation->matches;
+
         return $this->renderStyleGuide('style_guide/result.html.twig', [
             'useMoment' => $useMoment,
             'styleWorld' => $styleWorld,
@@ -722,6 +763,8 @@ use Symfony\Component\Routing\Attribute\Route;
             * Matcherresultaten.
             */
             'productMatches' => $productMatches,
+            'aiRecommendation' => $aiRecommendation,
+            'personalWish' => $styleGuideSession->getPersonalWish(),
 
             /*
             * Technisch profiel voor matching/debug.

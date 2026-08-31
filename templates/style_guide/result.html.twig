@@ -7,6 +7,13 @@
         {% include 'style_guide/result/_hero.html.twig' %}
         <div class="mx-auto max-w-7xl px-6 pb-16 lg:px-8 lg:pb-24">
             {% include 'style_guide/result/_profile_summary.html.twig' %}
+            {% if aiRecommendation.isAiGenerated %}
+                <section class="mt-10 rounded-[2rem] bg-orange-50 px-6 py-7 sm:px-8" aria-labelledby="ai-advice-title">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-700">Persoonlijk stijlgidsadvies</p>
+                    <h2 id="ai-advice-title" class="mt-2 text-2xl font-semibold text-stone-950">OpenAI adviseert binnen jouw passende selectie</h2>
+                    <p class="mt-3 max-w-3xl leading-7 text-stone-700">{{ aiRecommendation.summary }}</p>
+                </section>
+            {% endif %}
             {% include 'style_guide/result/_product_results.html.twig' %}
         </div>
     </main>
