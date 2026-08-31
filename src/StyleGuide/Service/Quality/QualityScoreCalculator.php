@@ -8,9 +8,8 @@ use App\Catalog\Entity\Product;
 
 final class QualityScoreCalculator
 {
-    public function calculate(
-        Product $product,
-    ): int {
+    public function calculate(Product $product): int
+    {
         /*
          * Handmatige productspecifieke override is altijd leidend.
          */
@@ -20,8 +19,14 @@ final class QualityScoreCalculator
             return $this->clamp($override);
         }
 
-        $brandScore =
-            $product->getBrand()->getBrandQualityScore() ?? 50;
+        /*
+         * Merkpositionering vormt de basis van het kwaliteitssegment.
+         *
+         * Wanneer voor een merk nog geen positionering is ingesteld,
+         * gebruiken we 50 als neutrale fallback.
+         */
+        $brandPositioning =
+            $product->getBrand()->getPositioning() ?? 50;
 
         $materialModifier =
             $product->getMaterial()?->getQualityModifier()
@@ -31,7 +36,7 @@ final class QualityScoreCalculator
             $this->calculatePriceModifier($product);
 
         return $this->clamp(
-            $brandScore
+            $brandPositioning
             + $materialModifier
             + $priceModifier,
         );
@@ -42,19 +47,18 @@ final class QualityScoreCalculator
      *
      * @return array{
      *     override: int|null,
-     *     brand: int,
+     *     brand_positioning: int,
      *     material: int,
      *     price: int,
      *     total: int
      * }
      */
-    public function breakdown(
-        Product $product,
-    ): array {
+    public function breakdown(Product $product): array
+    {
         $override = $product->getQualityScoreOverride();
 
-        $brandScore =
-            $product->getBrand()->getBrandQualityScore();
+        $brandPositioning =
+            $product->getBrand()->getPositioning() ?? 50;
 
         $materialModifier =
             $product->getMaterial()?->getQualityModifier()
@@ -66,31 +70,29 @@ final class QualityScoreCalculator
         $total = $override !== null
             ? $this->clamp($override)
             : $this->clamp(
-                $brandScore
+                $brandPositioning
                 + $materialModifier
                 + $priceModifier,
             );
 
         return [
             'override' => $override,
-            'brand' => $brandScore,
+            'brand_positioning' => $brandPositioning,
             'material' => $materialModifier,
             'price' => $priceModifier,
             'total' => $total,
         ];
     }
 
-    public function getSegment(
-        Product $product,
-    ): string {
+    public function getSegment(Product $product): string
+    {
         return $this->segmentForScore(
             $this->calculate($product),
         );
     }
 
-    public function segmentForScore(
-        int $score,
-    ): string {
+    public function segmentForScore(int $score): string
+    {
         return match (true) {
             $score < 30 => 'budget',
             $score < 55 => 'value',
@@ -99,9 +101,8 @@ final class QualityScoreCalculator
         };
     }
 
-    private function calculatePriceModifier(
-        Product $product,
-    ): int {
+    private function calculatePriceModifier(Product $product): int
+    {
         $variant = $product->getMasterVariant();
 
         if ($variant === null) {
@@ -129,9 +130,8 @@ final class QualityScoreCalculator
         };
     }
 
-    private function clamp(
-        int $score,
-    ): int {
+    private function clamp(int $score): int
+    {
         return max(
             0,
             min(100, $score),
