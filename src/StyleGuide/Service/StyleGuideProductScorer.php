@@ -61,17 +61,7 @@ final class StyleGuideProductScorer
         ];
 
         $score = array_sum($breakdown);
-if (
-    in_array($product->getBrand()->getSlug(), ['abro', 'bear-design'], true)
-    && str_contains(strtolower($product->getName()), 'shopper')
-) {
-    dump([
-        'brand' => $product->getBrand()->getName(),
-        'product' => $product->getName(),
-        'score' => $score,
-        'breakdown' => $breakdown,
-    ]);
-}
+        
         return new ProductMatch(
             product: $product,
             score: max(0, $score),
