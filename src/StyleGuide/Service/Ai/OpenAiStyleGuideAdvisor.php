@@ -94,7 +94,7 @@ final class OpenAiStyleGuideAdvisor
                 ],
             ]);
 
-            return $this->buildRecommendation($matches, $response->toArray());
+            return $this->buildRecommendation($matches, $response->toArray(), $personalWish);
         } catch (\Throwable $error) {
             $this->logger->warning('OpenAI Style Guide advice fell back to deterministic ranking.', [
                 'exception' => $error::class,
@@ -150,7 +150,7 @@ final class OpenAiStyleGuideAdvisor
      * @param list<ProductMatch> $matches
      * @param array<string, mixed> $response
      */
-    private function buildRecommendation(array $matches, array $response): StyleGuideAiRecommendation
+    private function buildRecommendation(array $matches, array $response, string $personalWish): StyleGuideAiRecommendation
     {
         $text = $this->outputText($response);
         $advice = json_decode($text, true, 512, JSON_THROW_ON_ERROR);
@@ -174,7 +174,10 @@ final class OpenAiStyleGuideAdvisor
             $reason = trim((string) ($item['reason'] ?? ''));
             if ($id === false || $preferenceScore === false || !isset($matchesById[$id]) || isset($scored[$id])) { continue; }
             $scored[$id] = ['match' => $matchesById[$id], 'preference_score' => max(0, min(100, $preferenceScore))];
-            if ($reason !== '') { $reasons[$id] = mb_substr($reason, 0, 300); }
+            $groundedReason = $this->groundedReason($personalWish, $matchesById[$id], $reason);
+            if ($groundedReason !== '') {
+                $reasons[$id] = $groundedReason;
+            }
         }
 
         uasort($scored, static function (array $left, array $right): int {
@@ -198,6 +201,63 @@ final class OpenAiStyleGuideAdvisor
         }
 
         return new StyleGuideAiRecommendation(array_values($ranked), mb_substr($summary, 0, 600), $reasons, true);
+    }
+
+    private function groundedReason(string $personalWish, ProductMatch $match, string $aiReason): string
+    {
+        $product = $match->product;
+        $explicitMatches = [];
+
+        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getBrand()->getName());
+        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getMaterial()?->getName());
+        $this->addExplicitMatch($explicitMatches, $personalWish, $product->getMaterial()?->getFamily()?->getName());
+
+        foreach ($this->attributes->colors($product) as $color) {
+            $this->addExplicitMatch($explicitMatches, $personalWish, $color->getName());
+            $this->addExplicitMatch($explicitMatches, $personalWish, $color->getFamily());
+        }
+
+        $explicitMatches = array_values(array_unique($explicitMatches));
+        if ($explicitMatches !== []) {
+            return mb_substr(sprintf(
+                'Sluit aan op jouw voorkeur voor %s.',
+                $this->humanList($explicitMatches),
+            ), 0, 300);
+        }
+
+        return mb_substr($aiReason, 0, 300);
+    }
+
+    /** @param list<string> $matches */
+    private function addExplicitMatch(array &$matches, string $personalWish, ?string $label): void
+    {
+        if ($label === null || mb_strlen(trim($label)) < 3) {
+            return;
+        }
+
+        if (str_contains($this->normalize($personalWish), $this->normalize($label))) {
+            $matches[] = trim($label);
+        }
+    }
+
+    private function normalize(string $value): string
+    {
+        $transliterated = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        $normalized = mb_strtolower($transliterated !== false ? $transliterated : $value);
+
+        return trim((string) preg_replace('/[^a-z0-9]+/', ' ', $normalized));
+    }
+
+    /** @param list<string> $items */
+    private function humanList(array $items): string
+    {
+        if (count($items) === 1) {
+            return $items[0];
+        }
+
+        $last = array_pop($items);
+
+        return implode(', ', $items).' en '.$last;
     }
 
     /** @param array<string, mixed> $response */
