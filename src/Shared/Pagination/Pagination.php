@@ -7,11 +7,13 @@ final class Pagination
     public function __construct(
         private int $page,
         private int $limit,
-        private int $totalItems
+        private int $totalItems,
+        private int $leadingSlots = 0,
     ) {
         $this->page = max(1, $page);
         $this->limit = max(1, $limit);
         $this->totalItems = max(0, $totalItems);
+        $this->leadingSlots = max(0, min($this->limit - 1, $leadingSlots));
     }
 
     public function getPage(): int
@@ -21,7 +23,9 @@ final class Pagination
 
     public function getLimit(): int
     {
-        return $this->limit;
+        return $this->page === 1
+            ? $this->limit - $this->leadingSlots
+            : $this->limit;
     }
 
     public function getTotalItems(): int
@@ -31,12 +35,12 @@ final class Pagination
 
     public function getOffset(): int
     {
-        return ($this->page - 1) * $this->limit;
+        return max(0, (($this->page - 1) * $this->limit) - $this->leadingSlots);
     }
 
     public function getTotalPages(): int
     {
-        return max(1, (int) ceil($this->totalItems / $this->limit));
+        return max(1, (int) ceil(($this->totalItems + $this->leadingSlots) / $this->limit));
     }
 
     public function hasPreviousPage(): bool

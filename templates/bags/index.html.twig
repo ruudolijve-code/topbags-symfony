@@ -136,8 +136,7 @@
 
                             {% if
                                 loop.index == 6
-                                and pagination.page == 1
-                                and 'damestassen' in activeCategories|default([])
+                                and showStyleGuidePromo|default(false)
                             %}
                                 <a
                                     href="{{ path('style_guide_index') }}"

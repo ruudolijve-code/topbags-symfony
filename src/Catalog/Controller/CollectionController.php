@@ -336,10 +336,14 @@ final class CollectionController extends AbstractController
             materialSlugs: $materialSlugs ?: null,
         );
 
+        $hasStyleGuidePromo = $context === Product::CONTEXT_BAGS
+            && in_array('damestassen', $categorySlugs, true);
+
         $pagination = $paginationService->create(
             page: $page,
             limit: self::PER_PAGE,
             totalItems: $totalItems,
+            leadingSlots: $hasStyleGuidePromo ? 2 : 0,
         );
 
         $products = $productRepository->findForContextGridWithFilters(
@@ -532,6 +536,7 @@ final class CollectionController extends AbstractController
             'currentSort' => $sort,
 
             'pagination' => $pagination,
+            'showStyleGuidePromo' => $hasStyleGuidePromo && $page === 1,
             'totalColors' => $totalColors,
             'totalAvailableVariants' => $totalAvailableVariants,
             'totalVisibleVariants' => $totalVisibleVariants,
