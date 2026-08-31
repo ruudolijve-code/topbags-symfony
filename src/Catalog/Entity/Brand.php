@@ -43,12 +43,15 @@ class Brand
      * - optionele productoverride
      *
      * Bereik: 0 t/m 100.
+     *
+     * De bestaande databasekolom brand_quality_score blijft voorlopig
+     * behouden om een onnodige databasemigratie te voorkomen.
      */
     #[ORM\Column(
         name: 'brand_quality_score',
         options: ['default' => 50],
     )]
-    private int $brandQualityScore = 50;
+    private int $brandPositioning = 50;
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
@@ -128,17 +131,16 @@ class Brand
         return $this;
     }
 
-    public function getBrandQualityScore(): int
+    public function getBrandPositioning(): int
     {
-        return $this->brandQualityScore;
+        return $this->brandPositioning;
     }
 
-    public function setBrandQualityScore(
-        int $brandQualityScore,
-    ): self {
-        $this->brandQualityScore = max(
+    public function setBrandPositioning(int $brandPositioning): self
+    {
+        $this->brandPositioning = max(
             0,
-            min(100, $brandQualityScore),
+            min(100, $brandPositioning),
         );
 
         return $this;

@@ -58,7 +58,7 @@ class BrandCrudController extends AbstractCrudController
         );
 
         yield IntegerField::new(
-            'brandQualityScore',
+            'brandPositioning',
             'Merkpositionering',
         )
             ->setHelp(

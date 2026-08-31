@@ -26,7 +26,7 @@ final class QualityScoreCalculator
          * gebruiken we 50 als neutrale fallback.
          */
         $brandPositioning =
-            $product->getBrand()->getPositioning() ?? 50;
+            $product->getBrand()->getBrandPositioning() ?? 50;
 
         $materialModifier =
             $product->getMaterial()?->getQualityModifier()
@@ -58,7 +58,7 @@ final class QualityScoreCalculator
         $override = $product->getQualityScoreOverride();
 
         $brandPositioning =
-            $product->getBrand()->getPositioning() ?? 50;
+            $product->getBrand()->getBrandPositioning() ?? 50;
 
         $materialModifier =
             $product->getMaterial()?->getQualityModifier()
