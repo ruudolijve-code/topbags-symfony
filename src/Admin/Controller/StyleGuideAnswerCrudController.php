@@ -14,26 +14,57 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\AssociationFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 
 final class StyleGuideAnswerCrudController extends AbstractCrudController
 {
-    public static function getEntityFqcn(): string { return StyleGuideAnswer::class; }
+    public static function getEntityFqcn(): string
+    {
+        return StyleGuideAnswer::class;
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud->setEntityLabelInSingular('Stijlgidsantwoord')->setEntityLabelInPlural('Stijlgidsantwoorden')
-            ->setDefaultSort(['question.position' => 'ASC', 'position' => 'ASC'])->setSearchFields(['question.title', 'code', 'label', 'description']);
+        return $crud
+            ->setEntityLabelInSingular('Stijlgidsantwoord')
+            ->setEntityLabelInPlural('Stijlgidsantwoorden')
+            ->setDefaultSort([
+                'question.position' => 'ASC',
+                'position' => 'ASC',
+            ])
+            ->setSearchFields([
+                'question.title',
+                'code',
+                'label',
+                'description',
+            ]);
     }
-    public function configureFilters(Filters $filters): Filters { return $filters->add(AssociationFilter::new('question'))->add(BooleanFilter::new('isActive')); }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add('question')
+            ->add(BooleanFilter::new('isActive', 'Actief'));
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->hideOnForm();
+        yield IdField::new('id')
+            ->hideOnForm();
+
         yield AssociationField::new('question', 'Vraag');
-        yield TextField::new('code', 'Code');
+
+        yield TextField::new('code', 'Code')
+            ->setHelp('Interne code voor dit antwoord. Houd deze stabiel zodra het antwoord in gebruik is.');
+
         yield TextField::new('label', 'Antwoord');
-        yield TextareaField::new('description', 'Beschrijving')->setRequired(false)->hideOnIndex();
+
+        yield TextareaField::new('description', 'Beschrijving')
+            ->setRequired(false)
+            ->hideOnIndex();
+
         yield IntegerField::new('position', 'Volgorde');
+
         yield BooleanField::new('isActive', 'Actief');
     }
 }
