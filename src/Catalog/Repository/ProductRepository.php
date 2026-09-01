@@ -1130,22 +1130,26 @@ final class ProductRepository extends ServiceEntityRepository
 
     public function searchAllActive(string $query, int $limit = 24): array
     {
-        $query = trim($query);
+        $searchTerms = $this->getSearchTerms($query);
 
-        if ($query === '') {
+        if ($searchTerms === []) {
             return [];
         }
 
-        $search = '%' . mb_strtolower($query) . '%';
-
-        return $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->select('DISTINCT p')
             ->leftJoin('p.brand', 'b')
             ->leftJoin('p.categories', 'categories')
             ->leftJoin('p.variants', 'v')
             ->leftJoin('v.color', 'variantColor')
             ->andWhere('p.isActive = true')
-            ->andWhere(
+            ->orderBy('p.name', 'ASC')
+            ->setMaxResults($limit);
+
+        foreach ($searchTerms as $index => $searchTerm) {
+            $parameter = 'search_' . $index;
+
+            $qb->andWhere(str_replace(':search', ':' . $parameter,
                 'LOWER(p.name) LIKE :search
                 OR LOWER(p.slug) LIKE :search
                 OR LOWER(p.series) LIKE :search
@@ -1160,12 +1164,11 @@ final class ProductRepository extends ServiceEntityRepository
                 OR LOWER(v.supplierColorSlug) LIKE :search
                 OR LOWER(variantColor.name) LIKE :search
                 OR LOWER(variantColor.slug) LIKE :search'
-            )
-            ->setParameter('search', $search)
-            ->orderBy('p.name', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ));
+            $qb->setParameter($parameter, '%' . $searchTerm . '%');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function searchForBags(string $query, int $limit = 24): array
@@ -1612,63 +1615,78 @@ final class ProductRepository extends ServiceEntityRepository
 
     public function countColorsForSearch(string $query): int
     {
-        $query = trim($query);
+        $searchTerms = $this->getSearchTerms($query);
 
-        if ($query === '') {
+        if ($searchTerms === []) {
             return 0;
         }
 
-        $search = '%' . mb_strtolower($query) . '%';
-
-        return (int) $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->select('COUNT(DISTINCT c.id)')
             ->leftJoin('p.brand', 'b')
             ->innerJoin('p.variants', 'v')
             ->innerJoin('v.color', 'c')
             ->where('p.isActive = true')
-            ->andWhere('v.isActive = true')
-            ->andWhere(
+            ->andWhere('v.isActive = true');
+
+        foreach ($searchTerms as $index => $searchTerm) {
+            $parameter = 'search_' . $index;
+
+            $qb->andWhere(str_replace(':search', ':' . $parameter,
                 'LOWER(p.name) LIKE :search
                 OR LOWER(p.modelSku) LIKE :search
                 OR LOWER(p.series) LIKE :search
                 OR LOWER(b.name) LIKE :search
                 OR LOWER(v.variantSku) LIKE :search'
-            )
-            ->setParameter('search', $search)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ));
+            $qb->setParameter($parameter, '%' . $searchTerm . '%');
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     public function countAvailableVariantsForSearch(string $query): int
     {
-        $query = trim($query);
+        $searchTerms = $this->getSearchTerms($query);
 
-        if ($query === '') {
+        if ($searchTerms === []) {
             return 0;
         }
 
-        $search = '%' . mb_strtolower($query) . '%';
-
-        return (int) $this->createQueryBuilder('p')
+        $qb = $this->createQueryBuilder('p')
             ->select('COUNT(DISTINCT v.id)')
             ->leftJoin('p.brand', 'b')
             ->innerJoin('p.variants', 'v')
             ->leftJoin('v.stock', 's')
             ->where('p.isActive = true')
-            ->andWhere('v.isActive = true')
-            ->andWhere(
+            ->andWhere('v.isActive = true');
+
+        foreach ($searchTerms as $index => $searchTerm) {
+            $parameter = 'search_' . $index;
+
+            $qb->andWhere(str_replace(':search', ':' . $parameter,
                 'LOWER(p.name) LIKE :search
                 OR LOWER(p.modelSku) LIKE :search
                 OR LOWER(p.series) LIKE :search
                 OR LOWER(b.name) LIKE :search
                 OR LOWER(v.variantSku) LIKE :search'
-            )
-            ->andWhere(
+            ));
+            $qb->setParameter($parameter, '%' . $searchTerm . '%');
+        }
+
+        return (int) $qb->andWhere(
                 '(s.onHand - s.reserved) > 0 OR v.allowBackorder = true'
             )
-            ->setParameter('search', $search)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getSearchTerms(string $query): array
+    {
+        return preg_split('/\s+/u', mb_strtolower(trim($query)), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     }
 
     /**
